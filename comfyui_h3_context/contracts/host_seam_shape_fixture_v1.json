@@ -1,0 +1,41 @@
+{
+  "schema": "h3.context.host_seam_shape_fixture.v1",
+  "profile": "comfyui_host_seams_v1",
+  "subject": {
+    "comfyui_version": "0.38.0",
+    "comfyui_revision": "8cfe5e1ecb97512dea8deaac15e1228d7e6feeb1",
+    "frontend_version": "1.53.6",
+    "fixture_version": 2
+  },
+  "observations": [
+    {"seam_id": "backend.comfy_api.latest", "presence": "present", "kind": "module", "key_shape": "closed_members", "element_kind": "callable", "readiness_state": "ready", "count_bucket": "tens", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "backend.folder_paths.get_filename_list", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "path_string", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_100ms"},
+    {"seam_id": "backend.node_class_mappings", "presence": "present", "kind": "mapping", "key_shape": "node_type", "element_kind": "node_class", "readiness_state": "ready", "count_bucket": "tens", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "backend.node_display_name_mappings", "presence": "present", "kind": "mapping", "key_shape": "node_type", "element_kind": "display_name", "readiness_state": "ready", "count_bucket": "tens", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "backend.prompt_server.routes", "presence": "present", "kind": "route_registry", "key_shape": "closed_members", "element_kind": "route", "readiness_state": "ready", "count_bucket": "tens", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "backend.web_directory", "presence": "present", "kind": "text", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "sub_1kb", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.api.event_target", "presence": "present", "kind": "event_target", "key_shape": "closed_members", "element_kind": "callable", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.api.fetch_api", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.api.file_url", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.api.queue_prompt", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.canvas.keyboard_capture", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.extension_manager.get_sidebar_tabs", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.extension_manager.register_sidebar_tab", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.extension_manager.unregister_sidebar_tab", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.extension_manager.workflow.active_workflow", "presence": "present", "kind": "object", "key_shape": "closed_members", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.extension_manager.workflow.open_workflows", "presence": "present", "kind": "collection", "key_shape": "none", "element_kind": "object", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.graph", "presence": "present", "kind": "object", "key_shape": "closed_members", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.graph.change", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.graph.events", "presence": "present", "kind": "event_target", "key_shape": "closed_members", "element_kind": "callable", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.graph.get_node_by_id", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.graph.serialize", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.graph.set_dirty_canvas", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.graph_to_prompt", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.load_api_json", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.load_graph_data", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.modal_keyboard_guard", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.register_extension", "presence": "present", "kind": "callable", "key_shape": "none", "element_kind": "none", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.app.ui_settings", "presence": "present", "kind": "object", "key_shape": "closed_members", "element_kind": "callable", "readiness_state": "ready", "count_bucket": "one", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"},
+    {"seam_id": "frontend.litegraph.registered_node_types", "presence": "present", "kind": "mapping", "key_shape": "node_type", "element_kind": "node_definition_wrapper", "readiness_state": "ready", "count_bucket": "thousands", "byte_bucket": "not_measured", "latency_bucket": "sub_10ms"}
+  ]
+}

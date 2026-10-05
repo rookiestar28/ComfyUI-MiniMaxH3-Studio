@@ -1,0 +1,363 @@
+{
+  "revision": 0,
+  "last_node_id": 10,
+  "last_link_id": 25,
+  "nodes": [
+    {
+      "id": 10,
+      "type": "f7f37f7a-e0a7-5edc-bf89-fc0e436ba113",
+      "pos": [700, 320],
+      "size": [620, 300],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {"label": "task_mode", "name": "task_mode", "type": "COMBO", "widget": {"name": "task_mode"}, "link": null},
+        {"label": "user_intent", "name": "user_intent", "type": "STRING", "widget": {"name": "user_intent"}, "link": null},
+        {"label": "duration_seconds", "name": "duration_seconds", "type": "FLOAT", "widget": {"name": "duration_seconds"}, "link": null},
+        {"label": "image_1 (<Picture 1>)", "name": "image_1", "type": "IMAGE", "link": null},
+        {"label": "image_2 (<Picture 2>)", "name": "image_2", "type": "IMAGE", "link": null},
+        {"label": "video_1 (<Video 1>)", "name": "video_1", "type": "VIDEO", "link": null},
+        {"label": "audio_1 (<Audio 1>)", "name": "audio_1", "type": "AUDIO", "link": null}
+      ],
+      "outputs": [
+        {"name": "prompt", "type": "H3_PROMPT_STRING", "links": []},
+        {"name": "report", "type": "H3_CONTEXT_REPORT", "links": []},
+        {"name": "native_h3_wiring", "type": "H3_NATIVE_H3_WIRING", "links": []},
+        {"name": "preview", "type": "H3_CONTEXT_PREVIEW", "links": []}
+      ],
+      "properties": {},
+      "widgets_values": ["ref2va", "Preserve the supplied references while the subject walks forward.", 5],
+      "title": "H3 Context Assistant - Reference (manual/local-only)"
+    }
+  ],
+  "links": [],
+  "version": 0.4,
+  "definitions": {
+    "subgraphs": [
+      {
+        "id": "f7f37f7a-e0a7-5edc-bf89-fc0e436ba113",
+        "version": 1,
+        "state": {"lastGroupId": 0, "lastNodeId": 12, "lastLinkId": 30, "lastRerouteId": 0},
+        "revision": 0,
+        "config": {},
+        "name": "H3 Context Assistant - Reference",
+        "inputNode": {"id": -10, "bounding": [0, 0, 220, 180]},
+        "outputNode": {"id": -20, "bounding": [2820, 0, 120, 120]},
+        "inputs": [
+          {"id": "e4b6f9c5-2bf8-4d54-dae1-4a5b6c7d8e93", "name": "task_mode", "type": "COMBO", "linkIds": [15], "localized_name": "task_mode", "label": "task_mode (ref2va)", "pos": [20, 20]},
+          {"id": "f5c7a0d6-3c09-4e65-eb12-5b6c7d8e9fa4", "name": "user_intent", "type": "STRING", "linkIds": [16], "localized_name": "user_intent", "label": "user_intent", "pos": [20, 45]},
+          {"id": "a6d8b1e7-4d1a-4f76-fc23-6c7d8e9fab05", "name": "duration_seconds", "type": "FLOAT", "linkIds": [17], "localized_name": "duration_seconds", "label": "duration_seconds", "pos": [20, 70]},
+          {"id": "b7e9c2f8-5e2b-4087-ad34-7d8e9fab0616", "name": "image_1", "type": "IMAGE", "linkIds": [18, 19], "localized_name": "image_1", "label": "image_1 (<Picture 1>)", "pos": [20, 95]},
+          {"id": "c8f0d3a9-6f3c-4198-be45-8e9fab061727", "name": "image_2", "type": "IMAGE", "linkIds": [20, 21], "localized_name": "image_2", "label": "image_2 (<Picture 2>)", "pos": [20, 120]},
+          {"id": "d9a1e4b0-704d-42a9-cf56-9fab06173838", "name": "video_1", "type": "VIDEO", "linkIds": [22, 23], "localized_name": "video_1", "label": "video_1 (<Video 1>)", "pos": [20, 145]},
+          {"id": "e0b2f5c1-815e-43ba-d067-ab1728394949", "name": "audio_1", "type": "AUDIO", "linkIds": [24, 25], "localized_name": "audio_1", "label": "audio_1 (<Audio 1>)", "pos": [20, 170]}
+        ],
+        "outputs": [
+          {"id": "e4b6f9c5-2bf8-4d54-dae1-4a5b6c7d8e93", "name": "prompt", "type": "H3_PROMPT_STRING", "linkIds": [9], "localized_name": "prompt", "label": "prompt", "pos": [2840, 20]},
+          {"id": "f5c7a0d6-3c09-4e65-ebf2-5b6c7d8e9fa4", "name": "report", "type": "H3_CONTEXT_REPORT", "linkIds": [7], "localized_name": "report", "label": "report", "pos": [2840, 40]},
+          {"id": "a6d8b1e7-4d10-4f76-fc03-6c7d8e9fab15", "name": "native_h3_wiring", "type": "H3_NATIVE_H3_WIRING", "linkIds": [10], "localized_name": "native_h3_wiring", "label": "native_h3_wiring", "pos": [2840, 60]},
+          {"id": "b7e9c2f8-5e2b-4087-ad34-7d8e9fab0616", "name": "preview", "type": "H3_CONTEXT_PREVIEW", "linkIds": [27], "localized_name": "preview", "label": "preview", "pos": [2840, 80]}
+        ],
+        "widgets": [],
+        "nodes": [
+          {
+            "id": 1,
+            "type": "comfyui_h3_context.H3Context.Request",
+            "pos": [40, 40],
+            "size": [360, 180],
+            "flags": {},
+            "order": 0,
+            "mode": 0,
+            "inputs": [
+              {"name": "task_mode", "type": "COMBO", "widget": {"name": "task_mode"}, "link": 15},
+              {"name": "user_intent", "type": "STRING", "widget": {"name": "user_intent"}, "link": 16},
+              {"name": "duration_seconds", "type": "FLOAT", "widget": {"name": "duration_seconds"}, "link": 17}
+            ],
+            "outputs": [{"name": "request", "type": "H3_CONTEXT_REQUEST", "links": [1]}],
+            "properties": {},
+            "widgets_values": ["ref2va", "Preserve the supplied references while the subject walks forward.", 5]
+          },
+          {
+            "id": 10,
+            "type": "GetVideoComponents",
+            "pos": [400, 520],
+            "size": [300, 120],
+            "flags": {},
+            "order": 1,
+            "mode": 0,
+            "inputs": [{"name": "video", "type": "VIDEO", "link": 23}],
+            "outputs": [
+              {"name": "images", "type": "IMAGE", "links": [11]},
+              {"name": "audio", "type": "AUDIO", "links": []}
+            ],
+            "properties": {},
+            "widgets_values": []
+          },
+          {
+            "id": 4,
+            "type": "comfyui_h3_context.H3Context.ReferenceRegistry",
+            "pos": [420, 280],
+            "size": [420, 240],
+            "flags": {},
+            "order": 2,
+            "mode": 0,
+            "inputs": [
+              {"name": "images.image0", "type": "IMAGE", "link": 18},
+              {"name": "images.image1", "type": "IMAGE", "link": 20},
+              {"name": "videos.video0", "type": "VIDEO", "link": 22},
+              {"name": "audios.audio0", "type": "AUDIO", "link": 24}
+            ],
+            "outputs": [{"name": "reference_registry", "type": "H3_REFERENCE_REGISTRY", "links": [2]}],
+            "properties": {},
+            "widgets_values": []
+          },
+          {
+            "id": 5,
+            "type": "comfyui_h3_context.H3Context.Plan",
+            "pos": [900, 40],
+            "size": [380, 220],
+            "flags": {},
+            "order": 3,
+            "mode": 0,
+            "inputs": [
+              {"name": "request", "type": "H3_CONTEXT_REQUEST", "link": 1},
+              {"name": "reference_registry", "type": "H3_REFERENCE_REGISTRY", "link": 2}
+            ],
+            "outputs": [
+              {"name": "plan", "type": "H3_CONTEXT_PLAN", "links": [3, 4]},
+              {"name": "report", "type": "H3_CONTEXT_REPORT", "links": []}
+            ],
+            "properties": {},
+            "widgets_values": []
+          },
+          {
+            "id": 6,
+            "type": "comfyui_h3_context.H3Context.Compiler",
+            "pos": [1320, 40],
+            "size": [380, 220],
+            "flags": {},
+            "order": 4,
+            "mode": 0,
+            "inputs": [{"name": "plan", "type": "H3_CONTEXT_PLAN", "link": 3}],
+            "outputs": [
+              {"name": "prompt", "type": "H3_PROMPT_STRING", "links": []},
+              {"name": "report", "type": "H3_CONTEXT_REPORT", "links": []},
+              {"name": "prompt_document", "type": "H3_PROMPT_DOCUMENT", "links": [5]}
+            ],
+            "properties": {},
+            "widgets_values": []
+          },
+          {
+            "id": 7,
+            "type": "comfyui_h3_context.H3Context.Validator",
+            "pos": [1320, 320],
+            "size": [380, 180],
+            "flags": {},
+            "order": 5,
+            "mode": 0,
+            "inputs": [
+              {"name": "plan", "type": "H3_CONTEXT_PLAN", "link": 4},
+              {"name": "prompt_document", "type": "H3_PROMPT_DOCUMENT", "link": 5}
+            ],
+            "outputs": [
+              {"name": "validation", "type": "H3_VALIDATION_RESULT", "links": []},
+              {"name": "validated_report", "type": "H3_CONTEXT_REPORT", "links": [6, 7, 26, 28]}
+            ],
+            "properties": {},
+            "widgets_values": []
+          },
+          {
+            "id": 8,
+            "type": "comfyui_h3_context.H3Context.NativeH3Adapter",
+            "pos": [1740, 40],
+            "size": [420, 180],
+            "flags": {},
+            "order": 6,
+            "mode": 0,
+            "inputs": [{"name": "report", "type": "H3_CONTEXT_REPORT", "link": 6}],
+            "outputs": [
+              {"name": "prompt", "type": "H3_PROMPT_STRING", "links": []},
+              {"name": "native_h3_wiring", "type": "H3_NATIVE_H3_WIRING", "links": [10, 29]}
+            ],
+            "properties": {},
+            "widgets_values": []
+          },
+          {
+            "id": 12,
+            "type": "comfyui_h3_context.H3Context.ProductShell",
+            "pos": [2200, 360],
+            "size": [420, 180],
+            "flags": {},
+            "order": 7,
+            "mode": 0,
+            "inputs": [
+              {"name": "report", "type": "H3_CONTEXT_REPORT", "link": 28},
+              {"name": "native_h3_wiring", "type": "H3_NATIVE_H3_WIRING", "link": 29}
+            ],
+            "outputs": [
+              {"name": "prompt", "type": "STRING", "links": [30, 9]},
+              {"name": "product_shell", "type": "H3_PRODUCT_SHELL", "links": []}
+            ],
+            "properties": {},
+            "widgets_values": []
+          },
+          {
+            "id": 9,
+            "type": "MiniMaxH3ReferenceToVideo",
+            "pos": [2200, 40],
+            "size": [520, 300],
+            "flags": {},
+            "order": 8,
+            "mode": 0,
+            "inputs": [
+              {"name": "prompt", "type": "STRING", "link": 30},
+              {"name": "width", "type": "INT", "widget": {"name": "width"}, "link": null},
+              {"name": "height", "type": "INT", "widget": {"name": "height"}, "link": null},
+              {"name": "length", "type": "INT", "widget": {"name": "length"}, "link": null},
+              {"name": "ref_image_size", "type": "COMBO", "widget": {"name": "ref_image_size"}, "link": null},
+              {"name": "ref_images.image0", "type": "IMAGE", "link": 19},
+              {"name": "ref_images.image1", "type": "IMAGE", "link": 21},
+              {"name": "ref_videos.video0", "type": "IMAGE", "link": 11},
+              {"name": "ref_audios.audio0", "type": "AUDIO", "link": 25}
+            ],
+            "outputs": [],
+            "properties": {},
+            "widgets_values": [512, 512, 124, "match"]
+          },
+          {
+            "id": 11,
+            "type": "comfyui_h3_context.H3Context.Preview",
+            "pos": [1740, 320],
+            "size": [420, 180],
+            "flags": {},
+            "order": 9,
+            "mode": 0,
+            "inputs": [{"name": "report", "type": "H3_CONTEXT_REPORT", "link": 26}],
+            "outputs": [
+              {"name": "prompt", "type": "H3_PROMPT_STRING", "links": []},
+              {"name": "preview", "type": "H3_CONTEXT_PREVIEW", "links": [27]}
+            ],
+            "properties": {},
+            "widgets_values": []
+          }
+        ],
+        "groups": [],
+        "links": [
+          {"id": 1, "origin_id": 1, "origin_slot": 0, "target_id": 5, "target_slot": 0, "type": "H3_CONTEXT_REQUEST"},
+          {"id": 2, "origin_id": 4, "origin_slot": 0, "target_id": 5, "target_slot": 1, "type": "H3_REFERENCE_REGISTRY"},
+          {"id": 3, "origin_id": 5, "origin_slot": 0, "target_id": 6, "target_slot": 0, "type": "H3_CONTEXT_PLAN"},
+          {"id": 4, "origin_id": 5, "origin_slot": 0, "target_id": 7, "target_slot": 0, "type": "H3_CONTEXT_PLAN"},
+          {"id": 5, "origin_id": 6, "origin_slot": 2, "target_id": 7, "target_slot": 1, "type": "H3_PROMPT_DOCUMENT"},
+          {"id": 6, "origin_id": 7, "origin_slot": 1, "target_id": 8, "target_slot": 0, "type": "H3_CONTEXT_REPORT"},
+          {"id": 7, "origin_id": 7, "origin_slot": 1, "target_id": -20, "target_slot": 1, "type": "H3_CONTEXT_REPORT"},
+          {"id": 9, "origin_id": 12, "origin_slot": 0, "target_id": -20, "target_slot": 0, "type": "H3_PROMPT_STRING"},
+          {"id": 10, "origin_id": 8, "origin_slot": 1, "target_id": -20, "target_slot": 2, "type": "H3_NATIVE_H3_WIRING"},
+          {"id": 11, "origin_id": 10, "origin_slot": 0, "target_id": 9, "target_slot": 10, "type": "IMAGE"},
+          {"id": 26, "origin_id": 7, "origin_slot": 1, "target_id": 11, "target_slot": 0, "type": "H3_CONTEXT_REPORT"},
+          {"id": 27, "origin_id": 11, "origin_slot": 1, "target_id": -20, "target_slot": 3, "type": "H3_CONTEXT_PREVIEW"},
+          {"id": 15, "origin_id": -10, "origin_slot": 0, "target_id": 1, "target_slot": 0, "type": "COMBO"},
+          {"id": 16, "origin_id": -10, "origin_slot": 1, "target_id": 1, "target_slot": 1, "type": "STRING"},
+          {"id": 17, "origin_id": -10, "origin_slot": 2, "target_id": 1, "target_slot": 2, "type": "FLOAT"},
+          {"id": 18, "origin_id": -10, "origin_slot": 3, "target_id": 4, "target_slot": 0, "type": "IMAGE"},
+          {"id": 19, "origin_id": -10, "origin_slot": 3, "target_id": 9, "target_slot": 8, "type": "IMAGE"},
+          {"id": 20, "origin_id": -10, "origin_slot": 4, "target_id": 4, "target_slot": 1, "type": "IMAGE"},
+          {"id": 21, "origin_id": -10, "origin_slot": 4, "target_id": 9, "target_slot": 9, "type": "IMAGE"},
+          {"id": 22, "origin_id": -10, "origin_slot": 5, "target_id": 4, "target_slot": 2, "type": "VIDEO"},
+          {"id": 23, "origin_id": -10, "origin_slot": 5, "target_id": 10, "target_slot": 0, "type": "VIDEO"},
+          {"id": 24, "origin_id": -10, "origin_slot": 6, "target_id": 4, "target_slot": 3, "type": "AUDIO"},
+          {"id": 25, "origin_id": -10, "origin_slot": 6, "target_id": 9, "target_slot": 12, "type": "AUDIO"},
+          {"id": 28, "origin_id": 7, "origin_slot": 1, "target_id": 12, "target_slot": 0, "type": "H3_CONTEXT_REPORT"},
+          {"id": 29, "origin_id": 8, "origin_slot": 1, "target_id": 12, "target_slot": 1, "type": "H3_NATIVE_H3_WIRING"},
+          {"id": 30, "origin_id": 12, "origin_slot": 0, "target_id": 9, "target_slot": 0, "type": "STRING"}
+        ],
+        "extra": {"workflowRendererVersion": "M15-09-assistant-v2"},
+        "category": "H3 Context",
+        "description": "Transparent Reference composition with ordered local media boundaries. Copy/retain/adapt/exclude directives are disclosed but not inferred or executed here."
+      }
+    ]
+  },
+  "h3_context_fixture": {
+    "schema": "h3-context-subgraph-fixture/2",
+    "name": "H3 Context Assistant - Reference",
+    "ux_schema": "h3-context-reference-assistant/1",
+    "expanded_fixture": "workflows/m15_09_assistant_reference.json",
+    "high_value_inputs": ["task_mode", "user_intent", "duration_seconds"],
+    "media_inputs": ["image_1", "image_2", "video_1", "audio_1"],
+    "execution_disclosure": {
+      "execution_route": "manual",
+      "privacy_mode": "local_only",
+      "network": "disabled",
+      "media_transfer": "disabled",
+      "credentials": "none"
+    },
+    "asset_projection": [
+      {"asset_id": "image_1", "role": "reference", "connection_order": 1, "label": "<Picture 1>"},
+      {"asset_id": "image_2", "role": "reference", "connection_order": 2, "label": "<Picture 2>"},
+      {"asset_id": "video_1", "role": "reference", "connection_order": 3, "label": "<Video 1>"},
+      {"asset_id": "audio_1", "role": "audio_source", "connection_order": 4, "label": "<Audio 1>"}
+    ],
+    "directive_disclosure": {
+      "schema": "h3.reference.directives.v1",
+      "supported_actions": ["copy_event", "retain", "adapt", "exclude"],
+      "execution": "not_inferred_or_executed",
+      "owner": "typed_m6_directive_or_full_reference_timeline"
+    },
+    "limitations": [
+      "No observations or directives are inferred from media, filenames, or metadata.",
+      "Media transfer remains disabled; no provider or hosted route is selected.",
+      "Weight-backed native H3 execution remains an explicit downstream host operation."
+    ],
+    "input_projection": [
+      {"external": "task_mode", "internal": ["1", "task_mode"], "link": 15},
+      {"external": "user_intent", "internal": ["1", "user_intent"], "link": 16},
+      {"external": "duration_seconds", "internal": ["1", "duration_seconds"], "link": 17},
+      {"external": "image_1", "internal": ["4", "images.image0"], "link": 18},
+      {"external": "image_2", "internal": ["4", "images.image1"], "link": 20},
+      {"external": "video_1", "internal": ["4", "videos.video0"], "link": 22},
+      {"external": "audio_1", "internal": ["4", "audios.audio0"], "link": 24}
+    ],
+    "direct_media_links": [
+      {"source": "image_1", "target": "9", "target_input": "ref_images.image0", "link": 19},
+      {"source": "image_2", "target": "9", "target_input": "ref_images.image1", "link": 21},
+      {"source": "video_1", "target": "9", "target_input": "ref_videos.video0", "link": 11},
+      {"source": "audio_1", "target": "9", "target_input": "ref_audios.audio0", "link": 25}
+    ],
+    "canonical_projections": {
+      "minimal": {
+        "fixture": "workflows/m3_07_h3_context_reference.json",
+        "graph_fingerprint_parts": ["sha256:b78ba065e640b0e0ca49a13ceb83c6ffff44c800d13d838f5c9aca7c059a52bd"],
+        "output_projection": {"prompt": ["8", 0], "report": ["7", 1], "native_prompt": ["9", "prompt"], "native_report": ["8", 1], "native_node": "9", "terminal_node": "10"},
+        "direct_media_links": [
+          {"source": "2", "source_output": 0, "target": "9", "target_input": "ref_images"},
+          {"source": "3", "source_output": 0, "target": "9", "target_input": "ref_images"}
+        ]
+      },
+      "complex": {
+        "fixture": "workflows/m6_07_h3_context_full_reference.json",
+        "graph_fingerprint_parts": ["sha256:78ebbb27ef821f8afe0b07e43b694b1e4451caaa14e935374f369f04362c643e"],
+        "output_projection": {"prompt": ["11", 0], "report": ["10", 1], "native_prompt": ["12", "prompt"], "native_report": ["11", 1], "native_node": "12", "terminal_node": "13"},
+        "direct_media_links": [
+          {"source": "2", "source_output": 0, "target": "12", "target_input": "ref_images"},
+          {"source": "3", "source_output": 0, "target": "12", "target_input": "ref_images"},
+          {"source": "6", "source_output": 0, "target": "12", "target_input": "ref_videos"},
+          {"source": "5", "source_output": 0, "target": "12", "target_input": "ref_audios"}
+        ]
+      }
+    },
+    "expanded_node_types": [
+      "comfyui_h3_context.H3Context.Request",
+      "GetVideoComponents",
+      "comfyui_h3_context.H3Context.ReferenceRegistry",
+      "comfyui_h3_context.H3Context.Plan",
+      "comfyui_h3_context.H3Context.Compiler",
+      "comfyui_h3_context.H3Context.Validator",
+      "comfyui_h3_context.H3Context.NativeH3Adapter",
+      "comfyui_h3_context.H3Context.ProductShell",
+      "MiniMaxH3ReferenceToVideo",
+      "comfyui_h3_context.H3Context.Preview"
+    ],
+    "output_projection": {"prompt": ["12", 0], "report": ["7", 1], "native_prompt": ["9", "prompt"], "native_report": ["8", 1], "product_shell": ["12", 1], "native_node": "9", "terminal_node": "12"},
+    "graph_fingerprint_parts": ["sha256:1cf0fd671cf9b7cbfbc92e43b925c174106b88019941a5cdce3949dd82e59e85"]
+  }
+}

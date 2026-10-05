@@ -1,0 +1,44 @@
+{
+  "build_type": "h3-context-frontend-offline/1",
+  "builder": {
+    "id": "scripts/frontend_build_report.py"
+  },
+  "bundle": {
+    "path": "comfyui_h3_context/web/h3-context-sidebar.js",
+    "sha256": "sha256:52627dedb062be65993833649db218f8dcaa03b45c1a20198bec535d73d295ca",
+    "size": 1790750
+  },
+  "embedded_identity": {
+    "builder_id": "scripts/frontend_build_report.py",
+    "resolved_dependencies_sha256": "sha256:a78fae3a56e90daa0a4438ae66a3332d06e91e43006c1263703a40e5222057c7",
+    "schema": "h3-context-build-identity/1",
+    "source_commit": "c160d08440732ba4702c8bb289a8a6d0e440467f",
+    "source_inputs_sha256": "sha256:74eee9d38a2f57b3f6248f83306516766d9641f8edc0c36e2bafe82a241911a6",
+    "source_tree": "c68830fa41acf9f5e859a2379ed23af96a691c45"
+  },
+  "external_parameters": {
+    "source_commit": "c160d08440732ba4702c8bb289a8a6d0e440467f",
+    "source_inputs_sha256": "sha256:74eee9d38a2f57b3f6248f83306516766d9641f8edc0c36e2bafe82a241911a6",
+    "source_tree": "c68830fa41acf9f5e859a2379ed23af96a691c45"
+  },
+  "invocation": {
+    "finished_on": "2026-10-05T11:03:12Z",
+    "id": "sha256:88e88d13325a4bab6e703cc4a710eff9129eafae99431cb61fff6d1fe43236eb",
+    "started_on": "2026-10-05T11:03:12Z"
+  },
+  "resolved_dependencies": [
+    {
+      "digest": "sha256:1f79359e37ee2971b30d0e6f0a63110d6f652bf8ada8e293f1355fcb4b931b2f",
+      "uri": "contract:h3-context-contract-inventory/1"
+    },
+    {
+      "digest": "sha256:e2ef0f79f3eff5dc071420f17c32d42eb7d9b599f6b27068faed7c910f1fe6cf",
+      "uri": "contract:h3-context-public-surface/1"
+    },
+    {
+      "uri": "pkg:pypi/comfyui-frontend-package",
+      "version": "1.48.7"
+    }
+  ],
+  "schema": "h3-context-build-provenance/1"
+}

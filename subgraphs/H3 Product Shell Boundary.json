@@ -1,0 +1,97 @@
+{
+  "revision": 0,
+  "last_node_id": 1,
+  "last_link_id": 4,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "bc48dffc-bcbe-5aa6-b596-dc0e1be38efd",
+      "pos": [640, 300],
+      "size": [460, 180],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {"label": "report", "name": "report", "type": "H3_CONTEXT_REPORT", "link": null},
+        {"label": "native_h3_wiring", "name": "native_h3_wiring", "type": "H3_NATIVE_H3_WIRING", "link": null}
+      ],
+      "outputs": [
+        {"name": "prompt", "type": "STRING", "links": []},
+        {"name": "product_shell", "type": "H3_PRODUCT_SHELL", "links": []}
+      ],
+      "properties": {},
+      "widgets_values": [],
+      "title": "H3 Product Shell Boundary (manual-only)"
+    }
+  ],
+  "links": [],
+  "version": 0.4,
+  "definitions": {
+    "subgraphs": [
+      {
+        "id": "bc48dffc-bcbe-5aa6-b596-dc0e1be38efd",
+        "version": 1,
+        "state": {"lastGroupId": 0, "lastNodeId": 1, "lastLinkId": 4, "lastRerouteId": 0},
+        "revision": 0,
+        "config": {},
+        "name": "H3 Product Shell Boundary",
+        "inputNode": {"id": -10, "bounding": [0, 0, 180, 100]},
+        "outputNode": {"id": -20, "bounding": [900, 0, 140, 100]},
+        "inputs": [
+          {"id": "4827c3ae-505c-5d04-855f-34bd1d756d71", "name": "report", "type": "H3_CONTEXT_REPORT", "linkIds": [1], "localized_name": "report", "label": "report", "pos": [20, 20]},
+          {"id": "fbf5b25d-73cb-5835-bcf8-39b1e5f07d28", "name": "native_h3_wiring", "type": "H3_NATIVE_H3_WIRING", "linkIds": [2], "localized_name": "native_h3_wiring", "label": "native_h3_wiring", "pos": [20, 50]}
+        ],
+        "outputs": [
+          {"id": "cf084366-eeda-5ed1-86d1-891b7acbb1cf", "name": "prompt", "type": "STRING", "linkIds": [3], "localized_name": "prompt", "label": "prompt", "pos": [920, 20]},
+          {"id": "d00dc72c-921c-56b4-afeb-e8658865535b", "name": "product_shell", "type": "H3_PRODUCT_SHELL", "linkIds": [4], "localized_name": "product_shell", "label": "product_shell", "pos": [920, 50]}
+        ],
+        "widgets": [],
+        "nodes": [
+          {
+            "id": 1,
+            "type": "comfyui_h3_context.H3Context.ProductShell",
+            "pos": [300, 40],
+            "size": [480, 180],
+            "flags": {},
+            "order": 0,
+            "mode": 0,
+            "inputs": [
+              {"name": "report", "type": "H3_CONTEXT_REPORT", "link": 1},
+              {"name": "native_h3_wiring", "type": "H3_NATIVE_H3_WIRING", "link": 2}
+            ],
+            "outputs": [
+              {"name": "prompt", "type": "STRING", "links": [3]},
+              {"name": "product_shell", "type": "H3_PRODUCT_SHELL", "links": [4]}
+            ],
+            "properties": {},
+            "widgets_values": []
+          }
+        ],
+        "groups": [],
+        "links": [
+          {"id": 1, "origin_id": -10, "origin_slot": 0, "target_id": 1, "target_slot": 0, "type": "H3_CONTEXT_REPORT"},
+          {"id": 2, "origin_id": -10, "origin_slot": 1, "target_id": 1, "target_slot": 1, "type": "H3_NATIVE_H3_WIRING"},
+          {"id": 3, "origin_id": 1, "origin_slot": 0, "target_id": -20, "target_slot": 0, "type": "STRING"},
+          {"id": 4, "origin_id": 1, "origin_slot": 1, "target_id": -20, "target_slot": 1, "type": "H3_PRODUCT_SHELL"}
+        ],
+        "extra": {},
+        "h3_context": {
+          "schema": "h3-context-product-shell-subgraph/1",
+          "product_scope": "MANUAL_ONLY_SCOPED",
+          "fixed_cardinality": "report:1,native_h3_wiring:1",
+          "dynamic_reference_boundary": "parent_visible",
+          "rollback": "remove_this_boundary_and_reconnect_native_adapter_prompt"
+        }
+      }
+    ]
+  },
+  "extra": {},
+  "h3_context_fixture": {
+    "schema": "h3-context-product-shell-subgraph/1",
+    "name": "H3 Product Shell Boundary",
+    "product_scope": "MANUAL_ONLY_SCOPED",
+    "standard_prompt_socket": "STRING",
+    "dynamic_reference_boundary": "parent_visible",
+    "rollback": "remove_this_boundary_and_reconnect_native_adapter_prompt"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "schema": "h3-context-workflow-fixture/1",
+  "fixture_id": "m7-03-audit-override",
+  "fixture_status": "static_model_free_contract",
+  "workflow_format": "comfyui_api_prompt_v1",
+  "host": {
+    "version": "0.32.0",
+    "revision_parts": ["b323a", "345bb", "bfb2f", "3a95b", "5b73b", "68eb7", "919a2", "6515e"],
+    "native_source": "comfy_extras/nodes_minimax_h3.py",
+    "native_source_blob_parts": ["0b184", "0e851", "c248f", "89e99", "20159", "c3c82", "37fa2", "e7186"],
+    "migration_policy": "exact_pinned_revision"
+  },
+  "prompt": {
+    "1": {
+      "class_type": "comfyui_h3_context.H3Context.Request",
+      "inputs": {
+        "task_mode": "t2va",
+        "user_intent": "A red kite crosses the sky while the camera follows its arc.",
+        "duration_seconds": 5
+      }
+    },
+    "2": {
+      "class_type": "comfyui_h3_context.H3Context.Plan",
+      "inputs": {"request": ["1", 0]}
+    },
+    "3": {
+      "class_type": "comfyui_h3_context.H3Context.Compiler",
+      "inputs": {"plan": ["2", 0]}
+    },
+    "4": {
+      "class_type": "comfyui_h3_context.H3Context.AuditOverride",
+      "inputs": {
+        "report": ["3", 1],
+        "base_report_fingerprint": "sha256:7b5ff28811b271868561847f8eda364861618c367c2167678b2249f6bc80978f",
+        "revision": 1,
+        "reason": "Clarify camera motion",
+        "prompt_text": "integrated_multimodal_description: [Shot 1] A red kite crosses the sky while the camera follows its arc, held in a gentle camera arc.\n\noverall_soundscape: Not specified.\n\nnon_diegetic_music: N/A"
+      }
+    },
+    "5": {
+      "class_type": "comfyui_h3_context.H3Context.Validator",
+      "inputs": {
+        "plan": ["2", 0],
+        "prompt_document": ["4", 3]
+      }
+    },
+    "6": {
+      "class_type": "comfyui_h3_context.H3Context.Preview",
+      "inputs": {"report": ["5", 1]}
+    },
+    "7": {
+      "class_type": "comfyui_h3_context.H3Context.NativeH3Adapter",
+      "inputs": {"report": ["5", 1]}
+    },
+    "8": {
+      "class_type": "MiniMaxH3ImageToVideo",
+      "inputs": {
+        "prompt": ["7", 0],
+        "width": 512,
+        "height": 512,
+        "length": 124
+      }
+    }
+  },
+  "expected": {
+    "task_mode": "t2va",
+    "pipeline_node_ids": ["1", "2", "3", "4", "5", "6", "7"],
+    "output_projection": {
+      "prompt": ["7", 0],
+      "report": ["5", 1],
+      "preview": ["6", 1],
+      "validation": ["5", 0],
+      "native_prompt": ["8", "prompt"],
+      "native_report": ["7", 1],
+      "native_node": "8"
+    },
+    "direct_media_links": [],
+    "base_report_fingerprint": "sha256:7b5ff28811b271868561847f8eda364861618c367c2167678b2249f6bc80978f",
+    "edited_prompt_fingerprint": "sha256:fbdfd60f6e4c09ccedd86b8d5a1607fc6c8e98c49e10a90fb735cd210db9e5b4",
+    "override_projection": {
+      "prompt_fingerprint": "sha256:fbdfd60f6e4c09ccedd86b8d5a1607fc6c8e98c49e10a90fb735cd210db9e5b4",
+      "report_fingerprint": "sha256:a0e4a8d94debeefbe3d9ab41002b5dabf9fda1035634cb3a3ac3fd41aa8ca9a6"
+    },
+    "validated_projection": {
+      "report_fingerprint": "sha256:41b2fd128a396b175a37b9ef9d47604c6b7c4e485f8b0634b0c85b9eef07f198",
+      "status": "passed",
+      "validator_version": "h3-context-m10-05"
+    },
+    "graph_fingerprint_parts": ["sha256:9de787d9e2b7f58aceafc7539aab1fb4570cffbda092b96fa4e5d0c80965dcf3"]
+  }
+}

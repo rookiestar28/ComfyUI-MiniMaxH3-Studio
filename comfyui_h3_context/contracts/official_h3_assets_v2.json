@@ -1,0 +1,108 @@
+{
+  "schema": "h3.context.official_assets.v2",
+  "policy_id": "template_default_then_manifest_order_v1",
+  "profile_families": {
+    "image_to_video": ["video_unet", "text_encoder", "video_vae", "audio_vae"],
+    "reference_to_video": [
+      "reference_unet",
+      "text_encoder",
+      "video_vae",
+      "audio_vae"
+    ]
+  },
+  "materialization_families": {
+    "image_to_video": [
+      "video_unet",
+      "text_encoder",
+      "video_vae",
+      "audio_vae",
+      "image_turbo_lora"
+    ],
+    "reference_to_video": [
+      "reference_unet",
+      "text_encoder",
+      "video_vae",
+      "audio_vae",
+      "reference_turbo_lora"
+    ]
+  },
+  "slots": [
+    {
+      "slot": "video_unet",
+      "folder_category": "diffusion_models",
+      "loader_type": "UNETLoader",
+      "widget_name": "unet_name",
+      "template_default": "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+      "accepted_basenames": [
+        "minimax_h3_fl2va_bf16.safetensors",
+        "minimax_h3_fl2va_int8_convrot.safetensors",
+        "minimax_h3_fl2va_pruned_bf16.safetensors",
+        "minimax_h3_fl2va_pruned_fp8_scaled.safetensors",
+        "minimax_h3_fl2va_pruned_int8_convrot.safetensors"
+      ]
+    },
+    {
+      "slot": "reference_unet",
+      "folder_category": "diffusion_models",
+      "loader_type": "UNETLoader",
+      "widget_name": "unet_name",
+      "template_default": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+      "accepted_basenames": [
+        "minimax_h3_ref2va_bf16.safetensors",
+        "minimax_h3_ref2va_int8_convrot.safetensors",
+        "minimax_h3_ref2va_pruned_bf16.safetensors",
+        "minimax_h3_ref2va_pruned_fp8_scaled.safetensors",
+        "minimax_h3_ref2va_pruned_int8_convrot.safetensors"
+      ]
+    },
+    {
+      "slot": "text_encoder",
+      "folder_category": "text_encoders",
+      "loader_type": "CLIPLoader",
+      "widget_name": "clip_name",
+      "template_default": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "accepted_basenames": [
+        "qwen3vl_32b_minimax_h3_bf16.safetensors",
+        "qwen3vl_32b_minimax_h3_int8_convrot.safetensors",
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors"
+      ]
+    },
+    {
+      "slot": "video_vae",
+      "folder_category": "vae",
+      "loader_type": "VAELoader",
+      "widget_name": "vae_name",
+      "template_default": "minimax_h3_video_vae_fp16.safetensors",
+      "accepted_basenames": ["minimax_h3_video_vae_fp16.safetensors"]
+    },
+    {
+      "slot": "audio_vae",
+      "folder_category": "vae",
+      "loader_type": "VAELoader",
+      "widget_name": "vae_name",
+      "template_default": "minimax_h3_audio_vae_fp32.safetensors",
+      "accepted_basenames": ["minimax_h3_audio_vae_fp32.safetensors"]
+    },
+    {
+      "slot": "image_turbo_lora",
+      "folder_category": "loras",
+      "loader_type": "LoraLoaderModelOnly",
+      "widget_name": "lora_name",
+      "template_default": "minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors",
+      "accepted_basenames": [
+        "minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors",
+        "minimax_h3_fl2v_turbo_4step_v1.0_768p_comfyui_bf16.safetensors"
+      ]
+    },
+    {
+      "slot": "reference_turbo_lora",
+      "folder_category": "loras",
+      "loader_type": "LoraLoaderModelOnly",
+      "widget_name": "lora_name",
+      "template_default": "minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors",
+      "accepted_basenames": [
+        "minimax_h3_ref2v_turbo_4step_v0.1_comfyui_bf16.safetensors"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2862 @@
+/* M25-16 expanded workspace. Rendered inside the owned overlay root (which carries `h3c`), so
+   every colour, spacing and type value is an existing design token from tokens.css; this file
+   adds only layout. It ships inline inside the overlay and never enters the sidebar budget. */
+.h3-nle-backdrop {
+  /* M25-61: NLE role tokens. Aliases of tokens.css only -- no new colour enters the palette, the
+     light theme follows automatically, and tests/nleRoleTokens.test.ts audits these pairs. */
+  --h3-nle-accent: var(--h3-accent);
+  --h3-nle-playhead: var(--h3-tone-warn);
+  --h3-nle-selection: var(--h3-text-primary);
+  --h3-nle-track-band: color-mix(
+    in srgb,
+    var(--h3-surface-1) 50%,
+    var(--h3-surface-2)
+  );
+  --h3-nle-waveform: var(--h3-tone-ok);
+  --h3-nle-text-clip: var(--h3-tone-info);
+  --h3-nle-label-backing: color-mix(in srgb, var(--h3-well) 80%, transparent);
+  /* M25-61 control targets (nleReferenceUiContract `controlTargetPx`): 30 px under a fine
+     pointer, 44 px under a coarse one; never below 24 px anywhere in the editor. */
+  --h3-nle-target: 30px;
+  --h3-nle-ruler-height: 26px;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--h3-canvas) 72%, transparent);
+}
+@media (pointer: coarse) {
+  .h3-nle-backdrop {
+    --h3-nle-target: 44px;
+    --h3-nle-ruler-height: 44px;
+  }
+}
+.h3-nle-dialog {
+  position: relative;
+  display: grid;
+  /* IMPORTANT (M25-45 B-M2545-09): the column is stated, not left implicit. An implicit `auto`
+     track takes the widest row's min-content as its floor, so the chrome bar -- one nowrap flex
+     row -- sized the whole dialog to its own content below the scroll floor and pushed the Close
+     button outside the workspace. Bounded at `minmax(0, 1fr)` the bar is squeezed to the dialog
+     instead, and its own items then shrink and ellipsize as their rules already say. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  color: var(--h3-text-body);
+  font: 0.875rem/1.45 var(--h3-font, system-ui, sans-serif);
+  background: var(--h3-surface-1);
+  border: 1px solid var(--h3-line-strong);
+  border-radius: var(--h3-radius-panel);
+  box-shadow: var(--h3-lift-shadow, 0 18px 48px rgba(0, 0, 0, 0.55));
+}
+.h3-nle-dialog *,
+.h3-nle-dialog *::before,
+.h3-nle-dialog *::after {
+  box-sizing: border-box;
+}
+.h3-nle-dialog h2,
+.h3-nle-dialog h3,
+.h3-nle-dialog h4,
+.h3-nle-dialog p,
+.h3-nle-dialog ul,
+.h3-nle-dialog ol,
+.h3-nle-dialog dl,
+.h3-nle-dialog dd {
+  margin: 0;
+}
+.h3-nle-dialog ul,
+.h3-nle-dialog ol {
+  padding: 0;
+  list-style: none;
+}
+.h3-nle-dialog button,
+.h3-nle-dialog select,
+.h3-nle-dialog input,
+.h3-nle-dialog textarea {
+  min-width: 0;
+  font: inherit;
+  color: var(--h3-text-primary);
+  background: var(--h3-control);
+  border: 1px solid var(--h3-control-border);
+  border-radius: var(--h3-radius-control, 0.25rem);
+}
+/* IMPORTANT (M25-61): the editor's control floor is `--h3-nle-target` -- 30 px under a fine
+   pointer, 44 px under a coarse pointer (the M25-21 touch floor, kept for touch), and never below
+   24 x 24 CSS px (WCAG 2.2 AA 2.5.8) anywhere. The contract field is
+   `NLE_REFERENCE_UI_CONTRACT_V1.controlTargetPx`. Do not shrink a control below the floor to fit
+   a denser layout; the hardening cases (coarse, `hasTouch`) and the reference-shell cases (fine)
+   measure the rendered box in each mode. */
+.h3-nle-dialog button {
+  min-width: var(--h3-nle-target);
+  min-height: var(--h3-nle-target);
+  padding: 0.375rem 0.75rem;
+}
+.h3-nle-dialog button[aria-pressed="true"] {
+  border-color: var(--h3-page-outline-production);
+  box-shadow: inset 0 -2px 0 var(--h3-page-outline-production);
+}
+.h3-nle-dialog button:disabled,
+.h3-nle-dialog input:disabled,
+.h3-nle-dialog select:disabled {
+  color: var(--h3-text-dim);
+  cursor: not-allowed;
+}
+.h3-nle-dialog input,
+.h3-nle-dialog select,
+.h3-nle-dialog textarea {
+  min-height: 44px;
+  padding: 0.25rem 0.5rem;
+  background: var(--h3-well);
+}
+.h3-nle-dialog :focus-visible {
+  outline: 2px solid var(--h3-page-outline-production);
+  outline-offset: 2px;
+}
+.h3-nle-dialog [hidden] {
+  display: none !important;
+}
+/* The editor's one slider: a thin rail, the part from the range's origin to the thumb in the
+   accent, and a round thumb in the primary text colour. The input keeps its target height; only
+   the rail is thin.
+   The filled part is stated by the component as two fractions of the span, `--h3-range-from` and
+   `--h3-range-to` (`rangeFill`); a range without them has no fill. The thumb's centre travels
+   from half a thumb inside one end to half a thumb inside the other, so a fraction f lies at
+   half + (100% - thumb) * f. A fill that starts at the range's minimum starts at the rail's own
+   end instead (the `min()` term is 0 at f = 0 and half a thumb otherwise), so no unfilled stub
+   shows left of it. */
+.h3c .h3-nle-dialog input[type="range"] {
+  --h3-range-rail-size: 4px;
+  --h3-range-thumb: 12px;
+  --h3-range-rail: var(--h3-line-subtle);
+  --h3-range-half: calc(var(--h3-range-thumb) / 2);
+  --h3-range-fill: linear-gradient(
+    to right,
+    var(--h3-range-rail)
+      calc(
+        min(var(--h3-range-from, 0) * 100000px, var(--h3-range-half)) +
+          (100% - var(--h3-range-thumb)) * var(--h3-range-from, 0)
+      ),
+    var(--h3-nle-accent) 0,
+    var(--h3-nle-accent)
+      calc(
+        min(var(--h3-range-to, 0) * 100000px, var(--h3-range-half)) +
+          (100% - var(--h3-range-thumb)) * var(--h3-range-to, 0)
+      ),
+    var(--h3-range-rail) 0
+  );
+  min-width: 0;
+  min-height: var(--h3-nle-target);
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  appearance: none;
+}
+.h3c .h3-nle-dialog input[type="range"]::-webkit-slider-runnable-track {
+  height: var(--h3-range-rail-size);
+  background: var(--h3-range-fill);
+  border-radius: calc(var(--h3-range-rail-size) / 2);
+}
+.h3c .h3-nle-dialog input[type="range"]::-moz-range-track {
+  height: var(--h3-range-rail-size);
+  background: var(--h3-range-fill);
+  border-radius: calc(var(--h3-range-rail-size) / 2);
+}
+.h3c .h3-nle-dialog input[type="range"]::-webkit-slider-thumb {
+  width: var(--h3-range-thumb);
+  height: var(--h3-range-thumb);
+  margin-top: calc((var(--h3-range-rail-size) - var(--h3-range-thumb)) / 2);
+  background: var(--h3-text-primary);
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--h3-well) 45%, transparent);
+  transition: box-shadow 120ms ease;
+  appearance: none;
+}
+.h3c .h3-nle-dialog input[type="range"]::-moz-range-thumb {
+  width: var(--h3-range-thumb);
+  height: var(--h3-range-thumb);
+  background: var(--h3-text-primary);
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--h3-well) 45%, transparent);
+}
+.h3c
+  .h3-nle-dialog
+  input[type="range"]:hover:not(:disabled)::-webkit-slider-thumb,
+.h3c
+  .h3-nle-dialog
+  input[type="range"]:active:not(:disabled)::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px
+    color-mix(in srgb, var(--h3-nle-accent) 28%, transparent);
+}
+.h3c .h3-nle-dialog input[type="range"]:hover:not(:disabled)::-moz-range-thumb,
+.h3c
+  .h3-nle-dialog
+  input[type="range"]:active:not(:disabled)::-moz-range-thumb {
+  box-shadow: 0 0 0 4px
+    color-mix(in srgb, var(--h3-nle-accent) 28%, transparent);
+}
+.h3c .h3-nle-dialog input[type="range"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+/* M25-63: the top bar is one 40 px row (`NLE_REFERENCE_UI_CONTRACT_V1.topBarHeightPx`) of the
+   title, the save indicator, a flexible space, Export and Close; nothing in it wraps. Its controls
+   keep the editor's target floor, so under a coarse pointer the row grows to the 44 px targets. */
+.h3-nle-header {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+  padding: 0 5px 0 16px;
+  /* B-M2563-12: as in the canvas, the bar sits on the page colour with no rule under it; the
+     areas below are the panels. */
+  background: var(--h3-canvas);
+}
+.h3-nle-header h2 {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--h3-text-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.h3-nle-header h2:focus-visible {
+  outline-offset: -2px;
+}
+.h3-nle-header-space {
+  flex: 1 1 0;
+  min-width: 0;
+}
+/* R9: an icon and a short label. The full sentence is its tooltip and the timeline's live region;
+   no revision number is ever shown. */
+.h3-nle-save {
+  display: inline-flex;
+  flex: 0 1 auto;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--h3-text-muted);
+  font-size: 0.6875rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.h3-nle-dialog .h3-nle-save svg.h3-icon {
+  width: 13px;
+  height: 13px;
+}
+.h3-nle-save[data-h3-nle-save-tone="ok"] svg {
+  color: var(--h3-tone-ok);
+}
+.h3-nle-save[data-h3-nle-save-tone="warning"] {
+  color: var(--h3-tone-danger);
+}
+.h3-nle-header > button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.h3-nle-header > .h3-nle-export {
+  padding: 0 12px;
+  font-size: 0.75rem;
+}
+.h3-nle-header > .h3-nle-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--h3-nle-target);
+  height: var(--h3-nle-target);
+  padding: 0;
+  color: var(--h3-text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+}
+.h3-nle-header > .h3-nle-close:hover {
+  color: var(--h3-text-primary);
+  background: var(--h3-control);
+}
+.h3-nle-status {
+  color: var(--h3-text-muted);
+  font-size: 0.75rem;
+}
+.h3-nle-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.h3-nle-dialog svg.h3-icon {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+}
+.h3-nle-popover {
+  position: absolute;
+  top: 48px;
+  right: 8px;
+  z-index: 20;
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  width: min(440px, calc(100% - 16px));
+  max-height: calc(100% - 56px);
+  padding: 0.75rem;
+  overflow: auto;
+  background: var(--h3-surface-2);
+  border: 1px solid var(--h3-line-strong);
+  border-radius: var(--h3-radius-panel);
+  box-shadow: var(--h3-lift-shadow, 0 18px 48px rgba(0, 0, 0, 0.55));
+}
+/* M25-44 reference shell (master plan sections 2.1 and 5.1). The stage is the only scroll
+   container; the shell below it never shrinks past the scroll floor (688 x 404). */
+.h3-nle-stage {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  background: var(--h3-canvas, var(--h3-well));
+}
+.h3-nle-shell {
+  display: grid;
+  grid-template-columns: var(--h3-nle-r1) 4px minmax(0, 1fr) 4px var(
+      --h3-nle-r3
+    );
+  grid-template-rows: var(--h3-nle-top) 4px minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  min-width: 688px;
+  min-height: 404px;
+}
+.h3-nle-area {
+  position: relative;
+  z-index: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--h3-panel-1);
+  /* M25-64 (A64-6): the canvas draws each region as a rounded panel on the page colour. */
+  border-radius: 6px;
+}
+.h3-nle-area[data-h3-nle-area="bin"] {
+  grid-column: 1;
+  grid-row: 1;
+}
+.h3-nle-area[data-h3-nle-area="monitor"] {
+  grid-column: 3;
+  grid-row: 1;
+}
+.h3-nle-area[data-h3-nle-area="inspector"] {
+  grid-column: 5;
+  grid-row: 1;
+}
+.h3-nle-area[data-h3-nle-area="timeline"] {
+  grid-column: 1 / -1;
+  grid-row: 3;
+}
+.h3-nle-gutter {
+  position: relative;
+  z-index: 5;
+  min-width: 0;
+  min-height: 0;
+}
+.h3-nle-gutter[data-h3-nle-gutter="bin_monitor"] {
+  grid-row: 1;
+  grid-column: 2;
+}
+.h3-nle-gutter[data-h3-nle-gutter="monitor_inspector"] {
+  grid-row: 1;
+  grid-column: 4;
+}
+.h3-nle-gutter[data-h3-nle-gutter="top_timeline"] {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+/* IMPORTANT: the separator is the 44 px target (M25-21 floor) centred on the 4 px gutter, so it
+   overlaps each neighbour by 20 px. It is transparent there and draws only the 4 px line; do not
+   shrink it to the gutter, which the target-size measurement would reject. */
+.h3-nle-dialog .h3-nle-splitter {
+  position: absolute;
+  touch-action: none;
+  background: transparent;
+}
+.h3-nle-splitter[data-orientation="vertical"] {
+  top: 0;
+  bottom: 0;
+  left: -20px;
+  width: 44px;
+  cursor: col-resize;
+}
+.h3-nle-splitter[data-orientation="horizontal"] {
+  top: -20px;
+  right: 0;
+  left: 0;
+  height: 44px;
+  cursor: row-resize;
+}
+.h3-nle-splitter::after {
+  position: absolute;
+  /* M25-64 (A64-6): at rest the 4 px gutter shows the page colour between the panels, as the
+     canvas draws it; the line appears on hover, focus and drag below. */
+  background: transparent;
+  content: "";
+}
+.h3-nle-splitter[data-orientation="vertical"]::after {
+  top: 0;
+  bottom: 0;
+  left: 20px;
+  width: 4px;
+}
+.h3-nle-splitter[data-orientation="horizontal"]::after {
+  top: 20px;
+  right: 0;
+  left: 0;
+  height: 4px;
+}
+.h3-nle-splitter:hover::after,
+.h3-nle-splitter:focus-visible::after,
+.h3-nle-splitter:active::after {
+  background: var(--h3-page-outline-production);
+}
+.h3-nle-dialog .h3-nle-splitter:focus-visible {
+  outline-offset: -2px;
+}
+.h3-nle-bin {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+}
+/* M25-63: icon-over-label tabs sharing the bin width equally ((bin - 16) / 3, at least 48 px at
+   the 160 px bin minimum); the selected tab is underlined in the accent. */
+.h3-nle-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--h3-line-subtle);
+}
+.h3-nle-dialog .h3-nle-tabs button {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 6px 2px 4px;
+  color: var(--h3-text-muted);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+.h3-nle-dialog .h3-nle-tabs button[aria-selected="true"] {
+  color: var(--h3-nle-accent);
+  border-bottom-color: var(--h3-nle-accent);
+  box-shadow: none;
+}
+.h3-nle-tab-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.h3-nle-area-scroll {
+  min-width: 0;
+  min-height: 0;
+  padding: 0.5rem;
+  overflow: auto;
+}
+/* A region narrower than its content's own minimum scrolls inside itself. */
+.h3-nle-sequence-home {
+  min-width: 240px;
+}
+/* M25-63: the media pane is the bin (toolbar, count line, cards) over the bin-foot notice slot.
+   It is a size container so the toolbar can fold below 240 px (R7: four 30 px icons and three
+   gaps are 132 px, and the search field takes its own row). */
+/* IMPORTANT (B-M2564-02): 8 px more on the right, beside the bin/monitor splitter's 20 px overlap.
+   Without it the view toggle kept 17 of its 30 px and a right-hand card's "+" 17 of its 24 px
+   clear of the separator. The left, at the dialog edge, keeps the 8 px the R7 toolbar arithmetic at
+   the 160 px bin minimum needs (160 - 8 - 16 = 136 >= 132). */
+.h3-nle-media-home {
+  container-type: inline-size;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 100%;
+  padding-inline-end: 8px;
+}
+.h3-nle-media-bin {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.h3-nle-media-controls {
+  display: grid;
+  gap: 4px;
+  padding: 4px 0 8px;
+}
+.h3-nle-media-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.h3-nle-media-search {
+  display: flex;
+  flex: 1 1 96px;
+  align-items: stretch;
+  gap: 6px;
+  min-width: 0;
+  min-height: var(--h3-nle-target);
+  padding: 0 8px;
+  color: var(--h3-text-muted);
+  background: var(--h3-well);
+  border-radius: var(--h3-radius-control, 0.25rem);
+  box-shadow: inset 0 0 0 1px var(--h3-line-subtle);
+}
+.h3-nle-media-search:focus-within {
+  outline: 2px solid var(--h3-page-outline-production);
+  outline-offset: 1px;
+}
+/* IMPORTANT (B-M2563-03): four classes and an element. `.h3c :is(input:not([type="checkbox"])
+   :not([type="radio"]), textarea)` in tokens.css scores (0,3,1) and draws its own frame and well,
+   which put a second border inside this field. The input is the whole target, so it stretches to
+   the field's height. */
+.h3-nle-dialog
+  .h3-nle-media-search
+  input:not([type="checkbox"]):not([type="radio"]) {
+  flex: 1 1 auto;
+  width: 0;
+  min-height: var(--h3-nle-target);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
+}
+.h3-nle-dialog .h3-nle-media-search svg.h3-icon {
+  align-self: center;
+  width: 14px;
+  height: 14px;
+}
+/* IMPORTANT (B-M2563-03): the bin's chrome-less buttons (tabs, icon buttons, the card, "+" and
+   "…"), the top bar's Close and the resize grip carry `data-h3-plain`. `.h3c :is(button, select)
+   :not([data-h3-plain])` in tokens.css scores (0,2,1) and paints a frame, a lift shadow and a
+   control face on every button in the sidebar tree, which this editor sits in; two-class rules
+   here lose to it. The opt-out drops that family, so the states it carried are restated here. */
+.h3-nle-dialog :where(button[data-h3-plain]:not(:disabled)) {
+  cursor: pointer;
+}
+.h3-nle-dialog :where(button[data-h3-plain]:disabled) {
+  cursor: not-allowed;
+}
+/* The bin's icon buttons: sort and filter, and the grid and list pair (D-8). */
+.h3-nle-dialog .h3-nle-bin-icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--h3-nle-target);
+  min-height: var(--h3-nle-target);
+  padding: 0;
+  color: var(--h3-text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+}
+.h3-nle-dialog .h3-nle-bin-icon:hover,
+.h3-nle-dialog .h3-nle-bin-icon[aria-expanded="true"] {
+  color: var(--h3-text-primary);
+  background: var(--h3-control);
+}
+.h3-nle-dialog .h3-nle-bin-icon[aria-pressed="true"] {
+  color: var(--h3-text-primary);
+  background: var(--h3-control);
+  border-color: transparent;
+  box-shadow: none;
+}
+.h3-nle-media-views {
+  display: inline-flex;
+  gap: 2px;
+}
+/* The editor's Import (`ImportToEditor` variant "toolbar"): its wrapper lays out nothing, so the
+   import button, and a retry or open action when one exists, sit in the toolbar row itself. */
+.h3-nle-import {
+  display: contents;
+}
+.h3-nle-dialog .h3-nle-import-button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+}
+.h3-nle-media-count {
+  color: var(--h3-text-muted);
+  font-size: 0.6875rem;
+}
+@container (max-width: 239px) {
+  .h3-nle-media-search {
+    flex-basis: 100%;
+    order: 1;
+  }
+  .h3-nle-dialog .h3-nle-import-button {
+    justify-content: center;
+    width: var(--h3-nle-target);
+    padding: 0;
+  }
+  .h3-nle-import-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+.h3-nle-media-scroll {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+/* IMPORTANT (M25-63, R7): `grid-auto-rows` is `CARD_ROW_HEIGHT` in NleMediaBin.tsx and the column
+   gap is its `CARD_GAP`. The virtualizer's spacers assume exactly this row height; change both
+   together or scrolled cards drift from their spacers. */
+.h3-nle-media-grid {
+  display: grid;
+  grid-auto-rows: 128px;
+  gap: 0 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.h3-nle-media-grid > li {
+  position: relative;
+  min-width: 0;
+}
+.h3-nle-dialog .h3-nle-media-primary {
+  display: grid;
+  grid-template-rows: 84px auto auto;
+  align-content: start;
+  gap: 4px;
+  width: 100%;
+  min-height: 0;
+  padding: 0;
+  text-align: left;
+  background: transparent;
+  border: 0;
+}
+.h3-nle-media-art {
+  position: relative;
+  display: block;
+  height: 84px;
+  overflow: hidden;
+  background: var(--h3-surface-3);
+  border-radius: 6px;
+}
+.h3-nle-media-primary:hover .h3-nle-media-art,
+.h3-nle-media-primary:focus-visible .h3-nle-media-art {
+  box-shadow: 0 0 0 1px var(--h3-nle-accent);
+}
+.h3-nle-media-primary canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.h3-nle-media-primary strong {
+  overflow: hidden;
+  color: var(--h3-text-primary);
+  font-size: 0.75rem;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Pills: at most half the thumbnail each, less their insets, so they can never overlap. */
+.h3-nle-media-art-badge {
+  position: absolute;
+  top: 6px;
+  max-width: calc(50% - 9px);
+  overflow: hidden;
+  padding: 1px 6px;
+  color: var(--h3-text-primary);
+  background: var(--h3-nle-label-backing);
+  border-radius: 4px;
+  font-size: 0.625rem;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.h3-nle-media-art-added {
+  left: 6px;
+}
+.h3-nle-media-art-duration {
+  right: 6px;
+  font-family: var(--h3-font-mono, ui-monospace, monospace);
+}
+.h3-nle-thumbnail-status {
+  min-height: 1lh;
+  color: var(--h3-text-dim);
+  font-size: 0.6875rem;
+}
+/* "+" over the thumbnail's lower right corner: shown on hover and on focus within the card, and
+   always under a coarse pointer, where it is a 44 px target. */
+.h3-nle-dialog .h3-nle-media-add {
+  position: absolute;
+  top: 54px;
+  right: 6px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  padding: 0;
+  color: var(--h3-accent-text);
+  background: var(--h3-nle-accent);
+  border: 0;
+  border-radius: 12px;
+  opacity: 0;
+}
+.h3-nle-media-grid > li:hover .h3-nle-media-add,
+.h3-nle-media-grid > li:focus-within .h3-nle-media-add {
+  opacity: 1;
+}
+.h3-nle-dialog .h3-nle-media-list .h3-nle-media-primary {
+  grid-template-columns: 112px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 8px;
+}
+.h3-nle-media-list .h3-nle-media-art {
+  grid-row: span 2;
+}
+.h3-nle-dialog .h3-nle-media-list .h3-nle-media-add {
+  right: auto;
+  left: 82px;
+}
+/* The card menu's inline trigger exists for a coarse pointer only (no right-click there). */
+.h3-nle-dialog .h3-nle-media-more {
+  display: none;
+}
+@media (pointer: coarse) {
+  .h3-nle-dialog .h3-nle-media-add,
+  .h3-nle-dialog .h3-nle-media-more {
+    top: 36px;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    border-radius: 22px;
+    opacity: 1;
+  }
+  .h3-nle-dialog .h3-nle-media-more {
+    position: absolute;
+    right: 54px;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: var(--h3-text-primary);
+    background: var(--h3-nle-label-backing);
+    border: 0;
+  }
+  .h3-nle-dialog .h3-nle-media-list .h3-nle-media-add {
+    left: 64px;
+  }
+  .h3-nle-dialog .h3-nle-media-list .h3-nle-media-more {
+    right: auto;
+    left: 16px;
+  }
+}
+.h3-nle-bin-foot {
+  display: grid;
+  gap: 6px;
+  padding-top: 8px;
+}
+.h3-nle-bin-foot:empty {
+  display: none;
+}
+.h3-nle-bin-foot > .h3p-meta {
+  padding: 8px 10px;
+  color: var(--h3-text-primary);
+  background: var(--h3-surface-3);
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
+.h3-nle-text-bin button,
+.h3-nle-text-bin input,
+.h3-nle-text-bin select {
+  min-height: var(--h3-nle-target);
+}
+.h3-nle-text-bin {
+  display: grid;
+  gap: 0.625rem;
+  min-width: 200px;
+}
+.h3-nle-text-bin label {
+  display: grid;
+  gap: 0.25rem;
+}
+.h3-nle-timeline-area {
+  display: grid;
+  /* IMPORTANT: the timeline row's minimum is the section's min-content, stated explicitly. A
+     zero minimum (`minmax(0, 1fr)`) and the implicit `auto` minimum of a bare `1fr` (defeated
+     by the section's own `min-height`) both let a short R4 size the section below its fixed
+     rows, and the section then paints its help line over the status row beneath it instead of
+     this area scrolling. This minimum is only the fixed rows because `.h3-nle-tracks` declares
+     `contain: size`; without that containment the min-content of the section includes every
+     track row, the tracks grid stops scrolling and the region overflows the viewport. */
+  grid-template-rows: minmax(min-content, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+/* M25-64 (rows #25-#27, R7): a 36 px header, the picture area, and one transport row. R7's height
+   budget at the 480 px overlay minimum: 36 + 46 leaves the picture area at least 183 px. There is
+   still no seek row; M25-46 gave seek authority to the timeline ruler. */
+.h3-nle-monitor {
+  position: relative;
+  /* The transport's layout depends on this pane's width, not on the shell's tier: at 960 x 600 the
+     shell is still `standard` while the monitor pane is 314 px. Query the pane itself. */
+  container-type: inline-size;
+  container-name: h3-monitor;
+  display: grid;
+  grid-template-rows: 36px minmax(0, 1fr) auto;
+  min-height: 0;
+  background: var(--h3-surface-1);
+}
+/* The monitor alone fills the screen; its own background must cover it, not the page behind. */
+.h3-nle-monitor:fullscreen {
+  background: var(--h3-surface-1);
+}
+/* M25-64 (row #26): "Preview" and the output's `W × H · N fps`, muted, on one line. */
+.h3-nle-monitor-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0 14px;
+  overflow: hidden;
+  color: var(--h3-text-muted);
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.h3-nle-monitor-header > [data-h3-nle-monitor-facts] {
+  min-width: 0;
+  margin-inline-start: auto;
+  overflow: hidden;
+  color: var(--h3-text-dim);
+  font-size: 11px;
+  text-overflow: ellipsis;
+}
+/* M25-45: the picture area is the row the monitor gives the image, and the canvas inside it is the
+   picture -- the largest rectangle of the composition's aspect ratio the area holds, centred, in
+   CSS pixels set from the measurement in `nleMonitorGeometry.ts`.
+
+   IMPORTANT: the area is what `ResizeObserver` watches, so nothing inside it may size the area
+   back. It is a grid row of a fixed track (`minmax(0, 1fr)`) with `min-height: 0` and its content
+   is absolutely irrelevant to its height; giving the canvas `height: 100%` here instead, or letting
+   the area shrink-wrap the canvas, closes a measure-resize-measure loop that oscillates by a pixel
+   for as long as the monitor is open. */
+.h3-nle-picture {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  /* IMPORTANT (B-M2564-02): the canvas's 8 px. The side splitters overlap the monitor by 20 px
+     (M25-21), so the picture's outer 12 px on each side lie under a separator. A wider margin
+     cannot clear them: 22 px would cost a width-limited picture 28 px and break AC45-01's 700 px
+     at the reference layout. The transform handles move instead (`handleInsets`). */
+  margin: 0 8px;
+  overflow: hidden;
+  /* M25-64: the recessed well around the picture; the picture itself is the raised surface. */
+  background: var(--h3-well);
+  border-radius: 6px;
+}
+.h3-nle-picture > canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  background: var(--h3-surface-2);
+}
+/* M25-51: the transform box is a DOM sibling of the canvas. It may never become canvas input or
+   affect picture measurement; only its 44 px controls receive pointer events. */
+.h3-nle-transform-overlay {
+  position: absolute;
+  z-index: 1;
+  box-sizing: border-box;
+  /* M25-64 (A64-6): the canvas draws the transform box and its handles in the selection colour,
+     the same as the timeline's selected clip. */
+  border: 1px solid var(--h3-nle-selection);
+  transform-origin: center;
+  pointer-events: none;
+}
+.h3-nle-transform-align {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.h3-nle-dialog .h3-nle-transform-align > button {
+  width: var(--h3-nle-target);
+  min-width: var(--h3-nle-target);
+  min-height: var(--h3-nle-target);
+  padding: 0;
+  color: var(--h3-text-muted);
+  background: transparent;
+  border: 1px solid var(--h3-line-subtle);
+  border-radius: 6px;
+  box-shadow: none;
+}
+/* IMPORTANT: this selector must outrank both the editor and host button material. The move
+   target covers the picture; an inherited background or shadow obscures decoded frames. */
+.h3-nle-dialog button.h3-nle-transform-hit {
+  position: absolute;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  appearance: none;
+  pointer-events: auto;
+  touch-action: none;
+}
+.h3-nle-transform-hit::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--h3-panel-1);
+  border-radius: 2px;
+  background: var(--h3-nle-selection);
+  transform: translate(-50%, -50%);
+}
+.h3-nle-transform-hit:focus-visible {
+  outline: 2px solid var(--h3-focus);
+  outline-offset: 2px;
+}
+.h3-nle-transform-move {
+  inset: 0;
+  /* Keep the full-area hit target after the higher-specificity material reset above; 44px
+     here makes the move gesture unreachable behind the north-west scale handle. */
+}
+.h3-nle-dialog button.h3-nle-transform-move {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  cursor: move;
+}
+.h3-nle-transform-move::after {
+  display: none;
+}
+/* IMPORTANT (M25-53 D-3): the 44 px handles are centred on the layer's edges and corners and the
+   rotate handle stands above the top edge, so only 22 px of each handle lies inside the layer and
+   the body inset by 22 px remains the move target. Handles laid inside the edges (`left: 0`,
+   `top: 0`, rotate at `top: 44px`) cover a layer narrower than about 172 CSS px completely, and
+   no pointer move exists for any layer under a quarter of the picture. */
+.h3-nle-transform-scale[data-h3-nle-transform-handle="north_west"] {
+  left: -22px;
+  top: -22px;
+  cursor: nwse-resize;
+}
+.h3-nle-transform-scale[data-h3-nle-transform-handle="north"] {
+  left: calc(50% - 22px);
+  top: -22px;
+  cursor: ns-resize;
+}
+.h3-nle-transform-scale[data-h3-nle-transform-handle="north_east"] {
+  right: -22px;
+  top: -22px;
+  cursor: nesw-resize;
+}
+.h3-nle-transform-scale[data-h3-nle-transform-handle="east"] {
+  right: -22px;
+  top: calc(50% - 22px);
+  cursor: ew-resize;
+}
+.h3-nle-transform-scale[data-h3-nle-transform-handle="south_east"] {
+  right: -22px;
+  bottom: -22px;
+  cursor: nwse-resize;
+}
+.h3-nle-transform-scale[data-h3-nle-transform-handle="south"] {
+  left: calc(50% - 22px);
+  bottom: -22px;
+  cursor: ns-resize;
+}
+.h3-nle-transform-scale[data-h3-nle-transform-handle="south_west"] {
+  left: -22px;
+  bottom: -22px;
+  cursor: nesw-resize;
+}
+.h3-nle-transform-scale[data-h3-nle-transform-handle="west"] {
+  left: -22px;
+  top: calc(50% - 22px);
+  cursor: ew-resize;
+}
+/* IMPORTANT (B-M2564-02): a handle whose layer edge meets the picture area's left or right side
+   is drawn a half-handle inside (`handleInsets` in nleTransformGesture.ts sets the attribute).
+   Centred on the edge there, it lay partly under a side splitter's 20 px overlap and half outside
+   the clipped picture, with its centre often under the splitter. The scale gesture keeps the
+   press offset, so the inward handle moves its edge by the pointer's travel. */
+.h3-nle-transform-scale[data-h3-nle-handle-inset][data-h3-nle-transform-handle$="west"] {
+  left: 0;
+}
+.h3-nle-transform-scale[data-h3-nle-handle-inset][data-h3-nle-transform-handle$="east"] {
+  right: 0;
+}
+.h3-nle-transform-scale[data-h3-nle-handle-inset][data-h3-nle-transform-handle^="north"] {
+  top: 0;
+}
+.h3-nle-transform-scale[data-h3-nle-handle-inset][data-h3-nle-transform-handle^="south"] {
+  bottom: 0;
+}
+/* The rotate handle stands above the layer, or below it when the clipped picture has no room
+   above, or inside the body when neither edge has room (`data-h3-nle-rotate-side`, written by
+   the overlay's positioning). Its stalk always joins the handle's centre to the nearer edge. */
+.h3-nle-transform-rotate {
+  left: calc(50% - 22px);
+  top: -66px;
+  cursor: grab;
+}
+.h3-nle-transform-rotate::before {
+  /* B-M2564-02: the 1 px stalk is drawing, not target; it ran through the north handle's centre. */
+  pointer-events: none;
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 22px;
+  width: 1px;
+  height: 44px;
+  background: var(--h3-nle-selection);
+}
+[data-h3-nle-rotate-side="below"] .h3-nle-transform-rotate {
+  top: auto;
+  bottom: -66px;
+}
+[data-h3-nle-rotate-side="below"] .h3-nle-transform-rotate::before {
+  top: -22px;
+}
+[data-h3-nle-rotate-side="inside"] .h3-nle-transform-rotate {
+  top: 44px;
+}
+[data-h3-nle-rotate-side="inside"] .h3-nle-transform-rotate::before {
+  top: -44px;
+}
+/* Before the first measurement, and for the source-preview video, the element fills its box. */
+.h3-nle-picture > canvas:not([style]),
+.h3-nle-monitor video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: contain;
+  background: var(--h3-well);
+  border-radius: var(--h3-radius-control, 0.25rem);
+}
+/* M25-64 (row #27): the empty-timeline and preview-unavailable overlays. Centred and sized to
+   their content, never in the flow, so they cannot change the area the picture is measured from.
+
+   IMPORTANT (A64-1, after B-M2563-09): only the overlay's own action takes pointer events. The
+   card is the size of its text, not of the picture, so a box check against a transform handle
+   means something, and a handle or move target beneath it still receives the pointer. */
+.h3-nle-picture-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  padding: 12px 16px;
+  color: var(--h3-text-dim);
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: center;
+  background: color-mix(in srgb, var(--h3-surface-2) 88%, transparent);
+  border-radius: 6px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.h3-nle-picture-overlay > p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.h3-nle-picture-overlay > [data-h3-nle-overlay-title] {
+  color: var(--h3-text-primary);
+  font-size: 13px;
+}
+.h3-nle-picture-overlay[data-h3-nle-overlay="empty"] {
+  background: transparent;
+}
+.h3-nle-picture-overlay[data-h3-nle-overlay="empty"]
+  > [data-h3-nle-overlay-title] {
+  color: var(--h3-text-body);
+}
+/* Decorative glyphs: a quiet monitor for the empty state, the warning tone for unavailable. */
+.h3-nle-picture-overlay[data-h3-nle-overlay="empty"] > .h3-icon {
+  width: 34px;
+  height: 34px;
+  color: color-mix(in srgb, var(--h3-text-dim) 45%, var(--h3-well));
+  stroke-width: 1.4;
+}
+.h3-nle-picture-overlay[data-h3-nle-overlay="unavailable"] > .h3-icon {
+  width: 26px;
+  height: 26px;
+  color: var(--h3-tone-warn);
+  stroke-width: 1.8;
+}
+.h3-nle-picture-overlay[data-h3-nle-overlay="unavailable"]
+  > [data-h3-nle-overlay-detail] {
+  color: var(--h3-text-muted);
+}
+.h3-nle-dialog .h3-nle-picture-overlay button {
+  margin-top: 4px;
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--h3-control);
+  border: 1px solid var(--h3-line-strong);
+  border-radius: 6px;
+  box-shadow: none;
+  pointer-events: auto;
+}
+/* Without a composition there is no picture to measure: the fallback area stacks its overlay and
+   the selected-source preview in the flow instead. */
+.h3-nle-picture-fallback {
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 8px;
+  overflow: auto;
+}
+.h3-nle-picture-fallback > .h3-nle-picture-overlay {
+  position: static;
+  max-width: 100%;
+  transform: none;
+}
+/* M25-64 (row #25, R7): one row, never wrapped -- the timecode on the left, the step and play
+   group centred, the view group on the right. The side columns are `1fr` with their automatic
+   minimum, so they split the space evenly (the play group centred, as in the canvas) until the
+   timecode needs more than half of what is left, and then the timecode keeps its width and the
+   play group shifts right rather than the timecode being cut.
+
+   R7's arithmetic at the 280 px monitor minimum: 8 px padding leaves 264, and the current timecode
+   (about 80) + the play group (30 + 36 + 30 + two 4 px gaps = 104) + the view group (64) + two
+   6 px column gaps = 260 fits. The total timecode is hidden below a 360 px row and stays in the
+   output's name and tooltip.
+
+   IMPORTANT (M25-45 finalization F10, kept): a wrapped row would take a second row of height out
+   of the picture at exactly the width where the picture is smallest. Under a coarse pointer the
+   44 px controls do not fit beside the current timecode below a 340 px row, so there the timecode
+   leaves the row and sits over the picture's bottom-left corner as non-interactive text.
+
+   IMPORTANT (B-M2564-02): the timeline splitter overlaps the monitor's bottom 20 px and the
+   inspector splitter its right 20 px. The 10 px under the 46 px row (the accepted checkpoint's
+   padding) and the 16 px on the right keep at least 24 px of every control clear of them; with the
+   row flush to the bottom, Play and the step buttons lost 40-44 % of their height to the
+   separator. Below a 400 px monitor the left padding (beside the timecode, which is text) and the
+   column gaps give way instead: 280 - 22 = 258 >= 80 + 104 + 64 + two 4 px gaps = 256. */
+.h3-nle-transport {
+  container-type: inline-size;
+  container-name: h3-transport;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 6px;
+  box-sizing: border-box;
+  min-height: 56px;
+  padding: 0 16px 10px;
+}
+@container h3-monitor (max-width: 399px) {
+  .h3-nle-transport {
+    column-gap: 4px;
+    padding: 0 16px 10px 6px;
+  }
+}
+.h3-nle-transport > .h3-icon-group {
+  min-width: max-content;
+}
+.h3-nle-transport > .h3-icon-group[data-h3-nle-group="transport_view"] {
+  justify-self: end;
+}
+/* IMPORTANT: three classes, deliberately. The shared rules in `tokens.css` are `.h3c .h3-icon-*`,
+   two classes, and the sidebar and the planning tiles keep their 44 px bordered tiles (R2); only
+   this region is overridden, as the timeline toolbar and the bin toolbar are.
+
+   IMPORTANT (M25-45 B-M2545-07): flex, not the shared grid. `repeat(auto-fill, ...)` resolves to
+   one column when the container's width is intrinsic, and the tiles stack into a column that
+   pushes the picture area over the transport. */
+.h3-nle-transport .h3-icon-group .h3-icon-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 4px;
+  grid-template-columns: none;
+}
+.h3-nle-transport .h3-icon-group .h3-icon-slot {
+  flex: 0 0 auto;
+  block-size: auto;
+}
+.h3-nle-transport .h3-icon-group .h3-icon-button {
+  inline-size: var(--h3-nle-target);
+  block-size: var(--h3-nle-target);
+  min-inline-size: var(--h3-nle-target);
+  min-block-size: var(--h3-nle-target);
+  color: var(--h3-text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  box-shadow: none;
+}
+.h3-nle-transport .h3-icon-group .h3-icon-button:hover:not(:disabled) {
+  color: var(--h3-text-primary);
+  background: var(--h3-control);
+}
+.h3-nle-transport .h3-icon-group .h3-icon-button[aria-pressed="true"] {
+  color: var(--h3-nle-accent);
+  background: transparent;
+  box-shadow: none;
+}
+.h3-nle-transport .h3-icon-group .h3-icon-button .h3-icon {
+  width: 16px;
+  height: 16px;
+}
+/* The round Play: 36 px under a fine pointer, the coarse target under a coarse one. */
+.h3-nle-transport
+  .h3-icon-group
+  .h3-icon-button:is(
+    [data-h3-nle-control="transport.play"],
+    [data-h3-nle-control="transport.pause"]
+  ) {
+  inline-size: max(36px, var(--h3-nle-target));
+  block-size: max(36px, var(--h3-nle-target));
+  color: var(--h3-text-primary);
+  background: var(--h3-surface-3);
+  border-radius: 50%;
+}
+.h3-nle-transport
+  .h3-icon-group
+  .h3-icon-button:is(
+    [data-h3-nle-control="transport.play"],
+    [data-h3-nle-control="transport.pause"]
+  ):hover:not(:disabled) {
+  background: var(--h3-control);
+}
+.h3-nle-timecode {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: max-content;
+  color: var(--h3-text-muted);
+  font:
+    12px/1 "Cascadia Mono",
+    Consolas,
+    ui-monospace,
+    monospace;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.h3-nle-timecode > [data-h3-nle-timecode-part="current"] {
+  color: var(--h3-nle-accent);
+}
+.h3-nle-timecode > [data-h3-nle-timecode-part="separator"] {
+  color: var(--h3-text-dim);
+}
+@container h3-transport (max-width: 359px) {
+  .h3-nle-timecode > [data-h3-nle-timecode-part="separator"],
+  .h3-nle-timecode > [data-h3-nle-timecode-part="total"] {
+    display: none;
+  }
+}
+@media (pointer: coarse) {
+  @container h3-transport (max-width: 339px) {
+    .h3-nle-timecode {
+      position: absolute;
+      inset-inline-start: 14px;
+      inset-block-end: calc(100% + 12px);
+      padding: 2px 6px;
+      border-radius: var(--h3-radius-control, 0.25rem);
+      background: color-mix(in srgb, var(--h3-surface-1) 82%, transparent);
+      pointer-events: none;
+    }
+  }
+}
+/* Text that only assistive technology reads: the audio owner and policy behind the state chip,
+   and the transport's bounded full-screen announcement. */
+.h3-nle-vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  pointer-events: none;
+}
+/* IMPORTANT (M25-44 B-M2544-06): the audio state changes several times a second during playback
+   ("Following primary video", "Seeking", "Suspended"). While it was a text row under the canvas a
+   wrapping line grew and shrank with it and the picture jumped 25 px on every frame. M25-45 moved
+   it into the chrome bar, where the same rule holds for the same reason: one line, clipped, with
+   the full text still in the DOM for assistive technology. */
+.h3-nle-header > .h3-nle-audio,
+.h3-nle-audio {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.h3-nle-audio {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--h3-text-muted);
+  font-size: 0.75rem;
+}
+.h3-nle-audio > span {
+  flex: 0 0 auto;
+}
+.h3-nle-audio > span:last-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.h3-nle-timeline {
+  /* M25-62: the fine roll target (`controlTargetPx.minimum`); a coarse pointer keeps 44 px. */
+  --h3-nle-roll-target: 24px;
+  position: relative;
+  display: grid;
+  /* IMPORTANT (M25-62, R7): toolbar, then one surface (ruler + tracks + scroll bar), then the
+     rail and the roll alternative only while they exist. The surface's floor is the ruler plus
+     one 56 px row plus the 8 px scroll bar, so the timeline fits the 163 px R7 gives it at the
+     480 px overlay minimum, and a collapsed track viewport can never hide its clips behind the
+     ruler. */
+  grid-template-rows: auto minmax(calc(var(--h3-nle-ruler-height) + 64px), 1fr);
+  grid-auto-rows: auto;
+  min-width: 0;
+  min-height: calc(
+    10px + var(--h3-nle-target) + 6px + var(--h3-nle-ruler-height) + 64px +
+      var(--h3-nle-corner-inset)
+  );
+  /* IMPORTANT (M25-63 B-M2563-09): the dialog's resize grip is a `--h3-nle-target` square that
+     paints above this section's bottom-right corner. The lanes must end above it, or a press on
+     the lowest lane's right end (a marquee, a clip) resizes the editor instead. The 8 px scroll
+     bar row may lie under the grip because it keeps `RESIZE_CORNER_CLEARANCE_PX`; this inset is
+     the rest of the grip's height. Until M25-63 the visible timeline status line held this band. */
+  --h3-nle-corner-inset: calc(var(--h3-nle-target) - 8px);
+  padding-bottom: var(--h3-nle-corner-inset);
+  /* IMPORTANT: the top_timeline splitter is a 44 px target centred on its 4 px gutter, so it
+     overhangs this region by 20 px (R2 keeps that width). The 10 px inset puts every toolbar
+     button's centre below the overhang; at 0 the splitter took the clicks meant for them. */
+  padding-top: 10px;
+  background: var(--h3-panel-1);
+}
+@media (pointer: coarse) {
+  .h3-nle-timeline {
+    --h3-nle-roll-target: 44px;
+  }
+}
+/* B-M2563-09: the trim rail and the roll alternative are each at least the target height plus
+   padding, and keep the corner clear on their own (`RESIZE_CORNER_CLEARANCE_PX`). While either
+   follows the surface it holds the lanes above the grip, so the inset would only shorten them. */
+.h3-nle-timeline:has(> .h3-nle-trim-rail, > .h3-nle-roll-alternative) {
+  padding-bottom: 0;
+}
+.h3-nle-timeline-surface {
+  position: relative;
+  display: grid;
+  grid-template-rows: var(--h3-nle-ruler-height) minmax(56px, 1fr) 8px;
+  min-width: 0;
+  min-height: 0;
+  background: var(--h3-well);
+}
+.h3-nle-ruler {
+  display: grid;
+  grid-template-columns: var(--h3-nle-track-header-width) minmax(0, 1fr);
+  min-width: 0;
+  overflow: hidden;
+  color: var(--h3-text-dim);
+  background: var(--h3-well);
+  border-bottom: 1px solid var(--h3-line-subtle);
+  cursor: ew-resize;
+  touch-action: none;
+  min-height: var(--h3-nle-ruler-height);
+}
+.h3-nle-ruler-header {
+  background: var(--h3-surface-2);
+  border-right: 1px solid var(--h3-line-subtle);
+}
+.h3-nle-ruler-lane {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+/* M25-61: ticks live here only. Majors carry a short label; minors are one unlabelled path. */
+.h3-nle-ruler-minor {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 6px;
+  overflow: visible;
+  pointer-events: none;
+}
+.h3-nle-ruler-minor path {
+  fill: none;
+  stroke: var(--h3-text-dim);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.h3-nle-ruler-mark {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  padding-inline-start: 4px;
+  font-size: 0.625rem;
+  font-variant-numeric: tabular-nums;
+  line-height: var(--h3-nle-ruler-height);
+  white-space: nowrap;
+  border-left: 1px solid var(--h3-line-strong);
+}
+/* M25-62: borderless 30 px icons (44 px under a coarse pointer) in an edit group and a view group
+   on one 36 px row. The split and the separators are CSS on the slots, so the toolbar keeps the
+   node budget of `nleTimelineToolbar.test.tsx`. */
+/* IMPORTANT (B-M2564-02): the 4 px above the row keep 26 of each 30 px button clear of the top
+   splitter's 20 px overlap into the timeline; flush, they kept 22. R7's timeline budget absorbs it
+   (40 + 26 + 56 + 8 = 130 <= 163). */
+.h3-nle-timeline-toolbar {
+  position: relative;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  min-width: 0;
+  min-height: calc(var(--h3-nle-target) + 10px);
+  padding: 4px 8px 0;
+  overflow: visible;
+  border-bottom: 1px solid var(--h3-line-subtle);
+}
+.h3-nle-timeline-toolbar-stack {
+  display: grid;
+  min-width: 0;
+}
+.h3-nle-timeline-toolbar > .h3-icon-group {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+/* M25-47: R4 is one row at the 688 px workspace floor. The shared action grid is for planning
+   rows and would wrap here; the bounded More popover owns lower-priority alternatives. */
+.h3-nle-timeline-toolbar .h3-icon-group .h3-icon-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 2px;
+  grid-template-columns: none;
+}
+.h3-nle-timeline-toolbar .h3-icon-group .h3-icon-slot {
+  position: relative;
+  flex: 0 0 var(--h3-nle-target);
+  block-size: var(--h3-nle-target);
+}
+.h3-nle-timeline-toolbar
+  .h3-icon-group
+  .h3-icon-slot[data-h3-nle-toolbar-break="group"] {
+  margin-inline-start: auto;
+}
+.h3-nle-timeline-toolbar
+  .h3-icon-group
+  .h3-icon-slot[data-h3-nle-toolbar-break="separator"] {
+  margin-inline-start: 13px;
+}
+.h3-nle-timeline-toolbar
+  .h3-icon-group
+  .h3-icon-slot[data-h3-nle-toolbar-break="separator"]::before {
+  position: absolute;
+  inset-inline-start: -7px;
+  top: 50%;
+  width: 1px;
+  height: 16px;
+  background: var(--h3-line-strong);
+  content: "";
+  translate: 0 -50%;
+}
+/* IMPORTANT: three classes. `.h3c .h3-icon-button` in tokens.css has two, and the sidebar and the
+   planning tiles keep its 44 px bordered tiles (R2); only this region is overridden. */
+.h3-nle-timeline-toolbar .h3-icon-group .h3-icon-button {
+  inline-size: var(--h3-nle-target);
+  block-size: var(--h3-nle-target);
+  min-inline-size: var(--h3-nle-target);
+  min-block-size: var(--h3-nle-target);
+  color: var(--h3-text-body);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+}
+.h3-nle-timeline-toolbar .h3-icon-group .h3-icon-button:hover:not(:disabled) {
+  background: var(--h3-control);
+}
+.h3-nle-timeline-toolbar .h3-icon-group .h3-icon-button[aria-pressed="true"] {
+  color: var(--h3-nle-accent);
+  background: color-mix(in srgb, var(--h3-nle-accent) 16%, transparent);
+  box-shadow: none;
+}
+/* IMPORTANT (B-M2564-07): the toolbar's unavailable controls stay focusable (`aria-disabled`), so
+   the shared `:disabled` opacity never reaches them, and the dim text colour alone read almost as
+   bright as an available control. The canvas draws them near `#4d5868`. A colour, not opacity, so
+   a focused unavailable control keeps a full-strength focus ring. */
+.h3-nle-timeline-toolbar .h3-icon-group .h3-icon-button[aria-disabled="true"] {
+  color: color-mix(in srgb, var(--h3-text-dim) 50%, var(--h3-panel-1));
+}
+.h3-nle-timeline-toolbar .h3-icon-group .h3-icon-button .h3-icon {
+  width: 16px;
+  height: 16px;
+}
+/* The zoom slider is the editor's slider at the design's toolbar size: a 3 px rail in the strong
+   line colour, a 10 px thumb and no fill. */
+.h3-nle-timeline-toolbar .h3-icon-row > input[type="range"] {
+  --h3-range-rail-size: 3px;
+  --h3-range-thumb: 10px;
+  --h3-range-rail: var(--h3-line-strong);
+  flex: 0 1 120px;
+  min-width: 72px;
+  max-width: 120px;
+  height: var(--h3-nle-target);
+  min-height: var(--h3-nle-target);
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+.h3-nle-timeline-toolbar output {
+  color: var(--h3-text-muted);
+  font-size: 0.75rem;
+}
+.h3-nle-timeline-toolbar > output {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.h3-nle-toolbar-overflow {
+  position: absolute;
+  z-index: 12;
+  top: calc(100% + 4px);
+  right: 0;
+  width: min(34rem, calc(100vw - 3rem));
+  max-height: min(26rem, 60vh);
+  padding: 0.5rem;
+  overflow: auto;
+  border: 1px solid var(--h3-line-strong);
+  border-radius: var(--h3-radius-control);
+  background: var(--h3-control);
+  box-shadow: 0 1rem 2rem rgb(0 0 0 / 0.28);
+}
+.h3-nle-toolbar-alternatives {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+}
+.h3-nle-toolbar-alternatives > button,
+.h3-nle-toolbar-alternatives > input {
+  min-height: var(--h3-nle-target);
+}
+/* M25-62: the gesture outcomes float over the lane bottom; the canvas has no footer row. They
+   stay rendered while empty, so the live regions keep announcing. */
+.h3-nle-timeline-feedback {
+  position: absolute;
+  left: calc(var(--h3-nle-track-header-width) + 8px);
+  bottom: 14px;
+  z-index: 9;
+  display: flex;
+  gap: 6px;
+  max-width: calc(100% - var(--h3-nle-track-header-width) - 16px);
+  pointer-events: none;
+}
+.h3-nle-timeline-feedback > output {
+  min-width: 0;
+  padding: 2px 8px;
+  overflow: hidden;
+  color: var(--h3-text-primary);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background: var(--h3-nle-label-backing);
+  border-radius: 999px;
+}
+.h3-nle-timeline-feedback > output:empty {
+  padding: 0;
+  background: none;
+}
+/* IMPORTANT (B-M2562-07): two classes. `.h3-nle-dialog button` (one class and an element) sets
+   the 30 px floor and 12 px padding; with one class here the fine target rendered 30 px wide while
+   the transform centred 24, so it sat 3 px right of the cut and overhung the row by 4 px. */
+.h3-nle-timeline .h3-nle-roll-cut {
+  position: absolute;
+  z-index: 7;
+  width: var(--h3-nle-roll-target);
+  min-width: var(--h3-nle-roll-target);
+  height: var(--h3-nle-roll-target);
+  min-height: var(--h3-nle-roll-target);
+  padding: 0;
+  font-size: 0.75rem;
+  line-height: 1;
+  transform: translateX(calc(var(--h3-nle-roll-target) / -2));
+  touch-action: none;
+}
+.h3-nle-roll-alternative {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: var(--h3-nle-target);
+  padding: 4px 8px;
+}
+.h3-nle-roll-alternative > button {
+  min-width: var(--h3-nle-target);
+  min-height: var(--h3-nle-target);
+}
+.h3-nle-move-alternative {
+  position: absolute;
+  top: 56px;
+  right: 0.625rem;
+  /* Above the playhead layer (z 8): these are controls, the playhead is not. */
+  z-index: 9;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: var(--h3-surface-2);
+  border: 1px solid var(--h3-line-strong);
+  border-radius: var(--h3-radius-control, 0.25rem);
+}
+.h3-nle-tracks {
+  position: relative;
+  min-height: 0;
+  overflow: auto;
+  /* IMPORTANT: size containment keeps the track rows out of the surface's intrinsic height, so
+     the `minmax(56px, 1fr)` row is one track row under the timeline's min-content minimum and
+     fills the rest of R4 otherwise, and this grid stays the scroll container the row
+     virtualizer measures. Removing it sizes the row to every track: nothing scrolls inside the
+     grid, the rail falls below the viewport, and the ruler's seek geometry no longer matches. */
+  contain: size;
+  background: var(--h3-well);
+}
+.h3-nle-track-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: var(--h3-nle-track-header-width) minmax(0, 1fr);
+  height: 56px;
+  /* The separator is a shadow, not a border: the lane keeps all 56 px, so the clip box is
+     exactly 4..52 and the raster bounds (5..51 inside its 1 px ring) match it. */
+  box-shadow: inset 0 -1px 0 var(--h3-line-subtle);
+}
+/* M25-62 (R7, D-2): fine pointer, two lines in 112 px -- 3 + name line 24 + 2 + toggle line 24 +
+   3 = 56. The name line is the track-menu trigger, so it is 24 px tall like every other fine
+   target (R2, B-M2562-04); the plan's 18 px line was below that floor. The trigger and both
+   toggles are direct children (NleTrackHeader.tsx). */
+.h3-nle-track-header {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 24px 24px;
+  grid-template-rows: 24px 24px;
+  grid-template-areas:
+    "name name name"
+    ". lock eye";
+  column-gap: 4px;
+  row-gap: 2px;
+  align-content: start;
+  padding: 3px 6px;
+  overflow: hidden;
+  background: var(--h3-surface-2);
+  border-right: 1px solid var(--h3-line-subtle);
+  box-shadow: inset 0 -1px 0 var(--h3-line-subtle);
+}
+.h3-nle-dialog .h3-nle-track-header > button {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  color: var(--h3-text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+}
+.h3-nle-dialog .h3-nle-track-header > button:hover {
+  color: var(--h3-text-primary);
+  background: var(--h3-control);
+}
+.h3-nle-dialog .h3-nle-track-menu-trigger {
+  grid-area: name;
+  gap: 6px;
+  height: 24px;
+  color: var(--h3-text-body);
+  font-size: 0.6875rem;
+  text-align: left;
+}
+.h3-nle-track-menu-trigger .h3-icon {
+  flex: 0 0 auto;
+  margin-inline-start: 1px;
+}
+.h3-nle-track-name {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.h3-nle-track-row[data-kind="primary_video"] .h3-nle-track-name {
+  color: var(--h3-text-primary);
+  font-weight: 600;
+}
+.h3-nle-dialog .h3-nle-track-toggle {
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+.h3-nle-track-toggle[data-h3-nle-control="track.locked"] {
+  grid-area: lock;
+}
+.h3-nle-track-toggle[data-h3-nle-control="track.enabled"] {
+  grid-area: eye;
+}
+.h3-nle-dialog .h3-nle-track-toggle[aria-pressed="true"] {
+  box-shadow: none;
+}
+.h3-nle-dialog
+  .h3-nle-track-toggle[data-h3-nle-control="track.locked"][aria-pressed="true"],
+.h3-nle-dialog
+  .h3-nle-track-toggle[data-h3-nle-control="track.enabled"][aria-pressed="false"] {
+  color: var(--h3-nle-accent);
+}
+/* Coarse pointer (R2, B-M2562-01): today's touch-safe layout on one line in 160 px
+   (COARSE_TRACK_HEADER_WIDTH_PX) -- the trigger with the kind icon and name, then two 44 px
+   toggles: 4 + 56 + 4 + 44 + 4 + 44 + 4. The three targets are disjoint, so a tap on the name
+   never lands on Lock. 112 px cannot hold three 44 px targets. */
+@media (pointer: coarse) {
+  .h3-nle-track-header {
+    grid-template-columns: minmax(44px, 1fr) 44px 44px;
+    grid-template-rows: 44px;
+    grid-template-areas: "name lock eye";
+    align-content: center;
+    padding: 0 4px;
+  }
+  .h3-nle-dialog .h3-nle-track-menu-trigger {
+    height: 44px;
+  }
+  .h3-nle-dialog .h3-nle-track-toggle {
+    width: 44px;
+    height: 44px;
+  }
+}
+.h3-nle-track-lane {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+.h3-nle-track-row[data-kind="primary_video"] .h3-nle-track-lane {
+  background: var(--h3-nle-track-band);
+}
+/* M25-62 (A62-7): the Main lane of a timeline with tracks and no clip. Presentation only; the
+   grid's existing bin-insert target owns the drop. */
+.h3-nle-empty-lane {
+  position: absolute;
+  inset: 4px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  color: var(--h3-text-muted);
+  font-size: 0.75rem;
+  border: 1px dashed var(--h3-line-strong);
+  border-radius: 6px;
+  pointer-events: none;
+}
+/* An empty V2 timeline still has one logical authoring position. Keep its frame-zero caret
+   visible even though there is no render snapshot (and therefore no ruler or media playhead). */
+.h3-nle-empty-origin {
+  width: 2px;
+  height: 56px;
+  margin: 8px 0 8px 16px;
+  background: var(--h3-nle-playhead);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--h3-canvas) 55%, transparent);
+}
+.h3-nle-empty-drop {
+  overflow: auto;
+  min-height: 56px;
+  background: var(--h3-well);
+}
+.h3-nle-empty-drop-axis {
+  position: relative;
+}
+.h3-nle-empty-drop-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  box-shadow: inset 0 -1px 0 var(--h3-line-subtle);
+}
+.h3-nle-empty-drop-header {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  display: inline-flex;
+  height: 56px;
+  align-items: center;
+  padding-inline: 8px;
+  box-sizing: border-box;
+  background: var(--h3-surface-2);
+}
+.h3-nle-empty-drop-zero {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: var(--h3-nle-playhead);
+  pointer-events: none;
+}
+.h3-nle-empty-drop-ghost {
+  position: absolute;
+  background: color-mix(
+    in srgb,
+    var(--h3-page-outline-context) 24%,
+    var(--h3-surface-3)
+  );
+  outline: 1px solid var(--h3-line-strong);
+  pointer-events: none;
+}
+/* M25-62: the clip box is 4..52 in its row with no border of its own; its ring is the `::after`
+   below, drawn above the decoration raster (z 4) that paints the filmstrip and waveform inside. */
+.h3-nle-clip {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  color: var(--h3-text-primary);
+  background: color-mix(
+    in srgb,
+    var(--h3-page-outline-context) 24%,
+    var(--h3-surface-3)
+  );
+  border-radius: 5px;
+}
+.h3-nle-clip[data-h3-nle-clip-kind="text"] {
+  background: color-mix(
+    in srgb,
+    var(--h3-nle-text-clip) 22%,
+    var(--h3-surface-3)
+  );
+}
+/* IMPORTANT (M25-62): the border and the 2 px selection ring are one overlay at z 6, above the
+   raster, below the grips (z 7) and the playhead layer (z 8). An outline outside the box would be
+   cut by the clip's `overflow: hidden`; the ring is inside, so selecting never moves the layout. */
+.h3-nle-clip::after {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  border: 1px solid var(--h3-line-strong);
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
+}
+.h3-nle-clip[data-h3-nle-clip-kind="text"]::after {
+  border-color: color-mix(in srgb, var(--h3-nle-text-clip) 55%, transparent);
+}
+.h3-nle-clip[data-selected="true"]::after {
+  border: 2px solid var(--h3-nle-selection);
+}
+.h3-nle-trim-rail {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  /* IMPORTANT: reserve the dialog's 44 px resize corner; without this clearance it intercepts
+     the end grip's center and makes pointer/touch trim unavailable at the workspace edge. */
+  margin-inline-end: 54px;
+  border-top: 1px solid var(--h3-line-subtle);
+}
+.h3-nle-dialog .h3-nle-rail-grip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--h3-nle-target);
+  height: var(--h3-nle-target);
+  padding: 0;
+  cursor: ew-resize;
+  touch-action: none;
+}
+.h3-nle-rail-grip[data-h3-nle-trim-edge="start"] {
+  grid-column: 1;
+  grid-row: 1;
+}
+.h3-nle-rail-grip[data-h3-nle-trim-edge="end"] {
+  grid-column: 3;
+  grid-row: 1;
+}
+.h3-nle-dialog .h3-nle-rail-menu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  grid-column: 4;
+  grid-row: 1;
+  width: var(--h3-nle-target);
+  height: var(--h3-nle-target);
+  padding: 0;
+}
+.h3-nle-rail-label {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--h3-text-muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: center;
+  text-overflow: ellipsis;
+}
+.h3-nle-clip[data-enabled="false"] > button {
+  opacity: 0.55;
+}
+.h3-nle-clip[data-highlighted="true"] {
+  box-shadow: 0 0 0 2px var(--h3-tone-ok);
+}
+/* IMPORTANT: the transparent clip-body hit target must sit above the raster on the supplied
+   host's stacking path; otherwise the clip shell hides composed waveform pixels. */
+.h3-nle-dialog .h3-nle-clip-body {
+  position: relative;
+  z-index: 5;
+}
+.h3-nle-dialog .h3-nle-clip-body {
+  /* IMPORTANT: the generic dialog/host button material otherwise wins in the live cascade and
+     hides the accepted filmstrip raster even though this control is raised above it for input. */
+  appearance: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  font-size: 0.625rem;
+  text-align: left;
+  background-color: transparent !important;
+  background-image: none !important;
+  border: 0;
+  border-radius: 0;
+  touch-action: none;
+}
+/* The label strip and the duration sit on the label backing, clear of the 8 px grips. */
+.h3-nle-clip[data-h3-nle-inline-grips="true"] .h3-nle-clip-body {
+  padding: 0 8px;
+}
+.h3-nle-clip:has(> .h3-nle-clip-menu-trigger) .h3-nle-clip-body {
+  padding-right: 36px;
+}
+.h3-nle-clip-label,
+.h3-nle-clip-duration {
+  display: block;
+  min-width: 0;
+  padding: 1px 6px;
+  overflow: hidden;
+  color: var(--h3-text-primary);
+  line-height: 14px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background: var(--h3-nle-label-backing);
+}
+.h3-nle-clip-label {
+  flex: 0 1 auto;
+  border-radius: 0 0 4px 0;
+}
+.h3-nle-clip-duration {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  border-radius: 0 0 0 4px;
+}
+.h3-nle-dialog .h3-nle-clip-menu-trigger {
+  position: absolute;
+  top: 2px;
+  right: 10px;
+  z-index: 7;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  padding: 0;
+  touch-action: none;
+  background: var(--h3-nle-label-backing);
+  border: 0;
+  border-radius: 4px;
+}
+.h3-nle-menu-launcher {
+  position: absolute;
+  z-index: 5;
+  top: 4.25rem;
+  left: 0.625rem;
+  min-width: var(--h3-nle-target);
+  min-height: var(--h3-nle-target);
+}
+.h3-nle-context-menu {
+  position: fixed;
+  /* IMPORTANT: the overlay root already owns the browser top layer. Keep this stacking value
+     local; a maximum z-index recreates the host-overlay arms race that M25-44 removed. */
+  z-index: 20;
+  display: grid;
+  gap: 0.375rem;
+  width: min(280px, calc(100vw - 16px));
+  max-height: calc(100vh - 16px);
+  padding: 0.5rem;
+  overflow: auto;
+  color: var(--h3-text-primary);
+  background: var(--h3-surface-2);
+  border: 1px solid var(--h3-line-strong);
+  border-radius: var(--h3-radius-control, 0.25rem);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 35%);
+}
+.h3-nle-context-menu label {
+  display: grid;
+  gap: 0.125rem;
+  color: var(--h3-text-muted);
+  font-size: 0.75rem;
+}
+.h3-nle-context-menu [role="menuitem"] {
+  min-height: var(--h3-nle-target);
+}
+/* IMPORTANT (M25-63 B-M2563-10): the bin's sort and filter menu is two radio groups. A group is
+   one grid item of the menu, so its buttons are inline boxes that wrap into rows unless the group
+   is a column itself. Each group shows its heading, and the chosen option its check; an unchosen
+   option keeps the mark's slot so every label starts at the same edge. The item face stays the
+   editor's menu item face, as in the timeline's menus. */
+.h3-nle-bin-menu [role="group"] {
+  display: grid;
+  gap: 0.25rem;
+}
+.h3-nle-bin-menu .h3-nle-menu-heading {
+  padding-top: 0.125rem;
+  color: var(--h3-text-muted);
+  font-size: 0.75rem;
+}
+.h3-nle-dialog .h3-nle-bin-menu [role="menuitemradio"] {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: var(--h3-nle-target);
+  text-align: start;
+}
+.h3-nle-bin-menu .h3-nle-menu-mark {
+  display: inline-flex;
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  color: var(--h3-page-outline-production);
+}
+.h3-nle-bin-menu .h3-nle-menu-mark svg.h3-icon {
+  width: 14px;
+  height: 14px;
+}
+.h3-nle-decoration {
+  position: absolute;
+  left: var(--h3-nle-track-header-width);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  display: block;
+  width: calc(100% - var(--h3-nle-track-header-width));
+  height: 100%;
+  pointer-events: none;
+}
+/* IMPORTANT (M25-62, R7): fine grips are 8 px hit areas inside the clip edges with a 6 px bar, so
+   a pointer on a neighbour always reaches the neighbour; they outrank the generic dialog button
+   floor, whose min-width and padding would push them out of short clips. A coarse pointer keeps
+   the 44 px touch grips (shown from 144 px, below which the rail owns trimming). */
+.h3-nle-dialog .h3-nle-grip {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 7;
+  display: block;
+  width: 8px;
+  min-width: 8px;
+  min-height: 0;
+  padding: 0;
+  cursor: ew-resize;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  touch-action: none;
+}
+.h3-nle-dialog .h3-nle-grip[data-h3-nle-trim-edge="start"] {
+  left: 0;
+}
+.h3-nle-dialog .h3-nle-grip[data-h3-nle-trim-edge="end"] {
+  right: 0;
+}
+.h3-nle-grip::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  content: "";
+  background:
+    linear-gradient(var(--h3-surface-3), var(--h3-surface-3)) center / 2px 14px
+      no-repeat,
+    var(--h3-nle-selection);
+}
+.h3-nle-grip[data-h3-nle-trim-edge="start"]::before {
+  left: 0;
+}
+.h3-nle-grip[data-h3-nle-trim-edge="end"]::before {
+  right: 0;
+}
+.h3-nle-grip[data-dragging="true"]::before {
+  background:
+    linear-gradient(var(--h3-surface-3), var(--h3-surface-3)) center / 2px 14px
+      no-repeat,
+    var(--h3-nle-accent);
+}
+.h3-nle-grip:disabled::before {
+  opacity: 0.45;
+}
+@media (pointer: coarse) {
+  .h3-nle-dialog .h3-nle-grip {
+    width: 44px;
+    min-width: 44px;
+  }
+  .h3-nle-grip::before {
+    width: 100%;
+    background: color-mix(in srgb, var(--h3-text-primary) 22%, transparent);
+  }
+  .h3-nle-dialog .h3-nle-clip-menu-trigger {
+    left: 44px;
+    right: auto;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+}
+/* M25-62 (A62-6): an 8 px pointer affordance under the lanes. `transport.scroll` in More is the
+   accessible, full-size equivalent, so the bar is `aria-hidden`. */
+.h3-nle-scroll-bar {
+  position: relative;
+  margin-inline-start: var(--h3-nle-track-header-width);
+  height: 8px;
+  touch-action: none;
+}
+/* Its width is set inline: the lane width less the resize-corner clearance the rail also keeps
+   (`RESIZE_CORNER_CLEARANCE_PX` in NleTimeline.tsx), so the thumb never ends under the corner. */
+.h3-nle-scroll-thumb {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  background: var(--h3-line-strong);
+  border-radius: 3px;
+}
+.h3-nle-scroll-bar:hover .h3-nle-scroll-thumb {
+  background: var(--h3-text-dim);
+}
+/* IMPORTANT (M25-62, A62-3): the playhead layer spans the ruler top to the lane bottom, clipped to
+   the lane columns so it never draws over a header, above clips, the raster and the selection
+   ring. The line's left edge is the boundary x; the 11 px head centres on the 2 px line. */
+.h3-nle-playhead-layer {
+  position: absolute;
+  top: 0;
+  bottom: 8px;
+  left: var(--h3-nle-track-header-width);
+  right: 0;
+  z-index: 8;
+  overflow: hidden;
+  pointer-events: none;
+}
+.h3-nle-playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  pointer-events: none;
+  background: var(--h3-nle-playhead);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--h3-canvas) 55%, transparent);
+}
+.h3-nle-playhead-head {
+  position: absolute;
+  top: 0;
+  left: -4.5px;
+  display: block;
+  width: 11px;
+  height: 14px;
+  cursor: ew-resize;
+  pointer-events: auto;
+  touch-action: none;
+}
+.h3-nle-playhead-head svg {
+  display: block;
+  fill: var(--h3-nle-playhead);
+  stroke: color-mix(in srgb, var(--h3-canvas) 55%, transparent);
+  stroke-width: 1;
+}
+/* M25-64 (rows #28-#31, R2, R7): the inspector as the canvas draws it -- a full-bleed 40 px bar
+   (the Project title, or the clip's text tab strip with an underline), then 16 px inset content:
+   the Project settings list, or the clip header and its property sections, each a title with a
+   reset icon over label, slider and value rows. */
+/* IMPORTANT (B-M2564-02): the timeline splitter overlaps the inspector's bottom 20 px. The bottom
+   padding lets the last row scroll clear of it, and the scroll padding keeps a row brought into
+   view by focus or `scrollIntoView` clear of it too. */
+.h3-nle-inspector-scroll {
+  padding: 0 0 24px;
+  scroll-padding-bottom: 24px;
+}
+.h3-nle-inspector {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  font-size: 12px;
+}
+.h3-nle-inspector > section {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+}
+/* IMPORTANT (B-M2564-06): the bar is an h4, and tokens.css sets every `.h3c` h4 at (0,1,1), which
+   outranked a one-class rule: the bar rendered at 13.5 px / 640. The dialog prefix is what lets
+   the canvas's 12 px / 600 win; keep it. */
+.h3-nle-dialog .h3-nle-inspector-bar {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 16px;
+  color: var(--h3-text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--h3-line-subtle);
+}
+.h3-nle-project-settings {
+  display: grid;
+  grid-template-columns: minmax(72px, 110px) minmax(0, 1fr);
+  gap: 12px;
+  margin: 0;
+  padding: 14px 16px;
+}
+.h3-nle-project-settings > div {
+  display: contents;
+}
+.h3-nle-project-settings dt {
+  color: var(--h3-text-muted);
+}
+.h3-nle-project-settings dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--h3-text-primary);
+}
+.h3-nle-project-settings dd[data-h3-nle-mono],
+.h3-nle-clip-header > p {
+  font-family: "Cascadia Mono", Consolas, ui-monospace, monospace;
+}
+.h3-nle-inspector .h3-nle-project-hint {
+  margin: 4px 16px 0;
+  padding: 12px 0;
+  color: var(--h3-text-dim);
+  line-height: 1.5;
+  border-top: 1px solid var(--h3-line-subtle);
+}
+/* The clip's tab strip: text tabs with an accent underline, no boxes. */
+.h3-nle-property-tabs {
+  display: flex;
+  gap: 20px;
+  min-height: 40px;
+  padding: 0 16px;
+  overflow-x: auto;
+  /* IMPORTANT: keep equal to the inline padding. In a narrow inspector the five tabs overflow and
+     the strip scrolls; a tab scrolled into view (focus, a click on a partly hidden tab) otherwise
+     lands flush with the strip's left edge, inside the splitter's 20 px overlap, where the
+     splitter takes the pointer (M25-64 A64-5). */
+  scroll-padding-inline: 16px;
+  border-bottom: 1px solid var(--h3-line-subtle);
+}
+.h3-nle-dialog .h3-nle-property-tabs [role="tab"] {
+  flex: 0 0 auto;
+  min-width: 0;
+  min-height: 40px;
+  padding: 0 2px;
+  color: var(--h3-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+.h3-nle-dialog .h3-nle-property-tabs [role="tab"]:hover {
+  color: var(--h3-text-primary);
+}
+.h3-nle-dialog .h3-nle-property-tabs [role="tab"][aria-selected="true"] {
+  color: var(--h3-nle-accent);
+  border-bottom-color: var(--h3-nle-accent);
+}
+.h3-nle-clip-header {
+  display: grid;
+  gap: 3px;
+  padding: 14px 16px 8px;
+}
+.h3-nle-clip-header > h4 {
+  overflow: hidden;
+  color: var(--h3-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.h3-nle-clip-header > p {
+  color: var(--h3-text-dim);
+  font-size: 11px;
+}
+.h3-nle-inspector .h3-nle-clip-inspector > .h3-nle-note {
+  margin: 0 16px;
+}
+/* A section: its title with a reset icon, then its rows; sections are divided by a rule. */
+.h3-nle-property-group {
+  display: grid;
+  min-width: 0;
+  padding: 4px 16px 12px;
+}
+.h3-nle-property-group + .h3-nle-property-group {
+  border-top: 1px solid var(--h3-line-subtle);
+}
+.h3-nle-property-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: calc(var(--h3-nle-target) + 4px);
+}
+.h3-nle-dialog .h3-nle-property-disclosure {
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 0;
+  color: var(--h3-text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: start;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+/* The section title is also the section's disclosure. At rest it is the design's plain title:
+   the chevron is drawn only while the section is closed, hovered or focused. */
+.h3-nle-property-chevron {
+  width: 6px;
+  height: 6px;
+  margin-inline-start: 2px;
+  border-right: 1.5px solid var(--h3-text-dim);
+  border-bottom: 1.5px solid var(--h3-text-dim);
+  transform: translateY(-2px) rotate(45deg);
+}
+.h3-nle-property-disclosure .h3-nle-property-chevron {
+  opacity: 0;
+}
+.h3-nle-property-disclosure:hover .h3-nle-property-chevron,
+.h3-nle-property-disclosure:focus-visible .h3-nle-property-chevron,
+.h3-nle-property-disclosure[aria-expanded="false"] .h3-nle-property-chevron {
+  opacity: 1;
+}
+.h3-nle-property-disclosure[aria-expanded="false"] .h3-nle-property-chevron,
+.h3-nle-property-more-toggle[aria-expanded="false"] .h3-nle-property-chevron {
+  transform: rotate(-45deg);
+}
+.h3-nle-dialog .h3-nle-property-reset {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: var(--h3-nle-target);
+  height: var(--h3-nle-target);
+  min-width: var(--h3-nle-target);
+  min-height: var(--h3-nle-target);
+  padding: 0;
+  color: var(--h3-text-dim);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  box-shadow: none;
+}
+.h3-nle-dialog .h3-nle-property-reset:hover:not(:disabled) {
+  color: var(--h3-text-primary);
+  background: var(--h3-control);
+}
+.h3-nle-property-reset .h3-icon {
+  width: 14px;
+  height: 14px;
+}
+/* The design's row pitch is 36 px (a 26 px field and a 10 px gap); with this editor's 30 px
+   targets the same pitch is a 6 px gap. */
+.h3-nle-property-body,
+.h3-nle-property-more-body {
+  display: grid;
+  gap: 6px;
+}
+.h3-nle-property-body {
+  padding-top: 4px;
+}
+/* A slider row: label, slider, value -- the design's 76 / 1fr / 86 with a 10 px gap. At the
+   240 px inspector minimum the inner width is 208: 72 + 38 + 82 + two 8 px gaps = 208, so a row
+   never wraps. The gap is 8 px there and reaches 10 px from an inner width of 212. The value
+   column's 82 px is what the widest text needs ("-179.999" and its unit, measured); do not
+   narrow it. */
+.h3-nle-property-row {
+  display: grid;
+  grid-template-columns:
+    minmax(72px, 76px) minmax(38px, 1fr)
+    minmax(82px, 86px);
+  gap: 4px clamp(8px, calc((100% - 192px) / 2), 10px);
+  align-items: center;
+}
+.h3-nle-property-row > label,
+.h3-nle-property-label {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--h3-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.h3-nle-property-row > small,
+.h3-nle-pair-fields > small {
+  grid-column: 1 / -1;
+}
+/* Two fields on one row (Position): the label, then a well per axis. Beside the label the pair
+   needs 76 + 10 + (88 + 10 + 88) = 272 px; in a narrower inspector the pair wraps under its
+   label, where each well is (208 - 10) / 2 = 99 px at the minimum. */
+.h3-nle-property-pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: center;
+}
+.h3-nle-property-pair > .h3-nle-property-label {
+  flex: 0 0 76px;
+}
+.h3-nle-pair-fields {
+  display: grid;
+  flex: 1 1 186px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 4px 10px;
+  min-width: 0;
+}
+/* A value's well: the bordered field of the design, holding an optional axis letter, the number
+   and its unit. The border, radius and ground are the well's; the input inside it has none. */
+.h3-nle-value {
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  /* The design's space between the number and its unit, given up a pixel at a time below the
+     design's 86 px well so that the longest value ("-179.999" and its unit, about 64 px) still
+     fits the 82 px well of the narrowest inspector. */
+  gap: clamp(3px, calc(100% - 65px), 6px);
+  min-width: 0;
+  min-height: var(--h3-nle-target);
+  padding: 0 6px;
+  color: var(--h3-text-primary);
+  font:
+    12px "Cascadia Mono",
+    Consolas,
+    ui-monospace,
+    monospace;
+  cursor: text;
+  background: var(--h3-well);
+  border: 1px solid var(--h3-line-subtle);
+  border-radius: 5px;
+}
+.h3-nle-value:hover {
+  border-color: var(--h3-line-strong);
+}
+/* The editor's focus ring (`.h3-nle-dialog :focus-visible`), drawn on the well. */
+.h3-nle-value:focus-within {
+  outline: 2px solid var(--h3-page-outline-production);
+  outline-offset: 2px;
+}
+.h3-nle-value:has(input[aria-invalid="true"]) {
+  border-color: var(--h3-tone-danger);
+}
+.h3-nle-value:has(input:disabled) {
+  cursor: not-allowed;
+}
+/* IMPORTANT (B-M2564-06): tokens.css styles every `.h3c` input at (0,3,1). A (0,2,1) rule here
+   lost its font, border, radius and shadow to it, so the value fields rendered in the body face
+   with the strong border. The `.h3c` prefix and the type make this rule (0,4,1); keep both. The
+   focus ring is the well's (`:focus-within` above), so the input draws none of its own. */
+.h3c .h3-nle-dialog .h3-nle-value input[type="number"] {
+  flex: 1 1 auto;
+  width: 0;
+  min-width: 0;
+  min-height: calc(var(--h3-nle-target) - 2px);
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: right;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  box-shadow: none;
+  appearance: textfield;
+}
+.h3-nle-value input::-webkit-inner-spin-button,
+.h3-nle-value input::-webkit-outer-spin-button {
+  margin: 0;
+  appearance: none;
+}
+.h3-nle-unit {
+  flex: 0 0 auto;
+}
+.h3-nle-prefix {
+  flex: 0 0 auto;
+  color: var(--h3-text-dim);
+}
+/* A switch row (Uniform scale): the label, then the switch at the row's end. The button is the
+   target; the 34 x 18 track and its 14 px knob are drawn inside it. */
+.h3-nle-property-toggle {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--h3-nle-target);
+}
+.h3-nle-property-toggle > .h3-nle-property-label {
+  flex: 1 1 auto;
+}
+.h3-nle-dialog .h3-nle-switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 34px;
+  min-width: 34px;
+  height: var(--h3-nle-target);
+  min-height: var(--h3-nle-target);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 9px;
+  box-shadow: none;
+}
+.h3-nle-switch::before {
+  position: absolute;
+  top: calc(50% - 9px);
+  left: 0;
+  width: 34px;
+  height: 18px;
+  content: "";
+  background: var(--h3-line-strong);
+  border-radius: 9px;
+  transition: background-color 120ms ease;
+}
+.h3-nle-switch::after {
+  position: absolute;
+  top: calc(50% - 7px);
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  content: "";
+  background: var(--h3-text-primary);
+  border-radius: 7px;
+  transition: left 120ms ease;
+}
+.h3-nle-switch[aria-checked="true"]::before {
+  background: var(--h3-nle-accent);
+}
+.h3-nle-switch[aria-checked="true"]::after {
+  left: 18px;
+}
+.h3-nle-switch:disabled {
+  opacity: 0.5;
+}
+/* Transform's secondary group (Anchor and alignment): a quiet disclosure, closed at rest. */
+.h3-nle-property-more {
+  display: grid;
+  gap: 6px;
+}
+.h3-nle-dialog .h3-nle-property-more-toggle {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-self: start;
+  min-height: var(--h3-nle-target);
+  padding: 0;
+  color: var(--h3-text-dim);
+  font-size: 12px;
+  text-align: start;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.h3-nle-dialog .h3-nle-property-more-toggle:hover {
+  color: var(--h3-text-primary);
+}
+/* Selects and the colour field sit on the same label column as the numeric rows. */
+.h3-nle-property-body > label {
+  display: grid;
+  grid-template-columns: minmax(72px, 76px) minmax(0, 1fr);
+  gap: clamp(8px, calc((100% - 192px) / 2), 10px);
+  align-items: center;
+  color: var(--h3-text-muted);
+}
+/* B-M2564-06: the same `.h3c` input rule outranked these fields; the prefix makes them (0,3,2). */
+.h3c .h3-nle-dialog .h3-nle-property-body > label > select,
+.h3c .h3-nle-dialog .h3-nle-property-body > label > input,
+.h3c .h3-nle-dialog .h3-nle-property-body > label > textarea {
+  min-width: 0;
+  min-height: var(--h3-nle-target);
+  color: var(--h3-text-primary);
+  background: var(--h3-well);
+  border: 1px solid var(--h3-line-subtle);
+  border-radius: 5px;
+}
+.h3-nle-dialog .h3-nle-property-body > label:has(> textarea) {
+  grid-template-columns: minmax(0, 1fr);
+}
+/* A section's commit button, present only while the section's draft is uncommitted. */
+.h3-nle-dialog .h3-nle-property-body > button {
+  justify-self: end;
+  min-height: var(--h3-nle-target);
+  padding: 0 12px;
+  font-size: 12px;
+  background: var(--h3-control);
+  border: 1px solid var(--h3-line-strong);
+  border-radius: 6px;
+  box-shadow: none;
+}
+.h3-nle-validation {
+  color: var(--h3-tone-danger, #d84c4c);
+}
+.h3-nle-form {
+  display: grid;
+  gap: 0.375rem;
+}
+.h3-nle-form label {
+  display: grid;
+  gap: 0.125rem;
+  color: var(--h3-text-muted);
+  font-size: 0.75rem;
+}
+.h3-nle-form label > input[type="checkbox"] {
+  justify-self: start;
+  min-height: 0;
+  width: 20px;
+  height: 20px;
+}
+/* The wrapping label is the checkbox's touch target (a tap on it toggles the box). */
+.h3-nle-form label:has(> input[type="checkbox"]) {
+  align-content: center;
+  min-height: 44px;
+}
+.h3-nle-form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 0.375rem;
+}
+.h3-nle-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.h3-nle-assets li,
+.h3-nle-slots li {
+  display: grid;
+  gap: 0.125rem;
+  padding: 0.375rem 0.5rem;
+  border-bottom: 1px solid var(--h3-line-subtle);
+  font-size: 0.75rem;
+}
+.h3-nle-assets li[data-highlighted="true"] {
+  background: color-mix(in srgb, var(--h3-tone-ok) 14%, transparent);
+}
+.h3-nle-assets strong {
+  color: var(--h3-text-primary);
+}
+.h3-nle-assets small,
+.h3-nle-slots small {
+  color: var(--h3-text-dim);
+}
+.h3-nle-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px 1px 6px;
+  color: var(--h3-tone-idle);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  background: color-mix(in srgb, var(--h3-tone-idle) 14%, transparent);
+  border-radius: 999px;
+}
+.h3-nle-chip::before {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  background: currentcolor;
+  border-radius: 50%;
+  content: "";
+}
+.h3-nle-chip[data-tone="ok"] {
+  color: var(--h3-tone-ok);
+  background: color-mix(in srgb, var(--h3-tone-ok) 14%, transparent);
+}
+.h3-nle-chip[data-tone="info"] {
+  color: var(--h3-tone-info);
+  background: color-mix(in srgb, var(--h3-tone-info) 14%, transparent);
+}
+.h3-nle-chip[data-tone="warn"] {
+  color: var(--h3-tone-warn);
+  background: color-mix(in srgb, var(--h3-tone-warn) 14%, transparent);
+}
+.h3-nle-chip[data-tone="danger"] {
+  color: var(--h3-tone-danger);
+  background: color-mix(in srgb, var(--h3-tone-danger) 15%, transparent);
+}
+.h3-nle-note {
+  color: var(--h3-text-muted);
+  font-size: 0.75rem;
+}
+.h3-nle-danger {
+  color: var(--dg);
+  font-size: 0.75rem;
+}
+/* M25-63: the resize control is a corner grip at the editor's target size (30 px fine, 44 px
+   coarse), glyph in the corner. The timeline's scroll bar and trim rail keep their 54 px corner
+   clearance (`RESIZE_CORNER_CLEARANCE_PX`), which covers the coarse size. */
+.h3-nle-dialog .h3-nle-resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: var(--h3-nle-target);
+  height: var(--h3-nle-target);
+  padding: 3px;
+  color: var(--h3-text-dim);
+  cursor: nwse-resize;
+  background: transparent;
+  border: 0;
+  touch-action: none;
+}
+.h3-nle-dialog .h3-nle-resize:hover {
+  color: var(--h3-text-primary);
+}
+/* B-M2563-12: the plan's 14 px corner glyph (row 17) inside the target-sized hit area. */
+.h3-nle-dialog .h3-nle-resize svg.h3-icon {
+  width: 14px;
+  height: 14px;
+}
+.h3-nle-storyboard li {
+  display: grid;
+  gap: 0.375rem;
+  padding: 0.375rem 0;
+  border-bottom: 1px solid var(--h3-line-subtle);
+}
+.h3-nle-slots li[data-state="succeeded"] {
+  border-left: 3px solid var(--h3-tone-ok);
+}
+.h3-nle-slots li[data-state="failed"] {
+  border-left: 3px solid var(--h3-tone-danger);
+}
+.h3-nle-slots li[data-state="running"],
+.h3-nle-slots li[data-state="queued"],
+.h3-nle-slots li[data-state="verifying"] {
+  border-left: 3px solid var(--h3-tone-info);
+}
+/* M25-33: the shared Media tools card where the runtime blocks a preview or final output. The
+   overlay is portalled outside the sidebar, so the card's sidebar classes are restated here. */
+.h3-nle-media-tools {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  margin-block-start: 0.5rem;
+  padding: 0.625rem;
+  background: var(--h3-panel-2);
+  border: 1px solid var(--h3-line-subtle);
+  border-radius: var(--h3-radius-panel);
+}
+.h3-nle-media-tools h4 {
+  color: var(--h3-text-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.h3-nle-media-tools .h3s-mt-state {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+}
+.h3-nle-media-tools .h3-val {
+  color: var(--h3-text-primary);
+}
+.h3-nle-media-tools .h3-meta {
+  color: var(--h3-text-muted);
+  font-size: 0.75rem;
+}
+.h3-nle-media-tools .h3s-mt-notice,
+.h3-nle-media-tools .h3s-mt-rejection {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.h3-nle-media-tools progress {
+  inline-size: 100%;
+  block-size: 0.5rem;
+  accent-color: var(--h3-page-outline-production);
+}
+.h3-nle-media-tools a {
+  color: var(--h3-text-primary);
+}
+.h3-nle-media-tools button {
+  justify-self: start;
+}

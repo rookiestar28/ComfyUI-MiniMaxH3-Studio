@@ -1,0 +1,2678 @@
+.h3c {
+  box-sizing: border-box;
+}
+[data-h3-context-mount] {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100%;
+}
+[data-h3-context-mount] > .h3c {
+  flex: 1 0 auto;
+  min-block-size: 100%;
+}
+.h3c {
+  /* M21-03. The shipped ladder (#0a0a0b -> #111214 -> #181a1d -> #23262a) spans
+     a narrow band of near-neutral black, so surfaces did not separate and every
+     boundary had to be drawn as a line. The replacement is wider and slightly
+     cool, which is what lets elevation carry structure and lets the line tokens
+     become quiet. Every pair below is audited in
+     tests/m21_03VisualSystem.test.ts against the surfaces it actually sits on. */
+  --h3-canvas: #0d0f13;
+  --h3-surface-1: #161a21;
+  --h3-surface-2: #1d222a;
+  --h3-surface-3: #232932;
+  /* A field is a recessed well, not a raised face. */
+  --h3-well: #090b0f;
+  --h3-control: #1f242c;
+  --h3-line-subtle: #242a33;
+  --h3-line-strong: #363e4a;
+  /* Four text steps, not three. The rule that does the most work: a value
+     outranks its label, and an unknown value drops to --h3-text-dim so an
+     absent state recedes instead of competing with a real one. Every step
+     clears AA on every surface in this palette; the recession is a step down
+     the ramp, never a step below legibility. */
+  --h3-text-primary: #f2f5f9;
+  --h3-text-body: #d7dde6;
+  /* The lower two steps are brighter than the section 3.4 candidates. Those
+     were audited against the bare surfaces; the browser lane composites the
+     real ancestor chain, and on a selected card -- whose background is the
+     identity hue mixed into the surface -- #96a1b0 measured 4.39. The audit
+     that composites wins over the audit that does not. */
+  --h3-text-muted: #aeb7c3;
+  --h3-text-dim: #9aa4b2;
+  /* M17-21 semantic roles. The accepted visual direction allows exactly one
+     warm shell accent, so the red-orange signal keeps its two legitimate jobs:
+     the Production page identity in the navigation, and destructive or failed
+     affordances. It was removed from the page header bar, segment selection,
+     the sequence track and proposal rows, which is what diluted it before. */
+  /* M21-03 re-tuned the identity hues against the new ladder. The warm signal
+     keeps its two jobs, but the danger *tone* is now its own value: on the
+     Production page the identity appears exactly three times (tab underline,
+     selected index chip and edge, selected sequence block), and a failed or
+     destructive affordance must not read as "this is the Production page". */
+  --h3-signal-orange: #ff6b35;
+  --h3-signal-ink: #0d0f13;
+  --h3-page-outline-context: #6f8cff;
+  /* M17-23: the single edit target needs an accent that is neither the blue of
+     set selection nor the warm signal AC-M17-21-03 reserves for destructive and
+     failed affordances, so it gets its own role rather than borrowing one. */
+  --h3-edit-target: #a78bfa;
+  --h3-page-outline-production: var(--h3-signal-orange);
+  --h3-page-outline-settings: #8b95a3;
+  --h3-tone-ok: #3ecf8e;
+  --h3-tone-info: #58b0f0;
+  --h3-tone-warn: #e8b13a;
+  --h3-tone-danger: #ff5f5f;
+  /* Section 3.3 proposed #5c6675 for idle. It fails AA on every surface here,
+     and #98a2b0 -- which clears it on a bare surface -- still failed at 3.92 on
+     the tinted chip the browser lane composites, because a chip's background is
+     the tone at 14% over the card. The audited value is the one that clears
+     both, which is the M17-21 literal this item had no reason to move. */
+  --h3-tone-idle: #afb6c1;
+  /* M21-03: section headings carry no hue. The name is kept because the
+     M17-12 identity guard reads it, but it now resolves to the top text step
+     -- saturated colour is reserved for state. The frozen identity literal
+     #72d6ff survives only in this note, which is where it belongs once no
+     heading is tinted. */
+  --h3-text-title-accent: var(--h3-text-primary);
+  --h3-text-description-strong: #e7ebf0;
+  --h3-surface: var(--h3-canvas);
+  /* M21-12: the extension owns a tint, not the host's sidebar ground. The root
+     stays visibly translucent; text panels use the conservative dark-palette
+     floor required by the black/white-backdrop contrast audit. */
+  --h3-plate-alpha: 28%;
+  --h3-panel-alpha: 98%;
+  --h3-panel-1: color-mix(
+    in srgb,
+    var(--h3-surface-1) var(--h3-panel-alpha),
+    transparent
+  );
+  --h3-panel-2: color-mix(
+    in srgb,
+    var(--h3-surface-2) var(--h3-panel-alpha),
+    transparent
+  );
+  --h3-panel-3: color-mix(
+    in srgb,
+    var(--h3-surface-3) var(--h3-panel-alpha),
+    transparent
+  );
+  --h3-text: var(--h3-text-primary);
+  --h3-muted: var(--h3-text-muted);
+  --h3-border: var(--h3-line-strong);
+  --h3-accent: var(--h3-page-outline-context);
+  --h3-accent-text: var(--h3-signal-ink);
+  /* M17-22 corrective, from the distinct review of 5156e41. This was
+     `var(--error-text, #ff8585)`. On the pinned host `--error-text` is #ff4444
+     and, like the other legacy host variables, does not change with the theme,
+     so the panel silently rendered danger text in the host's red: 3.886 on
+     --h3-control and 4.459 on --h3-surface-3, both under AA. The hermetic sweep
+     could not see it, because nothing in the harness defines --error-text and
+     the fallback below is the only value it ever measured. The light block
+     already pinned a literal for exactly this reason; dark now does too. */
+  --dg: #ff8585;
+  --h3-control-border: color-mix(
+    in srgb,
+    var(--h3-text) 46%,
+    var(--h3-control)
+  );
+  --h3-section-border: color-mix(
+    in srgb,
+    var(--h3-text) 46%,
+    var(--h3-surface)
+  );
+  --h3-divider: color-mix(in srgb, var(--h3-control-border) 72%, transparent);
+  --h3-operation: var(--p-primary-color, #d5a24b);
+  /* Panel outlines are quiet; --h3-line-strong stays for controls that must
+     read as interactive. The two names below were referenced before M17-21
+     without ever being defined, which silently dropped a border and a track. */
+  --h3-panel-line: var(--h3-line-subtle);
+  --h3-border-strong: var(--h3-line-subtle);
+  --h3-border-subtle: color-mix(
+    in srgb,
+    var(--h3-line-subtle) 62%,
+    transparent
+  );
+  --h3-radius-panel: 0.5rem;
+  --ss: var(--h3-panel-2);
+  --hv: color-mix(in srgb, var(--h3-accent) 14%, transparent);
+  --h3-stage-intent: #b49aff;
+  --h3-stage-media: #62d8f7;
+  --h3-stage-understand: #f1c75b;
+  --h3-stage-audit: #ef8da9;
+  --h3-stage-execute: #64d39a;
+  --st: 160ms;
+  /* M21-03 type scale. Four sizes plus a deliberately quiet section label, so
+     content carries the weight instead of the headings. `--h3-t-sec-*` is split
+     into parts because `text-transform` and `letter-spacing` cannot travel in a
+     `font:` shorthand, and the CJK variant below has to override exactly those
+     two parts without restating the size. */
+  --h3-font: system-ui, sans-serif;
+  --h3-t-title: 640 13.5px/1.35 var(--h3-font);
+  --h3-t-body: 400 12px/1.5 var(--h3-font);
+  --h3-t-val: 500 11.5px/1.45 var(--h3-font);
+  --h3-t-meta: 400 10.5px/1.45 var(--h3-font);
+  --h3-t-sec: 700 9.5px/1.45 var(--h3-font);
+  --h3-t-sec-track: 0.11em;
+  --h3-t-sec-transform: uppercase;
+  /* M21-03 control material: one light source above. */
+  --h3-lift-top: rgba(255, 255, 255, 0.055);
+  --h3-lift-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --h3-well-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.38);
+  --h3-control-height: 26px;
+  --h3-control-height-sm: 24px;
+  --h3-radius-control: 5px;
+  /* M21-06 D-B2. One state-layer strength for every hover tint, so a hover
+     never becomes a per-control invention. 10% sits inside the 8-14% band the
+     existing `--hv` already uses. */
+  --h3-state-hover: 10%;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  container-type: inline-size;
+  container-name: h3-sidebar;
+  padding: 1rem;
+  color: var(--h3-text);
+  background-color: color-mix(
+    in srgb,
+    var(--h3-surface) var(--h3-plate-alpha),
+    transparent
+  );
+  /* M21-03 (user decision, 2026-08-18): the decorative grid is removed. It was
+     most visible exactly where the panel was empty and read as graph paper in
+     light mode. Structure comes from elevation and type, not from texture. */
+  font: var(--h3-t-body);
+}
+/* M17-22: the light palette activates on the HOST's own signal, not on an
+   attribute nothing sets. ComfyUI 1.48.7 marks dark with `.dark-theme` on the
+   root element and treats bare `:root` as light, so the trigger is "host is
+   present and is not signalling dark".
+
+   `body.litegraph` (declared in the pinned host's index.html) is what makes the
+   absence of `.dark-theme` unambiguous: without it, "no dark signal" would also
+   match the offline and hermetic case, where AC-M17-22-02 requires the accepted
+   dark appearance. The `:not([data-theme])` guards let a harness or test force
+   either palette deterministically and win over the host rule.
+
+   No host colour variable feeds a rendered colour in this file. On this pinned
+   revision `--comfy-menu-bg`, `--input-text`, `--fg-color`, `--bg-color`,
+   `--content-bg` and `--error-text` are defined once on bare `:root` with dark
+   values and do not change with the theme, so deriving from them would keep the
+   panel dark in light mode - the very defect this rule fixes. See the plan's
+   section 1.1.
+
+   One host reference survives and is stated rather than glossed: `--h3-operation`
+   is `var(--p-primary-color, #d5a24b)`, whose shape is pinned by the accepted
+   M17-00 contract in tests/m17_00Static.test.ts. It has no consumer anywhere in
+   this stylesheet, so it cannot affect a rendered colour; folding it away belongs
+   to whichever item owns that contract, not here. */
+:root:not([data-theme]):not(.dark-theme) body.litegraph .h3c:not([data-theme]),
+.h3c[data-theme="light"],
+:root[data-theme="light"] .h3c,
+.light-theme .h3c {
+  --h3-canvas: #eceff4;
+  --h3-surface-1: #f4f6f9;
+  --h3-surface-2: #ffffff;
+  --h3-surface-3: #e4e8ee;
+  --h3-well: #f7f9fb;
+  /* M21-03: the shipped grey control fill (#d6dae0) made every field read as
+     disabled in light mode. A field here is white with a border. */
+  --h3-control: #ffffff;
+  --h3-line-subtle: #dfe4ea;
+  --h3-line-strong: #c4cbd5;
+  --h3-text-primary: #0b0f14;
+  --h3-text-body: #2b323b;
+  /* Darkened for the same reason the dark ramp was brightened: the composited
+     browser audit measured #525b68 at 4.23 where the bare-surface audit read
+     6.87. */
+  --h3-text-muted: #464e5a;
+  --h3-text-dim: #525b68;
+  --h3-signal-orange: #b72a0d;
+  --h3-signal-ink: #ffffff;
+  --h3-page-outline-context: #3157b8;
+  --h3-edit-target: #5b21b6;
+  --h3-page-outline-settings: #59616c;
+  /* M21-03 re-audited every tone against the new light ladder: on the darkest
+     light surface (#e4e8ee) the shipped values scored 4.15-4.49, under AA. */
+  --h3-tone-ok: #1b6e47;
+  --h3-tone-info: #17629a;
+  --h3-tone-warn: #7d5713;
+  --h3-tone-danger: #a32307;
+  /* Same finding as the dark idle: a tone sits on a chip tinted with itself,
+     which the composited audit measures and the bare-surface audit does not.
+     #565f6c read 3.91 there; this is the M17-21 literal that clears both. */
+  --h3-tone-idle: #454e5b;
+  --h3-text-title-accent: var(--h3-text-primary);
+  --h3-text-description-strong: #252a31;
+  /* Actual sRGB channel compositing reaches the 4.5:1 black/white-backdrop
+     floor at 90.23% on surface 3; 91% is the smallest whole-number authority
+     that clears every text step. */
+  --h3-panel-alpha: 91%;
+  --h3-lift-top: rgba(255, 255, 255, 0.9);
+  --h3-lift-shadow: 0 1px 2px rgba(11, 15, 20, 0.14);
+  --h3-well-shadow: inset 0 1px 2px rgba(11, 15, 20, 0.1);
+  /* M17-22: these six were never overridden here because the light palette
+     never activated, so they were inherited from the dark block and had never
+     been contrast-audited on a light surface. Measured against the darkest
+     light surface (--h3-surface-3 #e2e5e9) the dark values score 1.27-1.86,
+     far below AA, and the stage dots would have been nearly invisible. Each
+     light value keeps its stage hue and scores >= 4.5 on every light surface
+     (white 5.78-5.83, canvas 5.30-5.34, surface-3 4.57-4.61).
+     `--dg` is pinned to the audited light danger colour rather than to the
+     host's `--error-text` (#ff4444), which scores only 2.70 on surface-3.
+     M17-22 corrective: it is `--h3-tone-danger`'s #a32307 rather than the
+     identity literal #b72a0d, because `.h3-stage-tab--blocked small` puts this
+     colour on --h3-control (#d6dae0 in light) where #b72a0d scores 4.466 -- 
+     under AA by a hair, and missed because that element only renders in a
+     blocked App Mode state the browser lane never reaches. #a32307 scores 5.34
+     there. The frozen M17-12 identity literal is untouched and still lives on
+     --h3-signal-orange above; this is the danger *role*, not the identity. */
+  --h3-stage-intent: #6b38ff;
+  --h3-stage-media: #006e8b;
+  --h3-stage-understand: #845f00;
+  --h3-stage-audit: #ca0a41;
+  --h3-stage-execute: #177444;
+  --dg: #a32307;
+}
+.h3n {
+  display: flex;
+  gap: 0.375rem;
+  margin: 0 0 0.75rem;
+  border-bottom: 1px solid var(--h3-border);
+  padding: 0 0 0.5rem;
+}
+/* IMPORTANT: the page buttons, the two function tabs and the editor launcher are the controls of
+   the frozen M25-21 UI invariant rows, whose touch-target floor is 44 x 44 CSS px; the hardening
+   accessibility cases measure their rendered boxes. Do not lower them to tighten the header. */
+.h3n button {
+  border: 1px solid var(--h3-border);
+  border-radius: var(--h3-radius-control);
+  flex: 0 0 92px;
+  width: 92px;
+  min-width: 72px;
+  min-height: 44px;
+  padding: 0.375rem 0.625rem;
+  color: var(--h3-muted);
+  background: color-mix(in srgb, var(--h3-control) 88%, transparent);
+  font: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.h3n button[data-page-id="settings"] {
+  margin-inline-start: auto;
+}
+.h3n button[data-page-id="context"] {
+  --po: var(--h3-page-outline-context);
+}
+.h3n button[data-page-id="production"] {
+  --po: var(--h3-page-outline-production);
+}
+.h3n button[data-page-id="settings"] {
+  --po: var(--h3-page-outline-settings);
+}
+.h3n button:focus-visible {
+  outline: 2px solid var(--h3-accent);
+  outline-offset: 2px;
+}
+.h3-director {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+.h3-director-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.375rem;
+  padding: 0.375rem;
+  border: 1px solid var(--h3-line-subtle);
+  border-radius: var(--h3-radius-panel);
+  background: var(--h3-panel-2);
+}
+.h3-director-tabs button {
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid var(--h3-control-border);
+  border-radius: var(--h3-radius-control);
+  padding: 0.375rem 0.625rem;
+  color: var(--h3-text);
+  background: var(--h3-control);
+  font: inherit;
+}
+.h3-director-tabs button[aria-selected="true"] {
+  border-color: var(--h3-page-outline-production);
+  box-shadow: inset 0 -2px 0 var(--h3-page-outline-production);
+}
+.h3-director-tabs button:focus-visible {
+  outline: 2px solid var(--h3-page-outline-production);
+  outline-offset: 2px;
+}
+.h3-director-panel {
+  min-width: 0;
+}
+.h3c *,
+.h3c *::before,
+.h3c *::after {
+  box-sizing: border-box;
+}
+/* IMPORTANT (M25-21 B3-D61): the header wraps. `.h3-context-heading` is `flex: 1 1 auto` with no
+   `min-width: 0`, so when the loaded provenance metadata leaves it less inline space than its
+   title needs, the title overflows its own box and runs under the metadata instead of the row
+   reflowing. Wrapping moves the metadata to its own line at constrained widths and changes
+   nothing where both fit. */
+.h3-context-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: -1rem -1rem 0.75rem;
+  border-bottom: 1px solid var(--h3-border);
+  padding: 12px 16px;
+  background: var(--h3-panel-1);
+}
+.h3-context-heading {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.h3-context-body,
+.h3p,
+.h3s-p,
+.h3a {
+  /* M21-12: page-level copy must never inherit the unknown host ground through
+     the translucent plate; nested cards may establish a stronger panel. */
+  background: var(--h3-panel-1);
+}
+.h3-context-header h2 {
+  margin: 0;
+  font:
+    700 14px/1.2 Arial,
+    sans-serif;
+  font-weight: 700;
+  color: var(--h3-text-title-accent);
+  white-space: nowrap;
+}
+.h3ta,
+.h3c :is(h3, h4, legend) {
+  color: var(--h3-text-title-accent);
+  font-weight: 600;
+  text-shadow: none;
+}
+.h3ds {
+  color: var(--h3-text-description-strong);
+  font-weight: 500;
+  opacity: 1;
+  text-shadow: none;
+}
+.h3-context-state-dot {
+  flex: 0 0 10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--h3-stage-execute);
+}
+.h3c[data-shell-status="working"] .h3-context-state-dot {
+  background: var(--h3-stage-understand);
+}
+.h3c[data-shell-status="error"] .h3-context-state-dot {
+  background: var(--dg);
+}
+/* IMPORTANT (M25-21 B3-D61): this block must be able to shrink and wrap. When build provenance
+   loads it gains the `sources …` and `bundle …` tokens, and at the constrained-floor width its
+   intrinsic width no longer fits the inline space left by the header's padding and the title beside
+   it. With `flex: 0 0 auto` plus `white-space: nowrap` on the container it could do neither and
+   overflowed the panel. Keep `nowrap` on the individual tokens so a digest never breaks mid-string;
+   never move it back onto the container. */
+.h3-context-metadata {
+  display: flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--h3-muted);
+  font:
+    12px/1.25 Arial,
+    sans-serif;
+  text-align: right;
+}
+.h3-context-version,
+.h3-context-build-revision,
+.h3-context-build-bundle,
+.h3-context-build-mismatch {
+  white-space: nowrap;
+}
+.h3-context-github {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 320px;
+  border: 1px solid var(--h3-border);
+  /* M21-06 D-B3: this is a link the user clicks, so it takes the control shape.
+     The pill is reserved for badges, which is what makes a pill mean "not a
+     control" anywhere in the panel. */
+  border-radius: var(--h3-radius-control);
+  padding: 4px 8px;
+  color: var(--h3-text);
+  background: rgb(255 255 255 / 4%);
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background-color var(--st) ease,
+    border-color var(--st) ease;
+}
+.h3-context-github:hover {
+  background: rgb(255 255 255 / 8%);
+}
+.h3-context-github:focus-visible {
+  outline: 2px solid var(--h3-accent);
+  outline-offset: 2px;
+}
+.h3-context-status {
+  display: block;
+  margin: 0 0 0.25rem;
+  color: var(--h3-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.h3-context-status--interactive,
+.h3-context-status--projected {
+  color: var(--h3-stage-execute);
+}
+.h3-context-status--working {
+  color: var(--h3-stage-understand);
+}
+.h3-context-status--error {
+  color: var(--dg);
+}
+.h3-context-error {
+  border-left: 2px solid var(--dg);
+  padding-left: 0.625rem;
+  color: var(--dg);
+}
+.h3-context-stages {
+  display: grid;
+  gap: 0.375rem;
+  padding-left: 1.5rem;
+}
+.h3-context-stage-item {
+  border-left: 2px solid var(--sa, var(--h3-border));
+  padding-left: 0.625rem;
+}
+.h3-context-stage-item--intent {
+  --sa: var(--h3-stage-intent);
+}
+.h3-context-stage-item--media {
+  --sa: var(--h3-stage-media);
+}
+.h3-context-stage-item--understand {
+  --sa: var(--h3-stage-understand);
+}
+.h3-context-stage-item--audit {
+  --sa: var(--h3-stage-audit);
+}
+.h3-context-stage-item--execute {
+  --sa: var(--h3-stage-execute);
+}
+.h3c[data-shell-status="error"] .h3-context-stage-item {
+  --sa: var(--dg);
+}
+.h3-context-summary {
+  display: grid;
+  gap: 0.5rem;
+  border: 1px solid var(--h3-panel-line);
+  border-radius: var(--h3-radius-panel);
+  padding: 0.75rem;
+  background: var(--h3-panel-1);
+}
+/* The setup-return action reads as part of the projection card it edits. */
+.h3-setup-return {
+  margin-top: 0;
+  border: 1px solid var(--h3-panel-line);
+  border-top: 0;
+  border-radius: 0 0 var(--h3-radius-panel) var(--h3-radius-panel);
+  padding: 0.625rem 0.75rem;
+  background: var(--h3-panel-2);
+}
+.h3-context-summary:has(+ .h3-setup-return) {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.h3-context-summary div {
+  display: grid;
+  grid-template-columns: minmax(5rem, 1fr) 2fr;
+  border-top: 1px solid var(--h3-border);
+  padding-top: 0.5rem;
+}
+.h3-context-summary dt {
+  color: var(--h3-muted);
+}
+.h3-context-summary dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.h3-stage-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.25rem;
+  margin: 0.875rem 0;
+  padding-bottom: 0.25rem;
+}
+.h3-stage-tab,
+.h3-context-actions button,
+.h3-audit-editor button,
+.h3-import-button {
+  border: 1px solid var(--h3-border);
+  border-radius: var(--h3-radius-control);
+  padding: 0.5rem 0.625rem;
+  color: var(--h3-text);
+  background: var(--h3-control);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.h3-stage-tab {
+  display: grid;
+  min-width: 0;
+  min-height: 3.25rem;
+  gap: 0.125rem;
+  border: 0;
+  white-space: nowrap;
+  transition:
+    border-color var(--st) ease,
+    background-color var(--st) ease,
+    box-shadow var(--st) ease;
+}
+.h3-stage-tab--intent {
+  --sa: var(--h3-stage-intent);
+}
+.h3-stage-tab--media {
+  --sa: var(--h3-stage-media);
+}
+.h3-stage-tab--understand {
+  --sa: var(--h3-stage-understand);
+}
+.h3-stage-tab--audit {
+  --sa: var(--h3-stage-audit);
+}
+.h3-stage-tab--execute {
+  --sa: var(--h3-stage-execute);
+}
+.h3-stage-tab--blocked,
+.h3-stage-tab--error {
+  --sa: var(--dg);
+}
+.h3-stage-tab small {
+  color: var(--h3-muted);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+}
+.h3-stage-tab--blocked small {
+  color: var(--dg);
+}
+.h3-stage-tab:focus-visible,
+.h3-context-actions button:focus-visible,
+.h3-audit-editor button:focus-visible,
+.h3-import-button:focus-within,
+.h3c input:focus-visible,
+.h3c select:focus-visible,
+.h3c textarea:focus-visible {
+  outline: 2px solid var(--h3-accent);
+  outline-offset: 2px;
+}
+.h3sp {
+  min-width: 0;
+  border-radius: 0.5rem;
+  padding: 0.875rem;
+  background: var(--ss);
+}
+.h3sp[data-stage="intent"] {
+  --sa: var(--h3-stage-intent);
+}
+.h3sp[data-stage="media"] {
+  --sa: var(--h3-stage-media);
+}
+.h3sp[data-stage="understand"] {
+  --sa: var(--h3-stage-understand);
+}
+.h3sp[data-stage="audit"] {
+  --sa: var(--h3-stage-audit);
+}
+.h3sp[data-stage="execute"] {
+  --sa: var(--h3-stage-execute);
+}
+.h3sp > header {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+.h3sp > header p {
+  margin: 0;
+}
+.h3-audit-list,
+.h3-diagnostics {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.h3-audit-list li,
+.h3-diagnostics li {
+  display: grid;
+  gap: 0.125rem;
+  border-left: 2px solid var(--h3-border);
+  padding-left: 0.625rem;
+  overflow-wrap: anywhere;
+}
+.h3-audit-list small,
+.h3-audit-list span {
+  color: var(--h3-muted);
+}
+.h3-audit-editor {
+  display: grid;
+  gap: 0.5rem;
+}
+.h3c input,
+.h3c textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--h3-border);
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  color: var(--h3-text);
+  background: var(--h3-control);
+  font: inherit;
+}
+.h3c textarea {
+  min-height: 10rem;
+  resize: vertical;
+}
+.h3-reference-picker {
+  display: grid;
+  gap: 0.375rem;
+}
+.h3-reference-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0.375rem;
+  max-height: 4.375rem;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--h3-border);
+  border-radius: 0.375rem;
+  padding: 0.25rem;
+  scrollbar-gutter: stable;
+}
+.h3-reference-toolbar:focus-visible {
+  outline: 2px solid var(--h3-accent);
+  outline-offset: 2px;
+}
+.h3-reference-chip {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 1.75rem;
+  max-width: 100%;
+  border: 1px solid var(--h3-border);
+  border-radius: 999px;
+  padding: 0.25rem 0.625rem;
+  color: var(--h3-text);
+  background: var(--h3-control);
+  font: inherit;
+  white-space: nowrap;
+}
+.h3-reference-chip small {
+  color: var(--h3-muted);
+}
+.h3-reference-chip:hover:not(:disabled) {
+  border-color: var(--h3-accent);
+  background: var(--hv);
+}
+.h3-reference-picker select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--h3-border);
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  color: var(--h3-text);
+  background: var(--h3-control);
+  font: inherit;
+}
+.h3-reference-combobox {
+  position: relative;
+  display: grid;
+  gap: 0.375rem;
+}
+.h3-reference-combobox [role="listbox"] {
+  position: absolute;
+  z-index: 10;
+  top: 100%;
+  right: 0;
+  left: 0;
+  max-height: 12rem;
+  margin: 0.25rem 0 0;
+  overflow-y: auto;
+  border: 1px solid var(--h3-border);
+  border-radius: 0.375rem;
+  padding: 0.25rem;
+  background: var(--h3-surface);
+  list-style: none;
+  box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 0.24);
+}
+.h3-reference-combobox [role="option"] {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+.h3-reference-combobox [role="option"][aria-selected="true"],
+.h3-reference-combobox [role="option"]:hover {
+  background: var(--hv);
+}
+.h3-proposal {
+  border-left: 2px solid var(--h3-accent);
+  padding-left: 0.625rem;
+}
+.h3-context-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.h3-context-actions button:disabled,
+.h3-audit-editor button:disabled,
+.h3-import-button:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.h3-import-button {
+  position: relative;
+  overflow: hidden;
+}
+.h3-import-button input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.h3-context-actions p {
+  flex-basis: 100%;
+  margin: 0;
+  min-height: 1.5rem;
+}
+.h3-app-mode {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+.h3-app-mode-form {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  border: 1px solid var(--h3-section-border);
+  border-radius: 0.5rem;
+  padding: 0.875rem;
+  background: var(--ss);
+}
+.h3-app-mode-task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--h3-divider);
+  padding-bottom: 0.625rem;
+}
+.h3-app-mode-task-header strong {
+  color: var(--h3-text);
+  font-size: 0.875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.h3-app-mode-task-header span {
+  color: var(--h3-muted);
+  font-size: 0.75rem;
+  text-align: right;
+}
+.h3-app-mode-form label {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+.h3-app-mode-form label > span {
+  color: var(--h3-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.h3-app-mode-form :is(select, input, textarea) {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid var(--h3-control-border);
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  color: var(--h3-text);
+  background: var(--h3-control);
+  font: inherit;
+}
+.h3-app-mode-form textarea {
+  min-height: 10rem;
+  resize: vertical;
+}
+.h3-app-mode-form :is(select, input, textarea):disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.h3-app-mode-connect-guidance {
+  margin: 0;
+  border-left: 2px solid var(--h3-divider);
+  padding-left: 0.625rem;
+  color: var(--h3-muted);
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.h3-app-mode-source-blocker {
+  margin: 0;
+  border-left: 2px solid var(--dg);
+  padding-left: 0.625rem;
+  color: var(--dg);
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.h3-reference-source-fieldset {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.625rem;
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0.625rem 0 0;
+  border-top: 1px solid var(--h3-divider);
+}
+.h3-reference-source-fieldset legend {
+  grid-column: 1 / -1;
+  padding: 0 0.25rem 0 0;
+  color: var(--h3-muted);
+  font-size: 0.75rem;
+}
+.h3-app-mode-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.h3-app-mode-actions button {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+.h3-app-mode-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.35rem;
+  min-width: 0;
+}
+.h3-app-mode-tabs button {
+  min-width: 0;
+  border: 0;
+  border-radius: var(--h3-radius-control);
+  padding: 0.45rem 0.35rem;
+  color: var(--h3-muted);
+  background: var(--h3-control);
+  white-space: nowrap;
+  font: inherit;
+  font-size: 0.7rem;
+  text-align: left;
+}
+.h3-app-mode-tabs button[data-stage="intent"] {
+  --sa: var(--h3-stage-intent);
+}
+.h3-app-mode-tabs button[data-stage="media"] {
+  --sa: var(--h3-stage-media);
+}
+.h3-app-mode-tabs button[data-stage="understand"] {
+  --sa: var(--h3-stage-understand);
+}
+.h3-app-mode-tabs button[data-stage="audit"] {
+  --sa: var(--h3-stage-audit);
+}
+.h3-app-mode-tabs button[data-stage="execute"] {
+  --sa: var(--h3-stage-execute);
+}
+.h3-app-mode-tabs button:focus-visible {
+  outline: 2px solid var(--h3-accent);
+  outline-offset: 2px;
+}
+.h3-app-stage-panel {
+  min-width: 0;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  background: var(--h3-control);
+}
+.h3-app-stage-panel-content {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+.h3-app-stage-panel-content p {
+  margin: 0;
+  color: var(--h3-muted);
+  overflow-wrap: anywhere;
+}
+.h3-app-stage-panel-content button {
+  justify-self: start;
+  max-width: 100%;
+}
+.h3-app-mode-status,
+.h3-context-workspace-notice {
+  margin: 0;
+  color: var(--h3-muted);
+  overflow-wrap: anywhere;
+}
+.h3-context-capability {
+  margin: 0;
+  color: var(--h3-muted);
+}
+.h3-app-mode-stages {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+  min-width: 0;
+}
+.h3-app-stage-card {
+  min-width: 0;
+  border-left: 2px solid var(--sa, var(--h3-border));
+  border-radius: 0.5rem;
+  padding: 0.625rem;
+  background: var(--h3-control);
+  overflow-wrap: anywhere;
+}
+.h3-app-stage-card--intent {
+  --sa: var(--h3-stage-intent);
+}
+.h3-app-stage-card--media {
+  --sa: var(--h3-stage-media);
+}
+.h3-app-stage-card--understand {
+  --sa: var(--h3-stage-understand);
+}
+.h3-app-stage-card--audit {
+  --sa: var(--h3-stage-audit);
+}
+.h3-app-stage-card--execute {
+  --sa: var(--h3-stage-execute);
+}
+.h3-app-stage-card header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+.h3-app-stage-card h3 {
+  min-width: 0;
+  margin: 0;
+  font-size: 0.8rem;
+  overflow-wrap: anywhere;
+}
+.h3-app-stage-number {
+  flex: 0 0 auto;
+  color: var(--sa, var(--h3-accent));
+  font-weight: 700;
+}
+.h3-app-stage-card p,
+.h3-app-stage-card small {
+  display: block;
+  margin: 0.4rem 0 0;
+  color: var(--h3-muted);
+  overflow-wrap: anywhere;
+}
+.h3-app-stage-card p {
+  font-size: 0.75rem;
+}
+.h3-app-stage-card small {
+  font-size: 0.6875rem;
+}
+.h3-app-stage-state {
+  display: inline-flex;
+  margin-top: 0.5rem;
+  border: 1px solid var(--sa, var(--h3-border));
+  border-radius: 999px;
+  padding: 0.1rem 0.4rem;
+  color: var(--sa, var(--h3-text));
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.h3-semantic-review {
+  display: grid;
+  gap: 0.625rem;
+  border: 1px solid var(--h3-border);
+  border-radius: 0.625rem;
+  padding: 0.75rem;
+  background: var(--h3-control);
+}
+.h3-semantic-review-heading,
+.h3-semantic-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.h3-semantic-review h3,
+.h3-semantic-review h4,
+.h3-semantic-review p {
+  margin: 0;
+}
+.h3-semantic-review-group ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.4rem 0 0;
+  padding-left: 1.25rem;
+}
+.h3-semantic-review-group li {
+  display: grid;
+  gap: 0.2rem;
+  overflow-wrap: anywhere;
+}
+.h3-semantic-review-target,
+.h3-semantic-review-status,
+.h3-semantic-review-unavailable,
+.h3-semantic-review-detail {
+  color: var(--h3-muted);
+  font-size: 0.75rem;
+}
+.h3-semantic-review fieldset,
+.h3-semantic-review label {
+  display: grid;
+  gap: 0.4rem;
+}
+.h3-semantic-review fieldset {
+  border: 1px solid var(--h3-border);
+  border-radius: 0.5rem;
+  padding: 0.625rem;
+}
+.h3p,
+.h3s-p {
+  min-width: 0;
+  overflow-x: clip;
+}
+/* IMPORTANT: block-control sizing must exclude checkbox/radio; the earlier
+   blanket rule inflated the segment-selection checkbox into a 36px empty box
+   that read as a broken thumbnail. */
+.h3p button,
+.h3p select,
+.h3p input:not([type="checkbox"]):not([type="radio"]),
+.h3s-p select {
+  min-height: 36px;
+  border: 1px solid var(--h3-line-strong);
+  border-radius: var(--h3-radius-control);
+  padding: 0.375rem 0.625rem;
+  color: var(--h3-text-primary);
+  background: var(--h3-control);
+  font: inherit;
+}
+.h3p input:is([type="checkbox"], [type="radio"]) {
+  flex: 0 0 auto;
+  inline-size: 1rem;
+  block-size: 1rem;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--h3-page-outline-context);
+}
+/* M21-03: exactly three button roles. `primary` carries the expected next
+   action and there is at most one per region; the *default* -- a button with no
+   `data-variant` -- is secondary and wears the control material below; `danger`
+   is destructive intent and is never filled. The former `quiet` variant was a
+   fourth treatment that rendered as a second kind of secondary, so it is gone
+   and its two call sites are plain secondary buttons. */
+.h3c button[data-variant="primary"] {
+  border-color: transparent;
+  background-color: var(--h3-accent);
+  color: var(--h3-accent-text);
+  font-weight: 700;
+}
+.h3c button[data-variant="danger"] {
+  border-color: color-mix(in srgb, var(--h3-tone-danger) 52%, transparent);
+  background: transparent;
+  color: var(--h3-tone-danger);
+  font-weight: 600;
+}
+.h3p button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.h3p button:focus-visible,
+.h3p select:focus-visible,
+.h3p input:focus-visible,
+.h3s-p select:focus-visible {
+  outline: 2px solid var(--h3-page-outline-context);
+  outline-offset: 2px;
+}
+/* Key/value vocabulary: every backend state is rendered as a labelled row so
+   values can never concatenate into an unreadable run of enum strings. */
+.h3p-k {
+  color: var(--h3-text-dim);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.h3p-c {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  border-radius: 999px;
+  padding: 1px 8px 1px 6px;
+  color: var(--h3-tone-idle);
+  background: color-mix(in srgb, var(--h3-tone-idle) 14%, transparent);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  /* M17-21 D7: state labels are a fixed vocabulary, so `anywhere` was wrong
+     here — it let "Independent" break to "Independ"/"ent". `break-word` still
+     breaks a single token that genuinely cannot fit, which keeps the raw-code
+     fallback from overflowing when the frontend has not learned a code yet. */
+  overflow-wrap: break-word;
+}
+.h3p-c::before {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentcolor;
+  content: "";
+}
+.h3p-c[data-tone="ok"] {
+  color: var(--h3-tone-ok);
+  background: color-mix(in srgb, var(--h3-tone-ok) 14%, transparent);
+}
+.h3p-c[data-tone="info"] {
+  color: var(--h3-tone-info);
+  background: color-mix(in srgb, var(--h3-tone-info) 14%, transparent);
+}
+.h3p-c[data-tone="warn"] {
+  color: var(--h3-tone-warn);
+  background: color-mix(in srgb, var(--h3-tone-warn) 14%, transparent);
+}
+.h3p-c[data-tone="danger"] {
+  color: var(--h3-tone-danger);
+  background: color-mix(in srgb, var(--h3-tone-danger) 15%, transparent);
+}
+/* M21-03 order 1: the status band is one row, baseline-aligned, that reads
+   left to right as name, where, what state, how far. The progress meter takes
+   whatever width is left so the band never grows a second line at 704px. */
+.h3p-i {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  border-bottom: 1px solid var(--h3-line-subtle);
+  padding: 0 0 10px;
+  background: transparent;
+}
+.h3p-i > .h3-meta:first-of-type {
+  margin-inline-end: auto;
+}
+.h3p-i .h3p-meter {
+  flex: 0 1 96px;
+  min-width: 48px;
+}
+.h3p-rs {
+  flex: 0 0 auto;
+}
+/* Order 2: a blocker is a banner across the column, not a pill in a cell. */
+.h3p-bb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0;
+  border: 1px solid var(--h3-tone-danger);
+  border-inline-start-width: 3px;
+  border-radius: var(--h3-radius-panel);
+  padding: 8px 10px;
+  /* An opaque surface, not a tint: the chips inside already carry a danger tint
+     of their own, and stacking a second one under them pushed their text to
+     4.35 in the composited browser audit. The edge carries the alarm. */
+  background: var(--h3-surface-1);
+  list-style: none;
+}
+/* AC-M21-03-02: five label rows become five marks in fixed order. Colour alone
+   carries nothing -- the group's accessible name states all five in words. */
+.h3p-sp {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+.h3p-sp > i {
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: 1px;
+  background: var(--h3-tone-idle);
+}
+.h3p-sp > i[data-tone="ok"] {
+  background: var(--h3-tone-ok);
+}
+.h3p-sp > i[data-tone="info"] {
+  background: var(--h3-tone-info);
+}
+.h3p-sp > i[data-tone="warn"] {
+  background: var(--h3-tone-warn);
+}
+.h3p-sp > i[data-tone="danger"] {
+  background: var(--h3-tone-danger);
+}
+.h3p-ph {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.h3p-meta {
+  margin-inline-start: auto;
+  color: var(--h3-text-dim);
+  font-size: 0.6875rem;
+  white-space: nowrap;
+}
+.h3p-i h2,
+.h3p-i p,
+.h3p-l h3,
+.h3p-l > section > p,
+.h3s-p h2,
+.h3s-p > p {
+  margin-block: 0 8px;
+}
+.h3p-l {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  margin-block: 8px;
+}
+.h3p-l > section {
+  min-width: 0;
+  border: 1px solid var(--h3-panel-line);
+  border-radius: var(--h3-radius-panel);
+  padding: 12px;
+  background: var(--h3-panel-1);
+}
+.h3p-l > section:nth-child(3),
+.h3p-l > section:nth-child(4) {
+  background: var(--h3-panel-2);
+}
+.h3p-s,
+.h3p-t,
+.h3p-l ul,
+.h3p-l ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* M17-23 / AC-M17-23-02. Windowing bounds the element cost but not the height:
+   a card is 203.5px at the 704px product floor, so even a 32-card page is about
+   6,800px of column. The region scrolls inside a declared maximum so the Run
+   region and the action groups stay reachable without traversing the list. */
+.h3p-s {
+  display: grid;
+  gap: 8px;
+  max-height: min(45rem, 60vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.h3p-pg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.h3p-pg button {
+  min-width: 44px;
+  min-height: 32px;
+  text-align: center;
+}
+.h3p-pr {
+  display: grid;
+  gap: 8px;
+}
+.h3p-pr > li {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+  border-left: 3px solid var(--h3-stage-audit);
+  border-radius: var(--h3-radius-control);
+  padding: 8px;
+  background: var(--h3-panel-2);
+  overflow-wrap: anywhere;
+}
+.h3p-pr button,
+.h3p-a button {
+  min-height: 44px;
+}
+/* M17-21 D7: the segment card is its own query container. The state grid used
+   to switch to two columns on a `h3-sidebar` query, but a card is narrower than
+   the panel around it, so at the 704px product floor a card was given a query
+   answer measured against 704 and deformed. The card must be measured, not the
+   panel. M21-03 removed the page grid that made the gap widest; the rule stays,
+   because the card is still not the panel. */
+.h3p-s > li {
+  container-type: inline-size;
+  container-name: h3-segment-card;
+  display: grid;
+  /* The middle track carries the M17-23 edit-target badge and collapses to zero
+     on every other card, so the two-track geometry above is unchanged. */
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  min-height: 44px;
+  gap: 6px 8px;
+  border: 1px solid var(--h3-panel-line);
+  border-left: 3px solid var(--h3-line-subtle);
+  border-radius: var(--h3-radius-control);
+  padding: 8px 10px;
+  background: var(--h3-panel-2);
+}
+.h3p-s > li[data-selected] {
+  border-left-color: var(--h3-page-outline-context);
+  background: color-mix(
+    in srgb,
+    var(--h3-page-outline-context) 9%,
+    var(--h3-surface-3)
+  );
+}
+/* AC-M17-23-01. Set membership and the single edit target are different things
+   and are shown differently: the checkbox states membership, this outline plus
+   the visible "Editing" badge state the target. The badge carries the meaning;
+   the outline only reinforces it, so nothing is signalled by colour alone. */
+.h3p-s > li[data-edit-target] {
+  border-color: var(--h3-edit-target);
+  border-left-color: var(--h3-edit-target);
+  box-shadow: inset 0 0 0 1px var(--h3-edit-target);
+}
+.h3p-et {
+  border: 1px solid var(--h3-edit-target);
+  border-radius: var(--h3-radius-control);
+  padding: 1px 6px;
+  color: var(--h3-text-primary);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.h3p-s > li > label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  cursor: pointer;
+  font-weight: 600;
+}
+.h3p-sf {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  color: var(--h3-text-muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.h3c .h3p-sv {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+}
+.h3p-mode {
+  border: 1px solid var(--h3-line-subtle);
+  border-radius: var(--h3-radius-control);
+  padding: 1px 5px;
+  color: var(--h3-text-primary);
+}
+/* M17-25. The card shows the duration the segment will actually deliver, not an
+   echo of what was asked for. Tabular figures keep the column from shifting as
+   the value changes. */
+.h3p-du {
+  color: var(--h3-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+/* A snapped segment is marked by shape as well as by text. The tone palette is
+   already spoken for by lifecycle state, and a dashed outline carries the mark
+   without relying on colour at all. */
+.h3p-sn {
+  border: 1px dashed var(--h3-control-border);
+  border-radius: var(--h3-radius-control);
+  padding: 1px 5px;
+  color: var(--h3-text-primary);
+  font-weight: 600;
+}
+.h3p-t > li[data-snapped] > button > small {
+  font-style: italic;
+}
+.h3p-ss {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 4px 6px;
+  margin: 0;
+}
+.h3p-ss > dt {
+  min-width: 0;
+}
+.h3p-ss > dd {
+  justify-self: start;
+  min-width: 0;
+  margin: 0;
+}
+.h3p-m,
+.h3p-a,
+.h3p-f,
+.h3p-r {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+/* M21-03 order 5: the list actions are one row. They stay three named groups,
+   because the names are what a screen-reader user navigates by; what changes is
+   that the groups flow inline instead of stacking into three bands of buttons.
+   `display: contents` would have dropped the groups from the accessible tree,
+   so the row is built from the groups rather than around them. */
+.h3p-l .h3p-a {
+  flex: 1 1 auto;
+}
+.h3p-l > section > .h3p-a + .h3p-a {
+  margin-block-start: 0;
+}
+.h3p-m {
+  grid-column: 1 / -1;
+  padding-top: 6px;
+  border-top: 1px dashed var(--h3-line-subtle);
+}
+.h3p-m button {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0 8px;
+  text-align: center;
+}
+.h3p-pos {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-inline-start: auto;
+}
+.h3p-pos input {
+  width: 3.25rem;
+  min-height: 32px;
+  padding: 0.25rem 0.375rem;
+}
+.h3p-dz {
+  margin-top: 8px;
+  border: 1px solid color-mix(in srgb, var(--h3-tone-danger) 28%, transparent);
+  border-radius: var(--h3-radius-control);
+  padding: 8px;
+  background: color-mix(in srgb, var(--h3-tone-danger) 6%, transparent);
+}
+.h3p-kv {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  border: 1px solid var(--h3-panel-line);
+  border-radius: var(--h3-radius-control);
+  overflow: hidden;
+  background: var(--h3-panel-line);
+}
+.h3p-kv > div {
+  display: grid;
+  grid-template-columns: minmax(6rem, auto) minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: var(--h3-panel-1);
+}
+.h3p-kv dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+}
+.h3p-meter {
+  flex: 1 1 4rem;
+  min-width: 3rem;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--h3-border-subtle);
+  overflow: hidden;
+}
+.h3p-meter > i {
+  display: block;
+  height: 100%;
+  background: var(--h3-page-outline-context);
+}
+.h3p-meter[data-complete] > i {
+  background: var(--h3-tone-ok);
+}
+.h3p-num {
+  color: var(--h3-text-muted);
+  font-size: 0.75rem;
+}
+.h3p-bl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+.h3p-au {
+  margin-top: 8px;
+}
+.h3p-au > summary {
+  color: var(--h3-text-dim);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.h3p-au ul,
+.h3p-o {
+  display: grid;
+  gap: 6px;
+  margin-top: 6px;
+}
+.h3p-o > li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--h3-panel-line);
+  border-radius: var(--h3-radius-control);
+  padding: 8px 10px;
+  background: var(--h3-panel-1);
+}
+.h3p-a,
+.h3p-r,
+.h3p-f {
+  margin-top: 8px;
+}
+.h3p-t {
+  display: flex;
+  min-width: 0;
+  gap: 6px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+}
+.h3p-t > li {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 72px;
+  min-width: 72px;
+  min-height: 44px;
+  gap: 4px;
+}
+.h3p-t > li > button {
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--h3-panel-line);
+  border-bottom: 3px solid var(--tone, var(--h3-line-subtle));
+  border-radius: var(--h3-radius-control);
+  padding: 6px 8px;
+  background: var(--h3-surface-3);
+  text-align: start;
+  touch-action: none;
+}
+.h3p-t > li > .h3p-ts {
+  flex: 1 1 auto;
+}
+.h3p-t > li > .h3p-tp {
+  display: flex;
+  flex: 0 0 44px;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border-bottom-width: 1px;
+  padding: 0;
+  text-align: center;
+  touch-action: manipulation;
+}
+/* Timeline state overlay: the tone edge is a scanning aid only — the same job
+   state is in the tile's accessible name and spelled out on the segment card,
+   so meaning is never carried by color alone. */
+.h3p-t > li > button[data-tone="ok"] {
+  --tone: var(--h3-tone-ok);
+}
+.h3p-t > li > button[data-tone="info"] {
+  --tone: var(--h3-tone-info);
+}
+.h3p-t > li > button[data-tone="warn"] {
+  --tone: var(--h3-tone-warn);
+}
+.h3p-t > li > button[data-tone="danger"] {
+  --tone: var(--h3-tone-danger);
+}
+.h3p-t > li > button[aria-pressed="true"] {
+  border-bottom-color: var(--h3-page-outline-context);
+  background: color-mix(
+    in srgb,
+    var(--h3-page-outline-context) 16%,
+    var(--h3-surface-3)
+  );
+  outline: 2px solid var(--h3-page-outline-context);
+  outline-offset: -3px;
+}
+.h3p-t small {
+  color: var(--h3-text-muted);
+  overflow-wrap: anywhere;
+}
+.h3p-f {
+  justify-content: space-between;
+  border-top: 1px solid var(--h3-line-subtle);
+  padding-top: 12px;
+}
+.h3p-f > button:last-child,
+.h3p-f [role="group"] button:first-of-type {
+  min-height: 44px;
+}
+.h3p-f [role="group"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+}
+.h3s-r {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) minmax(10rem, 2fr);
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--h3-line-strong);
+  padding: 12px;
+  background: var(--h3-panel-2);
+}
+@container h3-sidebar (max-width: 480px) {
+  .h3c {
+    padding: 0.75rem;
+  }
+  .h3-context-header {
+    margin: -0.75rem -0.75rem 0.75rem;
+  }
+  .h3-stage-tab {
+    min-height: 0;
+    grid-template-columns: 1fr auto;
+  }
+  .h3-context-summary div {
+    grid-template-columns: 1fr;
+    gap: 0.125rem;
+  }
+  .h3-context-actions > button,
+  .h3-import-button {
+    flex: 1 1 100%;
+    text-align: center;
+  }
+  .h3-app-mode-stages {
+    grid-template-columns: 1fr;
+  }
+  .h3s-r {
+    grid-template-columns: 1fr;
+  }
+  .h3p-kv > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+  /* The sequence stays a proportional track at narrow widths: stacking it into
+     a grid discarded the duration proportions the panel exists to show. */
+  .h3p-t > li {
+    flex-basis: 56px;
+    min-width: 56px;
+  }
+}
+/* M17-21 D7: two columns only once the card itself can hold them. The widest
+   segment-card state label ("Full recompute required") measures 140px, and a
+   two-column grid gives each value track (card - 2 * 5.5rem - 18px gaps) / 2,
+   so the switch needs a 31rem card (>= 151px per value) rather than a 440px
+   sidebar. Below that the single-column track is 254px at the 704px floor, so
+   every chip stays on one line. */
+@container h3-segment-card (min-width: 31rem) {
+  .h3p-ss {
+    grid-template-columns: repeat(2, 5.5rem minmax(0, 1fr));
+  }
+}
+@container h3-sidebar (min-width: 481px) and (max-width: 559px) {
+  .h3-app-mode-stages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@container h3-sidebar (min-width: 560px) and (max-width: 640px) {
+  .h3-app-mode-stages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+/* M21-03 AC-01: a 704px-wide, 950px-tall panel is a column, not a grid. The
+   M17-12 bento split it into two unequal tracks, which is what produced the
+   right-column voids; the page is one column at every width now, in the
+   section 3.1 order. */
+.h3c .h3p-v {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid var(--h3-border-strong);
+  background: var(--h3-surface-2);
+}
+.h3c .h3p-vp:focus {
+  outline: 2px solid var(--h3-page-outline-context);
+  outline-offset: 2px;
+}
+.h3c .h3p-v > video:not(.h3p-vs) {
+  display: block;
+  width: 100%;
+  max-height: 320px;
+  background: #000;
+}
+.h3c .h3p-vo,
+.h3c .h3p-v > button {
+  min-height: 44px;
+}
+.h3c .h3p-vo {
+  margin-top: 8px;
+}
+.h3c .h3p-vs {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  pointer-events: none;
+}
+.h3c .h3p-vt {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.h3c .h3p-vt button {
+  display: grid;
+  width: 100%;
+  min-height: 44px;
+  gap: 4px;
+}
+.h3c .h3p-vt button[aria-pressed="true"] {
+  border-color: var(--h3-page-outline-context);
+  box-shadow: inset 0 -3px var(--h3-page-outline-context);
+}
+.h3c .h3p-vt canvas {
+  width: 100%;
+  height: auto;
+  max-width: 160px;
+  aspect-ratio: 1;
+  background: var(--h3-surface-1);
+}
+.h3c .h3p-vl {
+  position: relative;
+  height: 4px;
+  background: var(--h3-border-subtle);
+}
+.h3c .h3p-vl > span {
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 12px;
+  transform: translateX(-1px);
+  background: var(--h3-page-outline-context);
+}
+.h3c .h3p-vb {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.h3c .h3p-vb[data-timed="true"] > li {
+  position: absolute;
+  transform: translateX(-50%);
+}
+.h3c .h3p-vb button {
+  min-width: 44px;
+  min-height: 44px;
+}
+/* ------------------------------------------------------------------------
+   M21-03 visual system: type ramp, CJK variant and control material.
+
+   These rules come last among the ordinary rules and first among the
+   accessibility overrides below, so `forced-colors` and `prefers-reduced-motion`
+   still win over everything here.
+   ------------------------------------------------------------------------ */
+.h3ta,
+.h3c :is(h2, h3, h4, legend) {
+  font: var(--h3-t-title);
+  color: var(--h3-text-title-accent);
+}
+.h3ds,
+.h3c p,
+.h3c label,
+.h3c li {
+  font: var(--h3-t-body);
+}
+/* Section labels are deliberately quiet: 9.5px Latin capitals read as a label
+   without competing with the values under them. */
+.h3p-k,
+.h3-sec {
+  font: var(--h3-t-sec);
+  letter-spacing: var(--h3-t-sec-track);
+  text-transform: var(--h3-t-sec-transform);
+  color: var(--h3-text-muted);
+}
+/* A value outranks its label. */
+.h3p-kv dd,
+.h3-val {
+  font: var(--h3-t-val);
+  font-variant-numeric: tabular-nums;
+  color: var(--h3-text-primary);
+}
+.h3p-meta,
+.h3-meta {
+  font: var(--h3-t-meta);
+  font-variant-numeric: tabular-nums;
+  color: var(--h3-text-muted);
+}
+/* An unknown value recedes one step rather than competing with a real one. */
+.h3-val[data-known="false"],
+.h3p-kv dd[data-known="false"] {
+  color: var(--h3-text-dim);
+}
+
+/* The CJK variant. The Latin ramp does not transfer: `text-transform:
+   uppercase` is a no-op on Han glyphs, so the size cue would vanish with
+   nothing replacing it; `.11em` tracking reads as broken spacing rather than as
+   a label; and 9.5px Han glyphs sit below comfortable legibility where 9.5px
+   Latin capitals do not. Line-height also has to loosen, because most real
+   strings here are mixed Han/Latin runs. The floors below were chosen against
+   rendered zh-TW and zh-CN text at 704px, not inherited from the Latin audit. */
+.h3c:lang(zh),
+.h3c :lang(zh) {
+  --h3-font:
+    system-ui, "Noto Sans TC", "Noto Sans SC", "Microsoft JhengHei",
+    "Microsoft YaHei", sans-serif;
+  --h3-t-title: 640 14px/1.55 var(--h3-font);
+  --h3-t-body: 400 12.5px/1.7 var(--h3-font);
+  --h3-t-val: 500 12.5px/1.6 var(--h3-font);
+  --h3-t-meta: 400 12px/1.6 var(--h3-font);
+  --h3-t-sec: 700 11.5px/1.6 var(--h3-font);
+  --h3-t-sec-track: 0;
+  --h3-t-sec-transform: none;
+}
+
+/* Control material: a single light source above, applied in one order --
+   gradient face, darker bottom border, inset top highlight, short drop shadow.
+   `:active` removes the highlight, inverts the shadow and moves the face down
+   one pixel, so the control physically depresses. */
+/* The default height is declared through `:where()`, which contributes no
+   specificity, so a control that has already been given a larger target -- the
+   44px page tabs, the 44px Production action buttons -- keeps it. A blanket
+   `min-block-size` here would have silently shrunk both. */
+.h3c :where(button, select) {
+  min-block-size: var(--h3-control-height);
+}
+.h3c :is(button, select):not([data-h3-plain]) {
+  border: 1px solid var(--h3-control-border);
+  border-block-end-color: var(--h3-line-strong);
+  border-radius: var(--h3-radius-control);
+  /* The colour is set as well as the gradient: a face with only a
+     `background-image` reports its ancestor's `background-color` to any
+     compositing contrast check, and the browser lane measures exactly that. */
+  background-color: var(--h3-control);
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--h3-control) 88%, var(--h3-text-primary) 4%),
+    var(--h3-control)
+  );
+  box-shadow:
+    inset 0 1px 0 var(--h3-lift-top),
+    var(--h3-lift-shadow);
+  font: var(--h3-t-val);
+}
+.h3c :is(button, select):not([data-h3-plain]):not(:disabled) {
+  cursor: pointer;
+}
+.h3c :is(button, select):not([data-h3-plain]):disabled {
+  cursor: not-allowed;
+}
+.h3c :is(button, select):not([data-h3-plain]):active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: var(--h3-well-shadow);
+}
+/* M21-06 control state. Declared here on purpose.
+
+   The shared material above ties or beats the nav and tab rules written before
+   it, so their background, box-shadow and font-weight were already dead by the
+   time the sheet shipped: a selected page tab kept its text colour and nothing
+   else. These are the same states re-homed after the material with higher
+   specificity, not a fourth competing declaration. */
+.h3c .h3n button {
+  --sel: var(--po, var(--h3-accent));
+}
+.h3c .h3-stage-tab,
+.h3c .h3-app-mode-tabs button {
+  --sel: var(--sa, var(--h3-accent));
+}
+.h3c button[data-variant="danger"] {
+  --sel: var(--h3-tone-danger);
+}
+/* Hover is a state layer of the control's own role hue, never a new hue, and
+   never the only affordance: the border steps with it so the state survives
+   forced-colors, and the focus-visible ring is untouched.
+
+   CRITICAL: the selected states are excluded by selector, not left to
+   specificity. `:hover:not(:disabled)` adds two pseudo-classes, so this rule
+   scores (0,4,1) and would otherwise beat the (0,3,1) selected rule below and
+   repaint a selected tab as a 10% tint the moment the pointer rested on it --
+   which is what a click leaves behind. A hover state belongs to a control the
+   user has not already chosen. */
+.h3c
+  :is(button, select):not([data-h3-plain]):not([aria-current="page"]):not(
+    [aria-selected="true"]
+  ):hover:not(:disabled) {
+  background-color: color-mix(
+    in srgb,
+    var(--sel, var(--h3-accent)) var(--h3-state-hover),
+    var(--h3-control)
+  );
+  border-color: color-mix(
+    in srgb,
+    var(--sel, var(--h3-accent)) 45%,
+    var(--h3-control-border)
+  );
+}
+/* Selected is a saturated fill of the hue the control already owns (D-B1) with
+   the ink each palette reserves for saturated fills (D-B5). Every pair is
+   recomputed by the contrast audit; none of them is assumed. The raised face
+   stays the M21-03 material -- the fill sits on it, it does not replace it. */
+.h3c .h3n button[aria-current="page"],
+.h3c .h3-stage-tab[aria-selected="true"],
+.h3c .h3-app-mode-tabs button[aria-selected="true"] {
+  border-color: var(--sel);
+  background-color: var(--sel);
+  background-image: none;
+  color: var(--h3-signal-ink);
+  font-weight: 700;
+  box-shadow:
+    inset 0 1px 0 var(--h3-lift-top),
+    var(--h3-lift-shadow);
+}
+.h3c .h3n button[aria-current="page"] small,
+.h3c .h3-stage-tab[aria-selected="true"] small,
+.h3c .h3-app-mode-tabs button[aria-selected="true"] small {
+  color: var(--h3-signal-ink);
+}
+/* The link takes its hover from the same state layer as every control. */
+.h3c .h3-context-github:hover {
+  background-color: color-mix(
+    in srgb,
+    var(--h3-accent) var(--h3-state-hover),
+    var(--h3-control)
+  );
+  border-color: color-mix(
+    in srgb,
+    var(--h3-accent) 45%,
+    var(--h3-control-border)
+  );
+}
+/* A surface you type into must not read as a raised face. */
+.h3c :is(input:not([type="checkbox"]):not([type="radio"]), textarea) {
+  border: 1px solid var(--h3-line-strong);
+  border-block-start-color: var(--h3-line-strong);
+  border-radius: var(--h3-radius-control);
+  background: var(--h3-well);
+  background-image: none;
+  box-shadow: var(--h3-well-shadow);
+  color: var(--h3-text-primary);
+  font: var(--h3-t-body);
+}
+/* Exactly three button roles. A destructive control is tinted, never filled. */
+.h3c button[data-variant="danger"]:not([data-h3-plain]) {
+  border-color: var(--h3-tone-danger);
+  /* Tinted, never filled: the face stays the neutral control material so a
+     destructive control reads as available rather than as already firing. */
+  background-image: none;
+  color: var(--h3-tone-danger);
+}
+.h3c button[data-variant="primary"]:not([data-h3-plain]) {
+  border-color: var(--h3-accent);
+  background-color: var(--h3-accent);
+  color: var(--h3-accent-text);
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--h3-accent) 92%, #ffffff),
+    var(--h3-accent)
+  );
+}
+/* M21-03 AC-08: the prompt highlight.
+
+   The overlay and the field must share every metric that decides where a glyph
+   lands, or the highlight drifts from the text it marks. They are stacked in one
+   grid cell rather than absolutely positioned so the field's own height governs
+   both, and the overlay is `pointer-events: none` so every gesture reaches the
+   field beneath it. */
+.h3-prompt {
+  display: grid;
+  min-width: 0;
+}
+.h3-prompt > * {
+  grid-area: 1 / 1;
+  margin: 0;
+  border: 1px solid var(--h3-line-strong);
+  border-radius: var(--h3-radius-control);
+  padding: 6px 8px;
+  font: var(--h3-t-body);
+  font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace;
+  letter-spacing: normal;
+  tab-size: 2;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+.h3-prompt-o {
+  overflow: hidden;
+  border-color: transparent;
+  background: transparent;
+  color: var(--h3-text-body);
+  pointer-events: none;
+  user-select: none;
+}
+.h3-prompt-i {
+  min-block-size: 8lh;
+  background: var(--h3-well);
+  box-shadow: var(--h3-well-shadow);
+  /* The value stays in the DOM and in the accessibility tree; only its paint is
+     handed to the overlay. The caret keeps a real colour of its own. */
+  color: transparent;
+  caret-color: var(--h3-text-primary);
+  resize: vertical;
+}
+.h3-prompt-i::selection {
+  background: color-mix(in srgb, var(--h3-accent) 40%, transparent);
+  color: transparent;
+}
+.h3-prompt-o [data-grammar="field"] {
+  color: var(--h3-text-primary);
+}
+.h3-prompt-o [data-grammar="shot"],
+.h3-prompt-o [data-grammar="segment"] {
+  color: var(--h3-tone-info);
+}
+.h3-prompt-o [data-grammar="reference"] {
+  color: var(--h3-accent);
+}
+.h3-prompt-o [data-grammar="dialogue"] {
+  color: var(--h3-tone-warn);
+  font-weight: 400;
+}
+/* Where the platform owns the colours, the field paints its own text again and
+   the overlay stands down: a transparent value with no overlay behind it would
+   be an invisible prompt. */
+@media (forced-colors: active) {
+  .h3-prompt-o {
+    display: none;
+  }
+  .h3-prompt-i {
+    color: CanvasText;
+    caret-color: CanvasText;
+  }
+}
+/* M21-03 AC-10: the one notice surface. A transient notice reads as a passing
+   report; a must-read one is bordered and carries its own dismissal, because it
+   is not finished until the user says so. */
+.h3-notices {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0;
+  padding: 0;
+  list-style: none;
+}
+.h3-notices > li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  border-radius: var(--h3-radius-control);
+  padding: 6px 8px;
+  background: var(--h3-panel-1);
+  font: var(--h3-t-body);
+  color: var(--h3-text-body);
+}
+.h3-notices > li[data-tier="must_read"] {
+  border: 1px solid var(--h3-line-strong);
+  border-inline-start: 3px solid var(--h3-tone-warn);
+}
+.h3-notices > li > button {
+  margin-inline-start: auto;
+  border: 1px solid var(--h3-line-strong);
+  border-radius: var(--h3-radius-control);
+  padding: 2px 8px;
+  background: transparent;
+  color: var(--h3-text-body);
+  font: var(--h3-t-meta);
+  min-block-size: var(--h3-control-height-sm);
+  cursor: pointer;
+}
+/* AC-09: a remediation is an action, and it sits with the finding it fixes. */
+.h3-diagnostics button[data-remediation] {
+  margin-inline-start: 8px;
+  padding: 1px 8px;
+  min-block-size: var(--h3-control-height-sm);
+}
+@media (prefers-reduced-motion: reduce) {
+  .h3c :is(button, select):not([data-h3-plain]):active:not(:disabled) {
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .h3c *,
+  .h3c *::before,
+  .h3c *::after {
+    scroll-behavior: auto;
+    transition-duration: 0ms;
+    animation-duration: 0ms;
+  }
+}
+@media (forced-colors: active) {
+  .h3c {
+    background-image: none;
+  }
+  .h3c::before,
+  .h3c::after,
+  .h3p::before,
+  .h3p::after {
+    content: none;
+  }
+  .h3-context-status,
+  .h3-stage-tab,
+  .h3sp,
+  .h3-app-mode-form,
+  .h3-semantic-review,
+  .h3-semantic-review fieldset,
+  .h3c select,
+  .h3c input,
+  .h3c textarea {
+    border-color: ButtonText;
+  }
+  /* M21-06 brought the stage and App Mode tabs into the same selected state, so
+     they join this rule rather than getting a later one that would silently
+     shadow it. */
+  .h3n button[aria-current="page"],
+  .h3-stage-tab[aria-selected="true"],
+  .h3-app-mode-tabs button[aria-selected="true"] {
+    border: 2px solid Highlight;
+    color: HighlightText;
+    background: Highlight;
+    box-shadow: inset 0 -2px Highlight;
+    font-weight: 700;
+  }
+  .h3n button[aria-current="page"] small,
+  .h3-stage-tab[aria-selected="true"] small,
+  .h3-app-mode-tabs button[aria-selected="true"] small {
+    color: HighlightText;
+  }
+  .h3ta,
+  .h3ds {
+    color: CanvasText;
+    text-shadow: none;
+  }
+  .h3-app-mode-task-header,
+  .h3-reference-source-fieldset,
+  .h3c .h3p-v,
+  .h3c .h3p-v canvas {
+    border-color: ButtonText;
+  }
+  /* Tone is carried by a translucent tint that forced colors discard; keep the
+     chip readable as a bordered token instead of a bare word. */
+  .h3p-c,
+  .h3p-dz {
+    border: 1px solid ButtonText;
+    color: CanvasText;
+  }
+  .h3c .h3p-vt button[aria-pressed="true"] {
+    border-color: Highlight;
+    box-shadow: inset 0 -3px Highlight;
+  }
+  .h3c .h3p-vl > span {
+    background: Highlight;
+  }
+  /* The spine is a set of coloured marks, so forced colours would flatten it to
+     one shape. It keeps a border instead, and its accessible name carries the
+     meaning either way. */
+  .h3c .h3p-sp > i {
+    border: 1px solid CanvasText;
+    background: Canvas;
+  }
+  .h3c .h3p-bb {
+    border: 1px solid CanvasText;
+    background: Canvas;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .h3c {
+    --h3-plate-alpha: 100%;
+    --h3-panel-alpha: 100%;
+  }
+}
+.h3c.h3-reduced-transparency {
+  --h3-plate-alpha: 100%;
+  --h3-panel-alpha: 100%;
+}
+
+/* The preview monitor remains shared by the accepted NLE monitor recovery path after the retired
+   AuthoringEditor shell is removed. Keep its live layout and announcement styles independent of
+   the deleted .h3a editor container. */
+.h3a-preview {
+  display: grid;
+  gap: 8px;
+  margin-block: 10px;
+  padding: 8px;
+  background-color: var(--h3-panel-3);
+  border: 1px solid var(--h3-line-subtle);
+  border-radius: var(--h3-radius-control);
+}
+.h3a-preview video {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  block-size: auto;
+  background-color: #000;
+}
+.h3a-preview-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.h3a-preview-announcement {
+  position: fixed;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  pointer-events: none;
+}
+
+/* M21-06. Forced colours discard the hover tint, so the hover state keeps a
+   border step there -- a state that is colour-only is no state at all in this
+   mode. Selection is handled with the other system-colour rules above. */
+@media (forced-colors: active) {
+  .h3c :is(button, select):not([data-h3-plain]):hover:not(:disabled),
+  .h3c .h3-context-github:hover {
+    border-color: Highlight;
+  }
+}
+
+/* M22-06 provider settings. The section lives inside the existing Settings page
+   and inherits its control sizing; what it adds is spacing and the two blocks
+   that carry consequence -- the disclosure and the consent controls -- which are
+   set apart with a rule rather than a colour, so they survive forced-colors and
+   read the same in both themes. Everything else is progressively disclosed
+   behind `<details>` to hold the 704px floor. */
+.h3s-pv,
+.h3s-mt {
+  display: grid;
+  gap: 0.5rem;
+  margin-block-start: 1rem;
+  padding-block-start: 0.75rem;
+  border-block-start: 1px solid var(--h3-line-subtle);
+  min-width: 0;
+}
+.h3s-pv button,
+.h3s-pv select,
+.h3s-pv input,
+.h3s-mt button,
+.h3s-mt input {
+  min-height: 36px;
+  border: 1px solid var(--h3-line-strong);
+  border-radius: var(--h3-radius-control);
+  padding: 0.375rem 0.625rem;
+  color: var(--h3-text-primary);
+  background: var(--h3-control);
+  font: inherit;
+}
+.h3s-pv :is(button, select, input):focus-visible,
+.h3s-mt :is(button, input, .h3s-mt-state):focus-visible {
+  outline: 2px solid var(--h3-page-outline-context);
+  outline-offset: 2px;
+}
+.h3s-pv-state,
+.h3s-mt-state {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+}
+/* The disclosure and the consent block are the two places a user decides
+   something irreversible, so they are boxed rather than run in with the rest. */
+.h3s-pv-disclosure,
+.h3s-pv-consent,
+.h3s-pv-credential,
+.h3s-mt-recovery {
+  display: grid;
+  gap: 0.375rem;
+  padding: 0.625rem;
+  border: 1px solid var(--h3-line-strong);
+  border-radius: var(--h3-radius-control);
+  min-width: 0;
+}
+.h3s-pv details > summary,
+.h3s-mt details > summary {
+  cursor: pointer;
+  min-block-size: 36px;
+  display: flex;
+  align-items: center;
+}
+.h3s-pv-candidates {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding-inline-start: 0;
+  list-style: none;
+  min-width: 0;
+}
+.h3s-pv-candidates > li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: baseline;
+  min-width: 0;
+}
+/* Identity is data: it wraps rather than truncating, because a half-shown
+   digest is worse than a wrapped one. */
+.h3s-pv [data-h3-verbatim="true"] {
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.h3s-pv-diagnostic,
+.h3s-pv-rejection,
+.h3s-mt-notice,
+.h3s-mt-rejection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  color: var(--h3-text-primary);
+  min-width: 0;
+}
+/* M25-33 Media tools card. It shares the provider card rhythm through the selector lists above but
+   keeps its own class names, so selectors written for the provider section never match it. A
+   contextual card takes its own full-width row under the blocked action. */
+.h3s-mt progress {
+  inline-size: 100%;
+  block-size: 0.5rem;
+  accent-color: var(--h3-page-outline-context);
+}
+[data-h3-media-tools-placement="contextual-sidebar"] {
+  flex: 1 1 100%;
+  margin-block-start: 0.5rem;
+}
+/* M25-16: the launcher and its unavailable status live in the sidebar; the expanded overlay carries
+   its own inline stylesheet. M25-44: the read-only project summary sits under the launcher. */
+.h3-nle-fallback,
+.h3-nle-launcher,
+.h3-nle-summary {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.625rem;
+  margin-bottom: 0.75rem;
+  background: var(--h3-panel-2);
+  border: 1px solid var(--h3-line-subtle);
+  border-radius: var(--h3-radius-panel);
+}
+.h3-nle-summary h3 {
+  margin: 0;
+  color: var(--h3-text-primary);
+  font-size: 0.8125rem;
+}
+.h3-nle-launcher button {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0.375rem 0.75rem;
+  font: inherit;
+  color: var(--h3-text-primary);
+  background: var(--h3-control);
+  border: 1px solid var(--h3-control-border);
+  border-radius: var(--h3-radius-control, 0.25rem);
+}
+.h3-nle-launcher button:focus-visible {
+  outline: 2px solid var(--h3-page-outline-production);
+  outline-offset: 2px;
+}
+.h3-nle-launcher button:disabled {
+  color: var(--h3-text-dim);
+  cursor: not-allowed;
+}
+.h3-nle-fallback p,
+.h3-nle-launcher p,
+.h3-nle-summary p {
+  margin: 0;
+  color: var(--h3-text-muted);
+  font-size: 0.75rem;
+}
+/* M25-41: compact icon actions for crowded planning rows. The function hue is never the only cue,
+   because the icon, the accessible name and the description tooltip carry it too. M25-43: the
+   actions tile the row to its right edge on 44 px tall tiles (the frozen M25-21 target size) with an
+   8 px gap. Scoped to `.h3c` so the sidebar and the overlay, whose root also carries `h3c`, render
+   the same toolbar. */
+/* The planning block's vertical rhythm. The overlay sheet that spaces `.h3-nle-form` is not loaded
+   in the sidebar, where the storyboard review actions and the readiness actions otherwise touch. */
+.h3c [data-h3-nle-planning-status] .h3-nle-form {
+  display: grid;
+  gap: 12px;
+}
+.h3c [data-h3-nle-planning-status] .h3-nle-storyboard:empty {
+  display: none;
+}
+.h3c .h3-plan-fields {
+  display: grid;
+  gap: 8px;
+}
+.h3c .h3-plan-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(7rem, 12rem);
+  align-items: center;
+  gap: 12px;
+}
+.h3c .h3-icon-group {
+  position: relative;
+  min-inline-size: 0;
+}
+/* IMPORTANT: every group in a section shares one set of equal columns, sized for its widest group
+   (five planning actions), so tiles line up across rows and shorter rows start at the left on the
+   same lines. `auto-fill` keeps the empty tracks that `auto-fit` would collapse and stretch a
+   two-action row across the whole width. The 1px slack keeps five columns from rounding down to
+   four; below five 44 px columns the tiles wrap instead of overflowing. */
+.h3c .h3-icon-row {
+  --h3-icon-columns: 5;
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(
+      max(
+        44px,
+        calc(
+          (100% - (var(--h3-icon-columns) - 1) * 8px) / var(--h3-icon-columns) -
+            1px
+        )
+      ),
+      1fr
+    )
+  );
+  align-items: stretch;
+  gap: 8px;
+}
+.h3c .h3-icon-slot {
+  display: flex;
+  min-inline-size: 0;
+  block-size: 44px;
+}
+/* IMPORTANT: the cursor of an unavailable action lives on its slot. The disabled button takes no
+   pointer events (below), so the pointer hits the slot, and a cursor set on the button is never
+   shown: the user sees the default arrow instead of `not-allowed`. */
+.h3c .h3-icon-slot:has(> .h3-icon-button:disabled) {
+  cursor: not-allowed;
+}
+/* The readiness status fills the rest of its row, from the column after its action to the edge. */
+.h3c .h3-icon-row > .h3-nle-chip {
+  grid-column: 2 / -1;
+  align-self: stretch;
+  padding-inline: 12px;
+  border-radius: var(--h3-radius-control);
+  overflow-wrap: anywhere;
+}
+.h3c .h3-icon-button {
+  --h3-icon-hue: var(--h3-tone-info);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  block-size: 44px;
+  min-inline-size: 44px;
+  min-block-size: 44px;
+  padding: 0;
+  border: 1px solid
+    color-mix(in srgb, var(--h3-icon-hue) 55%, var(--h3-line-strong));
+  border-radius: var(--h3-radius-control);
+  color: var(--h3-icon-hue);
+  background: color-mix(in srgb, var(--h3-icon-hue) 14%, var(--h3-control));
+}
+.h3c .h3-icon-button[data-hue="understand"] {
+  --h3-icon-hue: var(--h3-stage-understand);
+}
+.h3c .h3-icon-button[data-hue="edit"] {
+  --h3-icon-hue: var(--h3-edit-target);
+}
+.h3c .h3-icon-button[data-hue="audit"] {
+  --h3-icon-hue: var(--h3-stage-audit);
+}
+.h3c .h3-icon-button[data-hue="production"] {
+  --h3-icon-hue: var(--h3-page-outline-production);
+}
+.h3c .h3-icon-button[data-hue="ok"] {
+  --h3-icon-hue: var(--h3-tone-ok);
+}
+.h3c .h3-icon-button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--h3-icon-hue) 26%, var(--h3-control));
+}
+.h3c .h3-icon-button[aria-pressed="true"] {
+  box-shadow: inset 0 -3px 0 var(--h3-icon-hue);
+}
+.h3c .h3-icon-button:focus-visible {
+  outline: 2px solid var(--h3-page-outline-context);
+  outline-offset: 2px;
+}
+/* IMPORTANT: the hover description of an unavailable action is owned by the slot around the
+   button, never by the disabled button, because engines differ on whether a disabled control
+   dispatches pointer events. `pointer-events: none` makes the slot the hit target in every engine;
+   moving the hover handler onto the button silences exactly the actions that need explaining. */
+.h3c .h3-icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  pointer-events: none;
+}
+/* IMPORTANT: the description overlays the space above its group and never enters the flow. In the
+   flow it pushed every later action down while visible, and the pointer travelling to the next
+   group's action lost it when the description closed and the layout sprang back. Above, not below:
+   the next actions in the planning order sit below, and a description over them would catch the
+   pointer on its way there; it opens below only when a scrolled pane leaves no room above
+   (`NleIconActions.tsx`). The bridge spans the gap, so the pointer can rest on the description
+   (WCAG 1.4.13) without leaving the group. */
+.h3c .h3-icon-tip {
+  position: absolute;
+  inset-inline: 0;
+  bottom: calc(100% + 6px);
+  z-index: 10;
+  padding: 6px 8px;
+  border: 1px solid var(--h3-line-strong);
+  border-radius: var(--h3-radius-control);
+  color: var(--h3-text-primary);
+  background: var(--h3-control);
+  box-shadow: 0 0.75rem 1.5rem rgb(0 0 0 / 0.24);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  /* IMPORTANT: a hover description is never a pointer target. The tip of a timeline toolbar
+     button opens over the ruler beneath it; if it took pointer events it would swallow the seek
+     click that follows a toolbar click and the playhead would not move. */
+  pointer-events: none;
+}
+.h3c .h3-icon-tip::after {
+  position: absolute;
+  inset-inline: 0;
+  top: 100%;
+  block-size: 7px;
+  content: "";
+}
+.h3c .h3-icon-tip[data-placement="below"] {
+  top: calc(100% + 6px);
+  bottom: auto;
+}
+.h3c .h3-icon-tip[data-placement="below"]::after {
+  top: auto;
+  bottom: 100%;
+}
+.h3c .h3-icon-tip[hidden] {
+  display: none;
+}
+/* The readiness chip beside the toolbar. The overlay keeps its own copy of these values in
+   nleWorkspace.css because not every overlay harness page loads this sheet. */
+.h3c .h3-nle-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px 1px 6px;
+  color: var(--h3-tone-idle);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  background: color-mix(in srgb, var(--h3-tone-idle) 14%, transparent);
+  border-radius: 999px;
+}
+.h3c .h3-nle-chip::before {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  background: currentcolor;
+  border-radius: 50%;
+  content: "";
+}
+.h3c .h3-nle-chip[data-tone="ok"] {
+  color: var(--h3-tone-ok);
+  background: color-mix(in srgb, var(--h3-tone-ok) 14%, transparent);
+}
+.h3c .h3-nle-chip[data-tone="info"] {
+  color: var(--h3-tone-info);
+  background: color-mix(in srgb, var(--h3-tone-info) 14%, transparent);
+}
+.h3c .h3-nle-chip[data-tone="warn"] {
+  color: var(--h3-tone-warn);
+  background: color-mix(in srgb, var(--h3-tone-warn) 14%, transparent);
+}
+.h3c .h3-nle-chip[data-tone="danger"] {
+  color: var(--h3-tone-danger);
+  background: color-mix(in srgb, var(--h3-tone-danger) 15%, transparent);
+}
+@media (forced-colors: active) {
+  .h3c .h3-icon-button {
+    border-color: ButtonText;
+    color: ButtonText;
+    background: ButtonFace;
+  }
+  .h3c .h3-icon-button[aria-pressed="true"] {
+    outline: 2px solid Highlight;
+  }
+  .h3c .h3-icon-button:disabled {
+    border-color: GrayText;
+    color: GrayText;
+  }
+}

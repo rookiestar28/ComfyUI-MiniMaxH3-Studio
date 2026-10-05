@@ -1,0 +1,123 @@
+[build-system]
+requires = ["setuptools>=80,<84", "wheel>=0.46.2,<0.47"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "minimax-h3-studio"
+version = "1.0.0"
+description = "Turn a description into a finished MiniMax H3 video without leaving ComfyUI, prompt, segments, continuity and final cut in one workbench."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "rookiestar28" }]
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+dependencies = []
+classifiers = [
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+Repository = "https://github.com/rookiestar28/ComfyUI-MiniMaxH3-Studio"
+Documentation = "https://github.com/rookiestar28/ComfyUI-MiniMaxH3-Studio/tree/main/docs"
+"Bug Tracker" = "https://github.com/rookiestar28/ComfyUI-MiniMaxH3-Studio/issues"
+
+[tool.comfy]
+PublisherId = "rookiestar"
+DisplayName = "ComfyUI-MiniMaxH3-Studio"
+Icon = "https://raw.githubusercontent.com/rookiestar28/ComfyUI-MiniMaxH3-Studio/main/assets/h3_context.svg"
+includes = [
+    "__init__.py",
+    "comfyui_h3_context",
+    "assets",
+    "docs",
+    "examples",
+    "subgraphs",
+    "workflows",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+]
+
+[project.optional-dependencies]
+dev = [
+    "numpy>=2.2,<3",
+    "ruff>=0.16,<0.17",
+    "mypy>=2.3,<2.4",
+    "pytest>=9.1,<9.2",
+    "pytest-cov>=7.1,<7.2",
+    "pre-commit>=4.6,<4.7",
+    "detect-secrets>=1.5,<1.6",
+    "build>=1.5,<1.6",
+    "setuptools>=80,<84",
+    "wheel>=0.46.2,<0.47",
+    "tomli>=2.4,<2.5",
+    "hypothesis>=6.167,<7",
+    "jsonschema>=4.23,<5",
+    "types-jsonschema>=4.23.0.20250516,<4.27",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["comfyui_h3_context*"]
+
+[tool.setuptools.package-data]
+comfyui_h3_context = ["py.typed", "contracts/*.json", "web/*.js", "fonts/*.json", "fonts/*.ttf", "fonts/*.txt"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+extend-exclude = [
+    ".git",
+    ".planning",
+    "reference",
+    ".venv-wsl",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S603", "S607"]
+"scripts/**" = ["S603", "S607"]
+
+[tool.ruff.format]
+quote-style = "double"
+line-ending = "lf"
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+mypy_path = ["tests"]
+explicit_package_bases = true
+files = ["comfyui_h3_context", "tests", "scripts"]
+exclude = "(^|/)(reference|\\.planning|\\.venv-wsl|build|dist)/"
+
+[[tool.mypy.overrides]]
+module = ["comfy_api"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Hypothesis ships `py.typed`, but `@rule()` and `@invariant()` are untyped decorators by
+# construction, so `strict`'s `disallow_untyped_decorators` fires on every rule in a stateful
+# model. Pinned to the one module that defines one, rather than relaxed for the whole suite.
+module = ["test_managed_run_properties"]
+disallow_untyped_decorators = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = ["-ra"]
+
+[tool.coverage.run]
+branch = true
+source = ["comfyui_h3_context"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 75
+precision = 1

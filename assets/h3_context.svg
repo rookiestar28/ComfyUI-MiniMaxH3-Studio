@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">H3 Context</title>
+  <desc id="desc">Three connected context layers around a prompt marker.</desc>
+  <rect width="256" height="256" rx="48" fill="#151923"/>
+  <path d="M42 76 128 38l86 38-86 38z" fill="#55d6be"/>
+  <path d="m42 76 86 38v104l-86-38z" fill="#2a9d8f"/>
+  <path d="m214 76-86 38v104l86-38z" fill="#e9c46a"/>
+  <path d="m70 91 58 26 58-26v25l-58 26-58-26z" fill="#151923" opacity=".82"/>
+  <path d="m70 128 58 26 58-26v25l-58 26-58-26z" fill="#151923" opacity=".82"/>
+  <circle cx="128" cy="76" r="16" fill="#f4f1de"/>
+  <path d="M121 76h14M128 69v14" stroke="#151923" stroke-width="6" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,557 @@
+{
+  "schema": "h3.context.host_seam_census.v1",
+  "profile": "comfyui_host_seams_v1",
+  "seams": [
+    {
+      "id": "backend.comfy_api.latest",
+      "layer": "backend",
+      "owner": "comfyui_h3_context/adapters/comfyui_continuity.py",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "comfyui_h3_context/adapters/comfyui_continuity.py"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "backend.folder_paths.get_filename_list",
+      "layer": "backend",
+      "owner": "comfyui_h3_context/adapters/comfyui_generation_profile.py",
+      "classification": "documented",
+      "authority": "official.backend_datatypes",
+      "source_paths": [
+        "comfyui_h3_context/adapters/comfyui_generation_profile.py"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "targeted",
+      "bound": null
+    },
+    {
+      "id": "backend.node_class_mappings",
+      "layer": "backend",
+      "owner": "comfyui_h3_context/__init__.py",
+      "classification": "documented",
+      "authority": "official.backend_lifecycle",
+      "source_paths": [
+        "comfyui_h3_context/__init__.py",
+        "comfyui_h3_context/adapters/comfyui_generation_profile.py",
+        "comfyui_h3_context/adapters/managed_asset_resolution.py",
+        "comfyui_h3_context/nodes.py",
+        "comfyui_h3_context/public_api.py",
+        "comfyui_h3_context/registration.py"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "backend.node_display_name_mappings",
+      "layer": "backend",
+      "owner": "comfyui_h3_context/__init__.py",
+      "classification": "documented",
+      "authority": "official.backend_lifecycle",
+      "source_paths": [
+        "comfyui_h3_context/__init__.py",
+        "comfyui_h3_context/nodes.py",
+        "comfyui_h3_context/public_api.py",
+        "comfyui_h3_context/registration.py"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "backend.prompt_server.routes",
+      "layer": "backend",
+      "owner": "comfyui_h3_context/adapters/comfyui_route_seam.py",
+      "classification": "documented",
+      "authority": "official.server_routes",
+      "source_paths": [
+        "comfyui_h3_context/adapters/comfyui_authoring_media_preview.py",
+        "comfyui_h3_context/adapters/comfyui_media_preview.py",
+        "comfyui_h3_context/adapters/comfyui_route_seam.py"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "backend.web_directory",
+      "layer": "backend",
+      "owner": "comfyui_h3_context/__init__.py",
+      "classification": "documented",
+      "authority": "official.backend_lifecycle",
+      "source_paths": [
+        "comfyui_h3_context/__init__.py"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.api.event_target",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostSeams.ts",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "frontend/src/host/hostModuleTypes.ts",
+        "frontend/src/host/hostSeams.ts",
+        "frontend/src/host/sidebarHost.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.api.fetch_api",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostSeams.ts",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "frontend/src/entry.tsx",
+        "frontend/src/host/appMode.ts",
+        "frontend/src/host/appModeContract.ts",
+        "frontend/src/host/authoringActions.ts",
+        "frontend/src/host/authoringMediaPreview.ts",
+        "frontend/src/host/authoringMediaSourceLease.ts",
+        "frontend/src/host/authoringOutputCapabilityClient.ts",
+        "frontend/src/host/buildProvenanceClient.ts",
+        "frontend/src/host/comfyPromptHistory.ts",
+        "frontend/src/host/durationResolutionClient.ts",
+        "frontend/src/host/generationProfileClient.ts",
+        "frontend/src/host/hostModuleTypes.ts",
+        "frontend/src/host/hostSeams.ts",
+        "frontend/src/host/inputGeometry.ts",
+        "frontend/src/host/managedQualificationActions.ts",
+        "frontend/src/host/managedSequenceClient.ts",
+        "frontend/src/host/mediaRuntimeClient.ts",
+        "frontend/src/host/productionActions.ts",
+        "frontend/src/host/productionAuthoringImportClient.ts",
+        "frontend/src/host/productionManagedChildResolver.ts",
+        "frontend/src/host/productionMediaPreview.ts",
+        "frontend/src/host/productionPlanningActions.ts",
+        "frontend/src/host/providerSettingsActions.ts",
+        "frontend/src/host/sequenceCoordinator.ts",
+        "frontend/src/host/sidebarActions.ts",
+        "frontend/src/lifecycle/nleWorkspaceSession.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "targeted",
+      "bound": null
+    },
+    {
+      "id": "frontend.api.file_url",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostSeams.ts",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "frontend/src/host/appModeContract.ts",
+        "frontend/src/host/hostSeams.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.api.queue_prompt",
+      "layer": "frontend",
+      "owner": "frontend/src/host/queueSeam.ts",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "frontend/src/host/hostModuleTypes.ts",
+        "frontend/src/host/queueSeam.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "targeted",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.canvas.keyboard_capture",
+      "layer": "frontend",
+      "owner": "frontend/src/host/canvasKeyboardGuard.ts",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "frontend/src/host/canvasKeyboardGuard.ts",
+        "frontend/src/lifecycle/presentationBinding.tsx"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.extension_manager.get_sidebar_tabs",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostSeams.ts",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "frontend/src/host/hostModuleTypes.ts",
+        "frontend/src/host/hostSeams.ts",
+        "frontend/src/host/sidebarHost.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.extension_manager.register_sidebar_tab",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostSeams.ts",
+      "classification": "documented",
+      "authority": "official.sidebar_tabs",
+      "source_paths": [
+        "frontend/src/host/hostModuleTypes.ts",
+        "frontend/src/host/hostSeams.ts",
+        "frontend/src/host/sidebarHost.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.extension_manager.unregister_sidebar_tab",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostSeams.ts",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "frontend/src/host/hostModuleTypes.ts",
+        "frontend/src/host/hostSeams.ts",
+        "frontend/src/host/sidebarHost.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.extension_manager.workflow.active_workflow",
+      "layer": "frontend",
+      "owner": "frontend/src/host/canvasOwnedWrite.ts",
+      "classification": "documented",
+      "authority": "official.workflow_store",
+      "source_paths": [
+        "frontend/src/host/appMode.ts",
+        "frontend/src/host/appModeContract.ts",
+        "frontend/src/host/canvasOwnedWrite.ts",
+        "frontend/src/host/hostModuleTypes.ts",
+        "frontend/src/host/productionSession.ts",
+        "frontend/src/lifecycle/appModeCorrelation.ts",
+        "frontend/src/lifecycle/appModeSession.ts",
+        "frontend/src/lifecycle/managedProjectMember.ts",
+        "frontend/src/lifecycle/presentationBinding.tsx"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.extension_manager.workflow.open_workflows",
+      "layer": "frontend",
+      "owner": "frontend/src/host/canvasOwnedWrite.ts",
+      "classification": "documented",
+      "authority": "official.workflow_store",
+      "source_paths": [
+        "frontend/src/host/appModeContract.ts",
+        "frontend/src/host/canvasOwnedWrite.ts",
+        "frontend/src/host/hostModuleTypes.ts",
+        "frontend/src/host/productionManagedChildResolver.ts",
+        "frontend/src/lifecycle/nleWorkspaceSession.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.graph",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostSeams.ts",
+      "classification": "documented",
+      "authority": "official.comfy_objects",
+      "source_paths": [
+        "frontend/src/host/hostModuleTypes.ts",
+        "frontend/src/host/hostSeams.ts",
+        "frontend/src/host/sidebarHost.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.graph.change",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostModuleTypes.ts",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "frontend/src/host/hostModuleTypes.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.graph.events",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostSeams.ts",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "frontend/src/host/hostModuleTypes.ts",
+        "frontend/src/host/hostSeams.ts",
+        "frontend/src/host/sidebarHost.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.graph.get_node_by_id",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostModuleTypes.ts",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "frontend/src/host/hostModuleTypes.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.graph.serialize",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostSeams.ts",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "frontend/src/host/appModeContract.ts",
+        "frontend/src/host/hostModuleTypes.ts",
+        "frontend/src/host/hostSeams.ts",
+        "frontend/src/host/sidebarHost.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.graph.set_dirty_canvas",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostModuleTypes.ts",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "frontend/src/host/hostModuleTypes.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.graph_to_prompt",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostSeams.ts",
+      "classification": "documented",
+      "authority": "official.comfy_objects",
+      "source_paths": [
+        "frontend/src/host/appModeCensus.ts",
+        "frontend/src/host/appModeContract.ts",
+        "frontend/src/host/hostModuleTypes.ts",
+        "frontend/src/host/hostSeams.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.load_api_json",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostSeams.ts",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "frontend/src/host/appModeContract.ts",
+        "frontend/src/host/hostModuleTypes.ts",
+        "frontend/src/host/hostSeams.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.load_graph_data",
+      "layer": "frontend",
+      "owner": "frontend/src/host/canvasOwnedWrite.ts",
+      "classification": "documented",
+      "authority": "official.comfy_objects",
+      "source_paths": [
+        "frontend/src/host/appModeAdmission.ts",
+        "frontend/src/host/appModeContract.ts",
+        "frontend/src/host/canvasOwnedWrite.ts",
+        "frontend/src/host/hostModuleTypes.ts",
+        "frontend/src/host/hostSeams.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.modal_keyboard_guard",
+      "layer": "frontend",
+      "owner": "frontend/src/host/modalKeyboardGuard.ts",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "frontend/src/host/modalKeyboardGuard.ts",
+        "frontend/src/lifecycle/presentationBinding.tsx"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.register_extension",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostSeams.ts",
+      "classification": "documented",
+      "authority": "official.comfy_objects",
+      "source_paths": [
+        "frontend/src/host/hostModuleTypes.ts",
+        "frontend/src/host/hostSeams.ts",
+        "frontend/src/lifecycle/extensionRegistration.tsx"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.app.ui_settings",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostSeams.ts",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "frontend/src/host/hostModuleTypes.ts",
+        "frontend/src/host/hostSeams.ts"
+      ],
+      "readiness_states": [
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "constant",
+      "bound": null
+    },
+    {
+      "id": "frontend.litegraph.registered_node_types",
+      "layer": "frontend",
+      "owner": "frontend/src/host/hostSeams.ts",
+      "classification": "undocumented_but_observed",
+      "authority": "observed.hc_09_pinned_host",
+      "source_paths": [
+        "frontend/src/host/appModeRoutes.ts",
+        "frontend/src/host/hostSeams.ts",
+        "frontend/src/host/officialAssetResolution.ts"
+      ],
+      "readiness_states": [
+        "absent",
+        "present_not_ready",
+        "ready",
+        "unavailable"
+      ],
+      "cost_class": "full_collection",
+      "bound": {
+        "observed_floor": 6381,
+        "multiplier": 2,
+        "derived_ceiling": 12762,
+        "absolute_ceiling": 50000
+      }
+    }
+  ]
+}

@@ -1,0 +1,742 @@
+{
+  "fingerprint": "sha256:3e5de6fa127be4ed924e0fc7217cac4cedf31a572d91d96b99a095ed1a532c6b",
+  "schema": "h3-context-cross-language-surface/1",
+  "shapes": [
+    {
+      "class_name": "AssistedAuthoringState",
+      "export_name": "assistedAuthoringStateKeys",
+      "module_path": "comfyui_h3_context/core/assisted_authoring_scope.py",
+      "required_keys": [
+        "authorized_for_this_action",
+        "available",
+        "defaulted",
+        "ready",
+        "selected"
+      ]
+    },
+    {
+      "class_name": "AudioExtension",
+      "export_name": "audioExtensionKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "command_members",
+        "command_namespace",
+        "embedded_renderer_variant",
+        "final_render_edit_capability",
+        "independent_audio_renderer_variant",
+        "preview_edit_capability",
+        "reason",
+        "schema",
+        "track_profile"
+      ]
+    },
+    {
+      "class_name": "CapabilityProfile",
+      "export_name": "capabilityProfileKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "active_video_limit",
+        "audio_stream_rate_sentinel",
+        "cancel_deadline_ms",
+        "canvas_limit",
+        "cross_origin_isolation_required",
+        "decision_receipt_fingerprints",
+        "embedded_audio_policy",
+        "engine_profile_id",
+        "frame_event_fallbacks",
+        "frame_observer",
+        "input_audio_codecs",
+        "input_containers",
+        "input_pixel_formats",
+        "input_video_codecs",
+        "media_transport",
+        "mse_required",
+        "network_policy",
+        "observation_corpus_fingerprints",
+        "observation_corpus_ids",
+        "pending_rvfc_limit",
+        "probe_audio_stream_keys",
+        "probe_empty_array_keys",
+        "probe_format_keys",
+        "probe_root_keys",
+        "probe_video_stream_keys",
+        "teardown_deadline_ms",
+        "visual_compositor",
+        "warm_video_limit",
+        "webcodecs_required"
+      ]
+    },
+    {
+      "class_name": "ClipAudio",
+      "export_name": "clipAudioKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "fade_in_frames",
+        "fade_out_frames",
+        "gain_mb",
+        "muted"
+      ]
+    },
+    {
+      "class_name": "CompositionBlocker",
+      "export_name": "compositionBlockerKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "code",
+        "subject_id"
+      ]
+    },
+    {
+      "class_name": "CompositionClip",
+      "export_name": "compositionClipKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "optional_keys": [
+        "audio"
+      ],
+      "required_keys": [
+        "asset_id",
+        "blend",
+        "clip_id",
+        "crop",
+        "duration_frames",
+        "effect",
+        "enabled",
+        "opacity_bp",
+        "source_start_frame",
+        "start_frame",
+        "text",
+        "track_id",
+        "transform",
+        "transition"
+      ]
+    },
+    {
+      "class_name": "CompositionTrack",
+      "export_name": "compositionTrackKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "enabled",
+        "kind",
+        "locked",
+        "order",
+        "track_id"
+      ]
+    },
+    {
+      "class_name": "Crop",
+      "export_name": "cropKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "bottom_bp",
+        "left_bp",
+        "right_bp",
+        "top_bp"
+      ]
+    },
+    {
+      "class_name": "DiscoveryCandidate",
+      "export_name": "discoveryCandidateKeys",
+      "module_path": "comfyui_h3_context/core/prompt_model_session.py",
+      "required_keys": [
+        "identifier",
+        "reason"
+      ]
+    },
+    {
+      "class_name": "Effect",
+      "export_name": "effectKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "brightness_permille",
+        "contrast_permille",
+        "kind",
+        "saturation_permille"
+      ]
+    },
+    {
+      "class_name": "EmbeddedAudioSpan",
+      "export_name": "embeddedAudioSpanKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "asset_id",
+        "clip_id",
+        "output_end_sample",
+        "output_start_sample",
+        "source_end_sample",
+        "source_start_sample"
+      ]
+    },
+    {
+      "class_name": "ExecutionCorrelation",
+      "export_name": "executionCorrelationKeys",
+      "module_path": "comfyui_h3_context/core/ui_projection.py",
+      "required_keys": [
+        "execution_node_id",
+        "prompt_id"
+      ]
+    },
+    {
+      "class_name": "FamilyProfile",
+      "export_name": "familyProfileKeys",
+      "module_path": "comfyui_h3_context/core/generation_profile.py",
+      "required_keys": [
+        "anchor_node_type",
+        "disposition",
+        "family",
+        "remediation",
+        "task_modes",
+        "template_name",
+        "unsatisfied_slots"
+      ]
+    },
+    {
+      "class_name": "GenerationProfile",
+      "export_name": "generationProfileKeys",
+      "module_path": "comfyui_h3_context/core/generation_profile.py",
+      "required_keys": [
+        "families",
+        "schema",
+        "template_revision"
+      ]
+    },
+    {
+      "class_name": "GenerationSequenceProgress",
+      "export_name": "generationSequenceProgressKeys",
+      "module_path": "comfyui_h3_context/core/generation_sequence.py",
+      "required_keys": [
+        "artifact_output_fingerprint",
+        "artifact_receipt_fingerprint",
+        "attempt",
+        "failure_code",
+        "host_owner_id",
+        "job_id",
+        "ordinal",
+        "queue_prompt_id",
+        "segment_id",
+        "state",
+        "transaction_id"
+      ]
+    },
+    {
+      "class_name": "GenerationSequenceProjection",
+      "export_name": "generationSequenceProjectionKeys",
+      "module_path": "comfyui_h3_context/core/generation_sequence.py",
+      "required_keys": [
+        "cancellation_requested",
+        "complete",
+        "correlation",
+        "eligible_commands",
+        "max_concurrency",
+        "progress",
+        "schema",
+        "sequence_fingerprint",
+        "sequence_id",
+        "state_fingerprint",
+        "workspace_fingerprint",
+        "workspace_id",
+        "workspace_revision"
+      ]
+    },
+    {
+      "class_name": "OutputProfile",
+      "export_name": "outputProfileKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "audio_codec",
+        "audio_policy",
+        "channels",
+        "color_policy",
+        "container",
+        "duration_frames",
+        "final_impulse_tolerance_samples",
+        "frame_rate",
+        "height",
+        "pixel_aspect",
+        "pixel_format",
+        "preview_max_av_drift_samples",
+        "profile_id",
+        "sample_rate",
+        "time_base",
+        "video_codec",
+        "width"
+      ]
+    },
+    {
+      "class_name": "ProductShellBinding",
+      "export_name": "productShellBindingKeys",
+      "module_path": "comfyui_h3_context/core/product_shell.py",
+      "required_keys": [
+        "asset_id",
+        "kind",
+        "native_child_path",
+        "native_input",
+        "presentation_label",
+        "presentation_ordinal"
+      ]
+    },
+    {
+      "class_name": "ProductShellHostProfile",
+      "export_name": "productShellHostProfileKeys",
+      "module_path": "comfyui_h3_context/core/product_shell.py",
+      "required_keys": [
+        "core_revision",
+        "core_version",
+        "frontend_revision",
+        "frontend_version",
+        "node_api"
+      ]
+    },
+    {
+      "class_name": "ProductShellProjection",
+      "export_name": "productShellProjectionKeys",
+      "module_path": "comfyui_h3_context/core/product_shell.py",
+      "required_keys": [
+        "assisted_authoring",
+        "assisted_ready",
+        "bindings",
+        "correlation",
+        "field_ids",
+        "host",
+        "limitations",
+        "native_node_id",
+        "native_queue_ready",
+        "product_scope",
+        "profile",
+        "prompt_export_ready",
+        "prompt_fingerprint",
+        "qualification_plan_fingerprint",
+        "readiness_reason",
+        "report_fingerprint",
+        "report_id",
+        "report_revision",
+        "schema",
+        "task_mode"
+      ]
+    },
+    {
+      "class_name": "ProviderConsentView",
+      "export_name": "providerConsentViewKeys",
+      "module_path": "comfyui_h3_context/core/provider_settings.py",
+      "required_keys": [
+        "cost_policy_sha256",
+        "max_cost_micro_usd",
+        "max_input_tokens",
+        "max_output_tokens",
+        "media_upload_consented",
+        "network_permitted",
+        "price_basis_id",
+        "profile_id",
+        "revision",
+        "scope",
+        "status"
+      ]
+    },
+    {
+      "class_name": "ProviderDiagnostic",
+      "export_name": "providerDiagnosticKeys",
+      "module_path": "comfyui_h3_context/core/provider_settings.py",
+      "required_keys": [
+        "outcome_id",
+        "parameters",
+        "remediation",
+        "severity"
+      ]
+    },
+    {
+      "class_name": "ProviderIntentResult",
+      "export_name": "providerIntentResultKeys",
+      "module_path": "comfyui_h3_context/core/provider_settings.py",
+      "required_keys": [
+        "accepted",
+        "projection",
+        "rejection",
+        "schema"
+      ]
+    },
+    {
+      "class_name": "ProviderProfileView",
+      "export_name": "providerProfileViewKeys",
+      "module_path": "comfyui_h3_context/core/provider_settings.py",
+      "required_keys": [
+        "adapter_version",
+        "cost_class",
+        "family",
+        "host",
+        "license_id",
+        "limitations",
+        "model_digest",
+        "model_id",
+        "parser_version",
+        "port",
+        "profile_id",
+        "provider_label",
+        "qualification_state",
+        "retention_policy",
+        "usage_receipt_required",
+        "wire_dialect"
+      ]
+    },
+    {
+      "class_name": "ProviderSettingsProjection",
+      "export_name": "providerSettingsProjectionKeys",
+      "module_path": "comfyui_h3_context/core/provider_settings.py",
+      "required_keys": [
+        "assisted_authoring",
+        "candidates",
+        "candidates_truncated",
+        "catalog_empty",
+        "consent",
+        "consent_required",
+        "credential_last_four",
+        "credential_present",
+        "credential_required",
+        "diagnostic",
+        "disclosure",
+        "profiles",
+        "reachability_observed",
+        "readiness",
+        "revision",
+        "schema",
+        "selected_model_id",
+        "selected_profile_id"
+      ]
+    },
+    {
+      "class_name": "PublicAsset",
+      "export_name": "publicAssetKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "asset_id",
+        "embedded_audio",
+        "kind",
+        "landmarks",
+        "source_frame_count",
+        "source_sample_count",
+        "source_time_base",
+        "timestamp_policy"
+      ]
+    },
+    {
+      "class_name": "PublicCompositionSnapshot",
+      "export_name": "publicCompositionSnapshotKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "assets",
+        "audio_extension",
+        "blockers",
+        "capability",
+        "clips",
+        "operation_profile_id",
+        "output",
+        "profile_id",
+        "project_id",
+        "public_fingerprint",
+        "render_vocabulary",
+        "schema",
+        "timeline_fingerprint",
+        "timeline_revision",
+        "tracks",
+        "workspace_fingerprint",
+        "workspace_handle",
+        "workspace_revision"
+      ]
+    },
+    {
+      "class_name": "Rational",
+      "export_name": "rationalKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "den",
+        "num"
+      ]
+    },
+    {
+      "class_name": "RenderVocabulary",
+      "export_name": "renderVocabularyKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "job_schema",
+        "reasons",
+        "receipt_schema",
+        "request_schema",
+        "schema",
+        "states",
+        "terminal_states"
+      ]
+    },
+    {
+      "class_name": "ResolvedLayer",
+      "export_name": "resolvedLayerKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "asset_id",
+        "blend",
+        "clip_id",
+        "crop",
+        "effect",
+        "opacity_bp",
+        "operation_ids",
+        "source_frame",
+        "source_pts",
+        "text",
+        "track_id",
+        "transform",
+        "transition_elapsed_frames"
+      ]
+    },
+    {
+      "class_name": "ResolvedScene",
+      "export_name": "resolvedSceneKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "audio_span",
+        "blockers",
+        "frame",
+        "layers",
+        "profile_id",
+        "public_fingerprint",
+        "schema"
+      ]
+    },
+    {
+      "class_name": "SegmentDuration",
+      "export_name": "segmentDurationKeys",
+      "module_path": "comfyui_h3_context/core/segment_workspace.py",
+      "required_keys": [
+        "delivered_milliseconds",
+        "duration_milliseconds",
+        "frame_count",
+        "snapped"
+      ]
+    },
+    {
+      "class_name": "SemanticProposalClarification",
+      "export_name": "semanticProposalClarificationKeys",
+      "module_path": "comfyui_h3_context/core/semantic_proposal_review.py",
+      "required_keys": [
+        "clarification_id",
+        "label",
+        "reason_code"
+      ]
+    },
+    {
+      "class_name": "SemanticProposalReviewGroup",
+      "export_name": "semanticProposalReviewGroupKeys",
+      "module_path": "comfyui_h3_context/core/semantic_proposal_review.py",
+      "required_keys": [
+        "collection",
+        "items"
+      ]
+    },
+    {
+      "class_name": "SemanticProposalReviewHandle",
+      "export_name": "semanticProposalReviewHandleKeys",
+      "module_path": "comfyui_h3_context/core/semantic_proposal_review.py",
+      "required_keys": [
+        "available",
+        "correlation",
+        "reason",
+        "report_fingerprint",
+        "review_id",
+        "schema",
+        "transaction_fingerprint",
+        "workspace_fingerprint"
+      ]
+    },
+    {
+      "class_name": "SemanticProposalReviewItem",
+      "export_name": "semanticProposalReviewItemKeys",
+      "module_path": "comfyui_h3_context/core/semantic_proposal_review.py",
+      "required_keys": [
+        "change_kind",
+        "constraint_labels",
+        "reason_code",
+        "reference_labels",
+        "summary",
+        "target_id",
+        "uncertainty_codes"
+      ]
+    },
+    {
+      "class_name": "SemanticProposalReviewProjection",
+      "export_name": "semanticProposalReviewProjectionKeys",
+      "module_path": "comfyui_h3_context/core/semantic_proposal_review.py",
+      "required_keys": [
+        "action_reasons",
+        "actions",
+        "attempt",
+        "changed_collections",
+        "clarifications",
+        "correlation",
+        "groups",
+        "reason_code",
+        "report_fingerprint",
+        "review_id",
+        "revision",
+        "schema",
+        "segment_id",
+        "state",
+        "terminal",
+        "transaction_fingerprint",
+        "uncertainty_codes",
+        "workspace_fingerprint",
+        "workspace_id",
+        "workspace_revision"
+      ]
+    },
+    {
+      "class_name": "SidebarWorkspaceProjection",
+      "export_name": "sidebarWorkspaceProjectionKeys",
+      "module_path": "comfyui_h3_context/core/sidebar_workspace.py",
+      "required_keys": [
+        "actions",
+        "assisted_authoring",
+        "base_prompt_fingerprint",
+        "bindings",
+        "capabilities",
+        "comparison",
+        "correlation",
+        "diagnostics",
+        "evidence",
+        "exact_text",
+        "guide_conformance",
+        "lifecycle",
+        "limitations",
+        "media_receipt",
+        "plan_steps",
+        "planning",
+        "product_scope",
+        "profile",
+        "prompt_fingerprint",
+        "prompt_text",
+        "prompt_text_redacted",
+        "proposal",
+        "receipt",
+        "reference_candidates",
+        "report_fingerprint",
+        "report_id",
+        "report_revision",
+        "resources",
+        "schema",
+        "stages",
+        "subject_candidates",
+        "task_mode",
+        "validation_status",
+        "workspace_id"
+      ]
+    },
+    {
+      "class_name": "TextStyle",
+      "export_name": "textStyleKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "align",
+        "background_rgba",
+        "content",
+        "fill_rgba",
+        "font_asset_id",
+        "line_height_bp",
+        "size_px",
+        "style",
+        "weight"
+      ]
+    },
+    {
+      "class_name": "TimingLandmark",
+      "export_name": "timingLandmarkKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "dts",
+        "duration_ticks",
+        "frame_index",
+        "pts"
+      ]
+    },
+    {
+      "class_name": "TransactionTransparencyProjection",
+      "export_name": "transactionTransparencyProjectionKeys",
+      "module_path": "comfyui_h3_context/core/transaction_transparency.py",
+      "required_keys": [
+        "actions",
+        "correlation",
+        "decisions",
+        "guidance",
+        "mandatory_segment_ids",
+        "missing_required_segment_ids",
+        "recompute_plan_fingerprint",
+        "requested_segment_ids",
+        "requires_full_recompute",
+        "schema",
+        "selection_safe",
+        "transaction",
+        "workspace_fingerprint",
+        "workspace_id",
+        "workspace_revision"
+      ]
+    },
+    {
+      "class_name": "TransactionTransparencySnapshot",
+      "export_name": "transactionTransparencySnapshotKeys",
+      "module_path": "comfyui_h3_context/core/transaction_transparency.py",
+      "required_keys": [
+        "attempt",
+        "cancellation_requested",
+        "compiled_prompt_fingerprint",
+        "graph_fingerprint",
+        "host_owner_id",
+        "queue_prompt_id",
+        "result_fingerprint",
+        "state",
+        "transaction_fingerprint",
+        "transaction_id"
+      ]
+    },
+    {
+      "class_name": "Transform2D",
+      "export_name": "transform2DKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "anchor_x_bp",
+        "anchor_y_bp",
+        "position_x_bp",
+        "position_y_bp",
+        "rotation_mdeg",
+        "scale_x_bp",
+        "scale_y_bp"
+      ]
+    },
+    {
+      "class_name": "Transition",
+      "export_name": "transitionKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "duration_frames",
+        "kind"
+      ]
+    },
+    {
+      "class_name": "TransmissionDisclosure",
+      "export_name": "transmissionDisclosureKeys",
+      "module_path": "comfyui_h3_context/core/provider_settings.py",
+      "required_keys": [
+        "accepted_media",
+        "consent_required",
+        "consent_scope",
+        "destination",
+        "family",
+        "local_only",
+        "max_cost_micro_usd",
+        "max_input_tokens",
+        "max_output_tokens",
+        "preflight_required",
+        "price_basis_id",
+        "price_valid_through",
+        "provider_id",
+        "requires_credential",
+        "retention_policy",
+        "transfer_boundary",
+        "transmits_media"
+      ]
+    }
+  ]
+}

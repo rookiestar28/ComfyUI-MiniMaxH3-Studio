@@ -1,0 +1,39 @@
+# Public source-distribution allowlist. Internal governance and development trees are intentionally
+# excluded even when they happen to be present in a local checkout.
+include README.md
+include LICENSE
+include NOTICE
+include MANIFEST.in
+include .comfyignore
+include pyproject.toml
+include __init__.py
+
+recursive-include comfyui_h3_context *.py *.json *.js py.typed
+recursive-include comfyui_h3_context/fonts *.ttf *.txt
+recursive-include docs *.md
+recursive-include examples *.py
+recursive-include workflows *.json
+recursive-include subgraphs *.json
+recursive-include assets *.svg *.png *.jpg *.jpeg *.gif
+
+prune .planning
+prune governance
+prune reference
+prune tests
+prune scripts
+prune compatibility
+prune .github
+prune build
+prune dist
+prune .venv
+prune .venv-wsl
+prune comfyui_h3_context.egg-info
+
+global-exclude AGENTS.md ROADMAP.md
+global-exclude *.py[cod]
+global-exclude __pycache__/*
+global-exclude .pytest_cache/*
+global-exclude .mypy_cache/*
+global-exclude .ruff_cache/*
+global-exclude comfyui_h3_context.egg-info/*
+global-exclude *.log

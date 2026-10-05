@@ -1,0 +1,111 @@
+{
+  "schema": "h3-context-workflow-fixture/1",
+  "fixture_id": "m3-07-reference-expanded",
+  "fixture_status": "static_model_free_contract",
+  "workflow_format": "comfyui_api_prompt_v1",
+  "host": {
+    "version": "0.32.0",
+    "revision_parts": ["b323a", "345bb", "bfb2f", "3a95b", "5b73b", "68eb7", "919a2", "6515e"],
+    "native_source": "comfy_extras/nodes_minimax_h3.py",
+    "native_source_blob_parts": ["0b184", "0e851", "c248f", "89e99", "20159", "c3c82", "37fa2", "e7186"],
+    "migration_policy": "exact_pinned_revision"
+  },
+  "prompt": {
+    "1": {
+      "class_type": "comfyui_h3_context.H3Context.Request",
+      "inputs": {
+        "task_mode": "ref2va",
+        "user_intent": "Preserve the two supplied reference pictures while the subject walks forward.",
+        "duration_seconds": 5
+      }
+    },
+    "2": {
+      "class_type": "LoadImage",
+      "inputs": {
+        "image": "h3_context_fixture_image_1.png"
+      }
+    },
+    "3": {
+      "class_type": "LoadImage",
+      "inputs": {
+        "image": "h3_context_fixture_image_2.png"
+      }
+    },
+    "4": {
+      "class_type": "comfyui_h3_context.H3Context.ReferenceRegistry",
+      "inputs": {
+        "images": [["2", 0], ["3", 0]]
+      }
+    },
+    "5": {
+      "class_type": "comfyui_h3_context.H3Context.Plan",
+      "inputs": {
+        "request": ["1", 0],
+        "reference_registry": ["4", 0]
+      }
+    },
+    "6": {
+      "class_type": "comfyui_h3_context.H3Context.Compiler",
+      "inputs": {
+        "plan": ["5", 0]
+      }
+    },
+    "7": {
+      "class_type": "comfyui_h3_context.H3Context.Validator",
+      "inputs": {
+        "plan": ["5", 0],
+        "prompt_document": ["6", 2]
+      }
+    },
+    "8": {
+      "class_type": "comfyui_h3_context.H3Context.NativeH3Adapter",
+      "inputs": {
+        "report": ["7", 1]
+      }
+    },
+    "9": {
+      "class_type": "MiniMaxH3ReferenceToVideo",
+      "inputs": {
+        "prompt": ["8", 0],
+        "width": 512,
+        "height": 512,
+        "length": 124,
+        "ref_image_size": "match",
+        "ref_images": [["2", 0], ["3", 0]]
+      }
+    },
+    "10": {
+      "class_type": "comfyui_h3_context.H3Context.Preview",
+      "inputs": {
+        "report": ["7", 1]
+      }
+    }
+  },
+  "expected": {
+    "task_mode": "ref2va",
+    "pipeline_node_ids": ["1", "4", "5", "6", "7", "8", "10"],
+    "output_projection": {
+      "prompt": ["8", 0],
+      "report": ["7", 1],
+      "native_prompt": ["9", "prompt"],
+      "native_report": ["8", 1],
+      "native_node": "9",
+      "terminal_node": "10"
+    },
+    "direct_media_links": [
+      {
+        "source": "2",
+        "source_output": 0,
+        "target": "9",
+        "target_input": "ref_images"
+      },
+      {
+        "source": "3",
+        "source_output": 0,
+        "target": "9",
+        "target_input": "ref_images"
+      }
+    ],
+    "graph_fingerprint_parts": ["sha256:b78ba065e640b0e0ca49a13ceb83c6ffff44c800d13d838f5c9aca7c059a52bd"]
+  }
+}

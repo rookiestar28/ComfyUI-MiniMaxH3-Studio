@@ -1,0 +1,170 @@
+name: Publish to Comfy registry
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_version:
+        description: Exact project.version expected from the candidate
+        required: true
+        type: string
+      candidate_commit:
+        description: Exact full commit SHA expected to be checked out
+        required: true
+        type: string
+
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - "pyproject.toml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.repository }}-registry-publication
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Guard exact Registry candidate and version
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    if: github.repository == 'rookiestar28/ComfyUI-MiniMaxH3-Studio'
+    permissions:
+      contents: read
+    env:
+      COMFY_NO_TELEMETRY: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    outputs:
+      should_publish: ${{ steps.publish_guard.outputs.should_publish }}
+      candidate_commit: ${{ steps.publish_guard.outputs.candidate_commit }}
+    steps:
+      - name: Check out exact candidate without credentials
+        # actions/checkout v7.0.0, pinned for supply-chain safety.
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up dependency-free guard Python 3.11
+        # actions/setup-python v6.3.0, pinned for supply-chain safety.
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.11"
+
+      - name: Resolve exact predecessor
+        id: predecessor
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          CURRENT_REF: ${{ github.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "push" ]]; then
+            previous_ref="$PUSH_BEFORE"
+          elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            previous_ref="$(git rev-parse --verify "${CURRENT_REF}^{commit}^")"
+          else
+            echo "Unsupported publication event" >&2
+            exit 1
+          fi
+          if [[ ! "$previous_ref" =~ ^[0-9a-f]{40}$ ]] || [[ "$previous_ref" == "0000000000000000000000000000000000000000" ]]; then
+            echo "Previous candidate is not one non-zero full commit SHA" >&2
+            exit 1
+          fi
+          printf 'previous_ref=%s\n' "$previous_ref" >> "$GITHUB_OUTPUT"
+
+      - name: Evaluate uniform Registry guard
+        id: publish_guard
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PREVIOUS_REF: ${{ steps.predecessor.outputs.previous_ref }}
+          CURRENT_REF: ${{ github.sha }}
+          EXPECTED_CANDIDATE: ${{ github.event_name == 'workflow_dispatch' && inputs.candidate_commit || github.sha }}
+          EXPECTED_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.expected_version || '' }}
+        run: |
+          set -euo pipefail
+          python scripts/registry_publish_guard.py \
+            --event-name "$EVENT_NAME" \
+            --previous-ref "$PREVIOUS_REF" \
+            --current-ref "$CURRENT_REF" \
+            --expected-candidate "$EXPECTED_CANDIDATE" \
+            --expected-version "$EXPECTED_VERSION" \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Skip unchanged push
+        if: steps.publish_guard.outputs.should_publish != 'true'
+        run: echo "Skipping Registry publication because project.version is unchanged."
+
+  publish:
+    name: Publish exact guarded candidate
+    needs: preflight
+    environment: registry-production
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    if: >-
+      github.repository == 'rookiestar28/ComfyUI-MiniMaxH3-Studio' &&
+      needs.preflight.outputs.should_publish == 'true'
+    permissions:
+      contents: read
+    env:
+      COMFY_NO_TELEMETRY: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Check out exact guarded candidate without credentials
+        # actions/checkout v7.0.0, pinned for supply-chain safety.
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: ${{ needs.preflight.outputs.candidate_commit }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up publication Python 3.10
+        # actions/setup-python v6.3.0, pinned for supply-chain safety.
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.10"
+
+      - name: Build and verify one hash-locked publication environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          # CRITICAL: keep the CLI environment on this protected runner; uploading it as an
+          # artifact exposes its private workspace metadata to repository readers.
+          python -m venv --copies .publish-venv
+          .publish-venv/bin/python -m pip install \
+            --disable-pip-version-check \
+            --no-cache-dir \
+            --only-binary=:all: \
+            --require-hashes \
+            -r requirements/registry-publish-py310-linux-x86_64.txt
+          .publish-venv/bin/python -c "import importlib.metadata as m; assert m.version('comfy-cli') == '1.16.0'"
+          .publish-venv/bin/comfy --version
+
+      - name: Validate exact public candidate, pack, and audit actual archive
+        shell: bash
+        env:
+          CANDIDATE_COMMIT: ${{ needs.preflight.outputs.candidate_commit }}
+        run: |
+          set -euo pipefail
+          test "$CANDIDATE_COMMIT" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_COMMIT"
+          .publish-venv/bin/python scripts/validate_comfy_registry_metadata.py \
+            --require-finalized --source-root . --public-projection
+          .publish-venv/bin/comfy node pack
+          .publish-venv/bin/python scripts/registry_payload.py \
+            --archive node.zip \
+            --report registry-payload.json > /dev/null
+
+      - name: Publish with the verified direct CLI
+        shell: bash
+        env:
+          REGISTRY_ACCESS_TOKEN: ${{ secrets.REGISTRY_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$REGISTRY_ACCESS_TOKEN"
+          .publish-venv/bin/comfy node publish --token "$REGISTRY_ACCESS_TOKEN"

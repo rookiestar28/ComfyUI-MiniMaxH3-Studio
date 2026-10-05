@@ -1,0 +1,91 @@
+{
+  "schema": "h3-context-workflow-fixture/1",
+  "fixture_id": "m7-05-reliability",
+  "fixture_status": "static_model_free_contract",
+  "workflow_format": "comfyui_api_prompt_v1",
+  "host": {
+    "version": "0.32.0",
+    "revision_parts": ["b323a", "345bb", "bfb2f", "3a95b", "5b73b", "68eb7", "919a2", "6515e"],
+    "native_source": "comfy_extras/nodes_minimax_h3.py",
+    "native_source_blob_parts": ["0b184", "0e851", "c248f", "89e99", "20159", "c3c82", "37fa2", "e7186"],
+    "migration_policy": "exact_pinned_revision"
+  },
+  "prompt": {
+    "1": {
+      "class_type": "comfyui_h3_context.H3Context.Request",
+      "inputs": {
+        "task_mode": "t2va",
+        "user_intent": "A paper lantern drifts above a quiet river while the camera follows downstream.",
+        "duration_seconds": 5
+      }
+    },
+    "2": {
+      "class_type": "comfyui_h3_context.H3Context.Plan",
+      "inputs": {"request": ["1", 0]}
+    },
+    "3": {
+      "class_type": "comfyui_h3_context.H3Context.Compiler",
+      "inputs": {"plan": ["2", 0]}
+    },
+    "4": {
+      "class_type": "comfyui_h3_context.H3Context.Reliability",
+      "inputs": {
+        "operation_id": "h3.context",
+        "stage": "planning",
+        "completed_units": 3,
+        "total_units": 10,
+        "run_state": "cancel_requested",
+        "cancel_requested": true,
+        "attempt": 1,
+        "max_attempts": 3,
+        "checkpoint_status": "incompatible",
+        "resume_requested": true
+      }
+    },
+    "5": {
+      "class_type": "comfyui_h3_context.H3Context.Validator",
+      "inputs": {
+        "plan": ["2", 0],
+        "prompt_document": ["3", 2]
+      }
+    },
+    "6": {
+      "class_type": "comfyui_h3_context.H3Context.Preview",
+      "inputs": {"report": ["5", 1]}
+    },
+    "7": {
+      "class_type": "comfyui_h3_context.H3Context.NativeH3Adapter",
+      "inputs": {"report": ["5", 1]}
+    },
+    "8": {
+      "class_type": "MiniMaxH3ImageToVideo",
+      "inputs": {
+        "prompt": ["7", 0],
+        "width": 512,
+        "height": 512,
+        "length": 124
+      }
+    }
+  },
+  "expected": {
+    "task_mode": "t2va",
+    "pipeline_node_ids": ["1", "2", "3", "4", "5", "6", "7"],
+    "output_projection": {
+      "prompt": ["7", 0],
+      "report": ["5", 1],
+      "preview": ["6", 1],
+      "validation": ["5", 0],
+      "native_prompt": ["8", "prompt"],
+      "native_report": ["7", 1],
+      "native_node": "8"
+    },
+    "reliability_projection": {
+      "stage": "planning",
+      "state": "cancel_requested",
+      "action": "cancelled",
+      "execution_allowed": false
+    },
+    "direct_media_links": [],
+    "graph_fingerprint_parts": ["sha256:98c66c55e54a3a816b76cb2b9a4835d2e588ca6d1be326aca8b8ad682abaa198"]
+  }
+}

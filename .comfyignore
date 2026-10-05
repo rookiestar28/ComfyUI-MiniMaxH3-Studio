@@ -1,0 +1,43 @@
+# Comfy Registry payload is the public runtime/package boundary.
+# Git already ignores the governance and reference trees; these rules also keep them out of the
+# registry archive when a local checkout contains ignored or development-only material.
+.planning/
+reference/
+tests/
+scripts/
+frontend/
+governance/
+compatibility/
+.github/
+AGENTS.md
+ROADMAP.md
+.pre-commit-config.yaml
+.secrets.baseline
+
+# Local environments, build output, caches, and logs.
+.venv/
+.venv-*/
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+*.log
+
+# Private or heavyweight runtime material must never be published.
+*.safetensors
+*.ckpt
+*.pth
+*.pt
+*.bin
+*.onnx
+*.mp4
+*.mov
+*.avi
+*.webm
+*.wav
+*.mp3
+*.flac

@@ -1,0 +1,40 @@
+{
+  "schema": "h3-context-workflow-fixture/1",
+  "fixture_id": "m13-10-local-reconstruction",
+  "scenario": "deterministic_manual_ref2va",
+  "fixture_status": "static_model_free_contract",
+  "workflow_format": "comfyui_api_prompt_v1",
+  "host": {
+    "version": "0.32.0",
+    "revision_parts": ["b323a", "345bb", "bfb2f", "3a95b", "5b73b", "68eb7", "919a2", "6515e"],
+    "migration_policy": "exact_pinned_revision"
+  },
+  "prompt": {
+    "1": {"class_type": "LoadImage", "inputs": {"image": "h3_context_fixture_image_1.png"}},
+    "2": {"class_type": "comfyui_h3_context.H3Context.HardConstraintProducer", "inputs": {"dialogue": "Narrator: \"Enter now.\"", "visible_text": "GATE 7", "required_content": "traveler", "forbidden_content": "watermark", "timing_start": "", "timing_end": "", "keep_target": "subject", "keep_value": "", "change_replacement": ""}},
+    "3": {"class_type": "comfyui_h3_context.H3Context.Request", "inputs": {"task_mode": "ref2va", "user_intent": "A traveler enters a quiet room.", "duration_seconds": 5.0, "hard_constraints": ["2", 0]}},
+    "4": {"class_type": "comfyui_h3_context.H3Context.ReferenceRegistry", "inputs": {"images": ["1", 0]}},
+    "5": {"class_type": "comfyui_h3_context.H3Context.MediaAdmissionProducer", "inputs": {"media_kind": "image", "asset_id": "image_1", "declared_source_fingerprint": "7777777777777777777777777777777777777777777777777777777777777777", "width_pixels": 2, "height_pixels": 2, "duration_seconds": 0.0, "sample_rate_hz": 0, "channel_count": 0, "reference_role": "reference", "reference_order": 0, "image": ["1", 0]}},
+    "6": {"class_type": "comfyui_h3_context.H3Context.IntentGraphProducer", "inputs": {"request": ["3", 0], "reference_registry": ["4", 0], "subject_label": "traveler", "action_description": "enters the quiet room"}},
+    "7": {"class_type": "comfyui_h3_context.H3Context.EvidenceFusionProducer", "inputs": {"media": ["5", 0]}},
+    "8": {"class_type": "comfyui_h3_context.H3Context.CrossReferenceProducer", "inputs": {"reference_registry": ["4", 0], "media": ["5", 0]}},
+    "9": {"class_type": "comfyui_h3_context.H3Context.DirectiveAuthorityProducer", "inputs": {"request": ["3", 0], "reference_registry": ["4", 0], "hard_constraints": ["2", 0], "hard_constraints_report": ["2", 1], "intent_graph": ["6", 0], "intent_report": ["6", 1], "action": "none", "target_kind": "subject", "target_id": "", "source_asset_id": "", "retention_aspect": "identity", "adaptation": "", "exclusion_reason": "", "authority": "user_preference", "priority": 0}},
+    "10": {"class_type": "comfyui_h3_context.H3Context.Plan", "inputs": {"request": ["3", 0], "reference_registry": ["4", 0], "intent_graph": ["6", 0]}},
+    "15": {"class_type": "comfyui_h3_context.H3Context.FeasibleAVTimeline", "inputs": {"request": ["3", 0], "reference_registry": ["4", 0], "intent_graph": ["6", 0], "intent_report": ["6", 1], "directive_authority": ["9", 0], "directive_report": ["9", 1]}},
+    "16": {"class_type": "comfyui_h3_context.H3Context.HierarchicalEvidenceReduction", "inputs": {"media": ["5", 0], "evidence_graph": ["7", 0], "evidence_report": ["7", 1], "feasible_timeline": ["15", 0]}},
+    "17": {"class_type": "comfyui_h3_context.H3Context.ConstrainedSemanticPlanning", "inputs": {"reduction": ["16", 0], "plan": ["10", 0]}},
+    "11": {"class_type": "comfyui_h3_context.H3Context.SourceProfiledRenderer", "inputs": {"plan": ["17", 1]}},
+    "12": {"class_type": "comfyui_h3_context.H3Context.Validator", "inputs": {"plan": ["17", 1], "prompt_document": ["11", 2]}},
+    "13": {"class_type": "comfyui_h3_context.H3Context.NativeH3Adapter", "inputs": {"report": ["12", 1]}},
+    "14": {"class_type": "comfyui_h3_context.H3Context.LocalReconstruction", "inputs": {"request": ["3", 0], "reference_registry": ["4", 0], "media": ["5", 0], "hard_constraints": ["2", 0], "hard_constraints_report": ["2", 1], "intent_graph": ["6", 0], "intent_report": ["6", 1], "evidence_graph": ["7", 0], "evidence_report": ["7", 1], "cross_reference_graph": ["8", 0], "cross_reference_report": ["8", 1], "directive_authority": ["9", 0], "directive_report": ["9", 1], "feasible_timeline": ["15", 0], "hierarchical_reduction": ["16", 0], "semantic_planning": ["17", 0], "plan": ["17", 1], "profiled_prompt": ["11", 1], "validation": ["12", 0], "validated_report": ["12", 1], "native_h3_wiring": ["13", 1]}}
+  },
+  "expected": {
+    "prebuilt_python_results": false,
+    "route": "deterministic_manual",
+    "disposition": "complete",
+    "provider_calls": 0,
+    "model_loads": 0,
+    "uploads": 0,
+    "automatic_fallback": false
+  }
+}

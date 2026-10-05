@@ -1,0 +1,41 @@
+{
+  "schema": "h3-context-workflow-fixture/2",
+  "fixture_id": "m15-09-assistant-base",
+  "fixture_status": "static_model_free_contract",
+  "workflow_format": "comfyui_api_prompt_v1",
+  "host": {
+    "version": "0.32.0",
+    "revision_parts": ["b323a", "345bb", "bfb2f", "3a95b", "5b73b", "68eb7", "919a2", "6515e"],
+    "native_source": "comfy_extras/nodes_minimax_h3.py",
+    "native_source_blob_parts": ["0b184", "0e851", "c248f", "89e99", "20159", "c3c82", "37fa2", "e7186"],
+    "migration_policy": "versioned_product_shell_assistant_composition"
+  },
+  "prompt": {
+    "1": {"class_type": "comfyui_h3_context.H3Context.Request", "inputs": {"task_mode": "t2va", "user_intent": "A red kite crosses the sky while the camera follows its arc.", "duration_seconds": 5}},
+    "2": {"class_type": "comfyui_h3_context.H3Context.Plan", "inputs": {"request": ["1", 0]}},
+    "3": {"class_type": "comfyui_h3_context.H3Context.Compiler", "inputs": {"plan": ["2", 0]}},
+    "4": {"class_type": "comfyui_h3_context.H3Context.Validator", "inputs": {"plan": ["2", 0], "prompt_document": ["3", 2]}},
+    "5": {"class_type": "comfyui_h3_context.H3Context.NativeH3Adapter", "inputs": {"report": ["4", 1]}},
+    "6": {"class_type": "MiniMaxH3ImageToVideo", "inputs": {"prompt": ["8", 0], "width": 512, "height": 512, "length": 124}},
+    "7": {"class_type": "comfyui_h3_context.H3Context.Preview", "inputs": {"report": ["4", 1]}},
+    "8": {"class_type": "comfyui_h3_context.H3Context.ProductShell", "inputs": {"report": ["4", 1], "native_h3_wiring": ["5", 1]}}
+  },
+  "expected": {
+    "task_mode": "t2va",
+    "migration_source": "workflows/m3_07_h3_context_base.json",
+    "rollback_fixture": "workflows/m3_07_h3_context_base.json",
+    "pipeline_node_ids": ["1", "2", "3", "4", "5", "8", "6", "7"],
+    "output_projection": {
+      "prompt": ["8", 0],
+      "report": ["4", 1],
+      "native_prompt": ["6", "prompt"],
+      "native_report": ["5", 1],
+      "product_shell": ["8", 1],
+      "native_node": "6",
+      "terminal_node": "8"
+    },
+    "direct_media_links": [],
+    "prompt_report_semantics": "byte_identical_to_migration_source",
+    "graph_fingerprint_parts": ["sha256:413cf7207aaa35e516617b77072be0defa7c6a8ddf59e1f376f2f183f8025e00"]
+  }
+}

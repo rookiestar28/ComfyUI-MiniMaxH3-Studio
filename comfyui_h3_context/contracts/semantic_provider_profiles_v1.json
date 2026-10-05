@@ -1,0 +1,30 @@
+{
+  "schema": "h3.semantic.provider_profiles.v1",
+  "profiles": [
+    {
+      "profile_id": "ollama.qwen3_8.27b_bf16.local",
+      "endpoint": "http://127.0.0.1:11434/api",
+      "model_id": "qwen3.8:27b-bf16",
+      "model_digest": "sha256:1aa85dae8b2db4a2721ec3501ecbafc54f89f89e33ecb27f719becea4bd2fd01",
+      "server_version": "0.32.13",
+      "model_family": "qwen35",
+      "model_format": "gguf",
+      "parameter_size": "27.3B",
+      "quantization_level": "BF16",
+      "model_size_bytes": 55588891650,
+      "context_length": 262144,
+      "embedding_length": 5120,
+      "capabilities": [
+        "completion",
+        "structured_output"
+      ],
+      "adapter_version": "1.0.0",
+      "parser_version": "h3.semantic.proposal_json.v1",
+      "license_id": "Apache-2.0",
+      "license_source": "ollama_show",
+      "license_text_sha256": "sha256:4c6a8e842ef0d8504549facfb03f1273a8d0022991519bc1888522cc1a5517d1",
+      "show_identity_sha256": "sha256:d98400edfbaaf4bf96db26a14084efda2c7b17d8e5c473ad329f16a57de43c10",
+      "raw_media_capability": false
+    }
+  ]
+}

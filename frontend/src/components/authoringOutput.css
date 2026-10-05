@@ -1,0 +1,87 @@
+.h3a-output {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 1rem;
+  color: var(--h3-text-body);
+  background: var(--h3-surface-1);
+  border: 1px solid var(--h3-line-strong);
+}
+.h3a-output h3,
+.h3a-output p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.h3a-output h3 {
+  color: var(--h3-text-primary);
+  font-size: 1rem;
+}
+.h3a-output-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+.h3a-output button,
+.h3a-output a {
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+  color: var(--h3-text-primary);
+  background: var(--h3-control);
+  border: 1px solid var(--h3-line-strong);
+  border-radius: 0.25rem;
+}
+.h3a-output button:disabled {
+  color: var(--h3-text-dim);
+  cursor: not-allowed;
+}
+.h3a-output :focus-visible {
+  outline: 2px solid var(--h3-tone-info);
+  outline-offset: 2px;
+}
+/* IMPORTANT (M25-21 B3-D14): the download affordance is an anchor, so the editor's
+   `.h3-nle-dialog button` 44 px floor never reaches it. Keep this box here -- the leaf owns the
+   anchor, and a link is a touch target exactly like the buttons beside it. */
+.h3a-output a {
+  display: inline-flex;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+}
+.h3a-output-warning {
+  color: var(--h3-tone-warn);
+}
+.h3a-output-player {
+  display: grid;
+  justify-items: start;
+  gap: 0.75rem;
+  min-width: 0;
+}
+.h3a-output video {
+  display: block;
+  width: 100%;
+  max-width: 40rem;
+  max-height: 22.5rem;
+  background: var(--h3-well);
+}
+.h3a-output progress {
+  width: 100%;
+}
+/* The extension-owned preview transport (M25-21 B3-D1). Inside the editor dialog the 44 px
+   target floor applies to these controls through `.h3-nle-dialog`; keep them on one row. */
+.h3a-output-transport {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 40rem;
+}
+.h3a-output-transport input[type="range"] {
+  flex: 1 1 10rem;
+  min-height: 44px;
+}
+.h3a-output-transport output {
+  color: var(--h3-text-muted);
+  font-variant-numeric: tabular-nums;
+}

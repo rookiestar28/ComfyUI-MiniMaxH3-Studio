@@ -1,0 +1,103 @@
+{
+  "schema": "h3-context-workflow-fixture/1",
+  "fixture_id": "m6-07-full-reference-expanded",
+  "fixture_status": "static_model_free_contract",
+  "workflow_format": "comfyui_api_prompt_v1",
+  "host": {
+    "version": "0.32.0",
+    "revision_parts": ["b323a", "345bb", "bfb2f", "3a95b", "5b73b", "68eb7", "919a2", "6515e"],
+    "native_source": "comfy_extras/nodes_minimax_h3.py",
+    "native_source_blob_parts": ["0b184", "0e851", "c248f", "89e99", "20159", "c3c82", "37fa2", "e7186"],
+    "migration_policy": "exact_pinned_revision"
+  },
+  "prompt": {
+    "1": {
+      "class_type": "comfyui_h3_context.H3Context.Request",
+      "inputs": {
+        "task_mode": "ref2va",
+        "user_intent": "Preserve the image, moving-video, and standalone-audio references while the declared subject crosses the station.",
+        "duration_seconds": 5
+      }
+    },
+    "2": {
+      "class_type": "LoadImage",
+      "inputs": {"image": "h3_context_fixture_image_1.png"}
+    },
+    "3": {
+      "class_type": "LoadImage",
+      "inputs": {"image": "h3_context_fixture_image_2.png"}
+    },
+    "4": {
+      "class_type": "LoadVideo",
+      "inputs": {"file": "h3_context_fixture_video.mp4"}
+    },
+    "5": {
+      "class_type": "LoadAudio",
+      "inputs": {"audio": "h3_context_fixture_audio.wav"}
+    },
+    "6": {
+      "class_type": "GetVideoComponents",
+      "inputs": {"video": ["4", 0]}
+    },
+    "7": {
+      "class_type": "comfyui_h3_context.H3Context.ReferenceRegistry",
+      "inputs": {
+        "images": [["2", 0], ["3", 0]],
+        "videos": [["4", 0]],
+        "audios": [["5", 0]]
+      }
+    },
+    "8": {
+      "class_type": "comfyui_h3_context.H3Context.Plan",
+      "inputs": {"request": ["1", 0], "reference_registry": ["7", 0]}
+    },
+    "9": {
+      "class_type": "comfyui_h3_context.H3Context.Compiler",
+      "inputs": {"plan": ["8", 0]}
+    },
+    "10": {
+      "class_type": "comfyui_h3_context.H3Context.Validator",
+      "inputs": {"plan": ["8", 0], "prompt_document": ["9", 2]}
+    },
+    "11": {
+      "class_type": "comfyui_h3_context.H3Context.NativeH3Adapter",
+      "inputs": {"report": ["10", 1]}
+    },
+    "12": {
+      "class_type": "MiniMaxH3ReferenceToVideo",
+      "inputs": {
+        "prompt": ["11", 0],
+        "width": 512,
+        "height": 512,
+        "length": 124,
+        "ref_image_size": "match",
+        "ref_images": [["2", 0], ["3", 0]],
+        "ref_videos": [["6", 0]],
+        "ref_audios": [["5", 0]]
+      }
+    },
+    "13": {
+      "class_type": "comfyui_h3_context.H3Context.Preview",
+      "inputs": {"report": ["10", 1]}
+    }
+  },
+  "expected": {
+    "task_mode": "ref2va",
+    "pipeline_node_ids": ["1", "7", "8", "9", "10", "11", "13"],
+    "output_projection": {
+      "prompt": ["11", 0],
+      "report": ["10", 1],
+      "native_prompt": ["12", "prompt"],
+      "native_report": ["11", 1],
+      "native_node": "12",
+      "terminal_node": "13"
+    },
+    "direct_media_links": [
+      {"source": "2", "source_output": 0, "target": "12", "target_input": "ref_images"},
+      {"source": "3", "source_output": 0, "target": "12", "target_input": "ref_images"},
+      {"source": "6", "source_output": 0, "target": "12", "target_input": "ref_videos"},
+      {"source": "5", "source_output": 0, "target": "12", "target_input": "ref_audios"}
+    ],
+    "graph_fingerprint_parts": ["sha256:78ebbb27ef821f8afe0b07e43b694b1e4451caaa14e935374f369f04362c643e"]
+  }
+}
