@@ -122,7 +122,7 @@ if os.environ.get("H3_CONTEXT_HOST_TWO_ENDED_BRIDGE_CANARY") == "1":
         TWO_ENDED_BRIDGE_CANARY_NODE_ID: "H3 Context (two-ended AV bridge canary)",
     }
 
-__version__ = "1.0.0"
+__version__ = "1.0.2"
 WEB_DIRECTORY = "web"
 
 # IMPORTANT: route registration is optional and lazy; missing host modules preserve clean import.

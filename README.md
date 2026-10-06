@@ -14,6 +14,27 @@ implementation.
   <img src="assets/overview.jpg" alt="Conceptual overview of the MiniMax H3 Studio workflow" width="80%">
 </p>
 
+<details><summary><h2>Latest Updates - Click to expand</h2></summary>
+
+<details>
+
+<summary><strong>1.0.2 — Assisted prompt writing and model setup</strong></summary>
+
+- Set up Ollama or a remote provider, reload available models and choose an exact model; readiness
+  is checked automatically, and reloading keeps the selection when the model is still available.
+- Browse provider-reported model dates, limits and lifecycle labels, with a local filter for large
+  model lists and requests adapted to each provider's API.
+- Use **Refine prompt** to direct a revision while preserving exact dialogue, visible text,
+  reference roles and timing. Every suggestion remains yours to review before applying.
+- Read and compare prompts without losing local edits, focus, text selection or scroll position.
+- Review typed semantic suggestions with a bounded repair attempt for invalid responses. The
+  canvas **H3 Semantic Proposal Producer** can use an exact installed Ollama model while keeping
+  historical workflows compatible.
+
+</details>
+
+</details>
+
 ## Contents
 
 - [Features](#features)
@@ -76,8 +97,9 @@ implementation.
 - **Built-in editor.** Arrange clips on up to eight tracks, trim and split, add text, picture and
   video overlays, adjust position, crop, colour, transitions and each clip's volume and fades, then
   render and download an MP4.
-- **Optional assisted authoring.** Ask Ollama, Anthropic, OpenAI or Gemini to suggest prompt
-  improvements; you accept or reject every suggestion.
+- **Optional assisted authoring.** Ask Ollama or Gemini to suggest prompt improvements; you accept
+  or reject every suggestion. OpenAI and Anthropic connections support model discovery and
+  readiness checks.
 - **Three languages.** English, Traditional Chinese and Simplified Chinese.
 
 ## Before you start
@@ -115,7 +137,7 @@ see [opening ComfyUI from another address](docs/SECURITY_AND_PROVIDERS.md#openin
 
 ### Install
 
-Until the package is available in the Comfy Registry, install it manually:
+To install manually:
 
 1. Stop ComfyUI.
 2. Clone or copy the complete repository into `ComfyUI/custom_nodes/ComfyUI-MiniMaxH3-Studio`:
@@ -131,8 +153,8 @@ Until the package is available in the Comfy Registry, install it manually:
 Installation does not download models, contact a provider or run a frontend build; the browser
 extension comes prebuilt.
 
-Once the package is published in the Comfy Registry, you can install it from ComfyUI Manager by
-searching for **ComfyUI-MiniMaxH3-Studio**, or run:
+If the package is available through your Comfy Registry or ComfyUI Manager, search for
+**ComfyUI-MiniMaxH3-Studio**, or run:
 
 ```text
 comfy node install minimax-h3-studio
@@ -263,7 +285,9 @@ Fix errors before queueing; warnings point out uncertainties you may accept. You
 - edit the prompt and choose **Validate revision** to check your edit;
 - **Copy prompt**, **Export JSON** or **Import JSON**;
 - choose **Optimize prompt** when [assisted authoring](#assisted-authoring-optional) is set up, then
-  **Accept proposal** or **Reject proposal**.
+  edit, accept or reject the proposal;
+- open **Revision instruction** to give a wording or style direction and choose **Refine prompt**;
+- use **Reader** for the complete prompt, or **Compare with current report** for an active AI proposal.
 
 **Guide readiness** is a separate check against the official H3 prompt guide: **Ready** means every
 known requirement is covered, **Incomplete** means something the guide expects is missing, even if
@@ -537,9 +561,10 @@ Rendered files are kept for about an hour, at most 16 at a time. Download the on
   open, the editor also remembers its layout, selected tab, playhead and zoom.
 - Unapplied Inspector changes stay with their clip; if the clip or timeline changes, the old draft
   is cleared with a notice instead of being applied elsewhere.
-- None of this is a saved project. A page reload can reconnect to the current editor project while
-  ComfyUI keeps running; restarting ComfyUI ends it. Save workflows and download videos you want to
-  keep.
+- None of this is a saved project. A page reload can reconnect while the current editor workspace
+  is still available; restarting ComfyUI ends it. The active, visible editor renews its workspace,
+  but hidden or disconnected workspaces can expire after about 15 minutes without workspace
+  activity. Save workflows and download videos you want to keep; these do not back up the timeline.
 - Imported clips depend on their Production project. Releasing that project or replacing a source
   makes the clip unavailable; select a current output and import it again.
 
@@ -660,40 +685,67 @@ None of these load model weights or promise a particular result.
 ## Assisted authoring (optional)
 
 Assisted authoring is off by default, and the normal path needs no provider; **None selected** is
-the default. It powers **Optimize prompt** on the Context page. Set it up in **Settings → Assisted
+the default. It powers **Optimize prompt** and **Refine prompt** on the Context page. Set it up in **Settings → Assisted
 authoring provider**:
 
 | Profile                              | Runs on                             |
 | ------------------------------------ | ----------------------------------- |
-| `ollama.qwen3_8_27b.local`           | Your own Ollama on the ComfyUI host |
-| `anthropic.claude_sonnet_4_6.remote` | Anthropic                           |
-| `openai.gpt_5_6_terra.remote`        | OpenAI                              |
-| `gemini.gemini_3_7_flash.remote`     | Google Gemini                       |
+| `ollama.local`      | Your own Ollama on the ComfyUI host |
+| `anthropic.remote`  | Anthropic                           |
+| `openai.remote`     | OpenAI                              |
+| `gemini.remote`     | Google Gemini                       |
+
+Prompt generation is enabled for Ollama and Gemini in this release. OpenAI and Anthropic support
+connection setup, model discovery and readiness checks; prompt generation is currently unavailable
+for those connections.
 
 For Ollama:
 
-1. Choose the profile, then **Refresh models and check readiness**.
-2. Pick the **Exact model**, then refresh again.
+1. Choose Ollama, then **Reload available models**.
+2. Pick the **Exact model**. Its readiness check runs automatically.
 
 For Anthropic, OpenAI or Gemini:
 
-1. Choose the profile, enter your API key and choose **Use for this session**.
-2. Read **What leaves this computer**, choose **Allow this provider**, then **Refresh models and
-   check readiness**.
-3. Pick the **Exact model**. Picking it clears the permission, so choose **Allow this provider**
-   again and refresh once more.
+1. Choose the provider and read **What leaves this computer**.
+2. Enter your API key and choose **Allow text-only requests and reload models**.
+3. Pick the **Exact model**. Its readiness check runs automatically; switching models within the
+   same connection keeps the permission you granted.
 
-When the status reads **Ready**, use **Optimize prompt**. **Withdraw consent** removes the
-permission and **Discard** removes the API key.
+Use **Optimize prompt** or **Refine prompt** when the selected connection is ready and assisted
+execution is available. A reachable provider may still show that execution is unavailable.
+**Withdraw consent** removes the permission and **Discard** removes the API key.
 
-- Only text is sent, never media. A suggestion is shown for you to accept, edit or reject; nothing
+The model list uses the provider's exact identifiers. Large lists offer a local filter; model
+dates, limits and lifecycle labels appear only when the provider reports them. **Reload available
+models** keeps the selected model and refreshes its readiness if it is still present. If the model
+disappears, the selection and readiness are cleared; choose a model from the current list.
+
+**Refine prompt** takes a revision instruction of up to 2,048 characters and 8,192 UTF-8 bytes.
+It directs wording within the current facts; it cannot change protected dialogue, visible text,
+reference roles or timing. Change typed facts through their existing controls. Stage an unstaged
+prompt edit first, and resolve any active proposal before asking for another suggestion. Your
+instruction stays in browser memory for the current workspace.
+
+**Reader** retains your text, selection and scrolling when you return to the editor.
+**Compare with current report** shows the report and the active proposal separately and retains
+newer local edits. These views do not send requests or accept a proposal. Copy and export continue
+to use the current report; viewing a candidate does not make it the accepted prompt.
+
+- Only prompt text, revision instructions and derived text are sent, never media. A suggestion is shown for you to accept, edit or reject; nothing
   is applied automatically, and a failure never switches to another provider.
-- Changing the provider setup clears its permission. Sessions expire after 30 minutes without use
-  or eight hours in total, and a ComfyUI restart clears them.
+- Switching providers or replacing credentials requires permission for the new setup. Sessions
+  expire after 30 minutes without use or eight hours in total, and a ComfyUI restart clears them.
 - Billing, quota and data retention are between you and your provider.
 
-The canvas **H3 Semantic Proposal Producer** uses its own local Ollama profile
-(`ollama.qwen3_8.27b_bf16.local`, model `qwen3.8:27b-bf16`) and is configured separately.
+The canvas **H3 Semantic Proposal Producer** is configured separately. Choose `ollama.local` and
+enter an exact installed Ollama model identifier in `ollama_model`. It checks the model's current
+native identity and completion capability before generating, and finishes cleanup before a proposal
+can be reviewed. The previous exact-model profile remains available for historical workflows.
+
+Semantic suggestions have separate subject, scene, action, camera, style and audio fields, grounded
+in the facts you supplied. Exact dialogue and text bindings remain protected. An invalid semantic
+response can receive one bounded repair attempt; a repaired suggestion still needs your review and
+is never applied automatically.
 
 See [Security and providers](docs/SECURITY_AND_PROVIDERS.md#assisted-authoring-providers) for what
 is sent and checked.
@@ -711,7 +763,8 @@ credentials are never saved into workflows, reports or diagnostics.
 | Rendered final videos                | The media tools' temporary folder; about one hour, at most 16                         |
 | App Mode diagnostics                 | Browser storage, 32 KiB across the four latest runs; codes only, no prompts or media  |
 | Sequence reconnect pointer           | Browser storage until it expires                                                      |
-| Current project and provider session | Tab session storage, cleared when the tab closes                                      |
+| Production and editor workspace contents | Host memory; cleared on restart or after about 15 minutes without workspace activity |
+| Project and provider session pointers | Tab session storage, cleared when the tab closes; these are not saved projects        |
 | Provider credentials and permission  | Host memory only; 30 minutes idle or eight hours, cleared on restart                  |
 
 Thumbnails, filmstrips and waveforms are made from your media and can reveal private content.
@@ -727,8 +780,8 @@ Review workflows and screenshots before sharing them. More detail is in
 - **Audio in the editor** comes from the main track's video only, with each clip's volume, mute and
   fades. Overlay videos are silent and there are no separate audio tracks.
 - **Frame rates**: assembly produces 30 fps; the editor's final render is 24 fps, up to 2.5 minutes.
-- **No saved projects**: editor work lasts while ComfyUI runs. Download finished videos; rendered
-  files are kept for about an hour.
+- **No saved projects**: a host restart or workspace expiry ends editor work. Download finished
+  videos; rendered files are kept for about an hour.
 - **Previews** in the monitor are approximate; check the rendered file.
 - **Quality**: validation and guide readiness check the prompt, not the visual result, and do not
   make this equivalent to MiniMax's own implementation.

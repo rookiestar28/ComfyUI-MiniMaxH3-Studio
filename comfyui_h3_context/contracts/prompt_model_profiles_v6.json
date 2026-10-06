@@ -1,0 +1,213 @@
+{
+  "schema": "h3.prompt_model.profiles.v6",
+  "default_profile_id": null,
+  "profiles": [
+    {
+      "adapter_version": "1.2.0",
+      "capabilities": {
+        "accepted_media": [
+          "text"
+        ],
+        "family": "ollama",
+        "local_only": true,
+        "max_context_tokens": 32768,
+        "max_output_tokens": 4096,
+        "max_request_bytes": 262144,
+        "provider_managed_context": true,
+        "provider_managed_kv_cache": true,
+        "requires_credential": false,
+        "streaming": false
+      },
+      "chat_route": "/api/chat",
+      "cost_class": "local_resource",
+      "discovery_routes": [
+        "/api/tags",
+        "/api/show"
+      ],
+      "endpoint": "http://127.0.0.1:11434",
+      "family": "ollama",
+      "limitations": [
+        "text_only_drafting"
+      ],
+      "max_calls_per_action": 4,
+      "max_concurrency": 1,
+      "max_retries": 0,
+      "parser_version": "h3.prompt_model.draft_json.v2",
+      "profile_id": "ollama.local",
+      "provider_label": "Ollama",
+      "qualification_evidence": {
+        "kind": "provider_connection",
+        "profile_id": "ollama.local",
+        "family": "ollama",
+        "observation_model_id": "qwen3.8:27b-q4_K_M",
+        "adapter_version": "1.2.0",
+        "parser_version": "h3.prompt_model.draft_json.v2",
+        "observed_on": "2026-10-06",
+        "evidence_basis_sha256": "sha256:251ad95a809253084e9fd2f0347120ae407fca6acc6ef6cd713f3eb1c6842873",
+        "max_transmissions": 4
+      },
+      "qualification_state": "qualified",
+      "request_timeout_seconds": 60,
+      "retention_policy": "local_process_only",
+      "task_modes": [
+        "t2va",
+        "i2va",
+        "fl2va",
+        "l2va",
+        "ref2va"
+      ],
+      "usage_receipt_required": false,
+      "wire_dialect": "ollama_chat"
+    },
+    {
+      "adapter_version": "1.2.0",
+      "capabilities": {
+        "accepted_media": [
+          "text"
+        ],
+        "family": "remote_openai_compatible",
+        "local_only": false,
+        "max_context_tokens": 32768,
+        "max_output_tokens": 16384,
+        "max_request_bytes": 262144,
+        "provider_managed_context": true,
+        "provider_managed_kv_cache": true,
+        "requires_credential": true,
+        "streaming": false
+      },
+      "chat_route": "/v1/chat/completions",
+      "cost_class": "paid_remote",
+      "discovery_routes": [
+        "/v1/models"
+      ],
+      "endpoint": "https://api.openai.com",
+      "family": "remote_openai_compatible",
+      "limitations": [
+        "retention_depends_on_provider_policy",
+        "remote_activation_pending"
+      ],
+      "max_calls_per_action": 4,
+      "max_concurrency": 1,
+      "max_retries": 0,
+      "parser_version": "h3.prompt_model.draft_json.v2",
+      "profile_id": "openai.remote",
+      "provider_label": "OpenAI",
+      "qualification_evidence": null,
+      "qualification_state": "catalog_only",
+      "request_timeout_seconds": 120,
+      "retention_policy": "provider_policy",
+      "task_modes": [
+        "t2va",
+        "i2va",
+        "fl2va",
+        "l2va",
+        "ref2va"
+      ],
+      "usage_receipt_required": true,
+      "wire_dialect": "openai_chat_completions"
+    },
+    {
+      "adapter_version": "1.2.0",
+      "capabilities": {
+        "accepted_media": [
+          "text"
+        ],
+        "family": "remote_openai_compatible",
+        "local_only": false,
+        "max_context_tokens": 32768,
+        "max_output_tokens": 16384,
+        "max_request_bytes": 262144,
+        "provider_managed_context": true,
+        "provider_managed_kv_cache": true,
+        "requires_credential": true,
+        "streaming": false
+      },
+      "chat_route": "/v1beta/openai/chat/completions",
+      "cost_class": "paid_remote",
+      "discovery_routes": [
+        "/v1beta/models?pageSize=1000"
+      ],
+      "endpoint": "https://generativelanguage.googleapis.com",
+      "family": "remote_openai_compatible",
+      "limitations": [
+        "retention_depends_on_provider_policy"
+      ],
+      "max_calls_per_action": 4,
+      "max_concurrency": 1,
+      "max_retries": 0,
+      "parser_version": "h3.prompt_model.draft_json.v2",
+      "profile_id": "gemini.remote",
+      "provider_label": "Google Gemini",
+      "qualification_evidence": {
+        "kind": "provider_connection",
+        "profile_id": "gemini.remote",
+        "family": "remote_openai_compatible",
+        "observation_model_id": "gemini-3.8-flash",
+        "adapter_version": "1.2.0",
+        "parser_version": "h3.prompt_model.draft_json.v2",
+        "observed_on": "2026-10-06",
+        "evidence_basis_sha256": "sha256:5cbd4d508b793e1af84d86c4d84572b7ae3d516b8db7bb9d3c930eaaea1d9f9f",
+        "max_transmissions": 4
+      },
+      "qualification_state": "qualified",
+      "request_timeout_seconds": 120,
+      "retention_policy": "provider_policy",
+      "task_modes": [
+        "t2va",
+        "i2va",
+        "fl2va",
+        "l2va",
+        "ref2va"
+      ],
+      "usage_receipt_required": true,
+      "wire_dialect": "openai_chat_completions"
+    },
+    {
+      "adapter_version": "1.2.0",
+      "capabilities": {
+        "accepted_media": [
+          "text"
+        ],
+        "family": "remote_anthropic",
+        "local_only": false,
+        "max_context_tokens": 32768,
+        "max_output_tokens": 16384,
+        "max_request_bytes": 262144,
+        "provider_managed_context": true,
+        "provider_managed_kv_cache": true,
+        "requires_credential": true,
+        "streaming": false
+      },
+      "chat_route": "/v1/messages",
+      "cost_class": "paid_remote",
+      "discovery_routes": [
+        "/v1/models?limit=1000"
+      ],
+      "endpoint": "https://api.anthropic.com",
+      "family": "remote_anthropic",
+      "limitations": [
+        "retention_depends_on_provider_policy",
+        "remote_activation_pending"
+      ],
+      "max_calls_per_action": 4,
+      "max_concurrency": 1,
+      "max_retries": 0,
+      "parser_version": "h3.prompt_model.draft_json.v2",
+      "profile_id": "anthropic.remote",
+      "provider_label": "Anthropic",
+      "qualification_evidence": null,
+      "qualification_state": "catalog_only",
+      "request_timeout_seconds": 120,
+      "retention_policy": "provider_policy",
+      "task_modes": [
+        "t2va",
+        "i2va",
+        "fl2va",
+        "l2va",
+        "ref2va"
+      ],
+      "usage_receipt_required": true,
+      "wire_dialect": "anthropic_messages"
+    }
+  ]
+}

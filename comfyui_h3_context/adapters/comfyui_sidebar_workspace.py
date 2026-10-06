@@ -115,6 +115,7 @@ _PROPOSAL_ACTIONS = {
 }
 _ASSISTED_ACTIONS = {
     "optimize_prompt",
+    "refine_prompt",
     "edit_assisted_proposal",
     "accept_assisted_proposal",
     "reject_assisted_proposal",
@@ -201,6 +202,12 @@ def _validate_action(value: object) -> dict[str, object]:
     if action in {"validate", "export", "optimize_prompt", "cancel_assisted_execution"}:
         if payload:
             raise ValueError("this action accepts no payload members")
+    elif action == "refine_prompt":
+        from ..core.assisted_refinement import validate_revision_instruction
+
+        if set(payload) != {"instruction"}:
+            raise ValueError("refine_prompt payload is not closed")
+        validate_revision_instruction(payload["instruction"])
     elif action == "stage_prompt":
         if set(payload) != {"reason", "prompt_text"}:
             raise ValueError("stage_prompt payload is not closed")
@@ -1178,6 +1185,8 @@ class SidebarWorkspaceRegistry:
         workspace_id: str,
         expected_revision: int,
         expected_report_fingerprint: str,
+        *,
+        require_resolved_session: str | None = None,
     ) -> ContextReport:
         """Read the exact current report for one explicit Optimize action."""
 
@@ -1193,6 +1202,18 @@ class SidebarWorkspaceRegistry:
                 or projection.report_fingerprint != expected_report_fingerprint
             ):
                 raise SidebarWorkspaceError("assisted_proposal_stale", "workspace changed")
+            if require_resolved_session is not None:
+                active_id = self._active_assisted.get((require_resolved_session, workspace_id))
+                previous = self._assisted_proposals.get(active_id or "")
+                if (
+                    previous is not None
+                    and previous.state == "active"
+                    and previous.report_revision == projection.report_revision
+                    and previous.report_fingerprint == projection.report_fingerprint
+                ):
+                    # IMPORTANT: Refine starts from the current report, never an unresolved
+                    # candidate. Check under the report lock before acquiring a provider lease.
+                    raise SidebarWorkspaceError("assisted_proposal_unresolved", "resolve proposal")
             return entry.report
 
     def claim_production_seed(self, workspace_id: str) -> SidebarProductionSeed:
@@ -1418,6 +1439,8 @@ class SidebarWorkspaceRegistry:
             raise SidebarWorkspaceError(
                 "assisted_proposal_preservation", "reference inventory changed"
             )
+        # SECURITY: revision instructions cannot relax server-owned exact spans, even if the
+        # prose audit passes. Keep this deterministic check before candidate staging.
         if any(span not in prompt_text for span in guarantee.preserved_spans):
             raise SidebarWorkspaceError("assisted_proposal_preservation", "exact user text changed")
         audit = audit_prompt_fidelity(
@@ -1982,9 +2005,12 @@ async def dispatch_assisted_sidebar_action(
     payload = action["payload"]
     if type(payload) is not dict:
         raise ValueError("assisted action payload is invalid")
-    if kind == "optimize_prompt":
+    if kind in {"optimize_prompt", "refine_prompt"}:
         report = workspace_registry.claim_assisted_source(
-            workspace_id, revision, report_fingerprint
+            workspace_id,
+            revision,
+            report_fingerprint,
+            require_resolved_session=session_id if kind == "refine_prompt" else None,
         )
         decision = providers.begin_assisted_execution(session_id)
         if decision.lease is None:
@@ -2000,10 +2026,17 @@ async def dispatch_assisted_sidebar_action(
             execution = await asyncio.to_thread(
                 run_assisted_draft_orchestration,
                 profile=lease.snapshot.profile,
+                model_choice=lease.snapshot.model,
                 plan=report.plan,
                 template=report.prompt_document,
                 guarantee=guarantee,
-                instruction=build_assisted_instruction(report, guarantee),
+                instruction=build_assisted_instruction(
+                    report,
+                    guarantee,
+                    revision_instruction=payload["instruction"]
+                    if kind == "refine_prompt"
+                    else None,
+                ),
                 evidence_fingerprint=canonical_fingerprint(report.evidence.to_wire()),
                 provider_revision=lease.snapshot.provider_revision,
                 session_generation=lease.session_generation,

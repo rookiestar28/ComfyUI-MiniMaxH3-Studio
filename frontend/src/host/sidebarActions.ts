@@ -13,6 +13,7 @@ import {
 import {
   decodeAssistedPromptProposal,
   decodeAssistedSidebarResult,
+  validateAssistedActionRequest,
   type AssistedActionRequest,
   type AssistedPromptProposalProjection,
   type AssistedSidebarResult,
@@ -151,6 +152,7 @@ export function createSidebarActionClient({
           proposal: AssistedPromptProposalProjection | null;
         }
     > {
+      validateAssistedActionRequest(request);
       const session = providerSessionHandle?.();
       if (!isProviderSessionHandle(session))
         throw new Error("provider session is unavailable");

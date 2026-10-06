@@ -864,6 +864,7 @@ export function createAuthoringSession(ctx: ShellRuntime) {
   ): request is AssistedActionRequest {
     return (
       request.action === "optimize_prompt" ||
+      request.action === "refine_prompt" ||
       request.action === "edit_assisted_proposal" ||
       request.action === "accept_assisted_proposal" ||
       request.action === "reject_assisted_proposal" ||
@@ -871,15 +872,43 @@ export function createAuthoringSession(ctx: ShellRuntime) {
     );
   }
 
+  let cancellationOwner: object | undefined;
   async function runAssistedWorkspaceAction(
     projection: NonNullable<ReturnType<typeof currentProjection>>,
     request: AssistedActionRequest,
   ): Promise<void> {
     if (request.action === "cancel_assisted_execution") {
+      if (cancellationOwner !== undefined) return;
+      const owner = {};
+      cancellationOwner = owner;
+      const providerHandle = session.providerSessionHandle;
+      // IMPORTANT: cancel must invalidate the client completion before its server ACK.
+      // Keep the send lane busy until that ACK so it cannot cancel a newer action's lease.
+      session.assistedAbort?.abort();
+      session.assistedAbort = undefined;
+      session.assistedProposal = undefined;
+      session.assistedBusy = true;
+      actions.renderCurrent();
+      const ownsSource = () => {
+        const current = currentProjection();
+        return (
+          current?.workspace_id === projection.workspace_id &&
+          current.report_revision === projection.report_revision &&
+          current.report_fingerprint === projection.report_fingerprint &&
+          session.providerSessionHandle === providerHandle
+        );
+      };
       try {
         await deps.actions.sendAssisted(projection, request);
       } catch {
-        session.assistedFailure = "assisted.client_request_failed";
+        if (ownsSource())
+          session.assistedFailure = "assisted.client_request_failed";
+      } finally {
+        if (cancellationOwner === owner) {
+          cancellationOwner = undefined;
+          if (ownsSource() && session.assistedAbort === undefined)
+            session.assistedBusy = false;
+        }
       }
       actions.renderCurrent();
       return;
@@ -890,6 +919,7 @@ export function createAuthoringSession(ctx: ShellRuntime) {
     session.assistedAbort = abort;
     session.assistedBusy = true;
     session.assistedFailure = undefined;
+    const actionDraft = currentWorkspaceDraft();
     actions.renderCurrent();
     try {
       const result = await deps.actions.sendAssisted(
@@ -898,7 +928,15 @@ export function createAuthoringSession(ctx: ShellRuntime) {
         abort.signal,
       );
       if (abort.signal.aborted || session.assistedAbort !== abort) return;
+      const current = currentProjection();
+      if (
+        current?.workspace_id !== projection.workspace_id ||
+        current.report_revision !== projection.report_revision ||
+        current.report_fingerprint !== projection.report_fingerprint
+      )
+        return;
       if (result.kind === "workspace") {
+        const newerDraft = currentWorkspaceDraft();
         session.workspaceState = reduceWorkspaceState(session.workspaceState, {
           type: "received",
           projection: result.projection,
@@ -909,6 +947,19 @@ export function createAuthoringSession(ctx: ShellRuntime) {
           currentWorkspaceDraft() ??
             initialSidebarStagesDraft(result.projection),
         );
+        // IMPORTANT: accepting a proposal changes report authority, but an edit made while
+        // that request was pending still belongs to the user. Rebase its authority, not its text.
+        if (
+          actionDraft !== undefined &&
+          newerDraft !== undefined &&
+          newerDraft.promptText !== actionDraft.promptText
+        ) {
+          session.workspaceDraft = {
+            ...session.workspaceDraft,
+            promptText: newerDraft.promptText,
+            reason: newerDraft.reason,
+          };
+        }
         return;
       }
       if (result.proposal?.state === "active") {

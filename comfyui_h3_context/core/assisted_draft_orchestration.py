@@ -7,6 +7,7 @@ M22-05 core, and emits a new browser-safe receipt rather than forwarding provide
 
 from __future__ import annotations
 
+import re
 import secrets
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -24,6 +25,8 @@ from .assisted_draft import (
 from .context_reporting import ContextPlan, PromptDocument
 from .contracts import ValidationSeverity
 from .prompt_model_provider import (
+    LegacyPromptModelProfile,
+    ModelChoice,
     PromptModelContractError,
     PromptModelOutcome,
     PromptModelOutcomeId,
@@ -34,12 +37,19 @@ from .prompt_model_provider import (
 )
 
 ASSISTED_DRAFT_EXECUTION_SCHEMA = "h3.context.assisted_draft.execution.v1"
-ASSISTED_DRAFT_RECEIPT_SCHEMA = "h3.context.assisted_draft.receipt.v1"
+ASSISTED_DRAFT_RECEIPT_SCHEMA = "h3.context.assisted_draft.receipt.v2"
 MAX_USAGE_COUNT = 1 << 48
 
 
 def _fail(code: str) -> NoReturn:
     raise PromptModelContractError(code)
+
+
+def _observed_model(value: object) -> None:
+    if not isinstance(value, str) or (
+        value and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.:@/-]{0,127}", value) is None
+    ):
+        _fail("assisted_observed_model")
 
 
 def _count(value: object, code: str) -> int:
@@ -70,8 +80,13 @@ class AssistedDraftUsage:
     prompt_tokens: int = 0
     completion_tokens: int = 0
     duration_ms: int = 0
+    downgraded: bool = False
+    observed_model_id: str = ""
 
     def __post_init__(self) -> None:
+        if type(self.downgraded) is not bool:
+            _fail("assisted_usage")
+        _observed_model(self.observed_model_id)
         for name in (
             "requests",
             "request_bytes",
@@ -113,8 +128,13 @@ class AssistedDraftReceipt:
     duration_ms: int
     evidence_fingerprint: str
     provider_revision: int
+    downgraded: bool = False
+    observed_model_id: str = ""
 
     def __post_init__(self) -> None:
+        if type(self.downgraded) is not bool:
+            _fail("assisted_receipt_downgraded")
+        _observed_model(self.observed_model_id)
         if not self.action_id.startswith("action_") or len(self.action_id) != 39:
             _fail("assisted_receipt_action")
         for value in (self.profile_id, self.provider_family, self.model_id):
@@ -163,6 +183,8 @@ class AssistedDraftReceipt:
             "duration_ms": self.duration_ms,
             "evidence_fingerprint": self.evidence_fingerprint,
             "provider_revision": self.provider_revision,
+            "downgraded": self.downgraded,
+            "observed_model_id": self.observed_model_id,
         }
 
 
@@ -223,6 +245,7 @@ class _CancellationBoundModel:
 def _receipt(
     *,
     profile: PromptModelProfile,
+    model_id: str,
     usage: AssistedDraftUsage,
     attempts: int,
     outcome_id: PromptModelOutcomeId,
@@ -238,7 +261,7 @@ def _receipt(
         action_id="action_" + secrets.token_hex(16),
         profile_id=profile.profile_id,
         provider_family=profile.family.value,
-        model_id=profile.model_id,
+        model_id=model_id,
         attempts=attempts,
         outcome_id=outcome_id,
         requests=usage.requests,
@@ -249,6 +272,8 @@ def _receipt(
         duration_ms=usage.duration_ms,
         evidence_fingerprint=evidence_fingerprint,
         provider_revision=provider_revision,
+        downgraded=usage.downgraded,
+        observed_model_id=usage.observed_model_id,
     )
 
 
@@ -265,11 +290,18 @@ def run_assisted_draft_orchestration(
     authority_epoch: int,
     model_factory: Callable[[], AssistedDraftModelBinding],
     cancellation: Callable[[], bool],
+    model_choice: ModelChoice | None = None,
 ) -> AssistedDraftExecutionResult:
     """Admit qualification before binding construction, then draft under cancellable authority."""
 
     if not isinstance(profile, PromptModelProfile):
         _fail("assisted_profile")
+    if model_choice is not None and model_choice.profile_id == profile.profile_id:
+        model_id = model_choice.model_id
+    elif isinstance(profile, LegacyPromptModelProfile):
+        model_id = profile.model_id
+    else:
+        _fail("assisted_model_choice")
     if not callable(model_factory) or not callable(cancellation):
         _fail("assisted_dependency")
     if type(provider_revision) is not int or not 0 <= provider_revision <= 1_000_000:
@@ -324,6 +356,7 @@ def run_assisted_draft_orchestration(
         outcome = _closed_outcome(PromptModelOutcomeId.CANCELLED)
     receipt = _receipt(
         profile=profile,
+        model_id=model_id,
         usage=usage,
         attempts=result.attempts,
         outcome_id=outcome.outcome_id,

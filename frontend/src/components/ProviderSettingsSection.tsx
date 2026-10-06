@@ -15,6 +15,7 @@ import type {
   ProviderIntentPayload,
   ProviderIntentResult,
   ProviderSettingsProjection,
+  ModelMetadataView,
 } from "../contracts/providerSettingsCodec";
 import { UNSCOPED, type SidebarRetention } from "../state/sidebarRetention";
 import { useRetainedSlot } from "./useRetainedSlot";
@@ -75,6 +76,9 @@ export function ProviderSettingsSection({
   const selectId = useId();
   const modelSelectId = useId();
   const credentialId = useId();
+  const filterId = useId();
+  const [modelFilter, setModelFilter] = useState("");
+  useEffect(() => setModelFilter(""), [projection?.selected_profile_id]);
   const retainedView = useRetainedSlot(retention, "settings.view", UNSCOPED);
   const [expanded, setExpanded] = useState({
     identityExpanded: retainedView.restored?.identityExpanded === true,
@@ -129,7 +133,22 @@ export function ProviderSettingsSection({
   // under that label, and granting consent from a diagnostic button would be
   // consent taken rather than given.
   const send = (intent: ProviderIntent, payload?: ProviderIntentPayload) => {
-    void onIntent(intent, payload);
+    const owned =
+      ["select_model", "connect_and_refresh", "recheck_readiness"].includes(
+        intent,
+      ) &&
+      projection !== undefined &&
+      projection.selected_profile_id !== "";
+    void onIntent(
+      intent,
+      owned
+        ? {
+            profile_id: projection.selected_profile_id,
+            expected_revision: projection.revision,
+            ...payload,
+          }
+        : payload,
+    );
   };
 
   if (projection === undefined) {
@@ -146,6 +165,7 @@ export function ProviderSettingsSection({
         </p>
         <button
           type="button"
+          data-h3-focus-key="settings-provider-retry"
           onClick={() => send("recheck_readiness")}
           disabled={busy}
         >
@@ -174,23 +194,55 @@ export function ProviderSettingsSection({
   // "Unreachable" without an observation behind it would tell the user their
   // host is down when nothing ever asked it. Until something observes the
   // provider, the surface says so instead of inventing a silence.
-  const checking = busy && busyIntent === "recheck_readiness";
+  const checking =
+    busy &&
+    (busyIntent === "recheck_readiness" ||
+      busyIntent === "connect_and_refresh");
   const state = checking
     ? "checking"
     : readiness === "unreachable" && !observed
       ? "unverified"
       : readiness;
   const selected = profiles.find((item) => item.profile_id === selectedId);
-  const exactCandidates =
+  const admittedModels =
     selected === undefined
       ? []
-      : candidates.filter(
-          (candidate) => candidate.identifier === selected.model_id,
-        );
-  const admittedModels =
-    exactCandidates.length === 1 && exactCandidates[0]?.reason === "admitted"
-      ? exactCandidates
-      : [];
+      : candidates
+          .filter(
+            (candidate) =>
+              candidate.reason === "admitted" &&
+              candidate.metadata?.locality !== "cloud" &&
+              candidates.filter(
+                (row) => row.identifier === candidate.identifier,
+              ).length === 1,
+          )
+          .sort((left, right) => {
+            const a = left.metadata?.created;
+            const b = right.metadata?.created;
+            if (a == null && b == null) return 0;
+            if (a == null) return 1;
+            if (b == null) return -1;
+            return b - a;
+          });
+  const query = modelFilter.toLocaleLowerCase(locale);
+  const shownModels = admittedModels.filter(
+    (item) =>
+      item.identifier === selectedModelId ||
+      `${item.identifier}\n${item.metadata?.display_name ?? ""}`
+        .toLocaleLowerCase(locale)
+        .includes(query),
+  );
+  const modelFacts = projection.selected_model?.metadata;
+  const badges = (facts: ModelMetadataView | null | undefined) =>
+    [
+      facts?.moving_alias === true ? text.movingAlias : "",
+      facts?.shutdown_date
+        ? text.retiresOn.replace("{date}", facts.shutdown_date)
+        : "",
+    ].filter(Boolean);
+  const retiringSoon =
+    !!modelFacts?.shutdown_date &&
+    Date.parse(modelFacts.shutdown_date) - Date.now() <= 30 * 86400000;
 
   const submitCredential = () => {
     // The value leaves this component in the same gesture it is read, and the
@@ -198,7 +250,15 @@ export function ProviderSettingsSection({
     // a secret in a React devtools dump.
     const value = credential;
     clearCredential();
-    send("submit_credential", { credential: value });
+    send("connect_and_refresh", {
+      ...(value === "" ? {} : { credential: value }),
+      ...(value === "" && consent?.status === "granted"
+        ? {}
+        : {
+            network_permitted: true,
+            media_upload_consented: false,
+          }),
+    });
   };
 
   return (
@@ -239,28 +299,64 @@ export function ProviderSettingsSection({
           </div>
 
           {selected !== undefined ? (
-            <div className="h3s-r">
-              <label htmlFor={modelSelectId}>{text.modelSelectLabel}</label>
-              <select
-                id={modelSelectId}
-                ref={modelSelectRef}
-                data-h3-focus-key="settings-model"
-                value={selectedModelId}
-                disabled={busy}
-                onChange={(event) => {
-                  const value = event.currentTarget.value;
-                  if (value === "") send("clear_model");
-                  else send("select_model", { model_id: value });
-                }}
-              >
-                <option value="">{text.modelSelectNone}</option>
-                {admittedModels.map((item) => (
-                  <option key={item.identifier} value={item.identifier}>
-                    {item.identifier}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <>
+              {admittedModels.length > 12 ? (
+                <div className="h3s-r h3s-pv-filter">
+                  <label htmlFor={filterId}>{text.filterModels}</label>
+                  <input
+                    id={filterId}
+                    data-h3-focus-key="settings-model-filter"
+                    type="search"
+                    maxLength={128}
+                    value={modelFilter}
+                    onChange={(event) =>
+                      setModelFilter(event.currentTarget.value)
+                    }
+                  />
+                </div>
+              ) : null}
+              {/* Keep one label/control pair per form row; sibling badges displace the select. */}
+              <div className="h3s-r">
+                <label htmlFor={modelSelectId}>{text.modelSelectLabel}</label>
+                <div className="h3s-pv-model-choice">
+                  <select
+                    id={modelSelectId}
+                    ref={modelSelectRef}
+                    data-h3-focus-key="settings-model"
+                    value={selectedModelId}
+                    disabled={busy}
+                    onChange={(event) => {
+                      const value = event.currentTarget.value;
+                      if (value === "") send("clear_model");
+                      else send("select_model", { model_id: value });
+                    }}
+                  >
+                    <option value="">{text.modelSelectNone}</option>
+                    {shownModels.map((item) => (
+                      <option key={item.identifier} value={item.identifier}>
+                        {item.identifier}
+                        {item.metadata?.display_name &&
+                        item.metadata.display_name !== item.identifier
+                          ? ` — ${item.metadata.display_name}`
+                          : ""}
+                        {badges(item.metadata)
+                          .map((label) => ` · ${label}`)
+                          .join("")}
+                      </option>
+                    ))}
+                  </select>
+                  {badges(modelFacts).map((label) => (
+                    <span
+                      className="h3s-pv-badge"
+                      key={label}
+                      data-retiring-soon={retiringSoon ? "true" : "false"}
+                    >
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </>
           ) : null}
 
           <p
@@ -272,14 +368,19 @@ export function ProviderSettingsSection({
           >
             <span className="h3-val">{text.readiness[state]}</span>
             <span className="h3-meta">{text.next[state]}</span>
+            {state === "ready" &&
+            selected?.qualification_state !== "qualified" ? (
+              <span className="h3-meta">{text.executionUnavailable}</span>
+            ) : null}
           </p>
-          {selectedId !== "" ? (
+          {selectedId !== "" && !credentialRequired ? (
             <button
               type="button"
-              onClick={() => send("recheck_readiness")}
+              data-h3-focus-key="settings-provider-reload"
+              onClick={() => send("connect_and_refresh")}
               disabled={busy}
             >
-              {checking ? text.checking : text.recheck}
+              {checking ? text.checking : text.reloadModels}
             </button>
           ) : null}
         </>
@@ -296,12 +397,43 @@ export function ProviderSettingsSection({
             {(
               [
                 [text.providerLabel, selected.provider_label],
-                [text.model, selected.model_id],
+                [text.model, selectedModelId],
+                [text.displayName, modelFacts?.display_name ?? ""],
+                [
+                  text.created,
+                  modelFacts?.created == null
+                    ? ""
+                    : new Date(modelFacts.created * 1000).toISOString(),
+                ],
+                [
+                  text.inputTokens,
+                  modelFacts?.max_input_tokens == null
+                    ? ""
+                    : String(modelFacts.max_input_tokens),
+                ],
+                [
+                  text.outputTokens,
+                  modelFacts?.max_output_tokens == null
+                    ? ""
+                    : String(modelFacts.max_output_tokens),
+                ],
+                [
+                  text.contextTokens,
+                  modelFacts?.context_length == null
+                    ? ""
+                    : String(modelFacts.context_length),
+                ],
+                [text.modelFamily, modelFacts?.family ?? ""],
+                [text.parameterSize, modelFacts?.parameter_size ?? ""],
+                [text.quantization, modelFacts?.quantization ?? ""],
+                [text.licenseDigest, modelFacts?.license_sha256 ?? ""],
                 [text.dialect, selected.wire_dialect],
-                [text.digest, selected.model_digest],
+                [
+                  text.digest,
+                  projection.selected_model?.metadata?.model_digest ?? "",
+                ],
                 [text.adapter, selected.adapter_version],
                 [text.parser, selected.parser_version],
-                [text.license, selected.license_id],
                 [text.cost, selected.cost_class],
                 [text.retention, selected.retention_policy],
                 [text.limitations, selected.limitations.join(", ")],
@@ -384,6 +516,7 @@ export function ProviderSettingsSection({
             <label htmlFor={credentialId}>{text.credential.label}</label>
             <input
               id={credentialId}
+              data-h3-focus-key="settings-provider-credential"
               ref={credentialRef}
               type="password"
               autoComplete="off"
@@ -395,16 +528,23 @@ export function ProviderSettingsSection({
           </div>
           <button
             type="button"
+            data-h3-focus-key="settings-provider-connect"
+            ref={grantRef}
             onClick={submitCredential}
-            disabled={busy || credential === ""}
+            disabled={busy || (credential === "" && !credentialPresent)}
           >
-            {text.credential.submit}
+            {checking
+              ? text.checking
+              : consent?.status === "granted" && credential === ""
+                ? text.reloadModels
+                : text.allowAndReload}
           </button>
           {credentialPresent ? (
             <>
               <p className="h3-meta">{text.credential.held}</p>
               <button
                 type="button"
+                data-h3-focus-key="settings-provider-discard"
                 onClick={() => send("discard_credential")}
                 disabled={busy}
               >
@@ -437,19 +577,7 @@ export function ProviderSettingsSection({
           </p>
           <button
             type="button"
-            ref={grantRef}
-            onClick={() =>
-              send("grant_consent", {
-                network_permitted: true,
-                media_upload_consented: false,
-              })
-            }
-            disabled={busy}
-          >
-            {text.consent.grant}
-          </button>
-          <button
-            type="button"
+            data-h3-focus-key="settings-provider-revoke"
             onClick={() => send("revoke_consent")}
             disabled={busy || consent === null || consent?.status !== "granted"}
           >
@@ -503,6 +631,7 @@ export function ProviderSettingsSection({
             ) ? (
             <button
               type="button"
+              data-h3-focus-key="settings-provider-remediation"
               onClick={() =>
                 performRemediation(diagnostic.remediation, {
                   focus: {
@@ -535,6 +664,7 @@ export function ProviderSettingsSection({
           {rejection === "projection_unavailable" ? (
             <button
               type="button"
+              data-h3-focus-key="settings-provider-retry"
               onClick={() => send("recheck_readiness")}
               disabled={busy}
             >
@@ -618,5 +748,10 @@ function performRemediation(
     handles.send("recheck_readiness");
     return;
   }
-  handles.focus[target]?.focus();
+  // A composed connect action needs a key before it can be enabled; focus that input first.
+  if (target === "grant" && handles.focus.grant?.disabled) {
+    handles.focus.credential?.focus();
+  } else {
+    handles.focus[target]?.focus();
+  }
 }

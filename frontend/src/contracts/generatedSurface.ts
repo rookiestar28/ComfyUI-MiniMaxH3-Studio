@@ -11,7 +11,7 @@
  * handwritten in the codec that owns it -- those are refinements this file has no
  * authority over.
  *
- * Surface fingerprint: sha256:3e5de6fa127be4ed924e0fc7217cac4cedf31a572d91d96b99a095ed1a532c6b
+ * Surface fingerprint: sha256:8e824af612c2551bf1f7d4853a64fc9c0448fb66997066d37a98a3be7bf48460
  */
 
 /** comfyui_h3_context/core/assisted_authoring_scope.py :: AssistedAuthoringState */
@@ -119,6 +119,7 @@ export const cropKeys: readonly string[] = [
 /** comfyui_h3_context/core/prompt_model_session.py :: DiscoveryCandidate */
 export const discoveryCandidateKeys: readonly string[] = [
   "identifier",
+  "metadata",
   "reason",
 ];
 
@@ -196,6 +197,30 @@ export const generationSequenceProjectionKeys: readonly string[] = [
   "workspace_revision",
 ];
 
+/** comfyui_h3_context/core/prompt_model_provider.py :: ModelChoice */
+export const modelChoiceKeys: readonly string[] = ["metadata", "model_id"];
+
+/** comfyui_h3_context/core/prompt_model_provider.py :: ModelMetadata */
+export const modelMetadataKeys: readonly string[] = [
+  "capabilities",
+  "context_length",
+  "created",
+  "display_name",
+  "family",
+  "license_sha256",
+  "locality",
+  "max_input_tokens",
+  "max_output_tokens",
+  "model_digest",
+  "moving_alias",
+  "parameter_size",
+  "quantization",
+  "reasoning_control_supported",
+  "reasoning_mandatory",
+  "shutdown_date",
+  "structured_output",
+];
+
 /** comfyui_h3_context/core/composition_contract.py :: OutputProfile */
 export const outputProfileKeys: readonly string[] = [
   "audio_codec",
@@ -262,13 +287,8 @@ export const productShellProjectionKeys: readonly string[] = [
 
 /** comfyui_h3_context/core/provider_settings.py :: ProviderConsentView */
 export const providerConsentViewKeys: readonly string[] = [
-  "cost_policy_sha256",
-  "max_cost_micro_usd",
-  "max_input_tokens",
-  "max_output_tokens",
   "media_upload_consented",
   "network_permitted",
-  "price_basis_id",
   "profile_id",
   "revision",
   "scope",
@@ -297,10 +317,7 @@ export const providerProfileViewKeys: readonly string[] = [
   "cost_class",
   "family",
   "host",
-  "license_id",
   "limitations",
-  "model_digest",
-  "model_id",
   "parser_version",
   "port",
   "profile_id",
@@ -329,6 +346,7 @@ export const providerSettingsProjectionKeys: readonly string[] = [
   "readiness",
   "revision",
   "schema",
+  "selected_model",
   "selected_model_id",
   "selected_profile_id",
 ];
@@ -591,12 +609,7 @@ export const transmissionDisclosureKeys: readonly string[] = [
   "destination",
   "family",
   "local_only",
-  "max_cost_micro_usd",
-  "max_input_tokens",
-  "max_output_tokens",
   "preflight_required",
-  "price_basis_id",
-  "price_valid_through",
   "provider_id",
   "requires_credential",
   "retention_policy",

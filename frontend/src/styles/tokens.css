@@ -2380,6 +2380,60 @@
   list-style: none;
   min-width: 0;
 }
+
+.h3s-pv-filter {
+  width: 100%;
+}
+.h3s-pv-filter input {
+  width: 100%;
+}
+.h3s-pv-model-choice {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.h3s-pv-model-choice select {
+  width: 100%;
+}
+.h3s-pv-badge {
+  font: var(--h3-t-meta);
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+.h3s-pv-badge[data-retiring-soon="true"] {
+  font-weight: 700;
+}
+
+.h3-refinement textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 6rem;
+  resize: vertical;
+}
+.h3-refinement p {
+  overflow-wrap: anywhere;
+}
+
+.h3-prompt-reader pre,
+.h3-prompt-comparison pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 65vh;
+  overflow: auto;
+  font: var(--h3-t-body);
+}
+.h3-prompt-comparison {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  gap: 1rem;
+}
+.h3-prompt-comparison > section {
+  min-width: 0;
+  border: 1px solid currentColor;
+  padding: 0.75rem;
+}
 .h3s-pv-candidates > li {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

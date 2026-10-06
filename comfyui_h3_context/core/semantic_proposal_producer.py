@@ -22,6 +22,8 @@ from typing import Any, NoReturn, cast
 from .canonical import canonical_fingerprint
 from .constrained_semantic_planning import (
     CONSTRAINED_SEMANTIC_PLANNING_SCHEMA,
+    TYPED_SEMANTIC_PLANNING_SCHEMA,
+    ExactTextSnapshot,
     SemanticPlanningBudget,
     SemanticPlanningPolicy,
     SemanticPlanningProfile,
@@ -73,6 +75,7 @@ from .model_manifest import (
     ModelRuntimeProfile,
 )
 from .native_h3 import NativeH3Wiring, assert_native_h3_wiring_authority
+from .prompt_model_provider import ModelMetadata
 from .provider_setup import ProviderSetup
 from .segment_workspace import (
     AcceptedIntentAuthority,
@@ -89,6 +92,11 @@ from .semantic_enrichment import (
     SemanticProposal,
     apply_semantic_enrichment,
 )
+from .semantic_intents import (
+    SemanticIntentError,
+    semantic_dialogue_catalog,
+    validate_semantic_dialogue_bindings,
+)
 from .semantic_proposal_transaction import (
     SemanticProposalAuthorization,
     SemanticProposalTransaction,
@@ -102,6 +110,8 @@ from .task_mode_retention_classifier import (
 from .unified_evidence_graph import build_unified_evidence_graph
 
 SEMANTIC_PROVIDER_CATALOG_SCHEMA = "h3.semantic.provider_profiles.v1"
+SEMANTIC_CONNECTION_CATALOG_SCHEMA = "h3.semantic.provider_profiles.v2"
+SEMANTIC_MODEL_MAX_BYTES = 96 * 1024 * 1024 * 1024
 FIXED_OLLAMA_ENDPOINT = "http://127.0.0.1:11434/api"
 _CATALOG_PATH = (
     Path(__file__).resolve().parent.parent / "contracts" / "semantic_provider_profiles_v1.json"
@@ -433,6 +443,233 @@ def load_semantic_provider_catalog() -> SemanticProviderCatalog:
 
 
 @dataclass(frozen=True, slots=True)
+class SemanticProviderConnection:
+    """Package-owned local connection; no model or inferred weight facts."""
+
+    profile_id: str
+    endpoint: str
+    adapter_version: str
+    parser_version: str
+    required_capability: str
+    structured_format: str
+    max_model_bytes: int
+    max_action_seconds: int
+
+    def __post_init__(self) -> None:
+        if (
+            self.profile_id != "ollama.local"
+            or self.endpoint != FIXED_OLLAMA_ENDPOINT
+            or self.adapter_version != "1.1.0"
+            or self.parser_version != "1.0.0"
+            or self.required_capability != "completion"
+            or self.structured_format != "format"
+            or type(self.max_model_bytes) is not int
+            or self.max_model_bytes != SEMANTIC_MODEL_MAX_BYTES
+            or type(self.max_action_seconds) is not int
+            or self.max_action_seconds != 120
+        ):
+            _fail("connection_authority")
+
+    def to_wire(self) -> dict[str, object]:
+        return {
+            "profile_id": self.profile_id,
+            "endpoint": self.endpoint,
+            "adapter_version": self.adapter_version,
+            "parser_version": self.parser_version,
+            "required_capability": self.required_capability,
+            "structured_format": self.structured_format,
+            "max_model_bytes": self.max_model_bytes,
+            "max_action_seconds": self.max_action_seconds,
+        }
+
+
+def load_semantic_connection() -> SemanticProviderConnection:
+    path = _CATALOG_PATH.with_name("semantic_provider_profiles_v2.json")
+    try:
+        raw = path.read_bytes()
+        if len(raw) > 65_536:
+            _fail("catalog_size")
+        root = _exact_keys(
+            json.loads(
+                raw.decode("utf-8"),
+                object_pairs_hook=_closed_object,
+                parse_constant=_reject_constant,
+            ),
+            _ROOT_KEYS,
+            "root",
+        )
+        if root["schema"] != SEMANTIC_CONNECTION_CATALOG_SCHEMA:
+            _fail("catalog_schema")
+        profiles = root["profiles"]
+        if type(profiles) is not list or len(profiles) != 1:
+            _fail("catalog_profile_count")
+        row = _exact_keys(
+            profiles[0],
+            frozenset(
+                {
+                    "profile_id",
+                    "endpoint",
+                    "adapter_version",
+                    "parser_version",
+                    "required_capability",
+                    "structured_format",
+                    "max_model_bytes",
+                    "max_action_seconds",
+                }
+            ),
+            "connection",
+        )
+        return SemanticProviderConnection(**cast(Any, row))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, TypeError):
+        raise SemanticProposalProducerError("catalog_unavailable") from None
+
+
+@dataclass(frozen=True, slots=True)
+class SemanticChosenModelProfile:
+    """One exact observed model, private to a source-bound semantic action."""
+
+    connection: SemanticProviderConnection
+    model_id: str
+    model_size_bytes: int
+    server_version: str
+    metadata: ModelMetadata
+
+    def __post_init__(self) -> None:
+        if type(self.connection) is not SemanticProviderConnection:
+            _fail("connection_authority")
+        if (
+            type(self.model_id) is not str
+            or re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_./:-]{0,255}", self.model_id) is None
+            or ".." in self.model_id
+            or self.model_id.casefold().endswith((":cloud", "-cloud", "/cloud", "_cloud"))
+        ):
+            _fail("model_choice_invalid")
+        if (
+            type(self.model_size_bytes) is not int
+            or not 0 < self.model_size_bytes <= self.connection.max_model_bytes
+        ):
+            _fail("model_resource_limit")
+        if (
+            type(self.server_version) is not str
+            or _SAFE_VERSION.fullmatch(self.server_version) is None
+        ):
+            _fail("model_version_invalid")
+        if type(self.metadata) is not ModelMetadata or self.metadata.locality != "local":
+            _fail("model_metadata_invalid")
+        if not self.metadata.capabilities or "completion" not in self.metadata.capabilities:
+            _fail("capability_mismatch")
+        if (
+            not self.metadata.model_digest
+            or not self.metadata.family
+            or not self.metadata.context_length
+        ):
+            _fail("model_metadata_missing")
+
+    @property
+    def profile_id(self) -> str:
+        return self.connection.profile_id
+
+    @property
+    def endpoint(self) -> str:
+        return self.connection.endpoint
+
+    @property
+    def adapter_version(self) -> str:
+        return self.connection.adapter_version
+
+    @property
+    def model_digest(self) -> str:
+        return cast(str, self.metadata.model_digest)
+
+    @property
+    def model_family(self) -> str:
+        return cast(str, self.metadata.family)
+
+    @property
+    def context_length(self) -> int:
+        return cast(int, self.metadata.context_length)
+
+    @property
+    def fingerprint(self) -> str:
+        return canonical_fingerprint(self.to_wire())
+
+    @property
+    def planning_profile(self) -> SemanticPlanningProfile:
+        return SemanticPlanningProfile(
+            self.profile_id,
+            ModelBackendFamily.OLLAMA,
+            self.model_id,
+            self.model_digest,
+            seed=0,
+            raw_media_capability=False,
+        )
+
+    @property
+    def model_manifest(self) -> ModelManifest:
+        # IMPORTANT: native quantization/license are observations, not a bf16/Apache model default.
+        return ModelManifest(
+            manifest_id="h3.semantic.ollama.chosen",
+            backend_family=ModelBackendFamily.OLLAMA,
+            adapter_id="ollama.semantic",
+            adapter_version=self.adapter_version,
+            model_id=self.model_id,
+            model_digest=self.model_digest,
+            checkpoint_fingerprint=self.model_digest,
+            detected_family=self.model_family,
+            clip_type=None,
+            tokenizer_processor="ollama",
+            generation_weights_complete=True,
+            capabilities=frozenset(
+                {ModelCapability.TEXT_GENERATION, ModelCapability.STRUCTURED_OUTPUT}
+            ),
+            structured_output_schema="h3.semantic.proposal_json.v1",
+            parser_path="h3.semantic.proposal_json.v1",
+            runtime=ModelRuntimeProfile(
+                device=LocalDeviceSpec(LocalDeviceKind.AUTO),
+                dtype="auto",
+                offload="ollama",
+                max_context_tokens=self.context_length,
+                max_output_tokens=2_048,
+                max_media_items=1,
+                limits=LocalResourceBudget(
+                    max_memory_bytes=self.connection.max_model_bytes,
+                    max_wall_time_seconds=120.0,
+                    max_references=0,
+                    max_output_bytes=262_144,
+                    max_output_items=64,
+                    max_concurrency=1,
+                ),
+            ),
+            cancellation=ModelCapabilityState.QUALIFIED,
+            license="native.license.unreported"
+            if self.metadata.license_sha256 is None
+            else "native.license." + self.metadata.license_sha256.removeprefix("sha256:"),
+            notes=(
+                "Exact local completion choice; native metadata is not inferred; "
+                "raw media is prohibited."
+            ),
+            host_profile="ollama.local",
+            evidence_level=EvidenceLevel.FRAMEWORK_REFERENCE,
+            approved=True,
+            server_version=self.server_version,
+        )
+
+    def to_wire(self) -> dict[str, object]:
+        return {
+            "profile_id": self.profile_id,
+            "connection": self.connection.to_wire(),
+            "model_id": self.model_id,
+            "model_digest": self.model_digest,
+            "model_size_bytes": self.model_size_bytes,
+            "server_version": self.server_version,
+            "metadata": self.metadata.to_wire(),
+        }
+
+
+SemanticExecutionProfile = SemanticProviderProfile | SemanticChosenModelProfile
+
+
+@dataclass(frozen=True, slots=True)
 class SemanticSourceTarget:
     target_kind: str
     target_id: str
@@ -443,7 +680,7 @@ class SemanticSourceTarget:
 class SemanticSourceBundle:
     report: ContextReport
     wiring: NativeH3Wiring
-    profile: SemanticProviderProfile
+    profile: SemanticExecutionProfile
     workspace: MultiSegmentWorkspace
     baseline_plan: Any
     planning_request: SemanticPlanningRequest
@@ -452,6 +689,8 @@ class SemanticSourceBundle:
 
 def _build_semantic_ollama_generation_request(
     source: object,
+    *,
+    typed_intents: bool = False,
 ) -> ModelGenerationRequest:
     """Add the M17-16-only provider hint without changing the generic planning API."""
 
@@ -481,8 +720,11 @@ def _build_semantic_ollama_generation_request(
         "maxLength": 128,
         "pattern": r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$",
     }
+    proposal_schema_id = (
+        TYPED_SEMANTIC_PLANNING_SCHEMA if typed_intents else CONSTRAINED_SEMANTIC_PLANNING_SCHEMA
+    )
     proposal_properties: dict[str, object] = {
-        "schema": {"const": CONSTRAINED_SEMANTIC_PLANNING_SCHEMA},
+        "schema": {"const": proposal_schema_id},
         "proposal_id": identifier,
         "target_kind": {"enum": sorted({kind for kind, _ in target_pairs})},
         "target_id": {"enum": sorted({target_id for _, target_id in target_pairs})},
@@ -530,8 +772,36 @@ def _build_semantic_ollama_generation_request(
             }
         ],
     }
+    if typed_intents:
+        dialogue_rows = semantic_dialogue_catalog(source.baseline_plan.hard_constraints.exact_texts)
+        dialogue_items: dict[str, object] = (
+            {"enum": [row.to_wire() for row in dialogue_rows]}
+            if dialogue_rows
+            else {"type": "object", "properties": {}, "additionalProperties": False}
+        )
+        del proposal_properties["claim"]
+        proposal_properties["intent"] = {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["kind", "description", "dialogue_bindings"],
+            "properties": {
+                "kind": {"enum": sorted({kind for kind, _ in target_pairs})},
+                "description": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": request.budget.max_claim_chars,
+                    "pattern": r"^[^<>\[\]\x00-\x1f\x7f-\x9f\u2028\u2029]+$",
+                },
+                "dialogue_bindings": {
+                    "type": "array",
+                    "items": dialogue_items,
+                    "maxItems": len(dialogue_rows),
+                },
+            },
+        }
+        proposal_schema["required"] = list(proposal_properties)
     root_properties: dict[str, object] = {
-        "schema": {"const": CONSTRAINED_SEMANTIC_PLANNING_SCHEMA},
+        "schema": {"const": proposal_schema_id},
         "document_id": identifier,
         "policy": {"const": "evidence_bounded"},
         "task_mode": {"const": request.timeline_plan.task_mode.value},
@@ -561,10 +831,42 @@ def _build_semantic_ollama_generation_request(
 
 
 @dataclass(frozen=True, slots=True)
+class SemanticProposalActionUsage:
+    generations: int = 0
+    request_bytes: int = 0
+    response_bytes: int = 0
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+
+    def __post_init__(self) -> None:
+        for value in (
+            self.generations,
+            self.request_bytes,
+            self.response_bytes,
+            self.prompt_tokens,
+            self.completion_tokens,
+        ):
+            if type(value) is not int or not 0 <= value <= 2**63 - 1:
+                _fail("semantic_usage_invalid")
+        if self.generations > 2:
+            _fail("semantic_generation_limit")
+
+    def to_public_dict(self) -> dict[str, int]:
+        return {
+            "generations": self.generations,
+            "request_bytes": self.request_bytes,
+            "response_bytes": self.response_bytes,
+            "prompt_tokens": self.prompt_tokens,
+            "completion_tokens": self.completion_tokens,
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class SemanticProposalProduct:
     planning_result: SemanticPlanningResult = field(repr=False)
     enrichment_result: SemanticEnrichmentResult = field(repr=False)
     transaction: SemanticProposalTransaction = field(repr=False)
+    usage: SemanticProposalActionUsage = SemanticProposalActionUsage()
 
 
 _ENRICHMENT_TARGETS = {
@@ -605,6 +907,31 @@ def _stable_id(prefix: str, value: object) -> str:
     return prefix + canonical_fingerprint(value).split(":", 1)[1][:32]
 
 
+def validate_semantic_source_authority(report: object, wiring: object) -> NativeH3Wiring:
+    """Validate caller source before selected-model discovery is allowed any I/O."""
+    if (
+        type(report) is not ContextReport
+        or not report.is_successful
+        or not report.validation.is_valid
+    ):
+        _fail("report_authority")
+    try:
+        exact_wiring = assert_native_h3_wiring_authority(wiring, report)
+    except Exception as exc:
+        raise SemanticProposalProducerError("wiring_authority") from exc
+    if exact_wiring.report_id != report.report_id:
+        _fail("wiring_authority")
+    _source_targets(report)
+    frames = FrameGridPolicy().frame_count(report.plan.intent_graph.effective_duration.seconds)
+    nearest = frames.to_integral_value(rounding=ROUND_HALF_UP)
+    if (
+        abs(frames - nearest) > Decimal("0.000000000001")
+        or int(nearest) != report.request.effective_frame_count
+    ):
+        _fail("source_timeline_incompatible")
+    return exact_wiring
+
+
 def build_semantic_source_bundle(
     report: object,
     wiring: object,
@@ -612,20 +939,11 @@ def build_semantic_source_bundle(
 ) -> SemanticSourceBundle:
     """Derive the exact context-scope workspace and evidence-bounded planning request."""
 
-    if (
-        type(report) is not ContextReport
-        or not report.is_successful
-        or not report.validation.is_valid
-    ):
-        _fail("report_authority")
-    if type(profile) is not SemanticProviderProfile:
+    exact_wiring = validate_semantic_source_authority(report, wiring)
+    report = cast(ContextReport, report)
+    if type(profile) not in {SemanticProviderProfile, SemanticChosenModelProfile}:
         _fail("profile_authority")
-    try:
-        exact_wiring = assert_native_h3_wiring_authority(wiring, report)
-    except Exception as exc:
-        raise SemanticProposalProducerError("wiring_authority") from exc
-    if exact_wiring.report_id != report.report_id:
-        _fail("wiring_authority")
+    profile = cast(SemanticExecutionProfile, profile)
 
     graph = report.plan.intent_graph
     targets = _source_targets(report)
@@ -776,6 +1094,12 @@ def build_semantic_source_bundle(
         timeline_plan=timeline_result.plan,
         profile=profile.planning_profile,
         policy=SemanticPlanningPolicy.EVIDENCE_BOUNDED,
+        # CRITICAL: protected text must travel in the immutable proposal header. Leaving this
+        # empty hides accepted dialogue from the parser and lets a changed header evade its guard.
+        protected_exact_text=tuple(
+            ExactTextSnapshot(item.constraint_id, item.text)
+            for item in report.plan.hard_constraints.exact_texts
+        ),
         budget=SemanticPlanningBudget(
             max_proposals=64,
             max_output_tokens=2_048,
@@ -807,6 +1131,13 @@ def _build_enrichment_proposals(
         kind = _ENRICHMENT_TARGETS.get(cast(SemanticTargetKind, proposal.target_kind))
         if kind is None:
             _fail("semantic_target_protected")
+        if proposal.intent is not None:
+            try:
+                validate_semantic_dialogue_bindings(
+                    proposal.intent, product_source.baseline_plan.hard_constraints.exact_texts
+                )
+            except SemanticIntentError:
+                _fail("semantic_dialogue_binding")
         source = EvidenceSource(
             EvidenceSourceKind.PROVIDER_OUTPUT,
             f"semantic.{proposal.proposal_id}",
@@ -843,6 +1174,8 @@ def _assemble_semantic_proposal_product(
     source: object,
     model_result: object,
     capability_fingerprint: object,
+    *,
+    typed_intents: bool = False,
 ) -> SemanticProposalProduct:
     """Purely join one qualified model result to enrichment and the accepted M17-05 contract."""
 
@@ -863,8 +1196,14 @@ def _assemble_semantic_proposal_product(
         source.planning_request,
         model_result.text,
         model_result=model_result,
+        accepted_exact_text=source.baseline_plan.hard_constraints.exact_texts,
     )
     if planning_result.status is not SemanticPlanningStatus.COMPLETE:
+        _fail("provider_output_invalid")
+    if typed_intents and (
+        planning_result.document is None
+        or planning_result.document.schema != TYPED_SEMANTIC_PLANNING_SCHEMA
+    ):
         _fail("provider_output_invalid")
     proposals = _build_enrichment_proposals(source, planning_result)
     enrichment = apply_semantic_enrichment(source.baseline_plan, proposals)
@@ -1106,6 +1445,7 @@ class _SemanticProposalAuthorityOwner:
             ("enrichment_result", retained_product.enrichment_result.to_wire()),
             ("transaction", retained_product.transaction.to_public_dict()),
             ("candidate_graph", retained_product.transaction.candidate_graph.to_wire()),
+            ("action_usage", retained_product.usage.to_public_dict()),
         )
 
     def _retained_state_fingerprint(

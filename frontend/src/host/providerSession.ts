@@ -122,12 +122,38 @@ export function createProviderSession(ctx: ShellRuntime) {
     try {
       const previousProviderRevision =
         session.providerSettingsProjection?.revision;
-      const result = await deps.providerSettingsActions.send(
+      let result = await deps.providerSettingsActions.send(
         intent,
         payload,
         controller.signal,
       );
-      if (generation !== session.providerSettingsGeneration) return;
+      if (
+        generation !== session.providerSettingsGeneration ||
+        controller.signal.aborted
+      )
+        return;
+      if (intent === "select_model" && result.accepted) {
+        // IMPORTANT: keep selection and its readiness in one owned operation. Calling this
+        // handler recursively would hit the busy guard and silently skip the readiness phase.
+        session.providerSettingsProjection = result.projection;
+        session.assistedProposal = undefined;
+        session.assistedFailure = undefined;
+        session.providerSettingsBusyIntent = "recheck_readiness";
+        actions.renderCurrent();
+        result = await deps.providerSettingsActions.send(
+          "recheck_readiness",
+          {
+            profile_id: result.projection.selected_profile_id,
+            expected_revision: result.projection.revision,
+          },
+          controller.signal,
+        );
+        if (
+          generation !== session.providerSettingsGeneration ||
+          controller.signal.aborted
+        )
+          return;
+      }
       session.providerSettingsProjection = result.projection;
       session.providerSettingsRejection = result.rejection ?? undefined;
       if (

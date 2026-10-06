@@ -15,6 +15,8 @@
 
 import {
   discoveryCandidateKeys,
+  modelChoiceKeys,
+  modelMetadataKeys,
   providerConsentViewKeys,
   providerDiagnosticKeys,
   providerIntentResultKeys,
@@ -27,9 +29,9 @@ import {
   type AssistedAuthoringState,
 } from "./projectionCodecs";
 
-export const PROVIDER_SETTINGS_SCHEMA = "h3.context.provider_settings.v2";
+export const PROVIDER_SETTINGS_SCHEMA = "h3.context.provider_settings.v3";
 export const PROVIDER_SETTINGS_REQUEST_SCHEMA =
-  "h3.context.provider_settings.request.v2";
+  "h3.context.provider_settings.request.v3";
 
 export const PROVIDER_READINESS = [
   "not_configured",
@@ -50,6 +52,7 @@ export const PROVIDER_INTENTS = [
   "grant_consent",
   "revoke_consent",
   "recheck_readiness",
+  "connect_and_refresh",
 ] as const;
 export type ProviderIntent = (typeof PROVIDER_INTENTS)[number];
 
@@ -63,7 +66,8 @@ export const PROVIDER_REJECTIONS = [
   "credential_not_applicable",
   "credential_rejected",
   "catalog_empty",
-  "cost_authority_unavailable",
+  "stale_revision",
+  "consent_required",
 ] as const;
 export type ProviderRejection = (typeof PROVIDER_REJECTIONS)[number];
 
@@ -74,6 +78,7 @@ export const DISCOVERY_REASONS = [
   "unpaired_projector",
   "unpinned",
   "no_candidate",
+  "cloud_routed",
 ] as const;
 export type DiscoveryReason = (typeof DISCOVERY_REASONS)[number];
 
@@ -132,11 +137,8 @@ export type ProviderProfileView = Readonly<{
   provider_label: string;
   family: string;
   wire_dialect: string;
-  model_id: string;
-  model_digest: string;
   adapter_version: string;
   parser_version: string;
-  license_id: string;
   cost_class: string;
   usage_receipt_required: boolean;
   retention_policy: string;
@@ -159,11 +161,6 @@ export type TransmissionDisclosure = Readonly<{
   consent_scope: string;
   provider_id: string;
   retention_policy: string;
-  price_basis_id: string;
-  price_valid_through: string;
-  max_input_tokens: number;
-  max_output_tokens: number;
-  max_cost_micro_usd: number;
 }>;
 
 export type ProviderConsentView = Readonly<{
@@ -173,11 +170,6 @@ export type ProviderConsentView = Readonly<{
   media_upload_consented: boolean;
   revision: number;
   scope: string;
-  cost_policy_sha256: string;
-  price_basis_id: string;
-  max_input_tokens: number;
-  max_output_tokens: number;
-  max_cost_micro_usd: number;
 }>;
 
 export type ProviderDiagnostic = Readonly<{
@@ -190,6 +182,32 @@ export type ProviderDiagnostic = Readonly<{
 export type DiscoveryCandidateView = Readonly<{
   identifier: string;
   reason: DiscoveryReason;
+  metadata: ModelMetadataView | null;
+}>;
+
+export type ModelMetadataView = Readonly<{
+  model_digest: string | null;
+  context_length: number | null;
+  max_output_tokens: number | null;
+  capabilities: readonly string[];
+  locality: "local" | "cloud" | "remote" | "unknown";
+  display_name: string | null;
+  created: number | null;
+  max_input_tokens: number | null;
+  structured_output: boolean | null;
+  reasoning_mandatory: boolean | null;
+  reasoning_control_supported: boolean | null;
+  shutdown_date: string | null;
+  moving_alias: boolean | null;
+  family: string | null;
+  parameter_size: string | null;
+  quantization: string | null;
+  license_sha256: string | null;
+}>;
+
+export type ModelChoiceView = Readonly<{
+  model_id: string;
+  metadata: ModelMetadataView | null;
 }>;
 
 export type ProviderSettingsProjection = Readonly<{
@@ -199,6 +217,7 @@ export type ProviderSettingsProjection = Readonly<{
   profiles: readonly ProviderProfileView[];
   selected_profile_id: string;
   selected_model_id: string;
+  selected_model: ModelChoiceView | null;
   readiness: ProviderReadiness;
   disclosure: TransmissionDisclosure | null;
   consent: ProviderConsentView | null;
@@ -292,11 +311,8 @@ function decodeProfile(value: unknown): ProviderProfileView {
       PROVIDER_DIALECTS,
       "profiles[].wire_dialect",
     ),
-    model_id: text(raw.model_id, "profiles[].model_id"),
-    model_digest: text(raw.model_digest, "profiles[].model_digest"),
     adapter_version: text(raw.adapter_version, "profiles[].adapter_version"),
     parser_version: text(raw.parser_version, "profiles[].parser_version"),
-    license_id: text(raw.license_id, "profiles[].license_id"),
     cost_class: member(
       raw.cost_class,
       PROVIDER_COST_CLASSES,
@@ -364,23 +380,6 @@ function decodeDisclosure(value: unknown): TransmissionDisclosure | null {
     ),
     provider_id: text(raw.provider_id, "disclosure.provider_id"),
     retention_policy: text(raw.retention_policy, "disclosure.retention_policy"),
-    price_basis_id: text(raw.price_basis_id, "disclosure.price_basis_id"),
-    price_valid_through: text(
-      raw.price_valid_through,
-      "disclosure.price_valid_through",
-    ),
-    max_input_tokens: count(
-      raw.max_input_tokens,
-      "disclosure.max_input_tokens",
-    ),
-    max_output_tokens: count(
-      raw.max_output_tokens,
-      "disclosure.max_output_tokens",
-    ),
-    max_cost_micro_usd: count(
-      raw.max_cost_micro_usd,
-      "disclosure.max_cost_micro_usd",
-    ),
   });
 }
 
@@ -397,20 +396,6 @@ function decodeConsent(value: unknown): ProviderConsentView | null {
     ),
     revision: count(raw.revision, "consent.revision"),
     scope: member(raw.scope, PROVIDER_CONSENT_SCOPES, "consent.scope"),
-    cost_policy_sha256: text(
-      raw.cost_policy_sha256,
-      "consent.cost_policy_sha256",
-    ),
-    price_basis_id: text(raw.price_basis_id, "consent.price_basis_id"),
-    max_input_tokens: count(raw.max_input_tokens, "consent.max_input_tokens"),
-    max_output_tokens: count(
-      raw.max_output_tokens,
-      "consent.max_output_tokens",
-    ),
-    max_cost_micro_usd: count(
-      raw.max_cost_micro_usd,
-      "consent.max_cost_micro_usd",
-    ),
   });
 }
 
@@ -434,6 +419,129 @@ function decodeDiagnostic(value: unknown): ProviderDiagnostic | null {
   });
 }
 
+function modelIdentifier(value: unknown, field: string): string {
+  const id = text(value, field);
+  if (!/^[A-Za-z0-9][A-Za-z0-9_.:/-]{0,127}$/.test(id) || id.includes(".."))
+    fail(field);
+  return id;
+}
+
+function decodeMetadata(value: unknown): ModelMetadataView | null {
+  if (value === null) return null;
+  const raw = object(value, "metadata", modelMetadataKeys);
+  const digest =
+    raw.model_digest === null
+      ? null
+      : text(raw.model_digest, "metadata.model_digest");
+  if (digest !== null && !/^sha256:[0-9a-f]{64}$/.test(digest))
+    fail("metadata.model_digest");
+  const tokens = (value: unknown, field: string) => {
+    if (value === null) return null;
+    const amount = count(value, field);
+    if (amount < 1 || amount > 4194304) fail(field);
+    return amount;
+  };
+  const capabilities = list(raw.capabilities, "metadata.capabilities").map(
+    (item) => {
+      const value = text(item, "metadata.capabilities[]");
+      if (!/^[a-z][a-z0-9_]{0,31}$/.test(value))
+        fail("metadata.capabilities[]");
+      return value;
+    },
+  );
+  if (
+    capabilities.length > 16 ||
+    new Set(capabilities).size !== capabilities.length
+  )
+    fail("metadata.capabilities");
+  const optionalText = (value: unknown, field: string, maximum: number) => {
+    if (value === null) return null;
+    const result = text(value, field);
+    if (
+      !result ||
+      Array.from(result).length > maximum ||
+      /[\u0000-\u001f\u007f\ud800-\udfff]/u.test(
+        result.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, ""),
+      ) ||
+      /bearer\s|sk-[A-Za-z0-9]/i.test(result)
+    )
+      fail(field);
+    return result;
+  };
+  const optionalFlag = (value: unknown, field: string) =>
+    value === null ? null : flag(value, field);
+  const created =
+    raw.created === null ? null : count(raw.created, "metadata.created");
+  if (created !== null && created > 253402300799) fail("metadata.created");
+  const shutdown = optionalText(
+    raw.shutdown_date,
+    "metadata.shutdown_date",
+    10,
+  );
+  if (
+    shutdown !== null &&
+    (!/^\d{4}-\d{2}-\d{2}$/.test(shutdown) ||
+      !Number.isFinite(Date.parse(shutdown)) ||
+      new Date(shutdown).toISOString().slice(0, 10) !== shutdown)
+  )
+    fail("metadata.shutdown_date");
+  const license = optionalText(
+    raw.license_sha256,
+    "metadata.license_sha256",
+    71,
+  );
+  if (license !== null && !/^sha256:[0-9a-f]{64}$/.test(license))
+    fail("metadata.license_sha256");
+  return Object.freeze({
+    model_digest: digest,
+    context_length: tokens(raw.context_length, "metadata.context_length"),
+    max_output_tokens: tokens(
+      raw.max_output_tokens,
+      "metadata.max_output_tokens",
+    ),
+    capabilities: Object.freeze(capabilities),
+    display_name: optionalText(raw.display_name, "metadata.display_name", 128),
+    created,
+    max_input_tokens: tokens(raw.max_input_tokens, "metadata.max_input_tokens"),
+    structured_output: optionalFlag(
+      raw.structured_output,
+      "metadata.structured_output",
+    ),
+    reasoning_mandatory: optionalFlag(
+      raw.reasoning_mandatory,
+      "metadata.reasoning_mandatory",
+    ),
+    reasoning_control_supported: optionalFlag(
+      raw.reasoning_control_supported,
+      "metadata.reasoning_control_supported",
+    ),
+    shutdown_date: shutdown,
+    moving_alias: optionalFlag(raw.moving_alias, "metadata.moving_alias"),
+    family: optionalText(raw.family, "metadata.family", 64),
+    parameter_size: optionalText(
+      raw.parameter_size,
+      "metadata.parameter_size",
+      64,
+    ),
+    quantization: optionalText(raw.quantization, "metadata.quantization", 64),
+    license_sha256: license,
+    locality: member(
+      raw.locality,
+      ["local", "cloud", "remote", "unknown"] as const,
+      "metadata.locality",
+    ),
+  });
+}
+
+function decodeChoice(value: unknown): ModelChoiceView | null {
+  if (value === null) return null;
+  const raw = object(value, "selected_model", modelChoiceKeys);
+  return Object.freeze({
+    model_id: modelIdentifier(raw.model_id, "selected_model.model_id"),
+    metadata: decodeMetadata(raw.metadata),
+  });
+}
+
 export function decodeProviderSettingsProjection(
   value: unknown,
 ): ProviderSettingsProjection {
@@ -449,6 +557,7 @@ export function decodeProviderSettingsProjection(
     "selected_profile_id",
   );
   const selectedModelId = text(raw.selected_model_id, "selected_model_id");
+  const selectedModel = decodeChoice(raw.selected_model);
   const readiness = member(raw.readiness, PROVIDER_READINESS, "readiness");
   const assistedAuthoring = decodeAssistedAuthoringState(
     raw.assisted_authoring,
@@ -461,7 +570,7 @@ export function decodeProviderSettingsProjection(
     flag(raw.catalog_empty, "catalog_empty") !== (profiles.length === 0) ||
     (selectedProfileId !== "" && selectedProfile === undefined) ||
     (selectedProfile === undefined && selectedModelId !== "") ||
-    (selectedModelId !== "" && selectedModelId !== selectedProfile?.model_id)
+    (selectedModel?.model_id ?? "") !== selectedModelId
   )
     fail("selection");
   const candidates = Object.freeze(
@@ -470,6 +579,7 @@ export function decodeProviderSettingsProjection(
       return Object.freeze({
         identifier: text(entry.identifier, "candidates[].identifier"),
         reason: member(entry.reason, DISCOVERY_REASONS, "candidates[].reason"),
+        metadata: decodeMetadata(entry.metadata),
       });
     }),
   );
@@ -510,9 +620,11 @@ export function decodeProviderSettingsProjection(
     assistedAuthoring.available !== profiles.length > 0 ||
     assistedAuthoring.selected !== (selectedProfileId !== "") ||
     assistedAuthoring.ready !== (readiness === "ready") ||
-    assistedAuthoring.authorized_for_this_action !==
-      (readiness === "ready" &&
-        selectedProfile?.qualification_state === "qualified")
+    (assistedAuthoring.authorized_for_this_action &&
+      !(
+        readiness === "ready" &&
+        selectedProfile?.qualification_state === "qualified"
+      ))
   )
     fail("assisted_authoring");
   return Object.freeze({
@@ -522,6 +634,7 @@ export function decodeProviderSettingsProjection(
     profiles,
     selected_profile_id: selectedProfileId,
     selected_model_id: selectedModelId,
+    selected_model: selectedModel,
     readiness,
     disclosure,
     consent,
@@ -561,6 +674,7 @@ export function decodeProviderIntentResult(
 
 export type ProviderIntentPayload = Readonly<{
   profile_id?: string;
+  expected_revision?: number;
   model_id?: string;
   credential?: string;
   network_permitted?: boolean;

@@ -41,9 +41,9 @@ from .prompt_model_provider import (
     build_prompt_model_outcome,
 )
 from .provider_setup import ProviderConsentStatus
-from .remote_provider_policy import RemoteCostAuthority
 
 REMOTE_PROMPT_MODEL_SCHEMA = "h3-context-remote-prompt-model/1"
+REMOTE_USAGE_RECEIPT_SCHEMA = "h3-context-remote-prompt-model/2"
 
 # Compatibility alias for the first remote family, plus the closed set that shares consent and
 # egress semantics. Dialect-owned headers and bodies remain separate in the adapter.
@@ -234,7 +234,6 @@ class RemoteConsentRecord:
     status: ProviderConsentStatus
     network_permitted: bool
     media_upload_consented: bool
-    cost_authority: RemoteCostAuthority | None = None
     revision: int = 1
 
     def __post_init__(self) -> None:
@@ -248,10 +247,6 @@ class RemoteConsentRecord:
         for name in ("network_permitted", "media_upload_consented"):
             if type(getattr(self, name)) is not bool:
                 _fail("consent_flag")
-        if self.cost_authority is not None and not isinstance(
-            self.cost_authority, RemoteCostAuthority
-        ):
-            _fail("consent_cost_authority")
         if type(self.revision) is not int or not 1 <= self.revision <= 2_147_483_647:
             _fail("consent_revision")
 
@@ -266,9 +261,6 @@ class RemoteConsentRecord:
             "status": self.status.value,
             "network_permitted": self.network_permitted,
             "media_upload_consented": self.media_upload_consented,
-            "cost_authority": (
-                None if self.cost_authority is None else self.cost_authority.to_wire()
-            ),
             "revision": self.revision,
         }
 
@@ -291,7 +283,6 @@ class RemoteConsentLedger:
         *,
         network_permitted: bool,
         media_upload_consented: bool,
-        cost_authority: RemoteCostAuthority | None = None,
     ) -> RemoteConsentRecord:
         _identifier(profile_id, "consent_profile_id")
         previous = self._records.get(profile_id)
@@ -300,7 +291,6 @@ class RemoteConsentLedger:
             status=ProviderConsentStatus.GRANTED,
             network_permitted=network_permitted,
             media_upload_consented=media_upload_consented,
-            cost_authority=cost_authority,
             revision=1 if previous is None else previous.revision + 1,
         )
         self._records[profile_id] = record
@@ -314,7 +304,6 @@ class RemoteConsentLedger:
             status=ProviderConsentStatus.DENIED,
             network_permitted=False,
             media_upload_consented=False,
-            cost_authority=None,
             revision=1 if previous is None else previous.revision + 1,
         )
         self._records[profile_id] = record
@@ -457,13 +446,14 @@ def scrub_upstream_error(status: object, payload: object) -> UpstreamError:
 _STATUS_OUTCOMES: Mapping[int, PromptModelOutcomeId] = {
     400: PromptModelOutcomeId.PROVIDER_ERROR,
     401: PromptModelOutcomeId.AUTHENTICATION,
-    402: PromptModelOutcomeId.PAYMENT_REQUIRED,
+    402: PromptModelOutcomeId.QUOTA,
     403: PromptModelOutcomeId.PERMISSION_DENIED,
     404: PromptModelOutcomeId.MODEL_MISSING,
     408: PromptModelOutcomeId.TIMEOUT,
     413: PromptModelOutcomeId.REQUEST_TOO_LARGE,
     415: PromptModelOutcomeId.UNSUPPORTED_MEDIA,
     429: PromptModelOutcomeId.RATE_LIMITED,
+    529: PromptModelOutcomeId.RATE_LIMITED,
 }
 
 _CODE_OUTCOMES: Mapping[str, PromptModelOutcomeId] = {
@@ -474,7 +464,7 @@ _CODE_OUTCOMES: Mapping[str, PromptModelOutcomeId] = {
     "content_policy_violation": PromptModelOutcomeId.MODERATED,
     "model_not_found": PromptModelOutcomeId.MODEL_MISSING,
     "authentication_error": PromptModelOutcomeId.AUTHENTICATION,
-    "billing_error": PromptModelOutcomeId.PAYMENT_REQUIRED,
+    "billing_error": PromptModelOutcomeId.QUOTA,
     "permission_error": PromptModelOutcomeId.PERMISSION_DENIED,
     "not_found_error": PromptModelOutcomeId.MODEL_MISSING,
     "conflict_error": PromptModelOutcomeId.PROVIDER_ERROR,
@@ -496,6 +486,10 @@ def map_remote_outcome(error: object) -> PromptModelOutcomeId:
 
     if not isinstance(error, UpstreamError):
         _fail("upstream_error")
+    if error.status in {402, 529}:
+        # IMPORTANT: overload/quota statuses have explicit retry meanings even when the body
+        # carries a generic error type; provider prose never decides the classification.
+        return _STATUS_OUTCOMES[error.status]
     if error.code is not None and error.code in _CODE_OUTCOMES:
         return _CODE_OUTCOMES[error.code]
     mapped = _STATUS_OUTCOMES.get(error.status)
@@ -525,9 +519,6 @@ class RemoteUsageReceipt:
     provider_id: str = ""
     model_id: str = ""
     policy_sha256: str = ""
-    price_basis_id: str = ""
-    maximum_cost_micro_usd: int = 0
-    actual_cost_micro_usd: int = 0
     usage_present: bool = False
 
     def __post_init__(self) -> None:
@@ -547,18 +538,16 @@ class RemoteUsageReceipt:
             _count(getattr(self, name), "receipt_count")
         if self.credential_last_four != "":
             _fail("receipt_credential_hint")
-        for name in ("provider_id", "model_id", "policy_sha256", "price_basis_id"):
+        for name in ("provider_id", "model_id", "policy_sha256"):
             value = getattr(self, name)
             if value:
                 _identifier(value, "receipt_policy_identity")
-        for name in ("maximum_cost_micro_usd", "actual_cost_micro_usd"):
-            _count(getattr(self, name), "receipt_cost")
         if type(self.usage_present) is not bool:
             _fail("receipt_usage_present")
 
     def to_wire(self) -> dict[str, object]:
         return {
-            "schema": REMOTE_PROMPT_MODEL_SCHEMA,
+            "schema": REMOTE_USAGE_RECEIPT_SCHEMA,
             "profile_id": self.profile_id,
             "host": self.host,
             "outcome_id": self.outcome_id.value,
@@ -572,9 +561,6 @@ class RemoteUsageReceipt:
             "provider_id": self.provider_id,
             "model_id": self.model_id,
             "policy_sha256": self.policy_sha256,
-            "price_basis_id": self.price_basis_id,
-            "maximum_cost_micro_usd": self.maximum_cost_micro_usd,
-            "actual_cost_micro_usd": self.actual_cost_micro_usd,
             "usage_present": self.usage_present,
         }
 

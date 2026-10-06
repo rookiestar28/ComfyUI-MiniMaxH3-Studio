@@ -24,9 +24,9 @@ from threading import Event, RLock
 from typing import TypeVar
 
 from ..core.prompt_model_provider import (
+    LegacyPromptModelProfile,
     PromptModelContractError,
     PromptModelOutcome,
-    PromptModelProfile,
 )
 from ..core.provider_settings import (
     ProviderExecutionSnapshot,
@@ -44,7 +44,8 @@ from .comfyui_route_seam import (
 )
 from .composition_root import PROVIDER_SETTINGS, component
 
-PROVIDER_SETTINGS_REQUEST_SCHEMA = "h3.context.provider_settings.request.v2"
+PROVIDER_SETTINGS_LEGACY_REQUEST_SCHEMA = "h3.context.provider_settings.request.v2"
+PROVIDER_SETTINGS_REQUEST_SCHEMA = "h3.context.provider_settings.request.v3"
 PROVIDER_SETTINGS_ROUTE = "/h3-context/v1/provider/settings"
 PROVIDER_SESSION_HEADER = "X-H3-Provider-Session"
 
@@ -68,6 +69,7 @@ _PAYLOAD_KEYS = {
     "credential",
     "network_permitted",
     "media_upload_consented",
+    "expected_revision",
 }
 _PROFILE_ID = re.compile(r"[a-z0-9][a-z0-9_.-]{0,127}\Z")
 _MODEL_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:@/-]{0,127}\Z")
@@ -101,10 +103,14 @@ class _ProviderSessionEntry:
     last_access: float
     generation: str
     readiness_task: asyncio.Task[dict[str, object]] | None = None
+    readiness_intent: ProviderSettingsIntent | None = None
+    readiness_owner: tuple[str, int] | None = None
+    readiness_cancellation: Event | None = None
     assisted_cancellation: Event | None = None
     state_lock: RLock = field(default_factory=RLock, repr=False)
     pending_mutations: int = 0
     active_authority_token: object | None = field(default=None, repr=False)
+    safe_dialect_preferences: set[tuple[str, str]] = field(default_factory=set, repr=False)
 
 
 @dataclass(frozen=True, slots=True)
@@ -120,6 +126,11 @@ class ProviderSessionExecutionLease:
 
     def cancelled(self) -> bool:
         return self._registry._lease_cancelled(self)
+
+    @property
+    def safe_dialect_preferences(self) -> set[tuple[str, str]]:
+        """Private, content-free hints owned by this exact server session."""
+        return self._entry.safe_dialect_preferences
 
 
 @dataclass(frozen=True, slots=True)
@@ -195,6 +206,11 @@ class ProviderSettingsSessionRegistry:
 
     @staticmethod
     def _cancel(entry: _ProviderSessionEntry) -> None:
+        # CRITICAL: cancelling a to_thread task does not stop its worker. Revoke its send
+        # permission first, so DNS completion cannot send a key after release/expiry/eviction.
+        readiness_signal = entry.readiness_cancellation
+        if readiness_signal is not None:
+            readiness_signal.set()
         signal = entry.assisted_cancellation
         if signal is not None:
             signal.set()
@@ -292,11 +308,13 @@ class ProviderSettingsSessionRegistry:
             entry = self.entry_for(validated)
             if expected_entry is not None and entry is not expected_entry:
                 raise ProviderSettingsSessionError("session_released")
-            if intent is not ProviderSettingsIntent.READ_PROJECTION:
-                # CRITICAL: cancellation, state mutation and epoch bump are one registry
-                # transaction, so admission cannot combine fields from different authorities.
-                self._cancel_assisted_signal(entry)
             with entry.state_lock:
+                rejection = entry.state.preflight_rejection(intent, payload)
+                if rejection is not None:
+                    return entry.state._refuse(rejection).to_wire()
+                if intent is not ProviderSettingsIntent.READ_PROJECTION:
+                    # SECURITY: reject stale/invalid mutation before cancelling valid authority.
+                    self._cancel_assisted_signal(entry)
                 return _dispatch_entry(entry, intent, payload, readiness_probe=readiness_probe)
 
     def _release_pending_mutation(self, entry: _ProviderSessionEntry) -> None:
@@ -561,6 +579,10 @@ def _shape(value: object, *, depth: int = 0) -> None:
         return
     if isinstance(value, list):
         raise ProviderSettingsRequestError("request_shape")
+    # IMPORTANT: v3 ownership includes an integer revision. The shape gate must admit it
+    # before field validation, while bools, floats and unbounded integers cannot be revisions.
+    if type(value) is int and 0 <= value <= 2_147_483_647:
+        return
     if value is None or type(value) in {str, bool}:
         if type(value) is str and len(value) > 1_024:
             raise ProviderSettingsRequestError("request_shape")
@@ -584,7 +606,8 @@ def decode_provider_settings_request(
     _shape(decoded)
     if type(decoded) is not dict or set(decoded) != _ROOT_KEYS:
         raise ProviderSettingsRequestError("request_shape")
-    if decoded["schema"] != PROVIDER_SETTINGS_REQUEST_SCHEMA:
+    schema = decoded["schema"]
+    if schema not in {PROVIDER_SETTINGS_REQUEST_SCHEMA, PROVIDER_SETTINGS_LEGACY_REQUEST_SCHEMA}:
         raise ProviderSettingsRequestError("request_schema")
     raw_intent = decoded["intent"]
     if type(raw_intent) is not str:
@@ -593,31 +616,70 @@ def decode_provider_settings_request(
         intent = ProviderSettingsIntent(raw_intent)
     except ValueError as exc:
         raise ProviderSettingsRequestError("request_intent") from exc
+    if (
+        schema == PROVIDER_SETTINGS_LEGACY_REQUEST_SCHEMA
+        and intent is ProviderSettingsIntent.CONNECT_AND_REFRESH
+    ):
+        raise ProviderSettingsRequestError("request_intent")
     raw_payload = decoded["payload"]
     if raw_payload is None:
         raw_payload = {}
     if type(raw_payload) is not dict or not set(raw_payload) <= _PAYLOAD_KEYS:
         raise ProviderSettingsRequestError("request_payload")
+    if schema == PROVIDER_SETTINGS_REQUEST_SCHEMA:
+        allowed = {
+            ProviderSettingsIntent.SELECT_PROFILE: {"profile_id"},
+            ProviderSettingsIntent.SELECT_MODEL: {"profile_id", "model_id", "expected_revision"},
+            ProviderSettingsIntent.CONNECT_AND_REFRESH: {
+                "profile_id",
+                "expected_revision",
+                "credential",
+                "network_permitted",
+                "media_upload_consented",
+            },
+            ProviderSettingsIntent.RECHECK_READINESS: {"profile_id", "expected_revision"},
+            ProviderSettingsIntent.SUBMIT_CREDENTIAL: {"credential"},
+            ProviderSettingsIntent.GRANT_CONSENT: {"network_permitted", "media_upload_consented"},
+        }.get(intent, set())
+        if not set(raw_payload) <= allowed:
+            raise ProviderSettingsRequestError("request_payload")
+        if intent in {
+            ProviderSettingsIntent.SELECT_MODEL,
+            ProviderSettingsIntent.CONNECT_AND_REFRESH,
+        } and not {"profile_id", "expected_revision"} <= set(raw_payload):
+            raise ProviderSettingsRequestError("request_payload")
+        if intent is ProviderSettingsIntent.SELECT_MODEL and "model_id" not in raw_payload:
+            raise ProviderSettingsRequestError("request_payload")
+    elif "expected_revision" in raw_payload:
+        raise ProviderSettingsRequestError("request_payload")
+    revision = raw_payload.get("expected_revision")
+    if "expected_revision" in raw_payload and (
+        type(revision) is not int or not 1 <= revision <= 2_147_483_647
+    ):
+        raise ProviderSettingsRequestError("request_payload")
     profile_id = raw_payload.get("profile_id")
-    if profile_id is not None and (
+    if "profile_id" in raw_payload and (
         type(profile_id) is not str or _PROFILE_ID.fullmatch(profile_id) is None
     ):
         raise ProviderSettingsRequestError("request_payload")
     model_id = raw_payload.get("model_id")
-    if model_id is not None and (
+    if "model_id" in raw_payload and (
         type(model_id) is not str or _MODEL_ID.fullmatch(model_id) is None or ".." in model_id
     ):
         raise ProviderSettingsRequestError("request_payload")
     for flag in ("network_permitted", "media_upload_consented"):
         value = raw_payload.get(flag)
-        if value is not None and type(value) is not bool:
+        if flag in raw_payload and type(value) is not bool:
             raise ProviderSettingsRequestError("request_payload")
     credential = raw_payload.get("credential")
-    if credential is not None and type(credential) is not str:
+    if "credential" in raw_payload and type(credential) is not str:
         # The value itself is not inspected further here: `RuntimeCredential` owns that rule, and
         # duplicating it would mean two places could disagree about what a credential may be.
         raise ProviderSettingsRequestError("request_payload")
-    return intent, dict(raw_payload)
+    result = dict(raw_payload)
+    if schema == PROVIDER_SETTINGS_LEGACY_REQUEST_SCHEMA:
+        result["_legacy_request"] = True
+    return intent, result
 
 
 def provider_settings_state(
@@ -659,6 +721,18 @@ def _dispatch_entry(
         result = entry.state.apply(intent, payload, readiness_probe=readiness_probe)
     except PromptModelContractError as exc:
         raise ProviderSettingsRequestError(exc.code) from None
+    if result.accepted and intent in {
+        ProviderSettingsIntent.SELECT_PROFILE,
+        ProviderSettingsIntent.CLEAR_SELECTION,
+        ProviderSettingsIntent.SELECT_MODEL,
+        ProviderSettingsIntent.CLEAR_MODEL,
+        ProviderSettingsIntent.SUBMIT_CREDENTIAL,
+        ProviderSettingsIntent.DISCARD_CREDENTIAL,
+        ProviderSettingsIntent.CONNECT_AND_REFRESH,
+    }:
+        # IMPORTANT: both synchronous and worker-dispatched mutations reach this seam. Clearing
+        # only in the route wrapper leaves stale compatibility hints after asynchronous setup.
+        entry.safe_dialect_preferences.clear()
     return result.to_wire()
 
 
@@ -698,17 +772,35 @@ def _probe_provider_readiness(
     state: ProviderSettingsState,
     profile: object,
     credential: object = None,
+    *,
+    refresh_models: bool = False,
+    cancellation: Callable[[], bool] | None = None,
 ) -> object:
     """Load the socket-owning adapter only for an explicit readiness request."""
 
     from .provider_readiness import probe_provider_readiness
 
     pinned = (
-        tuple(item.model_id for item in state.profiles if item.family is profile.family)
-        if isinstance(profile, PromptModelProfile)
+        tuple(
+            item.model_id
+            for item in state.profiles
+            if isinstance(item, LegacyPromptModelProfile) and item.family is profile.family
+        )
+        if isinstance(profile, LegacyPromptModelProfile)
         else ()
     )
-    return probe_provider_readiness(profile, credential, pinned_identifiers=pinned)
+    return probe_provider_readiness(
+        profile,
+        credential,
+        pinned_identifiers=pinned,
+        model_choice=state.model_choice,
+        # IMPORTANT: selection reuses its census; explicit Reload must ask again even when
+        # a choice exists, or added/deleted models and changed digests remain invisible.
+        cached_candidates=(
+            state.candidates if state.model_choice is not None and not refresh_models else ()
+        ),
+        cancellation=cancellation,
+    )
 
 
 async def dispatch_provider_settings_async(
@@ -719,40 +811,63 @@ async def dispatch_provider_settings_async(
     readiness_probe: object = None,
     registry: ProviderSettingsSessionRegistry | None = None,
 ) -> dict[str, object]:
-    """Serialize only one session and share no readiness work across browser authority."""
-
+    """Serialize session mutations; join only the exact current readiness operation."""
     registry = _registry() if registry is None else registry
     handle = registry.validate_handle(session_id)
+    operations = {
+        ProviderSettingsIntent.RECHECK_READINESS,
+        ProviderSettingsIntent.CONNECT_AND_REFRESH,
+    }
     reserved_mutation = False
     with registry._lock:
         entry = registry.entry_for(handle)
-        if intent is not ProviderSettingsIntent.READ_PROJECTION:
-            registry._cancel_assisted_signal(entry)
         active = entry.readiness_task
         if active is not None and active.done():
             entry.readiness_task = None
+            entry.readiness_intent = None
+            entry.readiness_owner = None
             active = None
-
-        if intent not in {
-            ProviderSettingsIntent.READ_PROJECTION,
-            ProviderSettingsIntent.RECHECK_READINESS,
-        }:
-            entry.pending_mutations += 1
-            reserved_mutation = True
-
-        if intent is ProviderSettingsIntent.RECHECK_READINESS and active is None:
+        if intent in operations and active is not None:
+            # SECURITY: composing a different key/grant must never join an older operation.
+            # Busy clicks refuse without cancellation, mutation, new sends or a secret cache.
+            if (
+                intent is not ProviderSettingsIntent.RECHECK_READINESS
+                or entry.readiness_intent is not intent
+                or entry.pending_mutations != 1
+            ):
+                raise ProviderSettingsRequestError("request_busy")
+            selected = entry.state._profile(entry.state.selected_profile_id)
+            if not isinstance(selected, LegacyPromptModelProfile) and (
+                payload.get("_legacy_request") is True
+                or (payload.get("profile_id"), payload.get("expected_revision"))
+                != entry.readiness_owner
+            ):
+                raise ProviderSettingsRequestError("request_stale")
+        if active is None:
+            with entry.state_lock:
+                rejection = entry.state.preflight_rejection(intent, payload)
+                if rejection is not None:
+                    return entry.state._refuse(rejection).to_wire()
+        if intent in operations and active is None:
+            readiness_signal = Event()
+            entry.readiness_cancellation = readiness_signal
             probe = (
                 (
                     lambda profile, credential: _probe_provider_readiness(
-                        entry.state, profile, credential
+                        entry.state,
+                        profile,
+                        credential,
+                        refresh_models=intent is ProviderSettingsIntent.CONNECT_AND_REFRESH,
+                        cancellation=readiness_signal.is_set,
                     )
                 )
                 if readiness_probe is None
                 else readiness_probe
             )
-            # IMPORTANT: reserve mutation authority before yielding. Admission and proposal
-            # publication observe the reservation while the worker owns only this session state.
             entry.pending_mutations += 1
+            registry._cancel_assisted_signal(entry)
+            entry.readiness_intent = intent
+            entry.readiness_owner = (entry.state.selected_profile_id, entry.state.revision)
             try:
                 active = asyncio.create_task(
                     asyncio.to_thread(
@@ -765,33 +880,49 @@ async def dispatch_provider_settings_async(
                 )
             except Exception:
                 entry.pending_mutations -= 1
+                entry.readiness_intent = None
+                entry.readiness_owner = None
                 raise
             active.add_done_callback(lambda _task: registry._release_pending_mutation(entry))
             entry.readiness_task = active
+        elif intent not in operations and intent is not ProviderSettingsIntent.READ_PROJECTION:
+            entry.pending_mutations += 1
+            reserved_mutation = True
 
-    if intent is ProviderSettingsIntent.RECHECK_READINESS:
+    if intent in operations:
         if active is None:
             raise ProviderSettingsSessionError("session_released")
         try:
-            # One disconnected browser must not cancel the request shared by another caller.
             wire = await asyncio.shield(active)
             with registry._lock:
                 if not registry.owns(handle, entry):
                     raise ProviderSettingsSessionError("session_released")
                 return wire
+        except asyncio.CancelledError:
+            with registry._lock:
+                if not registry.owns(handle, entry):
+                    raise ProviderSettingsSessionError("session_released") from None
+            raise
         finally:
             with registry._lock:
                 if active.done() and entry.readiness_task is active:
                     entry.readiness_task = None
-
+                    entry.readiness_intent = None
+                    entry.readiness_owner = None
     try:
+        # IMPORTANT: drain this session outside the registry lock, including projection reads.
+        # Waiting for its state lock inside dispatch would freeze every other browser session.
         if active is not None:
-            # State used to admit the request cannot change while that request is in flight.
             await asyncio.shield(active)
-            with registry._lock:
-                if active.done() and entry.readiness_task is active:
-                    entry.readiness_task = None
-        return registry.dispatch_intent(handle, intent, payload, expected_entry=entry)
+        # Mutations recheck ownership/revision after the older worker has drained.
+        return await asyncio.to_thread(
+            registry.dispatch_intent,
+            handle,
+            intent,
+            payload,
+            expected_entry=entry,
+            readiness_probe=readiness_probe,
+        )
     finally:
         if reserved_mutation:
             registry._release_pending_mutation(entry)
@@ -807,6 +938,8 @@ _REJECTION_STATUS = {
     ProviderIntentRejection.CREDENTIAL_NOT_APPLICABLE: 409,
     ProviderIntentRejection.CREDENTIAL_REJECTED: 422,
     ProviderIntentRejection.CATALOG_EMPTY: 409,
+    ProviderIntentRejection.STALE_REVISION: 409,
+    ProviderIntentRejection.CONSENT_REQUIRED: 409,
 }
 
 

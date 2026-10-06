@@ -179,6 +179,26 @@ class PromptModelBudgetPlan:
         return self.estimated_input_tokens + self.reserved_output_tokens
 
     @property
+    def requested_output_tokens(self) -> int:
+        reserved = self.reserved_output_tokens
+        requested = min(
+            reserved - OUTPUT_SAFETY_MARGIN_FLOOR_TOKENS,
+            (reserved * 100 + 100 + OUTPUT_SAFETY_MARGIN_PERCENT - 1)
+            // (100 + OUTPUT_SAFETY_MARGIN_PERCENT),
+        )
+        if (
+            requested < 1
+            or requested
+            + max(
+                OUTPUT_SAFETY_MARGIN_FLOOR_TOKENS,
+                requested * OUTPUT_SAFETY_MARGIN_PERCENT // 100,
+            )
+            != reserved
+        ):
+            _fail("plan_output_reserve")
+        return requested
+
+    @property
     def headroom_tokens(self) -> int:
         return self.context_tokens - self.required_tokens
 

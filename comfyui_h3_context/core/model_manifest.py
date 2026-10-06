@@ -32,7 +32,7 @@ MAX_MODEL_JSON_DEPTH = 12
 MAX_MODEL_JSON_KEYS = 128
 
 _CODE = re.compile(r"[a-z][a-z0-9_.:-]{0,127}\Z")
-_MODEL_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}\Z")
+_MODEL_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9_./:-]{0,255}\Z")
 _VERSION = re.compile(r"[0-9]+(?:\.[0-9]+){1,2}\Z")
 _FINGERPRINT = re.compile(r"sha256:[0-9a-f]{64}\Z")
 _TEXT = re.compile(r"[^\x00-\x1f\x7f\ud800-\udfff]*\Z")
@@ -76,7 +76,10 @@ def _code(value: object, field_name: str) -> str:
 def _model_name(value: object, field_name: str) -> str:
     if not isinstance(value, str) or _MODEL_NAME.fullmatch(value) is None:
         raise ModelManifestError(f"{field_name} must be a bounded model name")
-    if any(marker in value.casefold() for marker in ("/", "\\", "token", "secret", "password")):
+    # SECURITY: native namespaces are model IDs, never URLs/paths; keep locator/secret guards.
+    if any(
+        marker in value.casefold() for marker in (":/", "..", "\\", "token", "secret", "password")
+    ):
         raise ModelManifestError(f"{field_name} contains forbidden locator or secret material")
     return value
 

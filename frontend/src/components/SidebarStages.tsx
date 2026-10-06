@@ -25,6 +25,11 @@ import type {
   AssistedFailureId,
   AssistedPromptProposalProjection,
 } from "../contracts/assistedPromptProposalCodec";
+import {
+  refinementInstructionMetrics,
+  MAX_REVISION_INSTRUCTION_SCALARS,
+  MAX_REVISION_INSTRUCTION_BYTES,
+} from "../contracts/assistedPromptProposalCodec";
 
 export type WorkspaceActionRequest =
   | {
@@ -152,8 +157,69 @@ export function SidebarStages({
   const { activeStage: active, promptText, reason } = currentDraft;
   const setActive = (activeStage: SidebarStageId) =>
     updateDraft({ activeStage });
-  const setPromptText = (value: string) => updateDraft({ promptText: value });
+  const editorGeneration = useRef(0);
+  const pendingEditor = useRef<{
+    authority: string;
+    generation: number;
+    text: string;
+  } | null>(null);
+  const loadedProposal = useRef<{
+    authority: string;
+    id: string;
+    text: string;
+    generation: number;
+  } | null>(null);
+  const setPromptText = (value: string) => {
+    editorGeneration.current += 1;
+    updateDraft({ promptText: value });
+  };
   const setReason = (value: string) => updateDraft({ reason: value });
+  const [refinement, setRefinement] = useState({
+    workspace: projection.workspace_id,
+    instruction: "",
+    expanded: false,
+  });
+  const refinementState =
+    refinement.workspace === projection.workspace_id
+      ? refinement
+      : {
+          workspace: projection.workspace_id,
+          instruction: "",
+          expanded: false,
+        };
+  const changeRefinement = (patch: Partial<typeof refinement>) =>
+    setRefinement({ ...refinementState, ...patch });
+  const instructionMetrics = refinementInstructionMetrics(
+    refinementState.instruction,
+  );
+  const activeProposal =
+    assistedProposal?.state === "active" &&
+    assistedProposal.workspace_id === projection.workspace_id &&
+    assistedProposal.report_revision === projection.report_revision &&
+    assistedProposal.report_fingerprint === projection.report_fingerprint
+      ? assistedProposal
+      : undefined;
+  const hasUnstagedPrompt = promptText !== projection.prompt_text;
+  const [readerAuthority, setReaderAuthority] = useState<string | null>(null);
+  const readerOpen =
+    readerAuthority === authority && !projection.prompt_text_redacted;
+  const [comparison, setComparison] = useState<string | null>(null);
+  const comparisonKey =
+    activeProposal === undefined
+      ? null
+      : [
+          authority,
+          activeProposal.proposal_id,
+          activeProposal.proposal_revision,
+          activeProposal.prompt_fingerprint,
+        ].join(":");
+  const comparisonOpen =
+    comparisonKey !== null &&
+    comparison === comparisonKey &&
+    !projection.prompt_text_redacted;
+  const readerRef = useRef<HTMLElement>(null);
+  const savedEditor = useRef({ start: 0, end: 0, top: 0, left: 0 });
+  const restoreEditor = useRef(false);
   const notices = useNotices();
   // M21-03 AC-09. A remediation's effect is a declared intent, never an
   // inference. `focus_prompt` is the only one this build performs, and it does
@@ -182,11 +248,52 @@ export function SidebarStages({
   const mounted = useRef(true);
   const clientGeneration = useRef(0);
   const promptRef = useRef<HTMLTextAreaElement>(null);
+  const toggleReader = (): void => {
+    if (readerOpen) {
+      restoreEditor.current = true;
+      setReaderAuthority(null);
+    } else {
+      const field = promptRef.current;
+      if (field !== null)
+        savedEditor.current = {
+          start: field.selectionStart,
+          end: field.selectionEnd,
+          top: field.scrollTop,
+          left: field.scrollLeft,
+        };
+      setReaderAuthority(authority);
+    }
+  };
+  useLayoutEffect(() => {
+    if (readerOpen) readerRef.current?.focus();
+    else if (restoreEditor.current && promptRef.current !== null) {
+      restoreEditor.current = false;
+      const field = promptRef.current;
+      field.focus();
+      field.setSelectionRange(
+        savedEditor.current.start,
+        savedEditor.current.end,
+      );
+      field.scrollTop = savedEditor.current.top;
+      field.scrollLeft = savedEditor.current.left;
+    }
+  }, [readerOpen]);
   const pendingPromptCaret = useRef<number | undefined>(undefined);
   const panelId = `h3-stage-${active}`;
   const stage = projection.stages.find((value) => value.stage_id === active);
   const act = (request: WorkspaceActionRequest): void => {
-    if (!busy && !assistedBusy) void onAction(request);
+    if (!busy && !assistedBusy) {
+      if (
+        request.action === "optimize_prompt" ||
+        request.action === "refine_prompt"
+      )
+        pendingEditor.current = {
+          authority,
+          generation: editorGeneration.current,
+          text: promptText,
+        };
+      void onAction(request);
+    }
   };
 
   useLayoutEffect(() => {
@@ -223,19 +330,33 @@ export function SidebarStages({
   };
 
   useEffect(() => {
-    if (
-      assistedProposal === undefined ||
-      assistedProposal.state !== "active" ||
-      assistedProposal.workspace_id !== projection.workspace_id ||
-      assistedProposal.report_revision !== projection.report_revision ||
-      assistedProposal.report_fingerprint !== projection.report_fingerprint
-    )
-      return;
+    if (activeProposal === undefined) return;
+    const pending = pendingEditor.current;
+    const loaded = loadedProposal.current;
+    // IMPORTANT: a matching workspace is not editor ownership. A deferred candidate must
+    // never replace a newer local edit, even when the server report has not changed.
+    const ownsEditor =
+      pending?.authority === authority
+        ? pending.generation === editorGeneration.current &&
+          pending.text === promptText
+        : loaded?.authority === authority &&
+            loaded.id === activeProposal.proposal_id
+          ? loaded.generation === editorGeneration.current &&
+            loaded.text === promptText
+          : promptText === projection.prompt_text;
+    pendingEditor.current = null;
+    if (!ownsEditor) return;
+    loadedProposal.current = {
+      authority,
+      id: activeProposal.proposal_id,
+      text: activeProposal.candidate_text,
+      generation: editorGeneration.current,
+    };
     const next = {
       ...currentDraft,
       authority,
       activeStage: "audit" as const,
-      promptText: assistedProposal.candidate_text,
+      promptText: activeProposal.candidate_text,
     };
     if (onDraftChange !== undefined) onDraftChange(next);
     else setLocalDraft(next);
@@ -485,117 +606,157 @@ export function SidebarStages({
                 ))}
               </ul>
             ) : null}
-            <label htmlFor="h3-prompt-revision">{text.promptRevision}</label>
-            {/* M21-03 AC-08. The highlight is an overlay behind a textarea whose
+            <div className="h3-prompt-view-actions">
+              {/* IMPORTANT: conditional controls need stable keys; view remounts restore focus by key. */}
+              <button
+                type="button"
+                data-h3-focus-key="workspace-reader-toggle"
+                disabled={projection.prompt_text_redacted}
+                aria-expanded={readerOpen}
+                aria-controls="h3-prompt-reader"
+                onClick={toggleReader}
+              >
+                {readerOpen ? text.returnToEditor : text.reader}
+              </button>
+            </div>
+            {readerOpen ? (
+              <section
+                id="h3-prompt-reader"
+                className="h3-prompt-reader"
+                ref={readerRef}
+                data-h3-focus-key="workspace-reader"
+                tabIndex={0}
+                aria-label={text.promptReader}
+                onKeyDown={(event) => {
+                  if (event.key !== "Escape") return;
+                  event.preventDefault();
+                  event.stopPropagation();
+                  toggleReader();
+                }}
+              >
+                <strong>
+                  {activeProposal !== undefined &&
+                  promptText === activeProposal.candidate_text
+                    ? text.aiCandidate
+                    : hasUnstagedPrompt
+                      ? text.unstagedLocalEdit
+                      : text.currentReport}
+                </strong>
+                <pre>{promptText}</pre>
+                <p>{text.currentReportCopy}</p>
+              </section>
+            ) : null}
+            <div hidden={readerOpen}>
+              <label htmlFor="h3-prompt-revision">{text.promptRevision}</label>
+              {/* M21-03 AC-08. The highlight is an overlay behind a textarea whose
                 own text is transparent, so the editable value is never rewritten
                 and the bytes staged are the bytes typed. The overlay is
                 `aria-hidden` and inert: a screen reader and the keyboard both
                 see only the textarea, exactly as before. */}
-            <div className="h3-prompt">
-              <pre className="h3-prompt-o" aria-hidden="true">
-                {promptSegments(promptText).map((segment, index) =>
-                  segment.kind === "plain" ? (
-                    segment.text
-                  ) : (
-                    <b key={index} data-grammar={segment.kind}>
-                      {segment.text}
-                    </b>
-                  ),
-                )}
-                {"\n"}
-              </pre>
-              <textarea
-                ref={promptRef}
-                id="h3-prompt-revision"
-                className="h3-prompt-i"
-                aria-label={text.promptRevision}
-                data-h3-focus-key="workspace-prompt"
-                value={promptText}
-                disabled={
-                  busy || assistedBusy || !projection.actions.stage_prompt
-                }
-                onScroll={(event) => {
-                  const overlay = event.currentTarget
-                    .previousElementSibling as HTMLElement | null;
-                  if (overlay === null) return;
-                  overlay.scrollTop = event.currentTarget.scrollTop;
-                  overlay.scrollLeft = event.currentTarget.scrollLeft;
-                }}
-                onChange={(event) => setPromptText(event.currentTarget.value)}
-              />
-            </div>
-            <ReferenceTokenPicker
-              references={projection.reference_candidates}
-              subjects={projection.subject_candidates}
-              disabled={busy || !projection.actions.stage_prompt}
-              labels={{
-                toolbar: text.referenceToolbar,
-                picker: text.referencePicker,
-                placeholder: text.referencePickerPlaceholder,
-                insert: text.insertReference,
-                pairedWith: text.pairedWith,
-                kind: {
-                  image: text.referenceKindImage,
-                  video: text.referenceKindVideo,
-                  audio: text.referenceKindAudio,
-                  subject: text.referenceKindSubject,
-                },
-              }}
-              onSelect={insertBackendReference}
-            />
-            <ReferenceTokenCombobox
-              promptText={promptText}
-              candidates={projection.reference_candidates}
-              disabled={busy || !projection.actions.stage_prompt}
-              focusKey="workspace-reference"
-              labels={{
-                field: text.referenceToken,
-                listbox: text.backendReferences,
-                placeholder: text.referencePlaceholder,
-                pairedWith: text.pairedWith,
-              }}
-              onSelect={(candidate, nextPrompt) => {
-                setPromptText(nextPrompt);
-                act({
-                  action: "stage_prompt",
-                  payload: {
-                    // Locale-neutral audit reason: UI copy must not alter the
-                    // backend-owned staged revision or its fingerprint.
-                    reason: `Insert backend reference ${candidate.label}`,
-                    prompt_text: nextPrompt,
+              <div className="h3-prompt">
+                <pre className="h3-prompt-o" aria-hidden="true">
+                  {promptSegments(promptText).map((segment, index) =>
+                    segment.kind === "plain" ? (
+                      segment.text
+                    ) : (
+                      <b key={index} data-grammar={segment.kind}>
+                        {segment.text}
+                      </b>
+                    ),
+                  )}
+                  {"\n"}
+                </pre>
+                <textarea
+                  ref={promptRef}
+                  id="h3-prompt-revision"
+                  className="h3-prompt-i"
+                  aria-label={text.promptRevision}
+                  data-h3-focus-key="workspace-prompt"
+                  value={promptText}
+                  disabled={busy || !projection.actions.stage_prompt}
+                  onScroll={(event) => {
+                    const overlay = event.currentTarget
+                      .previousElementSibling as HTMLElement | null;
+                    if (overlay === null) return;
+                    overlay.scrollTop = event.currentTarget.scrollTop;
+                    overlay.scrollLeft = event.currentTarget.scrollLeft;
+                  }}
+                  onChange={(event) => setPromptText(event.currentTarget.value)}
+                />
+              </div>
+              <ReferenceTokenPicker
+                references={projection.reference_candidates}
+                subjects={projection.subject_candidates}
+                disabled={busy || !projection.actions.stage_prompt}
+                labels={{
+                  toolbar: text.referenceToolbar,
+                  picker: text.referencePicker,
+                  placeholder: text.referencePickerPlaceholder,
+                  insert: text.insertReference,
+                  pairedWith: text.pairedWith,
+                  kind: {
+                    image: text.referenceKindImage,
+                    video: text.referenceKindVideo,
+                    audio: text.referenceKindAudio,
+                    subject: text.referenceKindSubject,
                   },
-                });
-              }}
-            />
-            <label htmlFor="h3-revision-reason">{text.revisionReason}</label>
-            <input
-              id="h3-revision-reason"
-              data-h3-focus-key="workspace-reason"
-              value={reason}
-              maxLength={1024}
-              disabled={busy || !projection.actions.stage_prompt}
-              onChange={(event) => setReason(event.currentTarget.value)}
-            />
-            <button
-              type="button"
-              data-h3-focus-key="workspace-stage-revision"
-              disabled={
-                busy ||
-                assistedBusy ||
-                assistedProposal?.state === "active" ||
-                !projection.actions.stage_prompt ||
-                reason.trim().length === 0 ||
-                promptText === projection.prompt_text
-              }
-              onClick={() =>
-                act({
-                  action: "stage_prompt",
-                  payload: { reason, prompt_text: promptText },
-                })
-              }
-            >
-              {text.stageRevision}
-            </button>
+                }}
+                onSelect={insertBackendReference}
+              />
+              <ReferenceTokenCombobox
+                promptText={promptText}
+                candidates={projection.reference_candidates}
+                disabled={busy || !projection.actions.stage_prompt}
+                focusKey="workspace-reference"
+                labels={{
+                  field: text.referenceToken,
+                  listbox: text.backendReferences,
+                  placeholder: text.referencePlaceholder,
+                  pairedWith: text.pairedWith,
+                }}
+                onSelect={(candidate, nextPrompt) => {
+                  setPromptText(nextPrompt);
+                  act({
+                    action: "stage_prompt",
+                    payload: {
+                      // Locale-neutral audit reason: UI copy must not alter the
+                      // backend-owned staged revision or its fingerprint.
+                      reason: `Insert backend reference ${candidate.label}`,
+                      prompt_text: nextPrompt,
+                    },
+                  });
+                }}
+              />
+              <label htmlFor="h3-revision-reason">{text.revisionReason}</label>
+              <input
+                id="h3-revision-reason"
+                data-h3-focus-key="workspace-reason"
+                value={reason}
+                maxLength={1024}
+                disabled={busy || !projection.actions.stage_prompt}
+                onChange={(event) => setReason(event.currentTarget.value)}
+              />
+              <button
+                type="button"
+                data-h3-focus-key="workspace-stage-revision"
+                disabled={
+                  busy ||
+                  assistedBusy ||
+                  assistedProposal?.state === "active" ||
+                  !projection.actions.stage_prompt ||
+                  reason.trim().length === 0 ||
+                  promptText === projection.prompt_text
+                }
+                onClick={() =>
+                  act({
+                    action: "stage_prompt",
+                    payload: { reason, prompt_text: promptText },
+                  })
+                }
+              >
+                {text.stageRevision}
+              </button>
+            </div>
             <div className="h3-assisted-review">
               <button
                 type="button"
@@ -604,7 +765,7 @@ export function SidebarStages({
                   busy ||
                   assistedBusy ||
                   !assistedAuthorized ||
-                  assistedProposal?.state === "active"
+                  activeProposal !== undefined
                 }
                 onClick={() => act({ action: "optimize_prompt", payload: {} })}
               >
@@ -613,6 +774,7 @@ export function SidebarStages({
               {assistedBusy ? (
                 <button
                   type="button"
+                  data-h3-focus-key="workspace-cancel-optimization"
                   onClick={() =>
                     void onAction({
                       action: "cancel_assisted_execution",
@@ -623,37 +785,148 @@ export function SidebarStages({
                   {text.cancelOptimization}
                 </button>
               ) : null}
-              {assistedProposal?.state === "active" ? (
+              <button
+                type="button"
+                data-h3-focus-key="workspace-refinement-toggle"
+                aria-expanded={refinementState.expanded}
+                aria-controls="h3-refinement-instruction"
+                onClick={() =>
+                  changeRefinement({ expanded: !refinementState.expanded })
+                }
+              >
+                {text.revisionInstruction}
+              </button>
+              {refinementState.expanded ? (
+                <div id="h3-refinement-instruction" className="h3-refinement">
+                  <p>{text.refineCurrentScope}</p>
+                  <label htmlFor="h3-refine-input">
+                    {text.revisionInstruction}
+                  </label>
+                  <textarea
+                    id="h3-refine-input"
+                    data-h3-focus-key="workspace-refinement-instruction"
+                    placeholder={text.refinePlaceholder}
+                    value={refinementState.instruction}
+                    aria-describedby="h3-refine-count h3-refine-remediation"
+                    onChange={(event) =>
+                      changeRefinement({
+                        instruction: event.currentTarget.value,
+                      })
+                    }
+                  />
+                  <p id="h3-refine-count" aria-live="polite">
+                    {instructionMetrics.scalars} /{" "}
+                    {MAX_REVISION_INSTRUCTION_SCALARS} {text.instructionScalars}
+                    ; {instructionMetrics.bytes} /{" "}
+                    {MAX_REVISION_INSTRUCTION_BYTES} {text.instructionBytes}
+                  </p>
+                  <button
+                    type="button"
+                    data-h3-focus-key="workspace-refinement-clear"
+                    onClick={() => changeRefinement({ instruction: "" })}
+                  >
+                    {text.clearInstruction}
+                  </button>
+                  <button
+                    type="button"
+                    data-h3-focus-key="workspace-refinement-submit"
+                    disabled={
+                      busy ||
+                      assistedBusy ||
+                      !assistedAuthorized ||
+                      !instructionMetrics.valid ||
+                      hasUnstagedPrompt ||
+                      activeProposal !== undefined
+                    }
+                    onClick={() =>
+                      act({
+                        action: "refine_prompt",
+                        payload: { instruction: refinementState.instruction },
+                      })
+                    }
+                  >
+                    {text.refinePrompt}
+                  </button>
+                  <p id="h3-refine-remediation">
+                    {activeProposal !== undefined
+                      ? text.refineResolveFirst
+                      : hasUnstagedPrompt
+                        ? text.refineStageFirst
+                        : !assistedAuthorized
+                          ? text.refineChooseProvider
+                          : !instructionMetrics.valid
+                            ? text.refineInvalidInstruction
+                            : assistedBusy
+                              ? text.refinePending
+                              : text.refineReady}
+                  </p>
+                </div>
+              ) : null}
+              {activeProposal !== undefined ? (
                 <div aria-label={text.assistedReview}>
+                  <button
+                    type="button"
+                    data-h3-focus-key="workspace-comparison-toggle"
+                    disabled={projection.prompt_text_redacted}
+                    aria-expanded={comparisonOpen}
+                    aria-controls="h3-prompt-comparison"
+                    onClick={() =>
+                      setComparison(comparisonOpen ? null : comparisonKey)
+                    }
+                  >
+                    {comparisonOpen
+                      ? text.closeComparison
+                      : text.compareCurrentReport}
+                  </button>
+                  {comparisonOpen ? (
+                    <section
+                      id="h3-prompt-comparison"
+                      aria-label={text.promptComparison}
+                    >
+                      {hasUnstagedPrompt &&
+                      promptText !== activeProposal.candidate_text ? (
+                        <p>{text.comparisonKeepsLocalEdit}</p>
+                      ) : null}
+                      <div className="h3-prompt-comparison">
+                        <section aria-label={text.currentReport}>
+                          <h4>{text.currentReport}</h4>
+                          <pre>{projection.prompt_text}</pre>
+                        </section>
+                        <section aria-label={text.aiCandidate}>
+                          <h4>{text.aiCandidate}</h4>
+                          <pre>{activeProposal.candidate_text}</pre>
+                        </section>
+                      </div>
+                      <p>{text.currentReportCopy}</p>
+                    </section>
+                  ) : null}
                   <DefinitionList
                     values={[
                       [
                         text.assistedProvider,
-                        assistedProposal.receipt.provider_family,
+                        activeProposal.receipt.provider_family,
                       ],
-                      [text.assistedModel, assistedProposal.receipt.model_id],
-                      [
-                        text.assistedAttempts,
-                        assistedProposal.receipt.attempts,
-                      ],
-                      [text.assistedAudit, assistedProposal.audit.length_band],
+                      [text.assistedModel, activeProposal.receipt.model_id],
+                      [text.assistedAttempts, activeProposal.receipt.attempts],
+                      [text.assistedAudit, activeProposal.audit.length_band],
                     ]}
                   />
                   <button
                     type="button"
+                    data-h3-focus-key="workspace-proposal-update"
                     disabled={
                       busy ||
                       assistedBusy ||
                       promptText.length === 0 ||
-                      promptText === assistedProposal.candidate_text
+                      promptText === activeProposal.candidate_text
                     }
                     onClick={() =>
                       act({
                         action: "edit_assisted_proposal",
                         payload: {
-                          proposal_id: assistedProposal.proposal_id,
+                          proposal_id: activeProposal.proposal_id,
                           expected_proposal_revision:
-                            assistedProposal.proposal_revision,
+                            activeProposal.proposal_revision,
                           prompt_text: promptText,
                         },
                       })
@@ -663,14 +936,15 @@ export function SidebarStages({
                   </button>
                   <button
                     type="button"
+                    data-h3-focus-key="workspace-proposal-accept"
                     disabled={busy || assistedBusy}
                     onClick={() =>
                       act({
                         action: "accept_assisted_proposal",
                         payload: {
-                          proposal_id: assistedProposal.proposal_id,
+                          proposal_id: activeProposal.proposal_id,
                           expected_proposal_revision:
-                            assistedProposal.proposal_revision,
+                            activeProposal.proposal_revision,
                         },
                       })
                     }
@@ -679,14 +953,15 @@ export function SidebarStages({
                   </button>
                   <button
                     type="button"
+                    data-h3-focus-key="workspace-proposal-reject"
                     disabled={busy || assistedBusy}
                     onClick={() =>
                       act({
                         action: "reject_assisted_proposal",
                         payload: {
-                          proposal_id: assistedProposal.proposal_id,
+                          proposal_id: activeProposal.proposal_id,
                           expected_proposal_revision:
-                            assistedProposal.proposal_revision,
+                            activeProposal.proposal_revision,
                         },
                       })
                     }
@@ -719,6 +994,7 @@ export function SidebarStages({
                         return (
                           <button
                             type="button"
+                            data-h3-focus-key={`workspace-remediation-${index}`}
                             data-remediation={fix.intent}
                             onClick={() =>
                               runRemediation(fix.intent, item.code)

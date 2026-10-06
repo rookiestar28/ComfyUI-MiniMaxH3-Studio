@@ -5,30 +5,30 @@
   },
   "bundle": {
     "path": "comfyui_h3_context/web/h3-context-sidebar.js",
-    "sha256": "sha256:52627dedb062be65993833649db218f8dcaa03b45c1a20198bec535d73d295ca",
-    "size": 1790750
+    "sha256": "sha256:fe71c13fa06b89b29f33f3494009a1893deb4b6c58dfa3528218b4b79508b37c",
+    "size": 1808597
   },
   "embedded_identity": {
     "builder_id": "scripts/frontend_build_report.py",
-    "resolved_dependencies_sha256": "sha256:a78fae3a56e90daa0a4438ae66a3332d06e91e43006c1263703a40e5222057c7",
+    "resolved_dependencies_sha256": "sha256:c3beaccec8de8f2f0de89b1fcbbee2967c4624eef51353626d6d8cdf3c6bbe0f",
     "schema": "h3-context-build-identity/1",
-    "source_commit": "c160d08440732ba4702c8bb289a8a6d0e440467f",
-    "source_inputs_sha256": "sha256:74eee9d38a2f57b3f6248f83306516766d9641f8edc0c36e2bafe82a241911a6",
-    "source_tree": "c68830fa41acf9f5e859a2379ed23af96a691c45"
+    "source_commit": "bb7285dcee6deb60290f7ed4ed570da49e901672",
+    "source_inputs_sha256": "sha256:90c8535475e400c8222b59e6d4492c14e8492ddbfd28e4294c90e70fa6d7359d",
+    "source_tree": "a9086dee5442fb7cf2d47c90352e53e4da9c9cdc"
   },
   "external_parameters": {
-    "source_commit": "c160d08440732ba4702c8bb289a8a6d0e440467f",
-    "source_inputs_sha256": "sha256:74eee9d38a2f57b3f6248f83306516766d9641f8edc0c36e2bafe82a241911a6",
-    "source_tree": "c68830fa41acf9f5e859a2379ed23af96a691c45"
+    "source_commit": "bb7285dcee6deb60290f7ed4ed570da49e901672",
+    "source_inputs_sha256": "sha256:90c8535475e400c8222b59e6d4492c14e8492ddbfd28e4294c90e70fa6d7359d",
+    "source_tree": "a9086dee5442fb7cf2d47c90352e53e4da9c9cdc"
   },
   "invocation": {
-    "finished_on": "2026-10-05T11:03:12Z",
-    "id": "sha256:88e88d13325a4bab6e703cc4a710eff9129eafae99431cb61fff6d1fe43236eb",
-    "started_on": "2026-10-05T11:03:12Z"
+    "finished_on": "2026-10-06T06:29:47Z",
+    "id": "sha256:07a544844d0535168813f3ccc2e75cd2c229691cdcc4d1d42cec45bfa40782a3",
+    "started_on": "2026-10-06T06:29:47Z"
   },
   "resolved_dependencies": [
     {
-      "digest": "sha256:1f79359e37ee2971b30d0e6f0a63110d6f652bf8ada8e293f1355fcb4b931b2f",
+      "digest": "sha256:a2c769abf68d4bf43d27e44cf0f2ba626aebb6c4694e9b4f607b7a94e0886449",
       "uri": "contract:h3-context-contract-inventory/1"
     },
     {

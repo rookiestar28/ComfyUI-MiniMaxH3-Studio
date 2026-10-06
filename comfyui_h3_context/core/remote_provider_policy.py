@@ -1,42 +1,34 @@
-"""Exact M22-14 policy and cost authority for curated remote prompt-model profiles.
+"""Closed provider-connection protocols and finite wire limits.
 
-The catalog says which profile exists.  This module says what that exact profile is allowed to do:
-one official origin, two routes, a closed header vocabulary and one request dialect. Historical
-pricing is compatibility metadata. The value is deliberately redundant with the catalog. A row
-that drifts cannot silently inherit a policy merely because it belongs to the remote family.
-
-Legacy cost helpers preserve content-free compatibility shapes without controlling provider access.
-Current billing and cost management belong to the user and their provider account.
+Model choice comes from server-owned discovery. No price, billing or cost authority participates
+in permission. Historical pinned rows remain readable but cannot qualify the new connections.
 """
 
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
-from datetime import date
+from dataclasses import dataclass, replace
 from enum import Enum
+from functools import lru_cache
 from hashlib import sha256
 from typing import NoReturn
 
 from .prompt_model_budget import OUTPUT_SAFETY_MARGIN_FLOOR_TOKENS, OUTPUT_SAFETY_MARGIN_PERCENT
 from .prompt_model_provider import (
+    PROMPT_MODEL_CATALOG_PATH,
+    ConnectionQualificationEvidence,
+    LegacyPromptModelProfile,
     PromptModelContractError,
     PromptModelDialect,
     PromptModelFamily,
     PromptModelMediaKind,
     PromptModelProfile,
     PromptModelQualificationState,
-    RemotePromptModelQualificationEvidence,
+    decode_prompt_model_catalog,
 )
 
-REMOTE_PROVIDER_POLICY_SCHEMA = "h3.remote.prompt_model.policy.v1"
-REMOTE_COST_AUTHORITY_SCHEMA = "h3.remote.prompt_model.cost_authority.v1"
-REMOTE_COST_DECISION_SCHEMA = "h3.remote.prompt_model.cost_decision.v1"
+REMOTE_PROVIDER_POLICY_SCHEMA = "h3.remote.prompt_model.policy.v2"
 
-MAX_REMOTE_INPUT_TOKENS = 512
-MAX_REMOTE_OUTPUT_TOKENS = 128
-MAX_REMOTE_COST_MICRO_USD = 10_000
-MAX_REMOTE_PRICE_MICRO_USD_PER_MILLION = 100_000_000
 # The shared budget planner reserves this safety floor beyond the caller's requested completion.
 # Remote provider billing and wire limits bind the requested completion, not the local reserve.
 REMOTE_OUTPUT_SAFETY_MARGIN_TOKENS = OUTPUT_SAFETY_MARGIN_FLOOR_TOKENS
@@ -53,17 +45,12 @@ def _positive(value: object, maximum: int, code: str, *, allow_zero: bool = Fals
     return value
 
 
-def _date(value: object, code: str) -> date:
-    if type(value) is not date:
-        _fail(code)
-    return value
-
-
 class RemoteCredentialScheme(str, Enum):
     """Credential header construction selected by the declared provider dialect."""
 
     BEARER = "bearer"
     X_API_KEY = "x-api-key"  # pragma: allowlist secret -- header scheme name, never a key
+    X_GOOG_API_KEY = "x-goog-api-key"  # pragma: allowlist secret -- header scheme name
 
 
 @dataclass(frozen=True, slots=True)
@@ -72,7 +59,6 @@ class _RemoteProviderProtocolBinding:
     dialect: PromptModelDialect
     provider_id: str
     origin: str
-    model_id: str
     discovery_route: str
     chat_route: str
     extra_headers: tuple[tuple[str, str], ...]
@@ -80,15 +66,15 @@ class _RemoteProviderProtocolBinding:
     store: bool | None
     credential_scheme: RemoteCredentialScheme
     api_version: str | None
+    discovery_credential_scheme: RemoteCredentialScheme
 
 
 _PROTOCOL_BY_PROFILE = {
-    "openai.gpt_5_6_terra.remote": _RemoteProviderProtocolBinding(
+    "openai.remote": _RemoteProviderProtocolBinding(
         family=PromptModelFamily.REMOTE_OPENAI_COMPATIBLE,
         dialect=PromptModelDialect.OPENAI_CHAT_COMPLETIONS,
         provider_id="openai",
         origin="https://api.openai.com",
-        model_id="gpt-5.6-terra",
         discovery_route="/v1/models",
         chat_route="/v1/chat/completions",
         extra_headers=(),
@@ -96,36 +82,66 @@ _PROTOCOL_BY_PROFILE = {
         store=False,
         credential_scheme=RemoteCredentialScheme.BEARER,
         api_version=None,
+        discovery_credential_scheme=RemoteCredentialScheme.BEARER,
     ),
-    "gemini.gemini_3_7_flash.remote": _RemoteProviderProtocolBinding(
+    "gemini.remote": _RemoteProviderProtocolBinding(
         family=PromptModelFamily.REMOTE_OPENAI_COMPATIBLE,
         dialect=PromptModelDialect.OPENAI_CHAT_COMPLETIONS,
         provider_id="google_gemini",
         origin="https://generativelanguage.googleapis.com",
-        model_id="gemini-3.7-flash",
-        discovery_route="/v1beta/openai/models",
+        discovery_route="/v1beta/models?pageSize=1000",
         chat_route="/v1beta/openai/chat/completions",
         extra_headers=(("x-goog-api-client", "rookiestar-minimax-h3-context-oai/1.0.0"),),
         reasoning_effort="low",
         store=None,
         credential_scheme=RemoteCredentialScheme.BEARER,
         api_version=None,
+        discovery_credential_scheme=RemoteCredentialScheme.X_GOOG_API_KEY,
     ),
-    "anthropic.claude_sonnet_4_6.remote": _RemoteProviderProtocolBinding(
+    "anthropic.remote": _RemoteProviderProtocolBinding(
         family=PromptModelFamily.REMOTE_ANTHROPIC,
         dialect=PromptModelDialect.ANTHROPIC_MESSAGES,
         provider_id="anthropic",
         origin="https://api.anthropic.com",
-        model_id="claude-sonnet-4-6",
-        discovery_route="/v1/models",
+        discovery_route="/v1/models?limit=1000",
         chat_route="/v1/messages",
         extra_headers=(),
         reasoning_effort="none",
         store=None,
         credential_scheme=RemoteCredentialScheme.X_API_KEY,
         api_version="2023-06-01",
+        discovery_credential_scheme=RemoteCredentialScheme.X_API_KEY,
     ),
 }
+
+
+def _binding_for_profile(profile_id: str) -> _RemoteProviderProtocolBinding | None:
+    current = _PROTOCOL_BY_PROFILE.get(profile_id)
+    if current is not None:
+        return current
+    archived = next((row for row in _historical_profiles() if row.profile_id == profile_id), None)
+    if not isinstance(archived, LegacyPromptModelProfile):
+        return None
+    current = next(
+        (
+            row
+            for row in _PROTOCOL_BY_PROFILE.values()
+            if row.origin == archived.endpoint
+            and row.family is archived.family
+            and row.dialect is archived.wire_dialect
+        ),
+        None,
+    )
+    if current is None or len(archived.discovery_routes) != 1 or not archived.chat_route:
+        return None
+    # SECURITY: only the sealed historical profile's exact protocol remains decodable. A
+    # caller-provided old route cannot borrow the current connection's credential table.
+    return replace(
+        current,
+        discovery_route=archived.discovery_routes[0],
+        chat_route=archived.chat_route,
+        discovery_credential_scheme=current.credential_scheme,
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -136,7 +152,6 @@ class RemoteProviderPolicy:
     provider_id: str
     policy_version: str
     origin: str
-    model_id: str
     discovery_route: str
     chat_route: str
     extra_headers: tuple[tuple[str, str], ...]
@@ -144,31 +159,21 @@ class RemoteProviderPolicy:
     store: bool | None
     credential_scheme: RemoteCredentialScheme
     api_version: str | None
-    input_price_micro_usd_per_million: int
-    output_price_micro_usd_per_million: int
-    price_basis_id: str
-    price_checked_on: date
-    price_valid_through: date
-    max_transmissions: int = 2
-    max_input_tokens: int = MAX_REMOTE_INPUT_TOKENS
-    max_output_tokens: int = MAX_REMOTE_OUTPUT_TOKENS
-    max_cost_micro_usd: int = MAX_REMOTE_COST_MICRO_USD
+    max_transmissions: int = 4
+    route_credentials: tuple[tuple[str, str, RemoteCredentialScheme], ...] = ()
 
     def __post_init__(self) -> None:
         identifiers = (
             self.profile_id,
             self.provider_id,
             self.policy_version,
-            self.model_id,
-            self.price_basis_id,
         )
         if any(type(value) is not str or not value or len(value) > 128 for value in identifiers):
             _fail("remote_policy_identity")
-        binding = _PROTOCOL_BY_PROFILE.get(self.profile_id)
+        binding = _binding_for_profile(self.profile_id)
         if binding is None or (
             self.provider_id,
             self.origin,
-            self.model_id,
             self.discovery_route,
             self.chat_route,
             self.extra_headers,
@@ -179,7 +184,6 @@ class RemoteProviderPolicy:
         ) != (
             binding.provider_id,
             binding.origin,
-            binding.model_id,
             binding.discovery_route,
             binding.chat_route,
             binding.extra_headers,
@@ -191,6 +195,22 @@ class RemoteProviderPolicy:
             # SECURITY: policy values are a closed protocol unit. A caller cannot splice one
             # provider's host, route, header or credential scheme into another profile.
             _fail("remote_policy_protocol")
+        expected_credentials = (
+            ("GET", binding.discovery_route, binding.discovery_credential_scheme),
+            ("POST", binding.chat_route, binding.credential_scheme),
+        )
+        if (
+            type(self.route_credentials) is not tuple
+            or any(
+                type(item) is not tuple
+                or len(item) != 3
+                or not isinstance(item[2], RemoteCredentialScheme)
+                for item in self.route_credentials
+            )
+            or (self.route_credentials and self.route_credentials != expected_credentials)
+        ):
+            _fail("remote_policy_route_credentials")
+        object.__setattr__(self, "route_credentials", expected_credentials)
         if self.reasoning_effort not in {"none", "low"}:
             _fail("remote_policy_reasoning")
         if self.store not in {None, False}:
@@ -220,7 +240,7 @@ class RemoteProviderPolicy:
                 _fail("remote_policy_headers")
             names.add(name)
         for route in (self.discovery_route, self.chat_route):
-            if type(route) is not str or not route.startswith("/") or ".." in route or "?" in route:
+            if type(route) is not str or not route.startswith("/") or ".." in route:
                 _fail("remote_policy_route")
         if self.origin not in {
             "https://api.openai.com",
@@ -228,33 +248,27 @@ class RemoteProviderPolicy:
             "https://api.anthropic.com",
         }:
             _fail("remote_policy_origin")
-        _positive(
-            self.input_price_micro_usd_per_million,
-            MAX_REMOTE_PRICE_MICRO_USD_PER_MILLION,
-            "remote_policy_price",
-        )
-        _positive(
-            self.output_price_micro_usd_per_million,
-            MAX_REMOTE_PRICE_MICRO_USD_PER_MILLION,
-            "remote_policy_price",
-        )
-        _positive(self.max_input_tokens, MAX_REMOTE_INPUT_TOKENS, "remote_policy_tokens")
-        _positive(self.max_output_tokens, MAX_REMOTE_OUTPUT_TOKENS, "remote_policy_tokens")
-        _positive(self.max_cost_micro_usd, MAX_REMOTE_COST_MICRO_USD, "remote_policy_cost")
-        if self.max_transmissions != 2:
-            _fail("remote_policy_transmissions")
-        checked = _date(self.price_checked_on, "remote_policy_date")
-        valid = _date(self.price_valid_through, "remote_policy_date")
-        if valid < checked:
-            _fail("remote_policy_date")
+        _positive(self.max_transmissions, 4, "remote_policy_transmissions")
 
     @property
     def family(self) -> PromptModelFamily:
-        return _PROTOCOL_BY_PROFILE[self.profile_id].family
+        binding = _binding_for_profile(self.profile_id)
+        if binding is None:
+            _fail("remote_policy_profile")
+        return binding.family
 
     @property
     def wire_dialect(self) -> PromptModelDialect:
-        return _PROTOCOL_BY_PROFILE[self.profile_id].dialect
+        binding = _binding_for_profile(self.profile_id)
+        if binding is None:
+            _fail("remote_policy_profile")
+        return binding.dialect
+
+    def credential_for_route(self, method: str, path: str) -> RemoteCredentialScheme:
+        for admitted_method, admitted_path, scheme in self.route_credentials:
+            if (method, path) == (admitted_method, admitted_path):
+                return scheme
+        _fail("remote_policy_route_credentials")
 
     @property
     def fingerprint(self) -> str:
@@ -276,7 +290,6 @@ class RemoteProviderPolicy:
             "wire_dialect": self.wire_dialect.value,
             "policy_version": self.policy_version,
             "origin": self.origin,
-            "model_id": self.model_id,
             "discovery_route": self.discovery_route,
             "chat_route": self.chat_route,
             "extra_headers": [[name, value] for name, value in self.extra_headers],
@@ -284,79 +297,37 @@ class RemoteProviderPolicy:
             "store": self.store,
             "credential_scheme": self.credential_scheme.value,
             "api_version": self.api_version,
-            "input_price_micro_usd_per_million": self.input_price_micro_usd_per_million,
-            "output_price_micro_usd_per_million": self.output_price_micro_usd_per_million,
-            "price_basis_id": self.price_basis_id,
-            "price_checked_on": self.price_checked_on.isoformat(),
-            "price_valid_through": self.price_valid_through.isoformat(),
             "max_transmissions": self.max_transmissions,
-            "max_input_tokens": self.max_input_tokens,
-            "max_output_tokens": self.max_output_tokens,
-            "max_cost_micro_usd": self.max_cost_micro_usd,
+            "route_credentials": [
+                [method, path, scheme.value] for method, path, scheme in self.route_credentials
+            ],
         }
 
 
-_POLICIES = (
+_POLICIES = tuple(
     RemoteProviderPolicy(
-        profile_id="openai.gpt_5_6_terra.remote",
-        provider_id="openai",
-        policy_version="1.0.0",
-        origin="https://api.openai.com",
-        model_id="gpt-5.6-terra",
-        discovery_route="/v1/models",
-        chat_route="/v1/chat/completions",
-        extra_headers=(),
-        reasoning_effort="none",
-        store=False,
-        credential_scheme=RemoteCredentialScheme.BEARER,
-        api_version=None,
-        input_price_micro_usd_per_million=2_000_000,
-        output_price_micro_usd_per_million=12_000_000,
-        price_basis_id="openai.gpt-5.6-terra.standard.2026-08-23",
-        price_checked_on=date(2026, 8, 23),
-        price_valid_through=date(2026, 9, 22),
-    ),
-    RemoteProviderPolicy(
-        profile_id="gemini.gemini_3_7_flash.remote",
-        provider_id="google_gemini",
-        policy_version="1.0.0",
-        origin="https://generativelanguage.googleapis.com",
-        model_id="gemini-3.7-flash",
-        discovery_route="/v1beta/openai/models",
-        chat_route="/v1beta/openai/chat/completions",
-        extra_headers=(("x-goog-api-client", "rookiestar-minimax-h3-context-oai/1.0.0"),),
-        reasoning_effort="low",
-        store=None,
-        credential_scheme=RemoteCredentialScheme.BEARER,
-        api_version=None,
-        input_price_micro_usd_per_million=750_000,
-        output_price_micro_usd_per_million=3_750_000,
-        price_basis_id="google.gemini-3.7-flash.standard.2026-08-23",
-        price_checked_on=date(2026, 8, 23),
-        price_valid_through=date(2026, 9, 22),
-    ),
-    RemoteProviderPolicy(
-        profile_id="anthropic.claude_sonnet_4_6.remote",
-        provider_id="anthropic",
-        policy_version="1.0.0",
-        origin="https://api.anthropic.com",
-        model_id="claude-sonnet-4-6",
-        discovery_route="/v1/models",
-        chat_route="/v1/messages",
-        extra_headers=(),
-        reasoning_effort="none",
-        store=None,
-        credential_scheme=RemoteCredentialScheme.X_API_KEY,
-        api_version="2023-06-01",
-        input_price_micro_usd_per_million=3_000_000,
-        output_price_micro_usd_per_million=15_000_000,
-        price_basis_id="anthropic.claude-sonnet-4-6.standard.2026-08-23",
-        price_checked_on=date(2026, 8, 23),
-        price_valid_through=date(2026, 9, 22),
-    ),
+        profile_id=profile_id,
+        provider_id=binding.provider_id,
+        policy_version="2.1.0",
+        origin=binding.origin,
+        discovery_route=binding.discovery_route,
+        chat_route=binding.chat_route,
+        extra_headers=binding.extra_headers,
+        reasoning_effort=binding.reasoning_effort,
+        store=binding.store,
+        credential_scheme=binding.credential_scheme,
+        api_version=binding.api_version,
+    )
+    for profile_id, binding in _PROTOCOL_BY_PROFILE.items()
 )
-
 _POLICY_BY_PROFILE = {policy.profile_id: policy for policy in _POLICIES}
+
+
+@lru_cache(maxsize=1)
+def _historical_profiles() -> tuple[PromptModelProfile, ...]:
+    """Decode sealed v5 only for historical direct-call compatibility, never the Settings loader."""
+    source = PROMPT_MODEL_CATALOG_PATH.with_name("prompt_model_profiles_v5.json")
+    return decode_prompt_model_catalog(source.read_bytes()).profiles
 
 
 def remote_provider_policies() -> tuple[RemoteProviderPolicy, ...]:
@@ -371,16 +342,45 @@ def policy_for_profile(profile: object) -> RemoteProviderPolicy:
     if not isinstance(profile, PromptModelProfile):
         _fail("remote_policy_profile")
     policy = _POLICY_BY_PROFILE.get(profile.profile_id)
+    historical = isinstance(profile, LegacyPromptModelProfile)
+    if isinstance(profile, LegacyPromptModelProfile):
+        archived = next(
+            (row for row in _historical_profiles() if row.profile_id == profile.profile_id), None
+        )
+        if not isinstance(archived, LegacyPromptModelProfile) or (
+            profile.model_id != archived.model_id
+            or profile.model_digest != archived.model_digest
+            or profile.model_revision != archived.model_revision
+            or profile.endpoint != archived.endpoint
+        ):
+            _fail("remote_policy_profile")
+        binding = _binding_for_profile(profile.profile_id)
+        if binding is None:
+            _fail("remote_policy_profile")
+        policy = RemoteProviderPolicy(
+            profile_id=profile.profile_id,
+            provider_id=binding.provider_id,
+            policy_version="2.0.0",
+            origin=binding.origin,
+            discovery_route=binding.discovery_route,
+            chat_route=binding.chat_route,
+            extra_headers=binding.extra_headers,
+            reasoning_effort=binding.reasoning_effort,
+            store=binding.store,
+            credential_scheme=binding.credential_scheme,
+            api_version=binding.api_version,
+            max_transmissions=profile.max_calls_per_action,
+        )
     if policy is None:
         _fail("remote_policy_profile")
+    if historical:
+        policy = replace(policy, max_transmissions=profile.max_calls_per_action)
     expected_family = policy.family
     expected_dialect = policy.wire_dialect
     expected = (
         profile.family is expected_family
         and profile.wire_dialect is expected_dialect
         and profile.endpoint == policy.origin
-        and profile.model_id == policy.model_id
-        and profile.model_revision == policy.model_id
         and profile.discovery_routes == (policy.discovery_route,)
         and profile.chat_route == policy.chat_route
         and profile.capabilities.family is expected_family
@@ -399,133 +399,24 @@ def policy_for_profile(profile: object) -> RemoteProviderPolicy:
         _fail("remote_policy_mismatch")
     if profile.qualification_state is PromptModelQualificationState.QUALIFIED:
         evidence = profile.qualification_evidence
-        if not isinstance(evidence, RemotePromptModelQualificationEvidence) or (
-            evidence.provider_id != policy.provider_id
+        if not isinstance(evidence, ConnectionQualificationEvidence) or (
+            evidence.profile_id != profile.profile_id
             or evidence.family is not expected_family
-            or evidence.profile_id != policy.profile_id
-            or evidence.model_id != policy.model_id
-            or evidence.policy_version != policy.policy_version
-            or evidence.policy_sha256 != policy.fingerprint
-            or evidence.price_basis_id != policy.price_basis_id
-            or evidence.source_checked_on != policy.price_checked_on.isoformat()
-            or evidence.price_valid_through != policy.price_valid_through.isoformat()
-            or evidence.max_transmissions != policy.max_transmissions
-            or evidence.max_input_tokens != policy.max_input_tokens
-            or evidence.max_output_tokens != policy.max_output_tokens
-            or evidence.max_cost_micro_usd != policy.max_cost_micro_usd
             or evidence.adapter_version != profile.adapter_version
             or evidence.parser_version != profile.parser_version
+            or evidence.max_transmissions != policy.max_transmissions
         ):
-            # SECURITY: a syntactically valid live claim cannot authorize a later policy revision.
+            # SECURITY: historical model evidence cannot qualify a new connection authority.
             _fail("remote_policy_qualification")
     return policy
-
-
-@dataclass(frozen=True, slots=True)
-class RemoteCostAuthority:
-    """One session-scoped acknowledgement of the exact displayed policy ceilings."""
-
-    profile_id: str
-    policy_sha256: str
-    price_basis_id: str
-    max_input_tokens: int
-    max_output_tokens: int
-    max_cost_micro_usd: int
-
-    def __post_init__(self) -> None:
-        if any(
-            type(value) is not str or not value or len(value) > 128
-            for value in (self.profile_id, self.policy_sha256, self.price_basis_id)
-        ):
-            _fail("remote_cost_authority")
-        if not self.policy_sha256.startswith("sha256:") or len(self.policy_sha256) != 71:
-            _fail("remote_cost_authority")
-        _positive(self.max_input_tokens, MAX_REMOTE_INPUT_TOKENS, "remote_cost_authority")
-        _positive(self.max_output_tokens, MAX_REMOTE_OUTPUT_TOKENS, "remote_cost_authority")
-        _positive(self.max_cost_micro_usd, MAX_REMOTE_COST_MICRO_USD, "remote_cost_authority")
-
-    def to_wire(self) -> dict[str, object]:
-        return {
-            "schema": REMOTE_COST_AUTHORITY_SCHEMA,
-            "profile_id": self.profile_id,
-            "policy_sha256": self.policy_sha256,
-            "price_basis_id": self.price_basis_id,
-            "max_input_tokens": self.max_input_tokens,
-            "max_output_tokens": self.max_output_tokens,
-            "max_cost_micro_usd": self.max_cost_micro_usd,
-        }
-
-
-def build_remote_cost_authority(policy: object, *, on_date: object) -> RemoteCostAuthority:
-    """Build historical cost metadata for compatibility, without authorizing billing."""
-
-    if not isinstance(policy, RemoteProviderPolicy):
-        _fail("remote_cost_policy")
-    _date(on_date, "remote_cost_date")
-    return RemoteCostAuthority(
-        profile_id=policy.profile_id,
-        policy_sha256=policy.fingerprint,
-        price_basis_id=policy.price_basis_id,
-        max_input_tokens=policy.max_input_tokens,
-        max_output_tokens=policy.max_output_tokens,
-        max_cost_micro_usd=policy.max_cost_micro_usd,
-    )
-
-
-class RemoteCostRejection(str, Enum):
-    AUTHORITY_MISSING = "authority_missing"
-    AUTHORITY_MISMATCH = "authority_mismatch"
-    PRICE_STALE = "price_stale"
-    INPUT_TOKENS_EXCEEDED = "input_tokens_exceeded"
-    OUTPUT_TOKENS_EXCEEDED = "output_tokens_exceeded"
-    COST_EXCEEDED = "cost_exceeded"
-
-
-@dataclass(frozen=True, slots=True)
-class RemoteCostDecision:
-    profile_id: str
-    price_basis_id: str
-    maximum_cost_micro_usd: int
-    rejection: RemoteCostRejection | None
-
-    @property
-    def admitted(self) -> bool:
-        return self.rejection is None
-
-    def to_wire(self) -> dict[str, object]:
-        return {
-            "schema": REMOTE_COST_DECISION_SCHEMA,
-            "profile_id": self.profile_id,
-            "price_basis_id": self.price_basis_id,
-            "maximum_cost_micro_usd": self.maximum_cost_micro_usd,
-            "rejection": None if self.rejection is None else self.rejection.value,
-        }
-
-
-def _cost_micro_usd(policy: RemoteProviderPolicy, input_tokens: int, output_tokens: int) -> int:
-    numerator = (
-        input_tokens * policy.input_price_micro_usd_per_million
-        + output_tokens * policy.output_price_micro_usd_per_million
-    )
-    return -(-numerator // 1_000_000)
-
-
-def remote_cost_micro_usd(policy: object, *, input_tokens: object, output_tokens: object) -> int:
-    """Price observed integer usage conservatively without accepting content or floating point."""
-
-    if not isinstance(policy, RemoteProviderPolicy):
-        _fail("remote_cost_policy")
-    admitted_input = _positive(input_tokens, 1 << 24, "remote_cost_tokens", allow_zero=True)
-    admitted_output = _positive(output_tokens, 1 << 24, "remote_cost_tokens", allow_zero=True)
-    return _cost_micro_usd(policy, admitted_input, admitted_output)
 
 
 def remote_output_tokens_from_plan(policy: object, reserved_output_tokens: object) -> int:
     """Recover the requested completion from the shared plan's technical safety reserve."""
 
     if not isinstance(policy, RemoteProviderPolicy):
-        _fail("remote_cost_policy")
-    reserved = _positive(reserved_output_tokens, 1 << 24, "remote_cost_tokens")
+        _fail("remote_output_policy")
+    reserved = _positive(reserved_output_tokens, 1 << 24, "remote_output_tokens")
     # IMPORTANT: the reserve uses max(floor, percentage). Subtracting only the floor sends
     # excess output tokens once requests exceed that window; invert both branches exactly.
     scale = 100 + OUTPUT_SAFETY_MARGIN_PERCENT
@@ -542,61 +433,12 @@ def remote_output_tokens_from_plan(policy: object, reserved_output_tokens: objec
     return requested
 
 
-def admit_remote_cost(
-    policy: object,
-    authority: object,
-    *,
-    estimated_input_tokens: object,
-    reserved_output_tokens: object,
-    on_date: object,
-) -> RemoteCostDecision:
-    """Accept legacy cost arguments without imposing a repository billing policy."""
-
-    if not isinstance(policy, RemoteProviderPolicy):
-        _fail("remote_cost_policy")
-    _positive(estimated_input_tokens, 1 << 24, "remote_cost_tokens", allow_zero=True)
-    _positive(reserved_output_tokens, 1 << 24, "remote_cost_tokens")
-    return admit_remote_cost_authority(policy, authority, on_date=on_date)
-
-
-def admit_remote_cost_authority(
-    policy: object,
-    authority: object,
-    *,
-    on_date: object,
-) -> RemoteCostDecision:
-    """Retain the legacy decision shape without enforcing price or cost authority."""
-
-    if not isinstance(policy, RemoteProviderPolicy):
-        _fail("remote_cost_policy")
-    _date(on_date, "remote_cost_date")
-    # IMPORTANT: historical prices and authority fields are compatibility data. Reintroducing
-    # admission here would make provider access depend on maintainer-managed billing metadata.
-    return RemoteCostDecision(
-        profile_id=policy.profile_id,
-        price_basis_id="",
-        maximum_cost_micro_usd=0,
-        rejection=None,
-    )
-
-
 __all__ = [
-    "MAX_REMOTE_COST_MICRO_USD",
-    "MAX_REMOTE_INPUT_TOKENS",
-    "MAX_REMOTE_OUTPUT_TOKENS",
-    "REMOTE_COST_AUTHORITY_SCHEMA",
-    "REMOTE_COST_DECISION_SCHEMA",
     "REMOTE_PROVIDER_POLICY_SCHEMA",
     "REMOTE_OUTPUT_SAFETY_MARGIN_TOKENS",
-    "RemoteCostAuthority",
-    "RemoteCostDecision",
-    "RemoteCostRejection",
+    "RemoteCredentialScheme",
     "RemoteProviderPolicy",
-    "admit_remote_cost",
-    "admit_remote_cost_authority",
-    "build_remote_cost_authority",
     "policy_for_profile",
-    "remote_cost_micro_usd",
     "remote_output_tokens_from_plan",
     "remote_provider_policies",
 ]

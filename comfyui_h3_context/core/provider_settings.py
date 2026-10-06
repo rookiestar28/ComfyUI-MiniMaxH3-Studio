@@ -19,10 +19,13 @@ says so, in every locale, wherever a grant control is offered.
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
 from datetime import date
 from enum import Enum
+from hashlib import sha256
+from time import monotonic
 from typing import NoReturn
 
 from .assisted_authoring_scope import AssistedAuthoringState
@@ -30,6 +33,8 @@ from .contracts import ValidationSeverity
 from .prompt_model_provider import (
     MAX_DISCOVERY_ROWS,
     AdmittedDestination,
+    LegacyPromptModelProfile,
+    ModelChoice,
     PromptModelCapabilities,
     PromptModelContractError,
     PromptModelEgressError,
@@ -64,7 +69,7 @@ from .remote_provider_policy import (
     remote_provider_policies,
 )
 
-PROVIDER_SETTINGS_SCHEMA = "h3.context.provider_settings.v2"
+PROVIDER_SETTINGS_SCHEMA = "h3.context.provider_settings.v3"
 
 #: The accepted census is already bounded at the provider boundary. Project every accepted row,
 #: so that what the surface shows is the whole of what session state accepted.
@@ -107,6 +112,7 @@ class ProviderSettingsIntent(str, Enum):
     SELECT_PROFILE = "select_profile"
     CLEAR_SELECTION = "clear_selection"
     SELECT_MODEL = "select_model"
+    CONNECT_AND_REFRESH = "connect_and_refresh"
     CLEAR_MODEL = "clear_model"
     SUBMIT_CREDENTIAL = "submit_credential"
     DISCARD_CREDENTIAL = "discard_credential"
@@ -127,7 +133,8 @@ class ProviderIntentRejection(str, Enum):
     CREDENTIAL_NOT_APPLICABLE = "credential_not_applicable"
     CREDENTIAL_REJECTED = "credential_rejected"
     CATALOG_EMPTY = "catalog_empty"
-    COST_AUTHORITY_UNAVAILABLE = "cost_authority_unavailable"
+    STALE_REVISION = "stale_revision"
+    CONSENT_REQUIRED = "consent_required"
 
 
 @dataclass(frozen=True, slots=True)
@@ -150,11 +157,6 @@ class TransmissionDisclosure:
     consent_scope: str = CONSENT_SCOPE
     provider_id: str = ""
     retention_policy: str = ""
-    price_basis_id: str = ""
-    price_valid_through: str = ""
-    max_input_tokens: int = 0
-    max_output_tokens: int = 0
-    max_cost_micro_usd: int = 0
 
     def to_wire(self) -> dict[str, object]:
         return {
@@ -170,11 +172,6 @@ class TransmissionDisclosure:
             "consent_scope": self.consent_scope,
             "provider_id": self.provider_id,
             "retention_policy": self.retention_policy,
-            "price_basis_id": self.price_basis_id,
-            "price_valid_through": self.price_valid_through,
-            "max_input_tokens": self.max_input_tokens,
-            "max_output_tokens": self.max_output_tokens,
-            "max_cost_micro_usd": self.max_cost_micro_usd,
         }
 
 
@@ -232,11 +229,8 @@ class ProviderProfileView:
     provider_label: str
     family: PromptModelFamily
     wire_dialect: str
-    model_id: str
-    model_digest: str
     adapter_version: str
     parser_version: str
-    license_id: str
     cost_class: str
     usage_receipt_required: bool
     retention_policy: str
@@ -251,11 +245,8 @@ class ProviderProfileView:
             "provider_label": self.provider_label,
             "family": self.family.value,
             "wire_dialect": self.wire_dialect,
-            "model_id": self.model_id,
-            "model_digest": self.model_digest,
             "adapter_version": self.adapter_version,
             "parser_version": self.parser_version,
-            "license_id": self.license_id,
             "cost_class": self.cost_class,
             "usage_receipt_required": self.usage_receipt_required,
             "retention_policy": self.retention_policy,
@@ -294,11 +285,8 @@ def view_of_profile(profile: object) -> ProviderProfileView:
         provider_label=profile.provider_label,
         family=profile.family,
         wire_dialect=profile.wire_dialect.value,
-        model_id=profile.model_id,
-        model_digest=profile.model_digest or "",
         adapter_version=profile.adapter_version,
         parser_version=profile.parser_version,
-        license_id=profile.license_id,
         cost_class=profile.cost_class,
         usage_receipt_required=profile.usage_receipt_required,
         retention_policy=profile.retention_policy,
@@ -319,11 +307,6 @@ class ProviderConsentView:
     media_upload_consented: bool
     revision: int
     scope: str = CONSENT_SCOPE
-    cost_policy_sha256: str = ""
-    price_basis_id: str = ""
-    max_input_tokens: int = 0
-    max_output_tokens: int = 0
-    max_cost_micro_usd: int = 0
 
     def to_wire(self) -> dict[str, object]:
         return {
@@ -333,11 +316,6 @@ class ProviderConsentView:
             "media_upload_consented": self.media_upload_consented,
             "revision": self.revision,
             "scope": self.scope,
-            "cost_policy_sha256": self.cost_policy_sha256,
-            "price_basis_id": self.price_basis_id,
-            "max_input_tokens": self.max_input_tokens,
-            "max_output_tokens": self.max_output_tokens,
-            "max_cost_micro_usd": self.max_cost_micro_usd,
         }
 
 
@@ -390,6 +368,7 @@ class ProviderSettingsProjection:
     profiles: tuple[ProviderProfileView, ...]
     selected_profile_id: str
     selected_model_id: str
+    selected_model: ModelChoice | None
     readiness: ProviderReadiness
     disclosure: TransmissionDisclosure | None
     consent: ProviderConsentView | None
@@ -421,8 +400,15 @@ class ProviderSettingsProjection:
         if self.selected_profile_id and selected_profile is None:
             _fail("projection_selection")
         if self.selected_model_id:
-            if selected_profile is None or self.selected_model_id != selected_profile.model_id:
+            if (
+                selected_profile is None
+                or self.selected_model is None
+                or self.selected_model_id != self.selected_model.model_id
+                or self.selected_model.profile_id != self.selected_profile_id
+            ):
                 _fail("projection_selection")
+        elif self.selected_model is not None:
+            _fail("projection_selection")
         if self.consent is not None and self.consent.profile_id != self.selected_profile_id:
             _fail("projection_consent")
         exact_candidates = tuple(
@@ -463,6 +449,9 @@ class ProviderSettingsProjection:
             "profiles": [item.to_wire() for item in self.profiles],
             "selected_profile_id": self.selected_profile_id,
             "selected_model_id": self.selected_model_id,
+            "selected_model": None
+            if self.selected_model is None
+            else self.selected_model.to_wire(),
             "readiness": self.readiness.value,
             "disclosure": None if self.disclosure is None else self.disclosure.to_wire(),
             "consent": None if self.consent is None else self.consent.to_wire(),
@@ -566,6 +555,7 @@ class ProviderExecutionSnapshot:
     profile: PromptModelProfile
     destination: AdmittedDestination
     selected_model_id: str
+    model: ModelChoice
     provider_revision: int
     authority_epoch: int
     credential: RuntimeCredential | None
@@ -576,7 +566,11 @@ class ProviderExecutionSnapshot:
             _fail("execution_profile")
         if not isinstance(self.destination, AdmittedDestination):
             _fail("execution_destination")
-        if self.selected_model_id != self.profile.model_id:
+        if (
+            not isinstance(self.model, ModelChoice)
+            or self.model.profile_id != self.profile.profile_id
+            or self.selected_model_id != self.model.model_id
+        ):
             _fail("execution_model")
         for value in (self.provider_revision, self.authority_epoch):
             if type(value) is not int or not 1 <= value <= 2_147_483_647:
@@ -616,6 +610,9 @@ class ProviderSettingsState:
     profiles: tuple[PromptModelProfile, ...] = ()
     _selected: str = ""
     _selected_model: str = ""
+    _model_choice: ModelChoice | None = None
+    _listing_sha256: str = ""
+    _listed_at: float = 0.0
     _revision: int = 1
     _ledger: RemoteConsentLedger = field(default_factory=RemoteConsentLedger)
     _credentials: dict[str, RuntimeCredential] = field(default_factory=dict)
@@ -649,6 +646,15 @@ class ProviderSettingsState:
     @property
     def selected_model_id(self) -> str:
         return self._selected_model
+
+    @property
+    def model_choice(self) -> ModelChoice | None:
+        return self._model_choice
+
+    @property
+    def candidates(self) -> tuple[DiscoveryCandidate, ...]:
+        """Server-owned census, independent of the bounded presentation window."""
+        return self._candidates
 
     @property
     def authority_epoch(self) -> int:
@@ -688,6 +694,7 @@ class ProviderSettingsState:
                 compute_endpoint_fingerprint(profile.endpoint),
                 self._revision,
                 self._authority_epoch,
+                self._model_choice,
             )
         )
 
@@ -702,6 +709,11 @@ class ProviderSettingsState:
         # SECURITY: technical readiness is not roadmap/provider qualification.
         if profile.qualification_state is not PromptModelQualificationState.QUALIFIED:
             return self._execution_refusal(PromptModelOutcomeId.PROFILE_NOT_QUALIFIED)
+        model = self._model_choice
+        if model is None or not self._choice_matches_census():
+            return self._execution_refusal(
+                PromptModelOutcomeId.MODEL_MISSING, PromptModelRemediation.SELECT_MODEL
+            )
         if self.readiness() is not ProviderReadiness.READY:
             return self._execution_refusal(
                 PromptModelOutcomeId.CAPABILITY_MISMATCH,
@@ -747,6 +759,7 @@ class ProviderSettingsState:
                 profile=profile,
                 destination=destination,
                 selected_model_id=self._selected_model,
+                model=model,
                 provider_revision=self._revision,
                 authority_epoch=self._authority_epoch,
                 credential=credential,
@@ -772,6 +785,45 @@ class ProviderSettingsState:
             if not isinstance(entry, DiscoveryCandidate):
                 _fail("candidates")
         self._candidates = entries
+        material = json.dumps(
+            [entry.to_wire() for entry in entries], sort_keys=True, separators=(",", ":")
+        )
+        self._listing_sha256 = "sha256:" + sha256(material.encode("utf-8")).hexdigest()
+        self._listed_at = monotonic()
+        if self._selected_model:
+            exact = [entry for entry in entries if entry.identifier == self._selected_model]
+            if len(exact) == 1 and exact[0].admitted:
+                self._model_choice = ModelChoice(
+                    self._selected,
+                    self._selected_model,
+                    self._listing_sha256,
+                    self._listed_at,
+                    exact[0].metadata,
+                )
+            else:
+                if self._outcome is None:
+                    self._outcome = build_prompt_model_outcome(
+                        PromptModelOutcomeId.MODEL_MISSING,
+                        severity=ValidationSeverity.ERROR,
+                        remediation=PromptModelRemediation.SELECT_MODEL,
+                        parameters=(),
+                    )
+                self._selected_model = ""
+                self._model_choice = None
+                self._readiness_evidence = None
+
+    def _choice_matches_census(self) -> bool:
+        choice = self._model_choice
+        exact = [entry for entry in self._candidates if entry.identifier == self._selected_model]
+        return bool(
+            choice is not None
+            and choice.profile_id == self._selected
+            and choice.model_id == self._selected_model
+            and choice.listing_sha256 == self._listing_sha256
+            and choice.listed_at_monotonic == self._listed_at
+            and len(exact) == 1
+            and exact[0].admitted
+        )
 
     def _invalidate_selected_observation(self, *, clear_candidates: bool = True) -> None:
         """Discard readiness evidence collected under settings that are about to change."""
@@ -783,12 +835,16 @@ class ProviderSettingsState:
         self._readiness_evidence = None
         if clear_candidates:
             self._candidates = ()
+            self._listing_sha256 = ""
+            self._listed_at = 0.0
+            self._model_choice = None
+            self._selected_model = ""
 
     def _revoke_consent_if_recorded(self, profile_id: str) -> None:
         """Invalidate remote authority without creating a consent decision the user never made."""
 
         if profile_id and self._ledger.record_for(profile_id) is not None:
-            # CRITICAL: changing provider/model must not let an older consent record silently
+            # CRITICAL: changing provider/credential must not let an older consent record silently
             # authorize the new selection or become active again when the user switches back.
             self._ledger.revoke(profile_id)
 
@@ -834,9 +890,34 @@ class ProviderSettingsState:
                 self.record_outcome(decision.outcome)
                 self._bump()
                 return ProviderIntentResult(accepted=True, projection=self.project())
-        observation = probe(profile, credential)
+        try:
+            observation = probe(profile, credential)
+        except Exception:
+            # IMPORTANT: a failed reload cannot retain the old census, choice or READY proof.
+            # Preserve only a closed outcome; exception prose may contain provider secrets.
+            self._invalidate_selected_observation()
+            self.record_outcome(
+                build_prompt_model_outcome(
+                    PromptModelOutcomeId.PROVIDER_ERROR,
+                    severity=ValidationSeverity.ERROR,
+                    remediation=PromptModelRemediation.RETRY_LATER,
+                    parameters=(),
+                )
+            )
+            self._bump()
+            return ProviderIntentResult(accepted=True, projection=self.project())
         if not isinstance(observation, ReadinessObservation):
-            _fail("readiness_observation")
+            self._invalidate_selected_observation()
+            self.record_outcome(
+                build_prompt_model_outcome(
+                    PromptModelOutcomeId.MALFORMED_RESPONSE,
+                    severity=ValidationSeverity.ERROR,
+                    remediation=PromptModelRemediation.RETRY_LATER,
+                    parameters=(),
+                )
+            )
+            self._bump()
+            return ProviderIntentResult(accepted=True, projection=self.project())
         self.observe_reachable(self._selected, observation.reachable)
         self.record_outcome(observation.outcome)
         # IMPORTANT: an empty census is still an observation and must replace stale candidates.
@@ -864,7 +945,7 @@ class ProviderSettingsState:
         profile = self._profile(self._selected)
         if profile is None:
             return ProviderReadiness.NOT_CONFIGURED
-        if self._selected_model != profile.model_id:
+        if not self._choice_matches_census():
             return ProviderReadiness.NOT_CONFIGURED
         route = route_for_family(profile.family)
         if profile.capabilities.requires_credential and self._selected not in self._credentials:
@@ -909,6 +990,7 @@ class ProviderSettingsState:
             profiles=tuple(view_of_profile(item) for item in self.profiles),
             selected_profile_id=self._selected,
             selected_model_id=self._selected_model,
+            selected_model=self._model_choice,
             readiness=readiness,
             disclosure=(
                 None
@@ -958,6 +1040,85 @@ class ProviderSettingsState:
     def _refuse(self, rejection: ProviderIntentRejection) -> ProviderIntentResult:
         return ProviderIntentResult(accepted=False, projection=self.project(), rejection=rejection)
 
+    def preflight_rejection(
+        self, intent: object, values: Mapping[str, object]
+    ) -> ProviderIntentRejection | None:
+        """Reject invalid connection mutations before registry cancellation/reservation."""
+        profile = self._profile(self._selected)
+        connection = profile is not None and not isinstance(profile, LegacyPromptModelProfile)
+        if connection and intent in {
+            ProviderSettingsIntent.SUBMIT_CREDENTIAL,
+            ProviderSettingsIntent.GRANT_CONSENT,
+        }:
+            return ProviderIntentRejection.UNKNOWN_INTENT
+        if connection and intent in {
+            ProviderSettingsIntent.SELECT_MODEL,
+            ProviderSettingsIntent.CONNECT_AND_REFRESH,
+            ProviderSettingsIntent.RECHECK_READINESS,
+        }:
+            if values.get("_legacy_request") is True:
+                return ProviderIntentRejection.UNKNOWN_INTENT
+            if (
+                values.get("profile_id") != self._selected
+                or type(values.get("expected_revision")) is not int
+                or values["expected_revision"] != self._revision
+            ):
+                return ProviderIntentRejection.STALE_REVISION
+        if intent is ProviderSettingsIntent.SELECT_MODEL and profile is not None:
+            model_id = values.get("model_id")
+            exact = [
+                candidate for candidate in self._candidates if candidate.identifier == model_id
+            ]
+            if (
+                not isinstance(model_id, str)
+                or not self._listing_sha256
+                or len(exact) != 1
+                or not exact[0].admitted
+                or (isinstance(profile, LegacyPromptModelProfile) and model_id != profile.model_id)
+            ):
+                return ProviderIntentRejection.UNKNOWN_MODEL
+            try:
+                ModelChoice(
+                    self._selected,
+                    model_id,
+                    self._listing_sha256,
+                    self._listed_at,
+                    exact[0].metadata,
+                )
+            except PromptModelContractError:
+                return ProviderIntentRejection.UNKNOWN_MODEL
+        if intent is ProviderSettingsIntent.CONNECT_AND_REFRESH and profile is not None:
+            if not route_for_family(profile.family).consent_required:
+                if set(values) != {"profile_id", "expected_revision"}:
+                    return ProviderIntentRejection.CREDENTIAL_NOT_APPLICABLE
+            else:
+                replacement = "credential" in values
+                if replacement:
+                    try:
+                        RuntimeCredential(values["credential"])  # type: ignore[arg-type]
+                    except PromptModelContractError:
+                        return ProviderIntentRejection.CREDENTIAL_REJECTED
+                grant = (
+                    values.get("network_permitted") is True
+                    and values.get("media_upload_consented") is False
+                )
+                if (
+                    bool({"network_permitted", "media_upload_consented"} & set(values))
+                    and not grant
+                ):
+                    return ProviderIntentRejection.CONSENT_REQUIRED
+                if not replacement and self._selected not in self._credentials:
+                    return ProviderIntentRejection.CREDENTIAL_REJECTED
+                consent = self._ledger.record_for(self._selected)
+                if not grant and (
+                    replacement
+                    or consent is None
+                    or not consent.granted
+                    or not consent.network_permitted
+                ):
+                    return ProviderIntentRejection.CONSENT_REQUIRED
+        return None
+
     def apply(
         self, intent: object, payload: object = None, *, readiness_probe: object = None
     ) -> ProviderIntentResult:
@@ -966,6 +1127,9 @@ class ProviderSettingsState:
         if not isinstance(intent, ProviderSettingsIntent):
             return self._refuse(ProviderIntentRejection.UNKNOWN_INTENT)
         values: Mapping[str, object] = payload if isinstance(payload, Mapping) else {}
+        rejection = self.preflight_rejection(intent, values)
+        if rejection is not None:
+            return self._refuse(rejection)
 
         if intent is ProviderSettingsIntent.READ_PROJECTION:
             # Reading current facts is intentionally not an observation and does not move revision.
@@ -1000,26 +1164,98 @@ class ProviderSettingsState:
             self._bump()
             return ProviderIntentResult(accepted=True, projection=self.project())
 
+        if intent is ProviderSettingsIntent.CONNECT_AND_REFRESH:
+            profile = self._profile(self._selected)
+            if profile is None:
+                return self._refuse(ProviderIntentRejection.NO_SELECTION)
+            if (
+                values.get("profile_id") != self._selected
+                or type(values.get("expected_revision")) is not int
+                or values["expected_revision"] != self._revision
+            ):
+                return self._refuse(ProviderIntentRejection.STALE_REVISION)
+            remote = route_for_family(profile.family).consent_required
+            replacement = None
+            if not remote:
+                if set(values) != {"profile_id", "expected_revision"}:
+                    return self._refuse(ProviderIntentRejection.CREDENTIAL_NOT_APPLICABLE)
+            else:
+                if "credential" in values:
+                    try:
+                        replacement = RuntimeCredential(values["credential"])  # type: ignore[arg-type]
+                    except PromptModelContractError:
+                        return self._refuse(ProviderIntentRejection.CREDENTIAL_REJECTED)
+                grant = (
+                    values.get("network_permitted") is True
+                    and values.get("media_upload_consented") is False
+                )
+                flags_present = bool({"network_permitted", "media_upload_consented"} & set(values))
+                if flags_present and not grant:
+                    return self._refuse(ProviderIntentRejection.CONSENT_REQUIRED)
+                consent = self._ledger.record_for(self._selected)
+                held = replacement or self._credentials.get(self._selected)
+                if held is None:
+                    return self._refuse(ProviderIntentRejection.CREDENTIAL_REJECTED)
+                if replacement is not None and not grant:
+                    return self._refuse(ProviderIntentRejection.CONSENT_REQUIRED)
+                if not grant and (
+                    consent is None or not consent.granted or not consent.network_permitted
+                ):
+                    return self._refuse(ProviderIntentRejection.CONSENT_REQUIRED)
+                # SECURITY: all ownership, credential and explicit-scope checks precede mutation.
+                # A failed list may retain a valid key/grant, but never old model/readiness proof.
+                if replacement is not None:
+                    self._revoke_consent_if_recorded(self._selected)
+                    self._credentials[self._selected] = replacement
+                if grant:
+                    self._ledger.grant(
+                        self._selected, network_permitted=True, media_upload_consented=False
+                    )
+            self._invalidate_selected_observation(clear_candidates=replacement is not None)
+            self._bump()
+            return self.recheck(readiness_probe)
+
         if intent is ProviderSettingsIntent.SELECT_MODEL:
             profile = self._profile(self._selected)
             if profile is None:
                 return self._refuse(ProviderIntentRejection.NO_SELECTION)
             requested_model = values.get("model_id")
+            if not isinstance(profile, LegacyPromptModelProfile) and (
+                values.get("profile_id") != self._selected
+                or type(values.get("expected_revision")) is not int
+                or values["expected_revision"] != self._revision
+            ):
+                return self._refuse(ProviderIntentRejection.STALE_REVISION)
             exact_candidates = tuple(
                 candidate
                 for candidate in self._candidates
                 if candidate.identifier == requested_model
             )
-            # SECURITY: a browser-supplied identifier is never authority. It must be both the
-            # package-owned exact profile model and part of the latest explicit admitted census.
+            # SECURITY: ids are lookup inputs, not authority. Only this connection's current,
+            # unique admitted census row can create the model choice; stale lists never execute.
             if (
-                requested_model != profile.model_id
+                not isinstance(requested_model, str)
+                or (
+                    isinstance(profile, LegacyPromptModelProfile)
+                    and requested_model != profile.model_id
+                )
                 or len(exact_candidates) != 1
                 or not exact_candidates[0].admitted
+                or not self._listing_sha256
             ):
                 return self._refuse(ProviderIntentRejection.UNKNOWN_MODEL)
-            self._selected_model = profile.model_id
-            self._revoke_consent_if_recorded(self._selected)
+            try:
+                choice = ModelChoice(
+                    self._selected,
+                    requested_model,
+                    self._listing_sha256,
+                    self._listed_at,
+                    exact_candidates[0].metadata,
+                )
+            except PromptModelContractError:
+                return self._refuse(ProviderIntentRejection.UNKNOWN_MODEL)
+            self._selected_model = requested_model
+            self._model_choice = choice
             self._invalidate_selected_observation(clear_candidates=False)
             self._bump()
             return ProviderIntentResult(accepted=True, projection=self.project())
@@ -1030,7 +1266,7 @@ class ProviderSettingsState:
             if not self._selected_model:
                 return self._refuse(ProviderIntentRejection.NO_MODEL_SELECTION)
             self._selected_model = ""
-            self._revoke_consent_if_recorded(self._selected)
+            self._model_choice = None
             self._invalidate_selected_observation(clear_candidates=False)
             self._bump()
             return ProviderIntentResult(accepted=True, projection=self.project())
@@ -1058,14 +1294,16 @@ class ProviderSettingsState:
                 # The refusal says a credential was rejected and nothing about its content.
                 return self._refuse(ProviderIntentRejection.CREDENTIAL_REJECTED)
             self._credentials[self._selected] = held
-            self._invalidate_selected_observation(clear_candidates=False)
+            self._revoke_consent_if_recorded(self._selected)
+            self._invalidate_selected_observation()
             self._bump()
             return ProviderIntentResult(accepted=True, projection=self.project())
 
         if intent is ProviderSettingsIntent.DISCARD_CREDENTIAL:
             if self._credentials.pop(self._selected, None) is None:
                 return self._refuse(ProviderIntentRejection.CREDENTIAL_NOT_APPLICABLE)
-            self._invalidate_selected_observation(clear_candidates=False)
+            self._revoke_consent_if_recorded(self._selected)
+            self._invalidate_selected_observation()
             self._bump()
             return ProviderIntentResult(accepted=True, projection=self.project())
 
@@ -1096,7 +1334,8 @@ class ProviderSettingsState:
             if self._ledger.record_for(self._selected) is None:
                 return self._refuse(ProviderIntentRejection.CONSENT_NOT_APPLICABLE)
             self._ledger.revoke(self._selected)
-            self._invalidate_selected_observation(clear_candidates=False)
+            # SECURITY: a census obtained with a withdrawn grant cannot create another choice.
+            self._invalidate_selected_observation()
             self._bump()
             return ProviderIntentResult(accepted=True, projection=self.project())
 

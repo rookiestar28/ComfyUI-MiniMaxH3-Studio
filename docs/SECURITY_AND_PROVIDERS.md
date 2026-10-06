@@ -84,9 +84,11 @@ meet its requirements:
 | Ollama                      | only the Ollama on your host | none                  | prompt text, to your own Ollama |
 | Anthropic, OpenAI or Gemini | HTTPS, after you allow it    | for this session only | prompt text                     |
 
-- Profiles send text only. Choosing a provider never gives it access to media.
+- Profiles send prompt text, revision instructions and derived text only. Choosing a provider
+  never gives it access to media. Reader and proposal comparison are local views and send nothing.
 - Your permission and credential belong to the exact setup you approved. Changing the provider,
-  model or destination clears them.
+  destination or credential clears the previous permission. Selecting a different listed model
+  within that same approved connection keeps consent and runs a new model readiness check.
 - Credentials and permissions are kept in the host's memory only. They expire after 30 minutes
   without use or eight hours in total, and a ComfyUI restart discards them. The browser keeps only
   an opaque handle for the tab.

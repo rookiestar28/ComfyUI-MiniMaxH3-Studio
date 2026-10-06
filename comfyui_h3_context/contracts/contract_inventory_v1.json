@@ -14,6 +14,7 @@
         "frontend/src/host/sidebarActions.ts",
         "frontend/src/lifecycle/shellSession.ts",
         "frontend/tests/assistedDraftReview.test.tsx",
+        "frontend/tests/sidebarActions.test.ts",
         "governance/contracts/supply_chain_v1.json"
       ],
       "contract_id": "frontend/assistedPromptProposalCodec",
@@ -1016,6 +1017,8 @@
         "frontend/tests/e2e/journeys/host/runtimeFailure.spec.ts",
         "frontend/tests/e2e/journeys/host/soundtrack.spec.ts",
         "frontend/tests/e2e/journeys/host/weightSample.spec.ts",
+        "frontend/tests/entryWorkspaceLifecycle.test.tsx",
+        "frontend/tests/providerSession.test.ts",
         "frontend/tests/providerSettings.test.tsx",
         "governance/contracts/supply_chain_v1.json",
         "scripts/cross_language_surface.py"
@@ -1794,8 +1797,6 @@
       "consumers": [
         "governance/contracts/assisted_authoring_compatibility_v1.schema.json",
         "scripts/governance/relocate_packaged_artifacts.py",
-        "scripts/m22_16_compatibility_matrix.py",
-        "tests/test_m22_16_compatibility_closeout.py",
         "tests/test_tooling_contract.py"
       ],
       "contract_id": "h3.context.assisted_authoring_compatibility.v1",
@@ -1807,6 +1808,31 @@
       "persistence": "persisted",
       "producers": [
         "governance/contracts/assisted_authoring_compatibility_v1.json"
+      ],
+      "publication": "repository_only"
+    },
+    {
+      "authority_paths": [
+        "governance/contracts/assisted_authoring_compatibility_v2.json"
+      ],
+      "blockers": [],
+      "boundary": "untrusted_input",
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
+        "governance/contracts/assisted_authoring_compatibility_v2.schema.json",
+        "scripts/m22_16_compatibility_matrix.py",
+        "tests/test_m22_16_compatibility_closeout.py",
+        "tests/test_tooling_contract.py"
+      ],
+      "contract_id": "h3.context.assisted_authoring_compatibility.v2",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "none",
+      "kind": "json_data",
+      "persistence": "persisted",
+      "producers": [
+        "governance/contracts/assisted_authoring_compatibility_v2.json"
       ],
       "publication": "repository_only"
     },
@@ -2351,6 +2377,8 @@
         "frontend/tests/support/hostSeamObservation.ts",
         "governance/contracts/assisted_authoring_compatibility_v1.json",
         "governance/contracts/assisted_authoring_compatibility_v1.schema.json",
+        "governance/contracts/assisted_authoring_compatibility_v2.json",
+        "governance/contracts/assisted_authoring_compatibility_v2.schema.json",
         "governance/contracts/host_seam_shape_fixture_v1.schema.json",
         "governance/contracts/supply_chain_v1.json",
         "scripts/hc_09_host_seam_census.py",
@@ -2646,13 +2674,14 @@
         "comfyui_h3_context/contracts/prompt_model_profiles_v5.json"
       ],
       "blockers": [],
-      "boundary": "cross_language",
+      "boundary": "persisted",
       "compatibility": "migration_required",
       "consumers": [
         "comfyui_h3_context/core/prompt_model_provider.py",
-        "frontend/tests/e2e/journeys/host/optionalAuthoring.spec.ts",
+        "comfyui_h3_context/core/remote_provider_policy.py",
         "scripts/m16_02_reconstruction_regression.py",
         "tests/fixtures/m16_02_reconstruction_regression.json",
+        "tests/historical_prompt_model_fixtures.py",
         "tests/test_m22_15_anthropic_provider.py",
         "tests/test_prompt_model_provider.py",
         "tests/test_tooling_contract.py"
@@ -2660,12 +2689,35 @@
       "contract_id": "h3.prompt_model.profiles.v5",
       "dialect": "not_applicable",
       "disposition": "KEEP",
-      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
+      "evidence": "persisted boundary keeps a reader this repository cannot re-migrate",
       "fingerprint_domain": "none",
       "kind": "json_data",
       "persistence": "persisted",
       "producers": [
         "comfyui_h3_context/contracts/prompt_model_profiles_v5.json"
+      ],
+      "publication": "packaged"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/contracts/prompt_model_profiles_v6.json"
+      ],
+      "blockers": [],
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
+      "consumers": [
+        "comfyui_h3_context/core/prompt_model_provider.py",
+        "frontend/tests/e2e/journeys/host/optionalAuthoring.spec.ts"
+      ],
+      "contract_id": "h3.prompt_model.profiles.v6",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "none",
+      "kind": "json_data",
+      "persistence": "persisted",
+      "producers": [
+        "comfyui_h3_context/contracts/prompt_model_profiles_v6.json"
       ],
       "publication": "packaged"
     },
@@ -2678,6 +2730,7 @@
       "compatibility": "old_readers_unaffected",
       "consumers": [
         "comfyui_h3_context/core/semantic_proposal_producer.py",
+        "tests/test_semantic_proposal_execution.py",
         "tests/test_semantic_proposal_producer.py"
       ],
       "contract_id": "h3.semantic.provider_profiles.v1",
@@ -2689,6 +2742,28 @@
       "persistence": "persisted",
       "producers": [
         "comfyui_h3_context/contracts/semantic_provider_profiles_v1.json"
+      ],
+      "publication": "packaged"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/contracts/semantic_provider_profiles_v2.json"
+      ],
+      "blockers": [],
+      "boundary": "untrusted_input",
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
+        "comfyui_h3_context/core/semantic_proposal_producer.py"
+      ],
+      "contract_id": "h3.semantic.provider_profiles.v2",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "none",
+      "kind": "json_data",
+      "persistence": "persisted",
+      "producers": [
+        "comfyui_h3_context/contracts/semantic_provider_profiles_v2.json"
       ],
       "publication": "packaged"
     },
@@ -3160,7 +3235,8 @@
       "boundary": "public",
       "compatibility": "old_readers_unaffected",
       "consumers": [
-        "tests/test_constrained_semantic_planning.py"
+        "tests/test_constrained_semantic_planning.py",
+        "tests/test_semantic_intents.py"
       ],
       "contract_id": "comfyui-h3-context://contracts/constrained_semantic_planning_v1.schema.json",
       "dialect": "https://json-schema.org/draft/2020-12/schema",
@@ -4876,9 +4952,7 @@
       "consumers": [
         "governance/contracts/assisted_authoring_compatibility_v1.json",
         "scripts/governance/relocate_packaged_artifacts.py",
-        "scripts/m22_16_compatibility_matrix.py",
-        "tests/test_host_version_tolerance.py",
-        "tests/test_m22_16_compatibility_closeout.py"
+        "tests/test_host_version_tolerance.py"
       ],
       "contract_id": "h3.context.assisted_authoring_compatibility.v1",
       "dialect": "https://json-schema.org/draft/2020-12/schema",
@@ -4889,6 +4963,30 @@
       "persistence": "transient",
       "producers": [
         "governance/contracts/assisted_authoring_compatibility_v1.schema.json"
+      ],
+      "publication": "repository_only"
+    },
+    {
+      "authority_paths": [
+        "governance/contracts/assisted_authoring_compatibility_v2.schema.json"
+      ],
+      "blockers": [],
+      "boundary": "untrusted_input",
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
+        "governance/contracts/assisted_authoring_compatibility_v2.json",
+        "scripts/m22_16_compatibility_matrix.py",
+        "tests/test_m22_16_compatibility_closeout.py"
+      ],
+      "contract_id": "h3.context.assisted_authoring_compatibility.v2",
+      "dialect": "https://json-schema.org/draft/2020-12/schema",
+      "disposition": "KEEP",
+      "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "none",
+      "kind": "json_schema",
+      "persistence": "transient",
+      "producers": [
+        "governance/contracts/assisted_authoring_compatibility_v2.schema.json"
       ],
       "publication": "repository_only"
     },
@@ -5997,6 +6095,28 @@
     },
     {
       "authority_paths": [
+        "comfyui_h3_context/core/remote_prompt_model.py"
+      ],
+      "blockers": [
+        "unknown_consumer"
+      ],
+      "boundary": "process_local",
+      "compatibility": "unknown",
+      "consumers": [],
+      "contract_id": "h3-context-remote-prompt-model/2",
+      "dialect": "not_applicable",
+      "disposition": "NEED_EVIDENCE",
+      "evidence": "no reader resolved by the five discovery rules; absence is not disuse",
+      "fingerprint_domain": "h3-context-remote-prompt-model/2",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/core/remote_prompt_model.py"
+      ],
+      "publication": "packaged"
+    },
+    {
+      "authority_paths": [
         "comfyui_h3_context/core/base_assistant.py",
         "comfyui_h3_context/core/reference_assistant.py"
       ],
@@ -6712,6 +6832,7 @@
         "governance/contracts/constrained_semantic_planning_v1.schema.json",
         "tests/fixtures/m13_08_constrained_semantic_planning.json",
         "tests/test_constrained_semantic_planning.py",
+        "tests/test_semantic_intents.py",
         "tests/test_semantic_proposal_producer.py",
         "tests/test_semantic_proposal_transaction.py"
       ],
@@ -6720,6 +6841,31 @@
       "disposition": "KEEP",
       "evidence": "readers resolved inside this repository; no simplification evidence gathered",
       "fingerprint_domain": "h3.constrained_semantic_planning.v1",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/core/constrained_semantic_planning.py"
+      ],
+      "publication": "packaged"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/core/constrained_semantic_planning.py"
+      ],
+      "blockers": [],
+      "boundary": "process_local",
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
+        "comfyui_h3_context/core/semantic_proposal_producer.py",
+        "governance/contracts/constrained_semantic_planning_v1.schema.json",
+        "tests/test_semantic_intents.py",
+        "tests/test_semantic_proposal_producer.py"
+      ],
+      "contract_id": "h3.constrained_semantic_planning.v2",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "readers resolved inside this repository; no simplification evidence gathered",
+      "fingerprint_domain": "h3.constrained_semantic_planning.v2",
       "kind": "python_wire",
       "persistence": "transient",
       "producers": [
@@ -6856,11 +7002,11 @@
         "frontend/src/contracts/assistedPromptProposalCodec.ts",
         "frontend/tests/assistedDraftReview.test.tsx"
       ],
-      "contract_id": "h3.context.assisted_draft.receipt.v1",
+      "contract_id": "h3.context.assisted_draft.receipt.v2",
       "dialect": "not_applicable",
       "disposition": "KEEP",
       "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
-      "fingerprint_domain": "h3.context.assisted_draft.receipt.v1",
+      "fingerprint_domain": "h3.context.assisted_draft.receipt.v2",
       "kind": "python_wire",
       "persistence": "transient",
       "producers": [
@@ -8157,6 +8303,8 @@
         "frontend/tests/support/hostSeamObservation.ts",
         "governance/contracts/assisted_authoring_compatibility_v1.json",
         "governance/contracts/assisted_authoring_compatibility_v1.schema.json",
+        "governance/contracts/assisted_authoring_compatibility_v2.json",
+        "governance/contracts/assisted_authoring_compatibility_v2.schema.json",
         "governance/contracts/host_seam_shape_fixture_v1.schema.json",
         "scripts/hc_09_host_seam_fixture.py",
         "scripts/m22_16_compatibility_matrix.py",
@@ -10743,6 +10891,30 @@
       "boundary": "untrusted_input",
       "compatibility": "old_readers_unaffected",
       "consumers": [
+        "tests/test_provider_connection.py"
+      ],
+      "contract_id": "h3.context.provider_settings.request.v2",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "h3.context.provider_settings.request.v2",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/adapters/comfyui_provider_settings.py"
+      ],
+      "publication": "packaged",
+      "reachability": "unsupported",
+      "reachability_source": "none"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/adapters/comfyui_provider_settings.py"
+      ],
+      "blockers": [],
+      "boundary": "untrusted_input",
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
         "frontend/src/contracts/providerSettingsCodec.ts",
         "frontend/tests/e2e/host/assets.ts",
         "frontend/tests/e2e/host/candidate.ts",
@@ -10765,13 +10937,14 @@
         "frontend/tests/e2e/journeys/host/soundtrack.spec.ts",
         "frontend/tests/e2e/journeys/host/weightSample.spec.ts",
         "frontend/tests/providerSettings.test.tsx",
+        "tests/test_provider_connection.py",
         "tests/test_provider_settings.py"
       ],
-      "contract_id": "h3.context.provider_settings.request.v2",
+      "contract_id": "h3.context.provider_settings.request.v3",
       "dialect": "not_applicable",
       "disposition": "KEEP",
       "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
-      "fingerprint_domain": "h3.context.provider_settings.request.v2",
+      "fingerprint_domain": "h3.context.provider_settings.request.v3",
       "kind": "python_wire",
       "persistence": "transient",
       "producers": [
@@ -10811,14 +10984,15 @@
         "frontend/tests/e2e/journeys/host/soundtrack.spec.ts",
         "frontend/tests/e2e/journeys/host/weightSample.spec.ts",
         "frontend/tests/entryWorkspaceLifecycle.test.tsx",
+        "frontend/tests/providerSession.test.ts",
         "frontend/tests/providerSettings.test.tsx",
         "tests/test_provider_settings.py"
       ],
-      "contract_id": "h3.context.provider_settings.v2",
+      "contract_id": "h3.context.provider_settings.v3",
       "dialect": "not_applicable",
       "disposition": "KEEP",
       "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
-      "fingerprint_domain": "h3.context.provider_settings.v2",
+      "fingerprint_domain": "h3.context.provider_settings.v3",
       "kind": "python_wire",
       "persistence": "transient",
       "producers": [
@@ -12909,6 +13083,50 @@
     },
     {
       "authority_paths": [
+        "comfyui_h3_context/core/provider_connection_qualification.py"
+      ],
+      "blockers": [],
+      "boundary": "untrusted_input",
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
+        "scripts/prompt_model_qualification.py"
+      ],
+      "contract_id": "h3.prompt_model.connection_qualification.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "h3.prompt_model.connection_qualification.v1",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/core/provider_connection_qualification.py"
+      ],
+      "publication": "packaged"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/core/provider_connection_qualification.py"
+      ],
+      "blockers": [],
+      "boundary": "untrusted_input",
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
+        "scripts/prompt_model_qualification.py"
+      ],
+      "contract_id": "h3.prompt_model.connection_qualification_receipt.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "h3.prompt_model.connection_qualification_receipt.v1",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/core/provider_connection_qualification.py"
+      ],
+      "publication": "packaged"
+    },
+    {
+      "authority_paths": [
         "comfyui_h3_context/adapters/assisted_draft_execution.py"
       ],
       "blockers": [],
@@ -12916,6 +13134,7 @@
       "compatibility": "migration_required",
       "consumers": [
         "comfyui_h3_context/contracts/prompt_model_profiles_v5.json",
+        "comfyui_h3_context/core/prompt_model_dialects/common.py",
         "comfyui_h3_context/core/prompt_model_session.py",
         "frontend/tests/e2e/journeys/providerSettings.spec.ts",
         "frontend/tests/entryWorkspaceLifecycle.test.tsx",
@@ -12924,12 +13143,15 @@
         "governance/contracts/prompt_model_profiles_v4.json",
         "scripts/m22_14_remote_qualification.py",
         "scripts/m22_15_anthropic_qualification.py",
+        "scripts/prompt_model_qualification.py",
         "tests/test_assisted_authoring_closeout.py",
         "tests/test_comfyui_assisted_draft.py",
         "tests/test_m22_13_local_qualification.py",
         "tests/test_m22_14_remote_provider_activation.py",
+        "tests/test_prompt_model_dialects.py",
         "tests/test_prompt_model_provider.py",
         "tests/test_prompt_model_session.py",
+        "tests/test_provider_connection_qualification.py",
         "tests/test_provider_readiness.py",
         "tests/test_provider_session_authority.py",
         "tests/test_provider_settings.py"
@@ -13049,7 +13271,6 @@
       "compatibility": "old_readers_unaffected",
       "consumers": [
         "comfyui_h3_context/contracts/prompt_model_profiles_v5.json",
-        "frontend/tests/e2e/journeys/host/optionalAuthoring.spec.ts",
         "tests/test_m22_15_anthropic_provider.py",
         "tests/test_prompt_model_provider.py",
         "tests/test_remote_qualification_evidence.py"
@@ -13059,6 +13280,29 @@
       "disposition": "KEEP",
       "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
       "fingerprint_domain": "h3.prompt_model.profiles.v5",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/core/prompt_model_provider.py"
+      ],
+      "publication": "packaged"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/core/prompt_model_provider.py"
+      ],
+      "blockers": [],
+      "boundary": "untrusted_input",
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
+        "comfyui_h3_context/contracts/prompt_model_profiles_v6.json",
+        "frontend/tests/e2e/journeys/host/optionalAuthoring.spec.ts"
+      ],
+      "contract_id": "h3.prompt_model.profiles.v6",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "h3.prompt_model.profiles.v6",
       "kind": "python_wire",
       "persistence": "transient",
       "producers": [
@@ -13212,55 +13456,11 @@
       "boundary": "untrusted_input",
       "compatibility": "unknown",
       "consumers": [],
-      "contract_id": "h3.remote.prompt_model.cost_authority.v1",
+      "contract_id": "h3.remote.prompt_model.policy.v2",
       "dialect": "not_applicable",
       "disposition": "NEED_EVIDENCE",
       "evidence": "no reader resolved by the five discovery rules; absence is not disuse",
-      "fingerprint_domain": "h3.remote.prompt_model.cost_authority.v1",
-      "kind": "python_wire",
-      "persistence": "transient",
-      "producers": [
-        "comfyui_h3_context/core/remote_provider_policy.py"
-      ],
-      "publication": "packaged"
-    },
-    {
-      "authority_paths": [
-        "comfyui_h3_context/core/remote_provider_policy.py"
-      ],
-      "blockers": [
-        "unknown_consumer"
-      ],
-      "boundary": "untrusted_input",
-      "compatibility": "unknown",
-      "consumers": [],
-      "contract_id": "h3.remote.prompt_model.cost_decision.v1",
-      "dialect": "not_applicable",
-      "disposition": "NEED_EVIDENCE",
-      "evidence": "no reader resolved by the five discovery rules; absence is not disuse",
-      "fingerprint_domain": "h3.remote.prompt_model.cost_decision.v1",
-      "kind": "python_wire",
-      "persistence": "transient",
-      "producers": [
-        "comfyui_h3_context/core/remote_provider_policy.py"
-      ],
-      "publication": "packaged"
-    },
-    {
-      "authority_paths": [
-        "comfyui_h3_context/core/remote_provider_policy.py"
-      ],
-      "blockers": [
-        "unknown_consumer"
-      ],
-      "boundary": "untrusted_input",
-      "compatibility": "unknown",
-      "consumers": [],
-      "contract_id": "h3.remote.prompt_model.policy.v1",
-      "dialect": "not_applicable",
-      "disposition": "NEED_EVIDENCE",
-      "evidence": "no reader resolved by the five discovery rules; absence is not disuse",
-      "fingerprint_domain": "h3.remote.prompt_model.policy.v1",
+      "fingerprint_domain": "h3.remote.prompt_model.policy.v2",
       "kind": "python_wire",
       "persistence": "transient",
       "producers": [
@@ -13397,6 +13597,7 @@
       "compatibility": "old_readers_unaffected",
       "consumers": [
         "comfyui_h3_context/contracts/semantic_provider_profiles_v1.json",
+        "tests/test_semantic_proposal_execution.py",
         "tests/test_semantic_proposal_producer.py"
       ],
       "contract_id": "h3.semantic.provider_profiles.v1",
@@ -13404,6 +13605,28 @@
       "disposition": "KEEP",
       "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
       "fingerprint_domain": "h3.semantic.provider_profiles.v1",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/core/semantic_proposal_producer.py"
+      ],
+      "publication": "packaged"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/core/semantic_proposal_producer.py"
+      ],
+      "blockers": [],
+      "boundary": "untrusted_input",
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
+        "comfyui_h3_context/contracts/semantic_provider_profiles_v2.json"
+      ],
+      "contract_id": "h3.semantic.provider_profiles.v2",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "h3.semantic.provider_profiles.v2",
       "kind": "python_wire",
       "persistence": "transient",
       "producers": [
@@ -14463,6 +14686,6 @@
       "reachability_source": "none"
     }
   ],
-  "fingerprint": "sha256:1f79359e37ee2971b30d0e6f0a63110d6f652bf8ada8e293f1355fcb4b931b2f",
+  "fingerprint": "sha256:a2c769abf68d4bf43d27e44cf0f2ba626aebb6c4694e9b4f607b7a94e0886449",
   "schema": "h3-context-contract-inventory/1"
 }

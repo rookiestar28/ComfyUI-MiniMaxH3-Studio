@@ -778,9 +778,18 @@ def default_node_contract_registry() -> NodeContractRegistry:
                         "ollama_profile",
                         NodeSocketType.STRING,
                         required=True,
-                        default="ollama.qwen3_8.27b_bf16.local",
-                        choices=("ollama.qwen3_8.27b_bf16.local",),
-                        description="reviewed package-owned Ollama profile ID",
+                        default="ollama.local",
+                        choices=("ollama.local", "ollama.qwen3_8.27b_bf16.local"),
+                        description="local connection or historical fixed-model alias",
+                    ),
+                    _socket(
+                        "ollama_model",
+                        NodeSocketType.STRING,
+                        required=False,
+                        default="",
+                        description=(
+                            "exact installed local completion model; empty requires selection"
+                        ),
                     ),
                 ),
                 (

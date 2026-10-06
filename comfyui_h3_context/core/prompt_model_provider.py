@@ -23,9 +23,10 @@ from __future__ import annotations
 import json
 import re
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from datetime import date
 from enum import Enum
+from hashlib import sha256
 from ipaddress import ip_address
 from pathlib import Path
 from types import MappingProxyType
@@ -48,9 +49,11 @@ PROMPT_MODEL_CATALOG_V4_SCHEMA = "h3.prompt_model.profiles.v4"
 # M22-13: v3 is the first version that can carry an executed-qualification claim. v1 and v2 stay
 # decodable on purpose -- an older shipped catalog must not become undecodable -- but neither can
 # express `qualified`, so a v1/v2 payload can never smuggle execution authority past this decoder.
-PROMPT_MODEL_CATALOG_SCHEMA = "h3.prompt_model.profiles.v5"
+PROMPT_MODEL_CATALOG_V5_SCHEMA = "h3.prompt_model.profiles.v5"
+PROMPT_MODEL_CATALOG_V6_SCHEMA = "h3.prompt_model.profiles.v6"
+PROMPT_MODEL_CATALOG_SCHEMA = PROMPT_MODEL_CATALOG_V6_SCHEMA
 PROMPT_MODEL_CATALOG_PATH = (
-    Path(__file__).resolve().parent.parent / "contracts" / "prompt_model_profiles_v5.json"
+    Path(__file__).resolve().parent.parent / "contracts" / "prompt_model_profiles_v6.json"
 )
 REMOTE_QUALIFICATION_RESULT_SCHEMA = "h3.remote.prompt_model.qualification.v1"
 REMOTE_QUALIFICATION_RECEIPT_SCHEMA = "h3.remote.prompt_model.qualification_receipt.v1"
@@ -234,6 +237,7 @@ _RETRYABLE_OUTCOMES = frozenset(
     {
         PromptModelOutcomeId.TIMEOUT,
         PromptModelOutcomeId.QUOTA,
+        PromptModelOutcomeId.RATE_LIMITED,
         PromptModelOutcomeId.TRANSPORT,
         PromptModelOutcomeId.PROVIDER_ERROR,
     }
@@ -248,6 +252,7 @@ FAILURE_REMEDIATIONS: Mapping[PromptModelOutcomeId, PromptModelRemediation] = Ma
         PromptModelOutcomeId.BACKEND_ABSENT: PromptModelRemediation.INSTALL_BACKEND,
         PromptModelOutcomeId.MODEL_MISSING: PromptModelRemediation.SELECT_MODEL,
         PromptModelOutcomeId.QUOTA: PromptModelRemediation.RETRY_LATER,
+        PromptModelOutcomeId.RATE_LIMITED: PromptModelRemediation.RETRY_LATER,
         PromptModelOutcomeId.TIMEOUT: PromptModelRemediation.RETRY_LATER,
         PromptModelOutcomeId.TRANSPORT: PromptModelRemediation.RETRY_LATER,
         PromptModelOutcomeId.AUTHENTICATION: PromptModelRemediation.REVIEW_CREDENTIAL,
@@ -1194,7 +1199,12 @@ class RemotePromptModelQualificationEvidence:
         # Ordering the observation inside that window restores the removed billing blocker.
         for date_value in (self.source_checked_on, self.qualified_on, self.price_valid_through):
             _qualification_date(date_value, "remote_qualification_date")
-        if self.max_transmissions != 2 or self.observed_transmissions != self.max_transmissions:
+        if (
+            type(self.max_transmissions) is not int
+            or self.max_transmissions not in {2, 4}
+            or type(self.observed_transmissions) is not int
+            or not 2 <= self.observed_transmissions <= self.max_transmissions
+        ):
             _fail("remote_qualification_transmissions")
         for value in (self.max_input_tokens, self.max_output_tokens):
             if type(value) is not int or not 1 <= value <= MAX_TOKEN_CEILING:
@@ -1530,6 +1540,10 @@ def parse_exact_tags_row(payload: object, model_id: object) -> ExactTagsRow:
             _fail("readiness_tags")
         if name != model_id:
             continue
+        if any(row.get(key) not in (None, "") for key in ("remote_model", "remote_host")):
+            # SECURITY: loopback is a destination fact, not proof of local model execution.
+            # Reject advertised cloud routing before reducing native tag data to an identity.
+            _fail("readiness_cloud_route")
         if found is not None:
             # Two rows claiming the same exact id: there is no way to tell which would answer.
             _fail("readiness_tags_ambiguous")
@@ -1681,7 +1695,7 @@ class QualifiedIdentityObservation:
     observed_at: float
 
     def __post_init__(self) -> None:
-        if _PROFILE_ID.fullmatch(self.profile_id) is None:
+        if not isinstance(self.profile_id, str) or _PROFILE_ID.fullmatch(self.profile_id) is None:
             _fail("readiness_evidence_profile")
         if _MODEL_ID.fullmatch(self.model_id) is None:
             _fail("readiness_evidence_model")
@@ -1751,6 +1765,7 @@ class ProviderReadinessEvidence:
         endpoint_sha256: object,
         provider_revision: object,
         authority_epoch: object,
+        model: ModelChoice | None = None,
     ) -> bool:
         """Whether this evidence still describes the authority about to be exercised.
 
@@ -1764,14 +1779,26 @@ class ProviderReadinessEvidence:
         qualification = profile.qualification_evidence
         if isinstance(qualification, PromptModelQualificationEvidence):
             current_qualification_sha256 = qualification.show_identity_sha256
-        elif isinstance(qualification, RemotePromptModelQualificationEvidence):
+        elif isinstance(
+            qualification, RemotePromptModelQualificationEvidence | ConnectionQualificationEvidence
+        ):
             current_qualification_sha256 = qualification.qualification_sha256
+        else:
+            return False
+        if isinstance(profile, LegacyPromptModelProfile):
+            expected_model = profile.model_id
+            digest_matches = profile.model_digest == self.model_digest
+        elif model is not None and model.profile_id == profile.profile_id:
+            expected_model = model.model_id
+            digest_matches = (
+                model.metadata is None or model.metadata.model_digest == self.model_digest
+            )
         else:
             return False
         return (
             profile.profile_id == self.profile_id
-            and profile.model_id == self.model_id
-            and profile.model_digest == self.model_digest
+            and expected_model == self.model_id
+            and digest_matches
             and current_qualification_sha256 == self.qualification_sha256
             and endpoint_sha256 == self.endpoint_sha256
             and provider_revision == self.provider_revision
@@ -1810,26 +1837,291 @@ def stamp_readiness_evidence(
 
 
 @dataclass(frozen=True, slots=True)
+class ConnectionQualificationEvidence:
+    """A recorded wire observation qualifies a connection, never all of its listed models."""
+
+    profile_id: str
+    family: PromptModelFamily
+    observation_model_id: str
+    adapter_version: str
+    parser_version: str
+    observed_on: str
+    evidence_basis_sha256: str
+    max_transmissions: int
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.profile_id, str) or _PROFILE_ID.fullmatch(self.profile_id) is None:
+            _fail("connection_evidence_profile")
+        if not isinstance(self.family, PromptModelFamily):
+            _fail("connection_evidence_family")
+        if (
+            not isinstance(self.observation_model_id, str)
+            or _MODEL_ID.fullmatch(self.observation_model_id) is None
+            or ".." in self.observation_model_id
+        ):
+            _fail("connection_evidence_model")
+        for value in (self.adapter_version, self.parser_version):
+            if not isinstance(value, str) or _SAFE_VERSION.fullmatch(value) is None:
+                _fail("connection_evidence_version")
+        _qualification_date(self.observed_on, "connection_evidence_date")
+        if (
+            not isinstance(self.evidence_basis_sha256, str)
+            or _SHA256.fullmatch(self.evidence_basis_sha256) is None
+        ):
+            _fail("connection_evidence_fingerprint")
+        if type(self.max_transmissions) is not int or not 1 <= self.max_transmissions <= 4:
+            _fail("connection_evidence_transmissions")
+
+    @property
+    def qualification_sha256(self) -> str:
+        material = json.dumps(self.to_wire(), sort_keys=True, separators=(",", ":"))
+        return "sha256:" + sha256(material.encode("utf-8")).hexdigest()
+
+    def to_wire(self) -> dict[str, object]:
+        return {
+            "kind": "provider_connection",
+            "profile_id": self.profile_id,
+            "family": self.family.value,
+            "observation_model_id": self.observation_model_id,
+            "adapter_version": self.adapter_version,
+            "parser_version": self.parser_version,
+            "observed_on": self.observed_on,
+            "evidence_basis_sha256": self.evidence_basis_sha256,
+            "max_transmissions": self.max_transmissions,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class ModelMetadata:
+    """Bounded native model facts; unknown facts remain absent rather than inferred from names."""
+
+    model_digest: str | None = None
+    context_length: int | None = None
+    max_output_tokens: int | None = None
+    capabilities: tuple[str, ...] = ()
+    locality: str = "unknown"
+    display_name: str | None = None
+    created: int | None = None
+    max_input_tokens: int | None = None
+    structured_output: bool | None = None
+    reasoning_mandatory: bool | None = None
+    reasoning_control_supported: bool | None = None
+    shutdown_date: str | None = None
+    moving_alias: bool | None = None
+    family: str | None = None
+    parameter_size: str | None = None
+    quantization: str | None = None
+    license_sha256: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.model_digest is not None and (
+            not isinstance(self.model_digest, str) or _SHA256.fullmatch(self.model_digest) is None
+        ):
+            _fail("model_metadata_digest")
+        for count in (self.context_length, self.max_input_tokens, self.max_output_tokens):
+            if count is not None and (
+                type(count) is not int or not 1 <= count <= MAX_TOKEN_CEILING
+            ):
+                _fail("model_metadata_tokens")
+        for value in (
+            self.structured_output,
+            self.reasoning_mandatory,
+            self.reasoning_control_supported,
+            self.moving_alias,
+        ):
+            if value is not None and type(value) is not bool:
+                _fail("model_metadata_boolean")
+        for text_value, maximum in (
+            (self.display_name, 128),
+            (self.family, 64),
+            (self.parameter_size, 64),
+            (self.quantization, 64),
+        ):
+            if text_value is not None and (
+                not isinstance(text_value, str)
+                or not 1 <= len(text_value) <= maximum
+                or any(ord(char) < 32 or 0xD800 <= ord(char) <= 0xDFFF for char in text_value)
+                or _BEARER.search(text_value)
+                or _API_KEY.search(text_value)
+            ):
+                _fail("model_metadata_text")
+        if self.created is not None and (
+            type(self.created) is not int or not 0 <= self.created <= 253402300799
+        ):
+            _fail("model_metadata_created")
+        if self.shutdown_date is not None:
+            if not isinstance(self.shutdown_date, str) or not re.fullmatch(
+                r"\d{4}-\d{2}-\d{2}", self.shutdown_date
+            ):
+                _fail("model_metadata_shutdown")
+            try:
+                date.fromisoformat(self.shutdown_date)
+            except ValueError:
+                _fail("model_metadata_shutdown")
+        if self.license_sha256 is not None and (
+            not isinstance(self.license_sha256, str)
+            or _SHA256.fullmatch(self.license_sha256) is None
+        ):
+            _fail("model_metadata_license")
+        if not isinstance(self.locality, str) or self.locality not in {
+            "local",
+            "cloud",
+            "remote",
+            "unknown",
+        }:
+            _fail("model_metadata_locality")
+        if (
+            type(self.capabilities) is not tuple
+            or len(self.capabilities) > MAX_QUALIFICATION_CAPABILITIES
+        ):
+            _fail("model_metadata_capabilities")
+        if any(
+            not isinstance(value, str) or _CAPABILITY.fullmatch(value) is None
+            for value in self.capabilities
+        ):
+            _fail("model_metadata_capabilities")
+        if len(set(self.capabilities)) != len(self.capabilities):
+            _fail("model_metadata_capabilities")
+
+    def to_wire(self) -> dict[str, object]:
+        return {
+            "model_digest": self.model_digest,
+            "context_length": self.context_length,
+            "max_output_tokens": self.max_output_tokens,
+            "capabilities": list(self.capabilities),
+            "locality": self.locality,
+            "display_name": self.display_name,
+            "created": self.created,
+            "max_input_tokens": self.max_input_tokens,
+            "structured_output": self.structured_output,
+            "reasoning_mandatory": self.reasoning_mandatory,
+            "reasoning_control_supported": self.reasoning_control_supported,
+            "shutdown_date": self.shutdown_date,
+            "moving_alias": self.moving_alias,
+            "family": self.family,
+            "parameter_size": self.parameter_size,
+            "quantization": self.quantization,
+            "license_sha256": self.license_sha256,
+        }
+
+
+def read_ollama_choice_metadata(payload: object, digest: str) -> ModelMetadata:
+    """Read selected-only show facts without carrying licence/template or remote URLs onward."""
+    if not isinstance(payload, Mapping):
+        _fail("readiness_show")
+    if any(payload.get(key) not in (None, "") for key in ("remote_model", "remote_host")):
+        # SECURITY: native cloud routing must be refused before allowlist reduction discards it.
+        _fail("readiness_cloud_route")
+    raw_caps = payload.get("capabilities")
+    if not isinstance(raw_caps, Sequence) or isinstance(raw_caps, str | bytes):
+        _fail("readiness_show_capabilities")
+    context = None
+    family = None
+    details = payload.get("details")
+    info = payload.get("model_info")
+    if (
+        isinstance(details, Mapping)
+        and isinstance(details.get("family"), str)
+        and isinstance(info, Mapping)
+    ):
+        family = details["family"]
+        key = family + ".context_length"
+        if key in info:
+            context = _show_context_length(info, family)
+    thinking = payload.get("thinking")
+    mandatory = None
+    control = None
+    if thinking is not None:
+        if not isinstance(thinking, Mapping):
+            _fail("readiness_show_thinking")
+        values = thinking.get("values")
+        if (
+            not isinstance(values, list)
+            or not 1 <= len(values) <= 16
+            or any(
+                type(value) is not bool
+                and (not isinstance(value, str) or _CAPABILITY.fullmatch(value) is None)
+                for value in values
+            )
+        ):
+            _fail("readiness_show_thinking")
+        # IMPORTANT: named thinking levels do not authorize boolean false. Treat the exact
+        # published controls as authority; guessing from a model name can enable reasoning.
+        control = any(value is False for value in values)
+        mandatory = not control
+    licence = payload.get("license")
+    if licence is not None and (
+        not isinstance(licence, str)
+        or len(licence) > MAX_CATALOG_BYTES
+        or any(0xD800 <= ord(char) <= 0xDFFF for char in licence)
+    ):
+        _fail("readiness_show_license")
+    return ModelMetadata(
+        model_digest=digest,
+        context_length=context,
+        capabilities=tuple(raw_caps),
+        locality="local",
+        family=family,
+        parameter_size=details.get("parameter_size") if isinstance(details, Mapping) else None,
+        quantization=details.get("quantization_level") if isinstance(details, Mapping) else None,
+        license_sha256="sha256:" + sha256(licence.encode()).hexdigest() if licence else None,
+        reasoning_mandatory=mandatory,
+        reasoning_control_supported=control,
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class ModelChoice:
+    """Exact server-created membership in one current connection census."""
+
+    profile_id: str
+    model_id: str
+    listing_sha256: str
+    listed_at_monotonic: float
+    metadata: ModelMetadata | None = None
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.profile_id, str) or _PROFILE_ID.fullmatch(self.profile_id) is None:
+            _fail("model_choice_profile")
+        if (
+            not isinstance(self.model_id, str)
+            or _MODEL_ID.fullmatch(self.model_id) is None
+            or ".." in self.model_id
+        ):
+            _fail("model_choice_model")
+        if (
+            not isinstance(self.listing_sha256, str)
+            or _SHA256.fullmatch(self.listing_sha256) is None
+        ):
+            _fail("model_choice_listing")
+        value = self.listed_at_monotonic
+        if type(value) is not float or not 0.0 <= value < float("inf"):
+            _fail("model_choice_time")
+        if self.metadata is not None and not isinstance(self.metadata, ModelMetadata):
+            _fail("model_choice_metadata")
+
+    def to_wire(self) -> dict[str, object]:
+        return {
+            "model_id": self.model_id,
+            "metadata": None if self.metadata is None else self.metadata.to_wire(),
+        }
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
 class PromptModelProfile:
-    """One pinned, licence-attributed model a caller may name explicitly."""
+    """A package-owned provider connection with no chosen model or price authority."""
 
     profile_id: str
     family: PromptModelFamily
     endpoint: str
-    model_id: str
-    model_digest: str | None
     adapter_version: str
     parser_version: str
-    license_id: str
-    license_source: str
-    license_text_sha256: str | None
     capabilities: PromptModelCapabilities
     provider_label: str = ""
     wire_dialect: PromptModelDialect = PromptModelDialect.LEGACY
     discovery_routes: tuple[str, ...] = ()
     chat_route: str = ""
     task_modes: tuple[str, ...] = ()
-    model_revision: str | None = None
     request_timeout_seconds: int = 30
     max_retries: int = 0
     max_concurrency: int = 1
@@ -1841,9 +2133,66 @@ class PromptModelProfile:
         PromptModelQualificationState.LEGACY_UNQUALIFIED
     )
     qualification_evidence: (
-        PromptModelQualificationEvidence | RemotePromptModelQualificationEvidence | None
+        ConnectionQualificationEvidence
+        | PromptModelQualificationEvidence
+        | RemotePromptModelQualificationEvidence
+        | None
     ) = None
     limitations: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        evidence = self.qualification_evidence
+        qualified = self.qualification_state is PromptModelQualificationState.QUALIFIED
+        if qualified is (evidence is None):
+            _fail("catalog_qualification")
+        if evidence is not None and (
+            not isinstance(evidence, ConnectionQualificationEvidence)
+            or evidence.profile_id != self.profile_id
+            or evidence.family is not self.family
+            or evidence.adapter_version != self.adapter_version
+            or evidence.parser_version != self.parser_version
+            or evidence.max_transmissions != self.max_calls_per_action
+        ):
+            _fail("catalog_connection_qualification")
+
+    def to_wire(self) -> dict[str, object]:
+        return {
+            "profile_id": self.profile_id,
+            "family": self.family.value,
+            "endpoint": self.endpoint,
+            "adapter_version": self.adapter_version,
+            "parser_version": self.parser_version,
+            "capabilities": self.capabilities.to_wire(),
+            "provider_label": self.provider_label,
+            "wire_dialect": self.wire_dialect.value,
+            "discovery_routes": list(self.discovery_routes),
+            "chat_route": self.chat_route,
+            "task_modes": list(self.task_modes),
+            "request_timeout_seconds": self.request_timeout_seconds,
+            "max_retries": self.max_retries,
+            "max_concurrency": self.max_concurrency,
+            "max_calls_per_action": self.max_calls_per_action,
+            "cost_class": self.cost_class,
+            "usage_receipt_required": self.usage_receipt_required,
+            "retention_policy": self.retention_policy,
+            "qualification_state": self.qualification_state.value,
+            "qualification_evidence": None
+            if self.qualification_evidence is None
+            else self.qualification_evidence.to_wire(),
+            "limitations": list(self.limitations),
+        }
+
+
+@dataclass(frozen=True, slots=True, kw_only=True)
+class LegacyPromptModelProfile(PromptModelProfile):
+    """Historical v1-v5 pinned rows; never loaded by the current catalogue."""
+
+    model_id: str
+    model_digest: str | None
+    license_id: str
+    license_source: str
+    license_text_sha256: str | None
+    model_revision: str | None = None
 
     def __post_init__(self) -> None:
         # The state and its evidence are one fact stated twice, so they are checked together here
@@ -1855,6 +2204,8 @@ class PromptModelProfile:
         evidence = self.qualification_evidence
         if evidence is None:
             return
+        if isinstance(evidence, ConnectionQualificationEvidence):
+            _fail("catalog_qualification")
         if evidence.model_id != self.model_id:
             _fail("catalog_qualification_model")
         if isinstance(evidence, PromptModelQualificationEvidence):
@@ -2001,7 +2352,7 @@ def _decode_profile_v1(values: object, seen: set[str]) -> PromptModelProfile:
     else:
         admit_egress_destination(family, endpoint)
 
-    return PromptModelProfile(
+    return LegacyPromptModelProfile(
         profile_id=profile_id,
         family=family,
         endpoint=endpoint,
@@ -2323,7 +2674,7 @@ def _decode_profile_v2_or_later(
     ):
         _fail("catalog_usage_receipt")
 
-    return PromptModelProfile(
+    return LegacyPromptModelProfile(
         profile_id=profile_id,
         family=family,
         endpoint=endpoint,
@@ -2346,7 +2697,7 @@ def _decode_profile_v2_or_later(
         ),
         max_retries=_v2_bounded_int(values, "max_retries", minimum=0, maximum=1),
         max_concurrency=_v2_bounded_int(values, "max_concurrency", minimum=1, maximum=4),
-        max_calls_per_action=_v2_bounded_int(values, "max_calls_per_action", minimum=1, maximum=2),
+        max_calls_per_action=_v2_bounded_int(values, "max_calls_per_action", minimum=1, maximum=4),
         cost_class=cost_class,
         usage_receipt_required=usage_receipt_required,
         retention_policy=retention_policy,
@@ -2356,6 +2707,124 @@ def _decode_profile_v2_or_later(
             values["limitations"], code="catalog_limitations", maximum=8
         ),
     )
+
+
+def _decode_profile_v6(values: object, seen: set[str]) -> PromptModelProfile:
+    """Validate a model-free connection without widening the historical pinned schemas."""
+
+    model_keys = {
+        "model_id",
+        "model_revision",
+        "model_digest",
+        "license_id",
+        "license_source",
+        "license_text_sha256",
+    }
+    expected_keys = _PROFILE_V3_KEYS - model_keys
+    if not isinstance(values, Mapping) or set(values) != expected_keys:
+        _fail("catalog_profile_keys")
+    bindings = {
+        "ollama.local": (PromptModelFamily.OLLAMA, "http://127.0.0.1:11434"),
+        "openai.remote": (PromptModelFamily.REMOTE_OPENAI_COMPATIBLE, "https://api.openai.com"),
+        "anthropic.remote": (PromptModelFamily.REMOTE_ANTHROPIC, "https://api.anthropic.com"),
+        "gemini.remote": (
+            PromptModelFamily.REMOTE_OPENAI_COMPATIBLE,
+            "https://generativelanguage.googleapis.com",
+        ),
+    }
+    profile_id = values["profile_id"]
+    if not isinstance(profile_id, str):
+        _fail("catalog_connection")
+    binding = bindings.get(profile_id)
+    if binding is None or (values["family"], values["endpoint"]) != (binding[0].value, binding[1]):
+        _fail("catalog_connection")
+    # IMPORTANT: reuse validation only, with qualification disabled. Synthetic historical model
+    # fields never escape into the connection or create model/qualification execution authority.
+    validation = dict(values)
+    native_routes = {
+        "ollama.local": "/api/tags",
+        "openai.remote": "/v1/models",
+        "gemini.remote": "/v1beta/models?pageSize=1000",
+        "anthropic.remote": "/v1/models?limit=1000",
+    }
+    expected_native_routes = (
+        ["/api/tags", "/api/show"] if profile_id == "ollama.local" else [native_routes[profile_id]]
+    )
+    if values["discovery_routes"] != expected_native_routes:
+        _fail("catalog_discovery_routes")
+    # CRITICAL: validate new fixed native queries only in v6. Expanding the sealed v5 route
+    # allowlist would grant historical profiles a protocol they never declared or qualified.
+    validation["discovery_routes"] = [
+        "/v1beta/openai/models"
+        if profile_id == "gemini.remote"
+        else "/v1/models"
+        if profile_id == "anthropic.remote"
+        else native_routes[profile_id]
+    ]
+    if profile_id == "ollama.local":
+        validation["discovery_routes"] = expected_native_routes
+        validation["max_calls_per_action"] = 2
+    validation.update(
+        model_id="validation-placeholder",
+        model_digest=None,
+        model_revision=None,
+        license_id="not_applicable",
+        license_source="not_applicable",
+        license_text_sha256=None,
+        qualification_state="catalog_only",
+        qualification_evidence=None,
+    )
+    checked = _decode_profile_v5(validation, seen)
+    raw_evidence = values["qualification_evidence"]
+    evidence = None
+    if raw_evidence is not None:
+        evidence_keys = {
+            "kind",
+            "profile_id",
+            "family",
+            "observation_model_id",
+            "adapter_version",
+            "parser_version",
+            "observed_on",
+            "evidence_basis_sha256",
+            "max_transmissions",
+        }
+        if not isinstance(raw_evidence, Mapping) or set(raw_evidence) != evidence_keys:
+            _fail("catalog_connection_qualification")
+        if raw_evidence["kind"] != "provider_connection":
+            _fail("catalog_connection_qualification")
+        if any(type(raw_evidence[key]) is not str for key in evidence_keys - {"max_transmissions"}):
+            _fail("catalog_connection_qualification")
+        try:
+            evidence = ConnectionQualificationEvidence(
+                profile_id=raw_evidence["profile_id"],
+                family=PromptModelFamily(raw_evidence["family"]),
+                observation_model_id=raw_evidence["observation_model_id"],
+                adapter_version=raw_evidence["adapter_version"],
+                parser_version=raw_evidence["parser_version"],
+                observed_on=raw_evidence["observed_on"],
+                evidence_basis_sha256=raw_evidence["evidence_basis_sha256"],
+                max_transmissions=raw_evidence["max_transmissions"],
+            )
+            qualification = PromptModelQualificationState(values["qualification_state"])
+        except (TypeError, ValueError):
+            _fail("catalog_connection_qualification")
+    else:
+        if values["qualification_state"] != PromptModelQualificationState.CATALOG_ONLY.value:
+            _fail("catalog_connection_qualification")
+        qualification = PromptModelQualificationState.CATALOG_ONLY
+    data = {item.name: getattr(checked, item.name) for item in fields(PromptModelProfile)}
+    data.update(
+        qualification_state=qualification,
+        qualification_evidence=evidence,
+        discovery_routes=tuple(expected_native_routes),
+        max_calls_per_action=values["max_calls_per_action"],
+    )
+    if checked.max_retries != 0 or checked.max_concurrency != 1:
+        _fail("catalog_connection_limits")
+    if values["max_calls_per_action"] != 4:
+        _fail("catalog_connection_limits")
+    return PromptModelProfile(**data)
 
 
 def decode_prompt_model_catalog(raw: bytes) -> PromptModelCatalog:
@@ -2384,6 +2853,7 @@ def decode_prompt_model_catalog(raw: bytes) -> PromptModelCatalog:
         PROMPT_MODEL_CATALOG_V2_SCHEMA,
         PROMPT_MODEL_CATALOG_V3_SCHEMA,
         PROMPT_MODEL_CATALOG_V4_SCHEMA,
+        PROMPT_MODEL_CATALOG_V5_SCHEMA,
         PROMPT_MODEL_CATALOG_SCHEMA,
     }:
         _fail("catalog_schema")
@@ -2404,7 +2874,8 @@ def decode_prompt_model_catalog(raw: bytes) -> PromptModelCatalog:
         PROMPT_MODEL_CATALOG_V2_SCHEMA: _decode_profile_v2,
         PROMPT_MODEL_CATALOG_V3_SCHEMA: _decode_profile_v3,
         PROMPT_MODEL_CATALOG_V4_SCHEMA: _decode_profile_v4,
-        PROMPT_MODEL_CATALOG_SCHEMA: _decode_profile_v5,
+        PROMPT_MODEL_CATALOG_V5_SCHEMA: _decode_profile_v5,
+        PROMPT_MODEL_CATALOG_SCHEMA: _decode_profile_v6,
     }[schema]
     profiles = tuple(decoder(item, seen) for item in values)
     return PromptModelCatalog(schema=schema, profiles=profiles, default_profile_id=None)
@@ -2415,6 +2886,16 @@ def load_prompt_model_catalog() -> PromptModelCatalog:
 
     try:
         return decode_prompt_model_catalog(PROMPT_MODEL_CATALOG_PATH.read_bytes())
+    except OSError:
+        raise PromptModelContractError("catalog_unavailable") from None
+
+
+def load_legacy_prompt_model_catalog() -> PromptModelCatalog:
+    """Read sealed v5 for historical tools/decoders; never use it for current Settings authority."""
+    try:
+        return decode_prompt_model_catalog(
+            PROMPT_MODEL_CATALOG_PATH.with_name("prompt_model_profiles_v5.json").read_bytes()
+        )
     except OSError:
         raise PromptModelContractError("catalog_unavailable") from None
 

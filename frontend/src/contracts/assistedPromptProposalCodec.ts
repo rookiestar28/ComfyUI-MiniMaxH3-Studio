@@ -87,7 +87,7 @@ export type AssistedFailureId =
 export type AssistedProposalState = (typeof proposalStates)[number];
 
 export type AssistedDraftReceipt = Readonly<{
-  schema: "h3.context.assisted_draft.receipt.v1";
+  schema: "h3.context.assisted_draft.receipt.v2";
   action_id: string;
   profile_id: string;
   provider_family: string;
@@ -102,6 +102,8 @@ export type AssistedDraftReceipt = Readonly<{
   duration_ms: number;
   evidence_fingerprint: string;
   provider_revision: number;
+  downgraded: boolean;
+  observed_model_id: string;
 }>;
 
 export type AssistedPromptAudit = Readonly<{
@@ -142,6 +144,7 @@ export type AssistedSidebarResult = Readonly<{
 
 export type AssistedActionRequest =
   | Readonly<{ action: "optimize_prompt"; payload: Record<string, never> }>
+  | Readonly<{ action: "refine_prompt"; payload: { instruction: string } }>
   | Readonly<{
       action: "edit_assisted_proposal";
       payload: {
@@ -158,6 +161,79 @@ export type AssistedActionRequest =
       action: "cancel_assisted_execution";
       payload: Record<string, never>;
     }>;
+
+export const MAX_REVISION_INSTRUCTION_SCALARS = 2_048;
+export const MAX_REVISION_INSTRUCTION_BYTES = 8_192;
+
+export function refinementInstructionMetrics(value: string): Readonly<{
+  scalars: number;
+  bytes: number;
+  valid: boolean;
+}> {
+  const scalars = Array.from(value).length;
+  const bytes = new TextEncoder().encode(value).length;
+  const malformed =
+    /\u0000|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(
+      value,
+    );
+  return {
+    scalars,
+    bytes,
+    valid:
+      !/^[\u0009-\u000d\u001c-\u0020\u0085\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]*$/u.test(
+        value,
+      ) &&
+      !malformed &&
+      scalars <= MAX_REVISION_INSTRUCTION_SCALARS &&
+      bytes <= MAX_REVISION_INSTRUCTION_BYTES,
+  };
+}
+
+export function validateAssistedActionRequest(
+  value: unknown,
+): AssistedActionRequest {
+  const wire = object(value);
+  exact(wire, ["action", "payload"]);
+  const payload = object(wire.payload);
+  if (wire.action === "refine_prompt") {
+    exact(payload, ["instruction"]);
+    if (
+      typeof payload.instruction !== "string" ||
+      !refinementInstructionMetrics(payload.instruction).valid
+    )
+      incompatible();
+  } else if (
+    wire.action === "optimize_prompt" ||
+    wire.action === "cancel_assisted_execution"
+  ) {
+    exact(payload, []);
+  } else if (
+    wire.action === "edit_assisted_proposal" ||
+    wire.action === "accept_assisted_proposal" ||
+    wire.action === "reject_assisted_proposal"
+  ) {
+    exact(
+      payload,
+      wire.action === "edit_assisted_proposal"
+        ? ["proposal_id", "expected_proposal_revision", "prompt_text"]
+        : ["proposal_id", "expected_proposal_revision"],
+    );
+    if (
+      typeof payload.proposal_id !== "string" ||
+      !proposalIdPattern.test(payload.proposal_id) ||
+      !Number.isSafeInteger(payload.expected_proposal_revision) ||
+      (payload.expected_proposal_revision as number) < 1 ||
+      (payload.expected_proposal_revision as number) > 1_000_000
+    )
+      incompatible();
+    if (
+      wire.action === "edit_assisted_proposal" &&
+      typeof payload.prompt_text !== "string"
+    )
+      incompatible();
+  } else incompatible();
+  return value as AssistedActionRequest;
+}
 
 function incompatible(): never {
   throw new Error("assisted prompt response is incompatible");
@@ -292,6 +368,9 @@ function decodeAudit(value: unknown): AssistedPromptAudit {
 
 function decodeReceipt(value: unknown): AssistedDraftReceipt {
   const wire = object(value);
+  const legacy = wire.schema === "h3.context.assisted_draft.receipt.v1";
+  if (!legacy && wire.schema !== "h3.context.assisted_draft.receipt.v2")
+    incompatible();
   exact(wire, [
     "schema",
     "action_id",
@@ -308,14 +387,24 @@ function decodeReceipt(value: unknown): AssistedDraftReceipt {
     "duration_ms",
     "evidence_fingerprint",
     "provider_revision",
+    ...(legacy ? [] : ["downgraded", "observed_model_id"]),
   ]);
-  if (wire.schema !== "h3.context.assisted_draft.receipt.v1") incompatible();
   const actionId = boundedString(wire.action_id, 39);
   if (!actionIdPattern.test(actionId)) incompatible();
   const attempts = count(wire.attempts, 2);
   if (attempts < 1) incompatible();
+  if (!legacy && typeof wire.downgraded !== "boolean") incompatible();
+  const observedModelId =
+    legacy || wire.observed_model_id === ""
+      ? ""
+      : boundedString(wire.observed_model_id, 128);
+  if (
+    observedModelId &&
+    !/^[A-Za-z0-9][A-Za-z0-9_.:@/-]{0,127}$/.test(observedModelId)
+  )
+    incompatible();
   return Object.freeze({
-    schema: "h3.context.assisted_draft.receipt.v1",
+    schema: "h3.context.assisted_draft.receipt.v2",
     action_id: actionId,
     profile_id: boundedString(wire.profile_id, 256),
     provider_family: boundedString(wire.provider_family, 256),
@@ -330,6 +419,8 @@ function decodeReceipt(value: unknown): AssistedDraftReceipt {
     duration_ms: count(wire.duration_ms),
     evidence_fingerprint: fingerprint(wire.evidence_fingerprint),
     provider_revision: count(wire.provider_revision, 1_000_000),
+    downgraded: legacy ? false : (wire.downgraded as boolean),
+    observed_model_id: observedModelId,
   });
 }
 

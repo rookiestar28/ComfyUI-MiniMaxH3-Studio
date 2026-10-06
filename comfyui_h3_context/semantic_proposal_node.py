@@ -2,21 +2,30 @@
 
 from __future__ import annotations
 
+import time
 from typing import cast
 
 from .adapters.ollama_native import SemanticOllamaExecutionError, SemanticOllamaTransport
 from .core.local_adapters import LocalCancellationProbe
+from .core.model_manifest import ModelGenerationRequest, ModelGenerationResult
 from .core.provider_setup import ProviderSetup
+from .core.semantic_proposal_execution import (
+    SemanticGenerationObservation,
+    SemanticProposalGenerationError,
+    run_semantic_proposal_generation,
+)
 from .core.semantic_proposal_producer import (
+    SemanticExecutionProfile,
+    SemanticProposalActionUsage,
     SemanticProposalProducerError,
     SemanticProposalReviewAuthority,
-    _assemble_semantic_proposal_product,
     _begin_semantic_proposal_authority,
-    _build_semantic_ollama_generation_request,
     _commit_semantic_proposal_authority,
     _fail_semantic_proposal_authority,
     build_semantic_source_bundle,
+    load_semantic_connection,
     load_semantic_provider_catalog,
+    validate_semantic_source_authority,
 )
 
 SEMANTIC_PROPOSAL_PRODUCER_NODE_ID = "comfyui_h3_context.H3Context.SemanticProposalProducer"
@@ -55,7 +64,10 @@ class H3SemanticProposalProducerNode:
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, dict[str, object]]:
-        profiles = load_semantic_provider_catalog().profile_ids
+        profiles = (
+            load_semantic_connection().profile_id,
+            *load_semantic_provider_catalog().profile_ids,
+        )
         return {
             "required": {
                 "report": ("H3_CONTEXT_REPORT", {}),
@@ -63,6 +75,8 @@ class H3SemanticProposalProducerNode:
                 "provider_setup": ("H3_PROVIDER_SETUP", {}),
                 "ollama_profile": (profiles, {"default": profiles[0]}),
             },
+            # IMPORTANT: optional preserves saved workflows that predate the model-choice field.
+            "optional": {"ollama_model": ("STRING", {"default": ""})},
             # IMPORTANT: PROMPT is never an identity authority.  It only causes host injection;
             # produce() obtains the exact prompt/node IDs from the reviewed execution context.
             "hidden": {
@@ -84,6 +98,7 @@ class H3SemanticProposalProducerNode:
         ollama_profile: object,
         prompt_id: object | None = None,
         execution_node_id: object | None = None,
+        ollama_model: object = "",
     ) -> tuple[object]:
         try:
             from .adapters.comfyui_execution import current_execution_correlation
@@ -100,8 +115,37 @@ class H3SemanticProposalProducerNode:
         if type(prompt_id) is not str or type(execution_node_id) is not str:
             raise H3SemanticProposalNodeError("missing_correlation")
         try:
-            catalog = load_semantic_provider_catalog()
-            profile = catalog.require(ollama_profile)
+            from .adapters.ollama_native import (
+                SemanticDeadlineOllamaTransport,
+                resolve_semantic_model_profile,
+            )
+
+            action_deadline: float | None = None
+            profile: SemanticExecutionProfile
+            transport = self._transport
+            probe = self._cancellation_probe
+            if probe is not None and not isinstance(probe, LocalCancellationProbe):
+                raise SemanticOllamaExecutionError("cancellation_invalid")
+            if type(ollama_profile) is str and ollama_profile == "ollama.local":
+                validate_semantic_source_authority(report, wiring)
+                if type(ollama_model) is not str or not ollama_model:
+                    raise SemanticOllamaExecutionError("choose_local_model")
+                connection = load_semantic_connection()
+                action_deadline = time.monotonic() + connection.max_action_seconds
+                if transport is None:
+                    transport = SemanticDeadlineOllamaTransport(ollama_model)
+                profile = resolve_semantic_model_profile(
+                    cast(SemanticOllamaTransport, transport),
+                    cast(ProviderSetup, provider_setup),
+                    connection,
+                    ollama_model,
+                    cancellation=probe,
+                    action_deadline=action_deadline,
+                )
+            else:
+                profile = load_semantic_provider_catalog().require(ollama_profile)
+                if ollama_model != "" and ollama_model != profile.model_id:
+                    raise SemanticOllamaExecutionError("model_choice_invalid")
             source = build_semantic_source_bundle(report, wiring, profile)
             pending = _begin_semantic_proposal_authority(
                 source,
@@ -119,21 +163,46 @@ class H3SemanticProposalProducerNode:
                     execute_semantic_ollama,
                 )
 
-                transport = self._transport
                 if transport is None:
                     transport = SemanticDeadlineOllamaTransport(profile.model_id)
-                execution = execute_semantic_ollama(
-                    cast(SemanticOllamaTransport, transport),
-                    cast(ProviderSetup, provider_setup),
-                    profile,
-                    _build_semantic_ollama_generation_request(source),
-                    cancellation=cast(LocalCancellationProbe | None, self._cancellation_probe),
-                )
-                exact_execution = consume_semantic_ollama_execution_authority(execution)
-                product = _assemble_semantic_proposal_product(
+
+                def generate(
+                    request: ModelGenerationRequest, deadline: float
+                ) -> SemanticGenerationObservation:
+                    try:
+                        execution = execute_semantic_ollama(
+                            cast(SemanticOllamaTransport, transport),
+                            cast(ProviderSetup, provider_setup),
+                            profile,
+                            request,
+                            cancellation=probe,
+                            allow_invalid_json=True,
+                            action_deadline=deadline,
+                        )
+                    except SemanticOllamaExecutionError as exc:
+                        raise SemanticProposalGenerationError(
+                            exc.code, SemanticProposalActionUsage()
+                        ) from None
+                    # CRITICAL: each generation, including repair, must consume its own adapter
+                    # authority after cleanup. A copied result cannot authorize a final proposal.
+                    exact = consume_semantic_ollama_execution_authority(execution)
+                    return SemanticGenerationObservation(
+                        cast(ModelGenerationResult, exact.model_result),
+                        exact.capability_fingerprint,
+                        SemanticProposalActionUsage(
+                            1,
+                            exact.request_bytes,
+                            exact.response_bytes,
+                            exact.prompt_tokens,
+                            exact.completion_tokens,
+                        ),
+                    )
+
+                product = run_semantic_proposal_generation(
                     source,
-                    exact_execution.model_result,
-                    exact_execution.capability_fingerprint,
+                    generate,
+                    cancellation=None if probe is None else probe.is_cancelled,
+                    action_deadline=action_deadline,
                 )
                 authority = _commit_semantic_proposal_authority(pending, product)
             except Exception as exc:
@@ -149,6 +218,8 @@ class H3SemanticProposalProducerNode:
                     raise SemanticProposalProducerError(exc.code) from exc
                 raise SemanticProposalProducerError("producer_execution_failed") from exc
         except SemanticProposalProducerError as exc:
+            raise H3SemanticProposalNodeError(exc.code) from None
+        except SemanticOllamaExecutionError as exc:
             raise H3SemanticProposalNodeError(exc.code) from None
         except Exception:
             # The host boundary must not serialize an unexpected source/provider exception chain.

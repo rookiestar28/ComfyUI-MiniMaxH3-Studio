@@ -62,6 +62,14 @@ from comfyui_h3_context.core.model_manifest import (
     qualify_ollama_manifest,
     validate_model_generation_request,
 )
+from comfyui_h3_context.core.prompt_model_dialects.discovery import read_native_models
+from comfyui_h3_context.core.prompt_model_provider import (
+    MAX_DISCOVERY_ROWS,
+    PromptModelContractError,
+    PromptModelFamily,
+    parse_exact_tags_row,
+    read_ollama_choice_metadata,
+)
 from comfyui_h3_context.core.provider_setup import (
     ProviderConsentAuthority,
     ProviderLocalBackend,
@@ -74,7 +82,10 @@ from comfyui_h3_context.core.provider_setup import (
 )
 from comfyui_h3_context.core.semantic_proposal_producer import (
     FIXED_OLLAMA_ENDPOINT,
+    SemanticChosenModelProfile,
+    SemanticExecutionProfile,
     SemanticProposalProducerError,
+    SemanticProviderConnection,
     SemanticProviderProfile,
     ollama_native_digest_to_model_digest,
     parse_ollama_native_digest,
@@ -343,9 +354,19 @@ class SemanticDeadlineOllamaTransport:
         ):
             raise ModelTransportError("semantic_http_request")
         self._expected_model_id = expected_model_id
+        self._last_request_body_bytes = 0
+        self._last_response_body_bytes = 0
         self._endpoint_fingerprint = canonical_fingerprint(
             {"scheme": "http", "host": "127.0.0.1", "port": 11434, "path": "/api"}
         )
+
+    @property
+    def last_request_body_bytes(self) -> int:
+        return self._last_request_body_bytes
+
+    @property
+    def last_response_body_bytes(self) -> int:
+        return self._last_response_body_bytes
 
     @property
     def endpoint_fingerprint(self) -> str:
@@ -383,6 +404,8 @@ class SemanticDeadlineOllamaTransport:
             float(absolute_deadline), now + float(phase_timeout_seconds), now + phase_limit
         )
         request_bytes = self._request_bytes(method, path, payload)
+        self._last_request_body_bytes = len(request_bytes.partition(b"\r\n\r\n")[2])
+        self._last_response_body_bytes = 0
         connection: socket.socket | None = None
         try:
             connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -401,6 +424,7 @@ class SemanticDeadlineOllamaTransport:
                     raise ModelTransportError("semantic_http_transport")
             self._send_all(connection, request_bytes, effective_deadline, cancellation)
             raw = self._read_response(connection, effective_deadline, cancellation)
+            self._last_response_body_bytes = len(raw)
             try:
                 decoded = json.loads(
                     raw.decode("utf-8", errors="strict"),
@@ -1170,6 +1194,22 @@ class SemanticOllamaExecution:
     provider_preflight: ProviderPreflightReceipt = field(repr=False)
     qualification_fingerprint: str
     capability_fingerprint: str
+    request_bytes: int = 0
+    response_bytes: int = 0
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+
+    def __post_init__(self) -> None:
+        if any(
+            type(value) is not int or not 0 <= value <= 2**63 - 1
+            for value in (
+                self.request_bytes,
+                self.response_bytes,
+                self.prompt_tokens,
+                self.completion_tokens,
+            )
+        ):
+            raise SemanticOllamaExecutionError("execution_usage_invalid")
 
 
 @dataclass(frozen=True, slots=True)
@@ -1201,6 +1241,12 @@ def _semantic_execution_fingerprint(value: SemanticOllamaExecution) -> str:
             "provider_preflight": value.provider_preflight.to_public_dict(),
             "qualification_fingerprint": value.qualification_fingerprint,
             "capability_fingerprint": value.capability_fingerprint,
+            "usage": {
+                "request_bytes": value.request_bytes,
+                "response_bytes": value.response_bytes,
+                "prompt_tokens": value.prompt_tokens,
+                "completion_tokens": value.completion_tokens,
+            },
         }
     )
 
@@ -1438,7 +1484,8 @@ def _validate_semantic_response_json(
                     result[key] = validate(child, next_depth, location + (key,))
             return result
         if type(item) is list:
-            if depth > 8 or len(item) > 64:
+            maximum = MAX_DISCOVERY_ROWS if path == "/api/tags" and location == ("models",) else 64
+            if depth > 8 or len(item) > maximum:
                 raise SemanticOllamaExecutionError("provider_output_invalid")
             return [
                 validate(
@@ -1479,11 +1526,126 @@ def _semantic_native_model_digest(value: object) -> str:
         raise SemanticOllamaExecutionError("native_digest_invalid") from None
 
 
+def _semantic_current_identity(
+    tags: object,
+    show: object,
+    model_id: str,
+    connection: SemanticProviderConnection,
+    server_version: str,
+) -> SemanticChosenModelProfile:
+    try:
+        read_native_models(PromptModelFamily.OLLAMA, tags, "/api/tags")
+        row = parse_exact_tags_row(tags, model_id)
+        metadata = read_ollama_choice_metadata(show, row.model_digest)
+        return SemanticChosenModelProfile(
+            connection, model_id, row.model_size_bytes, server_version, metadata
+        )
+    except PromptModelContractError as exc:
+        code = "model_missing" if exc.code == "readiness_tags_absent" else "model_identity_invalid"
+        raise SemanticOllamaExecutionError(code) from None
+    except SemanticProposalProducerError as exc:
+        raise SemanticOllamaExecutionError(exc.code) from None
+
+
+def resolve_semantic_model_profile(
+    transport: SemanticOllamaTransport,
+    setup: ProviderSetup,
+    connection: SemanticProviderConnection,
+    model_id: object,
+    *,
+    cancellation: LocalCancellationProbe | None = None,
+    action_deadline: float,
+    clock: Callable[[], float] = time.monotonic,
+) -> SemanticChosenModelProfile:
+    """Resolve one local choice without chat, media, aliases or provider prose in failures."""
+    if type(model_id) is not str or not model_id:
+        raise SemanticOllamaExecutionError("choose_local_model")
+    if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_./:-]{0,255}", model_id) is None or ".." in model_id:
+        raise SemanticOllamaExecutionError("model_choice_invalid")
+    if (
+        type(setup) is not ProviderSetup
+        or setup.local_backend is not ProviderLocalBackend.OLLAMA
+        or not setup.policy_valid
+        or setup.fallback_provider is not None
+    ):
+        raise SemanticOllamaExecutionError("unsafe_configuration")
+    if type(connection) is not SemanticProviderConnection:
+        raise SemanticOllamaExecutionError("connection_authority")
+    if cancellation is not None and not isinstance(cancellation, LocalCancellationProbe):
+        raise SemanticOllamaExecutionError("cancellation_invalid")
+    if (
+        type(action_deadline) not in {float, int}
+        or not isfinite(action_deadline)
+        or getattr(transport, "endpoint_fingerprint", None) != _semantic_endpoint_fingerprint()
+    ):
+        raise SemanticOllamaExecutionError("endpoint_mismatch")
+    version = _semantic_exact_mapping(
+        _semantic_request(
+            transport,
+            "GET",
+            "/api/version",
+            None,
+            cancellation=cancellation,
+            deadline=action_deadline,
+            clock=clock,
+        ),
+        frozenset({"version"}),
+        "version",
+    )
+    tags = _semantic_request(
+        transport,
+        "GET",
+        "/api/tags",
+        None,
+        cancellation=cancellation,
+        deadline=action_deadline,
+        clock=clock,
+    )
+    try:
+        # SECURITY: reject the entire malformed/duplicate census before narrowing to a choice.
+        read_native_models(PromptModelFamily.OLLAMA, tags, "/api/tags")
+        row = parse_exact_tags_row(tags, model_id)
+    except PromptModelContractError as exc:
+        code = "model_missing" if exc.code == "readiness_tags_absent" else "model_identity_invalid"
+        raise SemanticOllamaExecutionError(code) from None
+    if row.model_size_bytes > connection.max_model_bytes:
+        raise SemanticOllamaExecutionError("model_resource_limit")
+    show = _semantic_request(
+        transport,
+        "POST",
+        "/api/show",
+        {"model": model_id},
+        cancellation=cancellation,
+        deadline=action_deadline,
+        clock=clock,
+    )
+    return _semantic_current_identity(
+        tags, show, model_id, connection, cast(str, version["version"])
+    )
+
+
 def _semantic_model_observation(
     tags_payload: Mapping[str, object],
     show_payload: Mapping[str, object],
-    profile: SemanticProviderProfile,
+    profile: SemanticExecutionProfile,
 ) -> OllamaModelObservation:
+    if type(profile) is SemanticChosenModelProfile:
+        exact = _semantic_current_identity(
+            tags_payload, show_payload, profile.model_id, profile.connection, profile.server_version
+        )
+        if exact != profile:
+            # CRITICAL: a new native digest/metadata is not permission to silently rebind source.
+            raise SemanticOllamaExecutionError("model_identity_mismatch")
+        return OllamaModelObservation(
+            profile.model_id,
+            profile.model_digest,
+            profile.model_size_bytes,
+            profile.model_family,
+            (ModelCapability.TEXT_GENERATION.value, ModelCapability.STRUCTURED_OUTPUT.value),
+            profile.context_length,
+            profile.metadata.quantization,
+        )
+    profile = cast(SemanticProviderProfile, profile)
     tags = _semantic_exact_mapping(
         tags_payload,
         frozenset({"models"}),
@@ -1574,7 +1736,7 @@ def _semantic_model_observation(
 
 
 def _semantic_processes(
-    payload: Mapping[str, object], profile: SemanticProviderProfile
+    payload: Mapping[str, object], profile: SemanticExecutionProfile
 ) -> tuple[OllamaProcessObservation, ...]:
     root = _semantic_exact_mapping(
         payload,
@@ -1605,7 +1767,20 @@ def _semantic_processes(
             ),
         )
         name = item.get("name")
-        _semantic_details(item["details"], profile if name == profile.model_id else None)
+        if type(profile) is SemanticProviderProfile:
+            _semantic_details(item["details"], profile if name == profile.model_id else None)
+        elif name == profile.model_id:
+            current = cast(SemanticChosenModelProfile, profile)
+            details = item["details"]
+            if not isinstance(details, Mapping):
+                raise SemanticOllamaExecutionError("process_identity_mismatch")
+            for key, expected in (
+                ("family", current.metadata.family),
+                ("parameter_size", current.metadata.parameter_size),
+                ("quantization_level", current.metadata.quantization),
+            ):
+                if expected is not None and details.get(key) != expected:
+                    raise SemanticOllamaExecutionError("process_identity_mismatch")
         if name != item.get("model"):
             raise SemanticOllamaExecutionError("process_identity_mismatch")
         digest = _semantic_native_model_digest(item.get("digest"))
@@ -1621,16 +1796,26 @@ def _semantic_processes(
         if name == profile.model_id:
             if digest != profile.model_digest:
                 raise SemanticOllamaExecutionError("process_digest_mismatch")
+            if type(profile) is SemanticChosenModelProfile and (
+                process_size > profile.connection.max_model_bytes
+                or size_vram > profile.connection.max_model_bytes
+                or context > profile.context_length
+            ):
+                raise SemanticOllamaExecutionError("process_resource_limit")
             results.append(OllamaProcessObservation(name, digest, size_vram, context))
     if len(results) > 1:
         raise SemanticOllamaExecutionError("process_identity_conflict")
     return tuple(results)
 
 
-def _semantic_chat_result(payload: Mapping[str, object], profile: SemanticProviderProfile) -> str:
+def _semantic_chat_result(payload: Mapping[str, object], profile: SemanticExecutionProfile) -> str:
     root = _semantic_exact_mapping(
         payload,
-        _SEMANTIC_CHAT_KEYS,
+        # IMPORTANT: Ollama 0.35 adds this numeric metric; do not confuse it with unknown
+        # content or relax the sealed legacy envelope. All other unknown fields still refuse.
+        _SEMANTIC_CHAT_KEYS | {"prompt_eval_cached_count"}
+        if type(profile) is SemanticChosenModelProfile
+        else _SEMANTIC_CHAT_KEYS,
         "chat",
         required=frozenset({"model", "created_at", "message", "done", "done_reason"}),
     )
@@ -1642,11 +1827,19 @@ def _semantic_chat_result(payload: Mapping[str, object], profile: SemanticProvid
         raise SemanticOllamaExecutionError("generation_incomplete")
     message = _semantic_exact_mapping(
         root["message"],
-        frozenset({"role", "content"}),
+        frozenset({"role", "content", "thinking"})
+        if type(profile) is SemanticChosenModelProfile
+        else frozenset({"role", "content"}),
         "chat_message",
         required=frozenset({"role", "content"}),
     )
     content = message["content"]
+    thinking = message.get("thinking")
+    if thinking is not None and (
+        type(thinking) is not str or len(thinking.encode("utf-8")) > 262_144
+    ):
+        raise SemanticOllamaExecutionError("generation_output_limit")
+    # SECURITY: only final content is a proposal; native thinking is discarded, never replayed.
     if message["role"] != "assistant" or type(content) is not str or not content:
         raise SemanticOllamaExecutionError("generation_message_invalid")
     if len(content) > 131_072 or len(content.encode("utf-8")) > 262_144:
@@ -1658,6 +1851,7 @@ def _semantic_chat_result(payload: Mapping[str, object], profile: SemanticProvid
         "total_duration",
         "load_duration",
         "prompt_eval_count",
+        "prompt_eval_cached_count",
         "prompt_eval_duration",
         "eval_count",
         "eval_duration",
@@ -1668,7 +1862,7 @@ def _semantic_chat_result(payload: Mapping[str, object], profile: SemanticProvid
     return content
 
 
-def _semantic_unload_ok(payload: Mapping[str, object], profile: SemanticProviderProfile) -> None:
+def _semantic_unload_ok(payload: Mapping[str, object], profile: SemanticExecutionProfile) -> None:
     root = _semantic_exact_mapping(
         payload,
         _SEMANTIC_UNLOAD_KEYS,
@@ -1688,12 +1882,12 @@ def _semantic_unload_ok(payload: Mapping[str, object], profile: SemanticProvider
 
 
 def _semantic_chat_payload(
-    profile: SemanticProviderProfile,
+    profile: SemanticExecutionProfile,
     generation: ModelGenerationRequest,
 ) -> dict[str, object]:
     """Build the sole exact M17-16 chat payload without retaining private content."""
 
-    return {
+    payload: dict[str, object] = {
         "model": profile.model_id,
         "messages": [{"role": "user", "content": generation.prompt}],
         "stream": False,
@@ -1713,6 +1907,27 @@ def _semantic_chat_payload(
         "keep_alive": "30s",
         "think": False,
     }
+    if type(profile) is SemanticChosenModelProfile:
+        options = cast(dict[str, object], payload["options"])
+        measured = (
+            len(
+                json.dumps(
+                    payload,
+                    ensure_ascii=True,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                ).encode("ascii")
+            )
+            + generation.max_tokens
+            + 512
+        )
+        if measured > profile.context_length:
+            raise SemanticOllamaExecutionError("model_context_limit")
+        options["num_ctx"] = min(profile.context_length, max(8_192, measured))
+        if profile.metadata.reasoning_control_supported is not True:
+            payload.pop("think")
+    return payload
 
 
 def _semantic_chat_payload_fingerprint(payload: dict[str, object]) -> str:
@@ -1729,7 +1944,7 @@ def _semantic_chat_payload_fingerprint(payload: dict[str, object]) -> str:
 def _execute_semantic_ollama_body(
     transport: SemanticOllamaTransport,
     setup: ProviderSetup,
-    profile: SemanticProviderProfile,
+    profile: SemanticExecutionProfile,
     generation: ModelGenerationRequest,
     *,
     cancellation: LocalCancellationProbe | None,
@@ -1737,7 +1952,15 @@ def _execute_semantic_ollama_body(
     sleeper: Callable[[float], None] = time.sleep,
     real_chat_request: Callable[..., Mapping[str, object]],
     real_execution_capability: object | None,
+    allow_invalid_json: bool = False,
+    action_deadline: float | None = None,
 ) -> SemanticOllamaExecution:
+    if type(allow_invalid_json) is not bool:
+        raise SemanticOllamaExecutionError("generation_request_invalid")
+    if action_deadline is not None and (
+        type(action_deadline) not in {int, float} or not isfinite(action_deadline)
+    ):
+        raise SemanticOllamaExecutionError("generation_request_invalid")
     if _is_semantic_deadline_transport(transport):
         _consume_semantic_real_execution_capability(transport, real_execution_capability)
     elif real_execution_capability is not None:
@@ -1746,7 +1969,10 @@ def _execute_semantic_ollama_body(
         raise SemanticOllamaExecutionError("unsafe_configuration")
     if not setup.policy_valid or setup.fallback_provider is not None:
         raise SemanticOllamaExecutionError("unsafe_configuration")
-    if type(profile) is not SemanticProviderProfile or profile.endpoint != FIXED_OLLAMA_ENDPOINT:
+    if (
+        type(profile) not in {SemanticProviderProfile, SemanticChosenModelProfile}
+        or profile.endpoint != FIXED_OLLAMA_ENDPOINT
+    ):
         raise SemanticOllamaExecutionError("profile_authority")
     if cancellation is not None and not isinstance(cancellation, LocalCancellationProbe):
         raise SemanticOllamaExecutionError("cancellation_invalid")
@@ -1757,6 +1983,14 @@ def _execute_semantic_ollama_body(
     manifest = profile.model_manifest
     validate_model_generation_request(manifest, generation)
     deadline = clock() + SEMANTIC_OLLAMA_OUTER_SECONDS
+    if action_deadline is not None:
+        deadline = min(deadline, action_deadline)
+    action_limit = deadline
+    if type(profile) is SemanticChosenModelProfile:
+        # IMPORTANT: current choice discovery/repair/cleanup share one action; reserve cleanup
+        # before chat so unloading cannot silently add a fresh wall-clock budget after timeout.
+        deadline -= SEMANTIC_OLLAMA_CLEANUP_SECONDS
+        _semantic_chat_payload(profile, generation)
     generation_attempted = False
     result: SemanticOllamaExecution | None = None
     primary_error: SemanticOllamaExecutionError | None = None
@@ -1846,7 +2080,47 @@ def _execute_semantic_ollama_body(
                 clock=clock,
             )
         text = _semantic_chat_result(response, profile)
-        model_result = build_model_result(manifest, generation, text)
+        if _is_semantic_deadline_transport(transport):
+            generation_request_bytes = transport.last_request_body_bytes
+            generation_response_bytes = transport.last_response_body_bytes
+        else:
+            # Hermetic transports expose decoded objects only; these counts are canonical payload
+            # measurements. The real deadline transport records actual HTTP body byte counts.
+            generation_request_bytes = len(
+                json.dumps(
+                    _semantic_chat_payload(profile, generation),
+                    ensure_ascii=True,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                ).encode("ascii")
+            )
+            generation_response_bytes = len(
+                json.dumps(
+                    response,
+                    ensure_ascii=True,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    allow_nan=False,
+                ).encode("ascii")
+            )
+        try:
+            model_result = build_model_result(manifest, generation, text)
+        except ModelOutputError:
+            if not allow_invalid_json:
+                raise
+            # IMPORTANT: this opt-in carries bounded final output to the constrained repair gate.
+            # It grants no proposal/apply authority; the default native parser remains strict.
+            model_result = ModelGenerationResult(
+                manifest.backend_family,
+                manifest.model_id,
+                manifest.model_digest,
+                canonical_fingerprint({"text": text, "schema": generation.output_schema}),
+                {},
+                text,
+                manifest.parser_path,
+                diagnostics=("semantic_json_invalid",),
+            )
         post_processes = _semantic_processes(
             _semantic_request(
                 transport,
@@ -1886,6 +2160,10 @@ def _execute_semantic_ollama_body(
                     "raw_media": False,
                 }
             ),
+            request_bytes=generation_request_bytes,
+            response_bytes=generation_response_bytes,
+            prompt_tokens=cast(int, response.get("prompt_eval_count", 0)),
+            completion_tokens=cast(int, response.get("eval_count", 0)),
         )
     except SemanticOllamaExecutionError as exc:
         primary_error = exc
@@ -1900,6 +2178,8 @@ def _execute_semantic_ollama_body(
     finally:
         if generation_attempted:
             cleanup_deadline = clock() + SEMANTIC_OLLAMA_CLEANUP_SECONDS
+            if type(profile) is SemanticChosenModelProfile:
+                cleanup_deadline = min(cleanup_deadline, action_limit)
             try:
                 unload = _semantic_request(
                     transport,
@@ -2021,7 +2301,7 @@ def _build_semantic_execution_boundary() -> tuple[
     def real_chat_request(
         transport: SemanticDeadlineOllamaTransport,
         setup: ProviderSetup,
-        profile: SemanticProviderProfile,
+        profile: SemanticExecutionProfile,
         generation: ModelGenerationRequest,
         preflight: ProviderPreflightReceipt,
         *,
@@ -2034,7 +2314,7 @@ def _build_semantic_execution_boundary() -> tuple[
             if (
                 not _is_semantic_deadline_transport(transport)
                 or type(setup) is not ProviderSetup
-                or type(profile) is not SemanticProviderProfile
+                or type(profile) not in {SemanticProviderProfile, SemanticChosenModelProfile}
                 or type(generation) is not ModelGenerationRequest
                 or type(preflight) is not ProviderPreflightReceipt
                 or transport._expected_model_id != profile.model_id
@@ -2083,10 +2363,12 @@ def _build_semantic_execution_boundary() -> tuple[
     def execute_public(
         transport: SemanticOllamaTransport,
         setup: ProviderSetup,
-        profile: SemanticProviderProfile,
+        profile: SemanticExecutionProfile,
         generation: ModelGenerationRequest,
         *,
         cancellation: LocalCancellationProbe | None = None,
+        allow_invalid_json: bool = False,
+        action_deadline: float | None = None,
     ) -> SemanticOllamaExecution:
         nonlocal active_execution
         if not _SEMANTIC_EXECUTION_LOCK.acquire(blocking=False):
@@ -2113,6 +2395,8 @@ def _build_semantic_execution_boundary() -> tuple[
                 clock=time.monotonic,
                 real_chat_request=real_chat_request,
                 real_execution_capability=capability,
+                allow_invalid_json=allow_invalid_json,
+                action_deadline=action_deadline,
             )
             with _SEMANTIC_EXECUTION_AUTHORITY_LOCK:
                 _SEMANTIC_EXECUTION_AUTHORITIES[id(result)] = _semantic_execution_authority(result)
@@ -2127,12 +2411,14 @@ def _build_semantic_execution_boundary() -> tuple[
     def execute_test_only(
         transport: SemanticOllamaTransport,
         setup: ProviderSetup,
-        profile: SemanticProviderProfile,
+        profile: SemanticExecutionProfile,
         generation: ModelGenerationRequest,
         *,
         cancellation: LocalCancellationProbe | None,
         clock: Callable[[], float],
         sleeper: Callable[[float], None] = time.sleep,
+        allow_invalid_json: bool = False,
+        action_deadline: float | None = None,
     ) -> SemanticOllamaExecution:
         if _is_semantic_deadline_transport(transport):
             raise SemanticOllamaExecutionError("test_transport_invalid")
@@ -2146,6 +2432,8 @@ def _build_semantic_execution_boundary() -> tuple[
             sleeper=sleeper,
             real_chat_request=real_chat_request,
             real_execution_capability=None,
+            allow_invalid_json=allow_invalid_json,
+            action_deadline=action_deadline,
         )
 
     return (

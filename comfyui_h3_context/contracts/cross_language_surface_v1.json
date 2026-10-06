@@ -1,5 +1,5 @@
 {
-  "fingerprint": "sha256:3e5de6fa127be4ed924e0fc7217cac4cedf31a572d91d96b99a095ed1a532c6b",
+  "fingerprint": "sha256:8e824af612c2551bf1f7d4853a64fc9c0448fb66997066d37a98a3be7bf48460",
   "schema": "h3-context-cross-language-surface/1",
   "shapes": [
     {
@@ -139,6 +139,7 @@
       "module_path": "comfyui_h3_context/core/prompt_model_session.py",
       "required_keys": [
         "identifier",
+        "metadata",
         "reason"
       ]
     },
@@ -238,6 +239,39 @@
       ]
     },
     {
+      "class_name": "ModelChoice",
+      "export_name": "modelChoiceKeys",
+      "module_path": "comfyui_h3_context/core/prompt_model_provider.py",
+      "required_keys": [
+        "metadata",
+        "model_id"
+      ]
+    },
+    {
+      "class_name": "ModelMetadata",
+      "export_name": "modelMetadataKeys",
+      "module_path": "comfyui_h3_context/core/prompt_model_provider.py",
+      "required_keys": [
+        "capabilities",
+        "context_length",
+        "created",
+        "display_name",
+        "family",
+        "license_sha256",
+        "locality",
+        "max_input_tokens",
+        "max_output_tokens",
+        "model_digest",
+        "moving_alias",
+        "parameter_size",
+        "quantization",
+        "reasoning_control_supported",
+        "reasoning_mandatory",
+        "shutdown_date",
+        "structured_output"
+      ]
+    },
+    {
       "class_name": "OutputProfile",
       "export_name": "outputProfileKeys",
       "module_path": "comfyui_h3_context/core/composition_contract.py",
@@ -318,13 +352,8 @@
       "export_name": "providerConsentViewKeys",
       "module_path": "comfyui_h3_context/core/provider_settings.py",
       "required_keys": [
-        "cost_policy_sha256",
-        "max_cost_micro_usd",
-        "max_input_tokens",
-        "max_output_tokens",
         "media_upload_consented",
         "network_permitted",
-        "price_basis_id",
         "profile_id",
         "revision",
         "scope",
@@ -362,10 +391,7 @@
         "cost_class",
         "family",
         "host",
-        "license_id",
         "limitations",
-        "model_digest",
-        "model_id",
         "parser_version",
         "port",
         "profile_id",
@@ -397,6 +423,7 @@
         "readiness",
         "revision",
         "schema",
+        "selected_model",
         "selected_model_id",
         "selected_profile_id"
       ]
@@ -725,12 +752,7 @@
         "destination",
         "family",
         "local_only",
-        "max_cost_micro_usd",
-        "max_input_tokens",
-        "max_output_tokens",
         "preflight_required",
-        "price_basis_id",
-        "price_valid_through",
         "provider_id",
         "requires_credential",
         "retention_policy",

@@ -250,7 +250,10 @@ class NodeSocket:
         }:
             raise NodeContractError("typed object/media sockets cannot declare scalar defaults")
         if isinstance(self.default, str):
-            _require_metadata(self.default, "socket default", 256)
+            # IMPORTANT: an optional free-text choice may start empty; names/required defaults
+            # and choice menus still require nonempty metadata and exact membership.
+            if self.default != "" or self.required or self.choices:
+                _require_metadata(self.default, "socket default", 256)
         if self.choices and self.default not in self.choices:
             raise NodeContractError("socket default must be one of its choices")
 

@@ -1,0 +1,15 @@
+{
+  "schema": "h3.semantic.provider_profiles.v2",
+  "profiles": [
+    {
+      "profile_id": "ollama.local",
+      "endpoint": "http://127.0.0.1:11434/api",
+      "adapter_version": "1.1.0",
+      "parser_version": "1.0.0",
+      "required_capability": "completion",
+      "structured_format": "format",
+      "max_model_bytes": 103079215104,
+      "max_action_seconds": 120
+    }
+  ]
+}

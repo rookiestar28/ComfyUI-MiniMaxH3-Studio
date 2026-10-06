@@ -7,9 +7,10 @@ tested without a server.
 
 Three decisions are worth stating plainly.
 
-**Identity is re-verified at request time.** A local daemon is a mutable external resource: the
+**Identity is verified at action time.** A local daemon is a mutable external resource: the
 model behind a selected name can be swapped between the moment the user chooses it and the moment
-the request is sent. So the live identity is resolved before every request and checked against the
+the action starts. The action resolves one live identity and shares it with its bounded repair;
+standalone sessions each resolve a new identity. The observed identity is checked against the
 pinned catalog entry. Where the runtime reports a digest the check is exact; where it reports none,
 the check falls back to an exact identifier match and the receipt says `digest_unverified` rather
 than claiming a verification that did not happen.
@@ -31,9 +32,21 @@ from typing import NoReturn, Protocol
 
 from .contracts import ValidationSeverity
 from .prompt_model_budget import PromptModelBudgetPlan
+from .prompt_model_dialects import (
+    DialectAnswer,
+    RequestOptions,
+    anthropic_messages,
+    ollama_chat,
+    openai_chat,
+)
+from .prompt_model_dialects.common import draft_schema
+from .prompt_model_execution_budget import options_for_metadata
 from .prompt_model_provider import (
     MAX_DISCOVERY_ROWS,
     AdmittedDestination,
+    LegacyPromptModelProfile,
+    ModelChoice,
+    ModelMetadata,
     PromptModelCapabilities,
     PromptModelContractError,
     PromptModelFamily,
@@ -44,7 +57,6 @@ from .prompt_model_provider import (
     PromptModelRemediation,
     build_prompt_model_outcome,
 )
-from .remote_provider_policy import policy_for_profile, remote_output_tokens_from_plan
 
 PROMPT_MODEL_SESSION_SCHEMA = "h3-context-prompt-model-session/1"
 
@@ -108,6 +120,7 @@ class DiscoveryRejection(str, Enum):
     """Closed reasons a visible candidate is not admitted. Ambiguity is reported, never resolved."""
 
     ADMITTED = "admitted"
+    CLOUD_ROUTED = "cloud_routed"
     MISSING_ROOT = "missing_root"
     NO_CANDIDATE = "no_candidate"
     UNPAIRED_PROJECTOR = "unpaired_projector"
@@ -159,10 +172,26 @@ class PromptModelSessionRequest:
     plan: PromptModelBudgetPlan
     messages: tuple[PromptModelMessage, ...]
     image_payloads: tuple[str, ...] = ()
+    model: ModelChoice | None = None
+    base_output_tokens: int | None = None
 
     def __post_init__(self) -> None:
+        if self.base_output_tokens is not None and (
+            type(self.base_output_tokens) is not int
+            or not 1 <= self.base_output_tokens <= 4_194_304
+            or self.model is None
+        ):
+            _fail("request_base_output")
         if not isinstance(self.profile, PromptModelProfile):
             _fail("request_profile")
+        if self.model is not None:
+            if (
+                not isinstance(self.model, ModelChoice)
+                or self.model.profile_id != self.profile.profile_id
+            ):
+                _fail("request_model")
+        elif not isinstance(self.profile, LegacyPromptModelProfile):
+            _fail("request_model")
         if not isinstance(self.destination, AdmittedDestination):
             _fail("request_destination")
         if not isinstance(self.plan, PromptModelBudgetPlan):
@@ -193,6 +222,14 @@ class PromptModelSessionRequest:
     def capabilities(self) -> PromptModelCapabilities:
         return self.profile.capabilities
 
+    @property
+    def model_id(self) -> str:
+        if self.model is not None:
+            return self.model.model_id
+        if isinstance(self.profile, LegacyPromptModelProfile):
+            return self.profile.model_id
+        _fail("request_model")
+
 
 @dataclass(frozen=True, slots=True)
 class LiveModelIdentity:
@@ -200,11 +237,14 @@ class LiveModelIdentity:
 
     model_id: str
     digest: str | None
+    metadata: ModelMetadata | None = None
 
     def __post_init__(self) -> None:
         _text(self.model_id, MAX_IDENTIFIER_CHARACTERS, "identity_model_id")
         if self.digest is not None:
             _text(self.digest, MAX_IDENTIFIER_CHARACTERS, "identity_digest")
+        if self.metadata is not None and not isinstance(self.metadata, ModelMetadata):
+            _fail("identity_metadata")
 
 
 @dataclass(frozen=True, slots=True)
@@ -219,7 +259,9 @@ class IdentityDecision:
         return self.verification is not None
 
 
-def verify_live_identity(profile: object, observed: object) -> IdentityDecision:
+def verify_live_identity(
+    profile: object, observed: object, model: ModelChoice | None = None
+) -> IdentityDecision:
     """Re-tie a live model to its pinned entry, or refuse. Never substitutes a near match."""
 
     if not isinstance(profile, PromptModelProfile):
@@ -227,17 +269,25 @@ def verify_live_identity(profile: object, observed: object) -> IdentityDecision:
     if not isinstance(observed, LiveModelIdentity):
         _fail("identity_observation")
 
-    if observed.model_id != profile.model_id:
+    if isinstance(profile, LegacyPromptModelProfile):
+        expected_model = profile.model_id
+        expected_digest = profile.model_digest
+    elif isinstance(model, ModelChoice) and model.profile_id == profile.profile_id:
+        expected_model = model.model_id
+        expected_digest = None if model.metadata is None else model.metadata.model_digest
+    else:
+        _fail("identity_model")
+    if observed.model_id != expected_model:
         return IdentityDecision(
             outcome=build_prompt_model_outcome(
                 PromptModelOutcomeId.MODEL_MISSING,
                 severity=ValidationSeverity.ERROR,
                 remediation=PromptModelRemediation.SELECT_MODEL,
-                parameters=(("expected_model_id", profile.model_id),),
+                parameters=(("expected_model_id", expected_model),),
             ),
             verification=None,
         )
-    if observed.digest is None:
+    if observed.digest is None or expected_digest is None:
         # The runtime publishes no digest. Reporting a match anyway would claim a check that never
         # ran, so the identifier match is admitted and the weaker basis travels with the receipt.
         return IdentityDecision(
@@ -249,13 +299,13 @@ def verify_live_identity(profile: object, observed: object) -> IdentityDecision:
             ),
             verification=IdentityVerification.DIGEST_UNVERIFIED,
         )
-    if observed.digest != profile.model_digest:
+    if observed.digest != expected_digest:
         return IdentityDecision(
             outcome=build_prompt_model_outcome(
                 PromptModelOutcomeId.DIGEST_MISMATCH,
                 severity=ValidationSeverity.ERROR,
                 remediation=PromptModelRemediation.SELECT_MODEL,
-                parameters=(("model_id", profile.model_id),),
+                parameters=(("model_id", expected_model),),
             ),
             verification=None,
         )
@@ -310,141 +360,27 @@ OLLAMA_DRAFT_SCHEMA_ID = "h3.prompt_model.draft_json.v1"
 
 
 def ollama_draft_format_schema() -> dict[str, object]:
-    """The exact JSON shape the local model is constrained to emit (M22-13).
-
-    This is the `h3.prompt_model.draft_json.v1` object the accepted decoder already requires --
-    both keys, no others -- expressed as a JSON Schema so the server constrains generation to it
-    instead of the decoder discovering the violation afterwards. `additionalProperties` is false,
-    so a model that wants to add a `thinking`, `reasoning` or `tool_calls` key has to break the
-    grammar rather than have the extra key quietly dropped downstream. The schema id is spelled as
-    a single-valued `enum` rather than `const` because that is the form the grammar conversion
-    reliably understands.
-
-    A fresh dict per call: the value is serialized straight onto the wire, so it must be plain
-    JSON-encodable, and no caller may mutate a shared constant that decides what the server is
-    allowed to answer.
-    """
-
-    return {
-        "type": "object",
-        "properties": {
-            "schema": {"type": "string", "enum": [OLLAMA_DRAFT_SCHEMA_ID]},
-            "prompt_text": {"type": "string"},
-        },
-        "required": ["schema", "prompt_text"],
-        "additionalProperties": False,
-    }
+    """The shared draft object, kept at the existing import seam."""
+    return draft_schema()
 
 
-def build_request_payload(request: object) -> dict[str, object]:
-    """Render the wire payload for the family. One shape per family, nothing guessed."""
-
+def build_request_payload(
+    request: object, options: RequestOptions | None = None
+) -> dict[str, object]:
+    """Dispatch to a pure wire dialect; transport and consent remain outside core."""
     if not isinstance(request, PromptModelSessionRequest):
         _fail("session_request")
+    if options is None:
+        options = RequestOptions()
+    if not isinstance(options, RequestOptions):
+        _fail("request_options")
+    options = options_for_metadata(request, options)
     if request.family is PromptModelFamily.OLLAMA:
-        # M22-13. The curated local model declares `thinking`, `tools` and `vision` alongside
-        # `completion`, so every one of those has to be switched off explicitly rather than left to
-        # the server's default. A capable model that was never told not to think will think, and a
-        # reasoning preamble is not a draft.
-        if request.image_payloads:
-            _fail("session_media_unsupported")
-        messages = [
-            {"role": message.role.value, "content": message.text} for message in request.messages
-        ]
-        return {
-            "model": request.profile.model_id,
-            "messages": messages,
-            "stream": False,
-            "think": False,
-            "format": ollama_draft_format_schema(),
-            "keep_alive": 0,
-            "options": {
-                "num_ctx": request.plan.context_tokens,
-                "num_predict": request.plan.reserved_output_tokens,
-            },
-        }
+        return ollama_chat.build(request, options)
     if request.family is PromptModelFamily.REMOTE_ANTHROPIC:
-        if request.image_payloads:
-            _fail("session_media_unsupported")
-        system_indexes = [
-            index
-            for index, message in enumerate(request.messages)
-            if message.role is PromptModelRole.SYSTEM
-        ]
-        if system_indexes != [0]:
-            # IMPORTANT: Anthropic's system instruction is top-level. Moving or merging system
-            # turns would change conversation authority, so only one leading system turn is valid.
-            _fail("session_system_message")
-        anthropic_messages: list[dict[str, str]] = []
-        for message in request.messages[1:]:
-            if message.role not in {PromptModelRole.USER, PromptModelRole.ASSISTANT}:
-                _fail("session_message_role")
-            anthropic_messages.append({"role": message.role.value, "content": message.text})
-        if not anthropic_messages:
-            _fail("session_messages")
-        policy = policy_for_profile(request.profile)
-        output_tokens = remote_output_tokens_from_plan(policy, request.plan.reserved_output_tokens)
-        anthropic_payload: dict[str, object] = {
-            "model": request.profile.model_id,
-            "system": request.messages[0].text,
-            "messages": anthropic_messages,
-            "max_tokens": output_tokens,
-            "stream": False,
-            "output_config": {
-                "format": {
-                    "type": "json_schema",
-                    "schema": ollama_draft_format_schema(),
-                }
-            },
-        }
-        return anthropic_payload
+        return anthropic_messages.build(request, options)
     if request.family in OPENAI_COMPATIBLE_FAMILIES:
-        chat: list[dict[str, object]] = []
-        for index, message in enumerate(request.messages):
-            if index == len(request.messages) - 1 and request.image_payloads:
-                parts: list[dict[str, object]] = [{"type": "text", "text": message.text}]
-                for image_payload in request.image_payloads:
-                    parts.append(
-                        {
-                            "type": "image_url",
-                            "image_url": {"url": f"data:image/png;base64,{image_payload}"},
-                        }
-                    )
-                chat.append({"role": message.role.value, "content": parts})
-            else:
-                chat.append({"role": message.role.value, "content": message.text})
-        request_payload: dict[str, object] = {
-            "model": request.profile.model_id,
-            "messages": chat,
-            "stream": False,
-        }
-        if request.family is PromptModelFamily.LOOPBACK_SERVER:
-            request_payload["max_tokens"] = request.plan.reserved_output_tokens
-            return request_payload
-        if request.image_payloads:
-            _fail("session_media_unsupported")
-        policy = policy_for_profile(request.profile)
-        output_tokens = remote_output_tokens_from_plan(policy, request.plan.reserved_output_tokens)
-        request_payload.update(
-            {
-                "max_completion_tokens": output_tokens,
-                "modalities": ["text"],
-                "n": 1,
-                "tool_choice": "none",
-                "reasoning_effort": policy.reasoning_effort,
-                "response_format": {
-                    "type": "json_schema",
-                    "json_schema": {
-                        "name": "h3_prompt_model_draft",
-                        "strict": True,
-                        "schema": ollama_draft_format_schema(),
-                    },
-                },
-            }
-        )
-        if policy.store is not None:
-            request_payload["store"] = policy.store
-        return request_payload
+        return openai_chat.build(request, options)
     _fail("session_family")
 
 
@@ -455,12 +391,14 @@ class PromptModelAnswer:
     text: str
     verification: IdentityVerification
     finish_reason: str
+    observed_model_id: str = ""
 
     def __post_init__(self) -> None:
         _text(self.text, MAX_MESSAGE_CHARACTERS, "answer_text", allow_empty=True)
         if not isinstance(self.verification, IdentityVerification):
             _fail("answer_verification")
         _text(self.finish_reason, 64, "answer_finish_reason")
+        _text(self.observed_model_id, MAX_IDENTIFIER_CHARACTERS, "answer_model", allow_empty=True)
 
     def to_wire(self) -> dict[str, object]:
         return {
@@ -468,99 +406,28 @@ class PromptModelAnswer:
             "characters": len(self.text),
             "verification": self.verification.value,
             "finish_reason": self.finish_reason,
+            "observed_model_id": self.observed_model_id,
         }
 
 
-def parse_response_text(family: object, response: object, model_id: object = None) -> str:
-    """Read the answer out of a family's response shape, refusing anything else.
-
-    `model_id` is the exact id the request named. Supplying it lets qualified remote lanes and the
-    local Ollama lane refuse an answer attributed to a different model; it remains optional only
-    for legacy loopback OpenAI-compatible responses that expose no equivalent guarantee.
-    """
-
-    if not isinstance(family, PromptModelFamily):
-        _fail("session_family")
-    if not isinstance(response, Mapping):
-        _fail("response_shape")
+def read_response_answer(
+    family: object, response: object, model_id: object = None
+) -> DialectAnswer:
+    """Read final-channel text and its observed model through the selected dialect."""
     if family is PromptModelFamily.OLLAMA:
-        # M22-13. Everything below is a property the request explicitly asked the server for. A
-        # response that does not have it is not a slightly-off answer to this request; it is an
-        # answer to a different one, and reading a draft out of it would be reading a stranger.
-        if response.get("done") is not True:
-            # An unfinished response can still carry plausible content. Refusing it here is what
-            # stops a truncated draft from being presented as a complete proposal.
-            _fail("response_incomplete")
-        if model_id is not None and response.get("model") != model_id:
-            _fail("response_model")
-        message = response.get("message")
-        if not isinstance(message, Mapping):
-            _fail("response_shape")
-        # `think:false` was sent, no tool was offered and no image was sent, so any of these
-        # appearing means the server did not honour the request that was actually made.
-        if message.get("thinking") not in (None, ""):
-            _fail("response_reasoning")
-        if message.get("tool_calls"):
-            _fail("response_tool_call")
-        if message.get("images"):
-            _fail("response_media")
-        content = message.get("content")
-        if not isinstance(content, str):
-            _fail("response_shape")
-        return _text(content, MAX_MESSAGE_CHARACTERS, "response_text", allow_empty=True)
+        return ollama_chat.read(response, model_id)
     if family is PromptModelFamily.REMOTE_ANTHROPIC:
-        if response.get("type") != "message":
-            _fail("response_shape")
-        if response.get("role") != "assistant":
-            _fail("response_role")
-        if not isinstance(model_id, str) or response.get("model") != model_id:
-            _fail("response_model")
-        if response.get("stop_reason") != "end_turn":
-            _fail("response_incomplete")
-        content = response.get("content")
-        if (
-            not isinstance(content, Sequence)
-            or isinstance(content, (str, bytes))
-            or len(content) != 1
-        ):
-            _fail("response_shape")
-        block = content[0]
-        if not isinstance(block, Mapping) or set(block) != {"type", "text"}:
-            _fail("response_unrequested_channel")
-        if block.get("type") != "text":
-            _fail("response_unrequested_channel")
-        return _text(block.get("text"), MAX_MESSAGE_CHARACTERS, "response_text", allow_empty=True)
+        return anthropic_messages.read(response, model_id)
     if family in OPENAI_COMPATIBLE_FAMILIES:
-        choices = response.get("choices")
-        if not isinstance(choices, Sequence) or isinstance(choices, (str, bytes)) or not choices:
-            _fail("response_shape")
-        if family is PromptModelFamily.REMOTE_OPENAI_COMPATIBLE:
-            if not isinstance(model_id, str) or response.get("model") != model_id:
-                _fail("response_model")
-            if len(choices) != 1:
-                _fail("response_choices")
-        first = choices[0]
-        if not isinstance(first, Mapping):
-            _fail("response_shape")
-        if family is PromptModelFamily.REMOTE_OPENAI_COMPATIBLE:
-            if first.get("index") != 0 or first.get("finish_reason") != "stop":
-                _fail("response_incomplete")
-        message = first.get("message")
-        if not isinstance(message, Mapping):
-            _fail("response_shape")
-        if family is PromptModelFamily.REMOTE_OPENAI_COMPATIBLE:
-            if message.get("role") != "assistant":
-                _fail("response_role")
-            # SECURITY: text-only, no-tools execution cannot accept a refusal or hidden side
-            # channel as if it were the requested draft payload.
-            for forbidden in ("refusal", "tool_calls", "function_call", "audio", "reasoning"):
-                if message.get(forbidden) not in (None, "", [], {}):
-                    _fail("response_unrequested_channel")
-        content = message.get("content")
-        if not isinstance(content, str):
-            _fail("response_shape")
-        return _text(content, MAX_MESSAGE_CHARACTERS, "response_text", allow_empty=True)
+        return openai_chat.read(
+            response, model_id, remote=family is PromptModelFamily.REMOTE_OPENAI_COMPATIBLE
+        )
     _fail("session_family")
+
+
+def parse_response_text(family: object, response: object, model_id: object = None) -> str:
+    """Compatibility dispatcher for callers that only consume final text."""
+    return read_response_answer(family, response, model_id).text
 
 
 @dataclass(frozen=True, slots=True)
@@ -569,10 +436,13 @@ class DiscoveryCandidate:
 
     identifier: str
     reason: DiscoveryRejection
+    metadata: ModelMetadata | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.reason, DiscoveryRejection):
             _fail("candidate_reason")
+        if self.metadata is not None and not isinstance(self.metadata, ModelMetadata):
+            _fail("candidate_metadata")
         # Only the "nothing was there at all" sentinel may name nothing; every other reason is a
         # statement about a specific candidate the user can see.
         empty_allowed = self.reason is DiscoveryRejection.NO_CANDIDATE
@@ -588,7 +458,11 @@ class DiscoveryCandidate:
         return self.reason is DiscoveryRejection.ADMITTED
 
     def to_wire(self) -> dict[str, object]:
-        return {"identifier": self.identifier, "reason": self.reason.value}
+        return {
+            "identifier": self.identifier,
+            "reason": self.reason.value,
+            "metadata": None if self.metadata is None else self.metadata.to_wire(),
+        }
 
 
 @dataclass(frozen=True, slots=True)

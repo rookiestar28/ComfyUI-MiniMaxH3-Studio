@@ -16,6 +16,7 @@ from enum import Enum
 from typing import cast
 
 from .canonical import canonical_fingerprint
+from .constraints import ExactTextConstraint
 from .contracts import TaskMode, ValidationDiagnostic, ValidationSeverity
 from .errors import ConstrainedSemanticPlanningError
 from .feasible_av_timeline_planner import FeasibleAVTimelinePlan
@@ -29,8 +30,15 @@ from .model_manifest import (
     ModelGenerationRequest,
     ModelGenerationResult,
 )
+from .semantic_intents import (
+    SemanticIntentError,
+    TypedSemanticIntent,
+    decode_typed_semantic_intent,
+    validate_semantic_dialogue_bindings,
+)
 
 CONSTRAINED_SEMANTIC_PLANNING_SCHEMA = "h3.constrained_semantic_planning.v1"
+TYPED_SEMANTIC_PLANNING_SCHEMA = "h3.constrained_semantic_planning.v2"
 SEMANTIC_PROPOSAL_OUTPUT_SCHEMA = "h3.constrained_semantic_proposal.v1"
 MAX_SEMANTIC_PROPOSALS = 64
 MAX_SEMANTIC_SOURCE_IDS = 64
@@ -198,12 +206,18 @@ def _unique_json_pairs(pairs: list[tuple[str, object]]) -> dict[str, object]:
 
 
 def _parse_json(text: str) -> dict[str, object]:
-    if (
-        not isinstance(text, str)
-        or not text
-        or len(text.encode("utf-8")) > MAX_SEMANTIC_OUTPUT_BYTES
-    ):
+    if not isinstance(text, str) or not text:
         raise ConstrainedSemanticPlanningError("model proposal is outside the bounded output")
+    try:
+        byte_length = len(text.encode("utf-8"))
+    except UnicodeEncodeError:
+        raise ConstrainedSemanticPlanningError("model proposal contains unsafe Unicode") from None
+    if byte_length > MAX_SEMANTIC_OUTPUT_BYTES:
+        raise ConstrainedSemanticPlanningError("model proposal is outside the bounded output")
+    stripped = text.strip()
+    fence = re.fullmatch(r"```(?:json)?\s*\n([\s\S]*?)\n```", stripped)
+    if fence is not None:
+        text = fence.group(1)
     try:
         value = json.loads(
             text,
@@ -309,6 +323,7 @@ class SemanticPlanningProposal:
     confidence: Decimal = Decimal("0.50")
     rationale: str | None = None
     schema: str = CONSTRAINED_SEMANTIC_PLANNING_SCHEMA
+    intent: TypedSemanticIntent | None = None
 
     def __post_init__(self) -> None:
         _identifier(self.proposal_id, "proposal_id")
@@ -328,11 +343,20 @@ class SemanticPlanningProposal:
         object.__setattr__(self, "confidence", _decimal(self.confidence, "confidence"))
         if self.rationale is not None:
             _text(self.rationale, "proposal rationale", 1024)
-        if self.schema != CONSTRAINED_SEMANTIC_PLANNING_SCHEMA:
+        if self.schema == TYPED_SEMANTIC_PLANNING_SCHEMA:
+            if (
+                type(self.intent) is not TypedSemanticIntent
+                or self.intent.kind.value != cast(SemanticTargetKind, self.target_kind).value
+                or self.intent.description != self.claim
+            ):
+                raise ConstrainedSemanticPlanningError(
+                    "typed intent does not match proposal target"
+                )
+        elif self.schema != CONSTRAINED_SEMANTIC_PLANNING_SCHEMA or self.intent is not None:
             raise ConstrainedSemanticPlanningError("unsupported semantic proposal schema")
 
     def to_wire(self) -> dict[str, object]:
-        return {
+        result: dict[str, object] = {
             "schema": self.schema,
             "proposal_id": self.proposal_id,
             "target_kind": cast(SemanticTargetKind, self.target_kind).value,
@@ -343,6 +367,10 @@ class SemanticPlanningProposal:
             "confidence": format(self.confidence, "f"),
             "rationale": self.rationale,
         }
+        if self.intent is not None:
+            del result["claim"]
+            result["intent"] = self.intent.to_wire()
+        return result
 
 
 @dataclass(frozen=True, slots=True)
@@ -389,8 +417,13 @@ class SemanticProposalDocument:
             raise ConstrainedSemanticPlanningError("proposals contain duplicate IDs")
         if not isinstance(self.complete, bool) or not self.complete:
             raise ConstrainedSemanticPlanningError("proposal document must be complete")
-        if self.schema != CONSTRAINED_SEMANTIC_PLANNING_SCHEMA:
+        if self.schema not in {
+            CONSTRAINED_SEMANTIC_PLANNING_SCHEMA,
+            TYPED_SEMANTIC_PLANNING_SCHEMA,
+        }:
             raise ConstrainedSemanticPlanningError("unsupported proposal document schema")
+        if any(proposal.schema != self.schema for proposal in self.proposals):
+            raise ConstrainedSemanticPlanningError("mixed semantic proposal schema versions")
         if len(self.to_wire_bytes()) > MAX_SEMANTIC_OUTPUT_BYTES:
             raise ConstrainedSemanticPlanningError("proposal document exceeds output limit")
 
@@ -834,9 +867,26 @@ def _parse_proposal(value: object, budget: SemanticPlanningBudget) -> SemanticPl
         "confidence",
         "rationale",
     }
+    intent = None
+    if value.get("schema") == TYPED_SEMANTIC_PLANNING_SCHEMA:
+        required.remove("claim")
+        required.add("intent")
     if set(value) != required:
         raise ConstrainedSemanticPlanningError("proposal contains unknown or missing fields")
-    claim = _text(value["claim"], "proposal claim", budget.max_claim_chars)
+    if "intent" in required:
+        try:
+            intent = decode_typed_semantic_intent(value["intent"])
+        except SemanticIntentError as exc:
+            raise ConstrainedSemanticPlanningError(exc.code) from None
+    claim = _text(
+        value["claim"] if intent is None else intent.description,
+        "proposal claim",
+        budget.max_claim_chars,
+    )
+    if not isinstance(value["source_ids"], list) or not all(
+        type(item) is str for item in value["source_ids"]
+    ):
+        raise ConstrainedSemanticPlanningError("source_ids must be an array of identifiers")
     label = _enum(value["evidence_label"], SemanticEvidenceLabel, "evidence_label")
     rationale_value = value["rationale"]
     rationale = (
@@ -854,6 +904,7 @@ def _parse_proposal(value: object, budget: SemanticPlanningBudget) -> SemanticPl
         _decimal(value["confidence"], "confidence"),
         rationale,
         str(value["schema"]),
+        intent,
     )
 
 
@@ -903,7 +954,9 @@ def _parse_document(
 
 
 def _validate_document(
-    request: SemanticPlanningRequest, document: SemanticProposalDocument
+    request: SemanticPlanningRequest,
+    document: SemanticProposalDocument,
+    accepted_exact_text: tuple[ExactTextConstraint, ...],
 ) -> tuple[ValidationDiagnostic, ...]:
     diagnostics: list[ValidationDiagnostic] = []
     policy = cast(SemanticPlanningPolicy, request.policy)
@@ -937,7 +990,23 @@ def _validate_document(
     allowed = request.allowed_source_ids
     protected = request.protected_target_ids
     seen_ids: set[str] = set()
+    seen_targets: set[tuple[SemanticTargetKind, str]] = set()
     for item in document.proposals:
+        target = (cast(SemanticTargetKind, item.target_kind), item.target_id)
+        if document.schema == TYPED_SEMANTIC_PLANNING_SCHEMA and target in seen_targets:
+            diagnostics.append(
+                _diagnostic("duplicate_proposal_target", "typed target was repeated")
+            )
+        seen_targets.add(target)
+        if item.intent is not None:
+            try:
+                # SECURITY: standalone parsing has no dialogue authority by default. Only the
+                # producer's caller-owned baseline may authorize exact language/speaker bindings.
+                validate_semantic_dialogue_bindings(item.intent, accepted_exact_text)
+            except SemanticIntentError:
+                diagnostics.append(
+                    _diagnostic("dialogue_binding_mutation", "unapproved dialogue binding")
+                )
         if item.proposal_id in seen_ids:
             diagnostics.append(_diagnostic("duplicate_proposal_id", "proposal IDs must be unique"))
         seen_ids.add(item.proposal_id)
@@ -998,11 +1067,18 @@ def parse_semantic_proposal(
     text: str,
     *,
     model_result: ModelGenerationResult | None = None,
+    accepted_exact_text: tuple[ExactTextConstraint, ...] = (),
 ) -> SemanticPlanningResult:
     """Parse and validate one complete model document, returning no partial document on failure."""
 
     if not isinstance(request, SemanticPlanningRequest):
         raise ConstrainedSemanticPlanningError("request must be SemanticPlanningRequest")
+    if type(accepted_exact_text) is not tuple or any(
+        type(item) is not ExactTextConstraint for item in accepted_exact_text
+    ):
+        raise ConstrainedSemanticPlanningError(
+            "accepted_exact_text must contain caller-owned constraints"
+        )
     output_fingerprint = None if model_result is None else model_result.output_fingerprint
     if model_result is not None:
         if not isinstance(model_result, ModelGenerationResult):
@@ -1028,7 +1104,7 @@ def parse_semantic_proposal(
             )
     try:
         document = _parse_document(_parse_json(text), request.budget)
-        diagnostics = _validate_document(request, document)
+        diagnostics = _validate_document(request, document, accepted_exact_text)
     except ConstrainedSemanticPlanningError as exc:
         diagnostic = _diagnostic("proposal_invalid", str(exc))
         receipt = _base_receipt(

@@ -26,17 +26,22 @@ import subprocess
 import sys
 import time
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from datetime import date
 from ipaddress import IPv4Address, IPv6Address, ip_address
 from math import isfinite
-from typing import Any
+from typing import Any, cast
 
 from ..core.contracts import ValidationSeverity
+from ..core.prompt_model_dialects import DialectResponseError, RequestOptions
+from ..core.prompt_model_dialects.discovery import read_native_models
+from ..core.prompt_model_execution_budget import chosen_model_budget, options_for_metadata
 from ..core.prompt_model_provider import (
     MAX_DISCOVERY_ROWS,
     AdmittedDestination,
     ExactTagsRow,
+    LegacyPromptModelProfile,
+    ModelChoice,
     PromptModelContractError,
     PromptModelFamily,
     PromptModelOutcome,
@@ -62,7 +67,7 @@ from ..core.prompt_model_session import (
     PromptModelSessionRequest,
     admit_session_request,
     build_request_payload,
-    parse_response_text,
+    read_response_answer,
     verify_live_identity,
 )
 from ..core.remote_prompt_model import (
@@ -148,9 +153,16 @@ class PromptModelTransportError(RuntimeError):
         detail: str = "",
         *,
         unexpected_type: str | None = None,
+        http_status: int = 0,
+        error_kind: str = "",
     ) -> None:
         self.outcome_id = outcome_id
         self.detail = detail
+        self.http_status = http_status
+        # Only allowlisted protocol discriminators survive. Never store error.message here.
+        self.error_kind = (
+            error_kind if error_kind in {"invalid_request_error", "INVALID_ARGUMENT"} else ""
+        )
         # M22-23. Set only by the boundary backstop, and read by nobody: `detail` reaches the user
         # as provider-attributed prose, so the class name of an exception this repository did not
         # anticipate cannot go there without telling the user the provider said something it did
@@ -186,7 +198,7 @@ _STATUS_OUTCOMES: Mapping[int, PromptModelOutcomeId] = {
     404: PromptModelOutcomeId.MODEL_MISSING,
     413: PromptModelOutcomeId.REQUEST_TOO_LARGE,
     415: PromptModelOutcomeId.UNSUPPORTED_MEDIA,
-    429: PromptModelOutcomeId.QUOTA,
+    429: PromptModelOutcomeId.RATE_LIMITED,
 }
 
 
@@ -428,7 +440,7 @@ def resolve_exact_identity(model_id: str, exchange: object) -> tuple[ExactTagsRo
 
 
 def resolve_prechat_identity(
-    profile: PromptModelProfile, exchange: object
+    profile: PromptModelProfile, exchange: object, model: ModelChoice | None = None
 ) -> LiveModelIdentity | None:
     """The identity check made immediately before one generation request (M22-13).
 
@@ -439,18 +451,32 @@ def resolve_prechat_identity(
     retain the weaker, explicit alias-verification basis.
     """
 
-    if (
-        profile.family is not PromptModelFamily.OLLAMA
-        or profile.qualification_state is not PromptModelQualificationState.QUALIFIED
+    if isinstance(profile, LegacyPromptModelProfile):
+        model_id = profile.model_id
+    elif isinstance(model, ModelChoice) and model.profile_id == profile.profile_id:
+        model_id = model.model_id
+    else:
+        raise PromptModelContractError("identity_model")
+    if not isinstance(profile, LegacyPromptModelProfile) and profile.family in REMOTE_FAMILIES:
+        route = profile.discovery_routes[0]
+        listing = exchange.request("GET", route)  # type: ignore[attr-defined]
+        rows = read_native_models(profile.family, listing, route)
+        matches = tuple(facts for identifier, facts in rows if identifier == model_id)
+        if len(matches) > 1:
+            raise PromptModelContractError("identity_duplicate")
+        return None if not matches else LiveModelIdentity(model_id, None, matches[0])
+    if profile.family is not PromptModelFamily.OLLAMA or (
+        isinstance(profile, LegacyPromptModelProfile)
+        and profile.qualification_state is not PromptModelQualificationState.QUALIFIED
     ):
         return resolve_live_identity(
             profile.family,
-            profile.model_id,
+            model_id,
             exchange,
             discovery_route=(profile.discovery_routes[0] if profile.discovery_routes else None),
         )
     listing = exchange.request("GET", "/api/tags")  # type: ignore[attr-defined]
-    row = parse_exact_tags_row(listing, profile.model_id)
+    row = parse_exact_tags_row(listing, model_id)
     return LiveModelIdentity(model_id=row.model_id, digest=row.model_digest)
 
 
@@ -476,6 +502,7 @@ def resolve_show_identity(model_id: str, exchange: object) -> ShowIdentity:
 # the M22-13 digest join below. The map is closed: a route with no entry keeps exact equality.
 _CATALOG_IDENTIFIER_PREFIXES: Mapping[str, str] = {
     "/v1beta/openai/models": "models/",
+    "/v1beta/models?pageSize=1000": "models/",
 }
 
 
@@ -602,12 +629,79 @@ def _failure(outcome_id: PromptModelOutcomeId, detail: str) -> PromptModelSessio
     )
 
 
+ACTION_DEADLINE_SECONDS = 120.0
+MAX_ACTION_TRANSMISSIONS = 4
+
+
+@dataclass(slots=True)
+class PromptModelActionState:
+    """Private action budget, one identity, and a session-owned compatibility preference."""
+
+    clock: Callable[[], float] = time.monotonic
+    safe_preferences: set[tuple[str, str]] = field(default_factory=set)
+    started: float = field(init=False)
+    transmissions: int = 0
+    downgraded: bool = False
+    observed_model_id: str = ""
+    identity: LiveModelIdentity | None = None
+    identity_key: tuple[str, str] | None = None
+
+    def __post_init__(self) -> None:
+        self.started = self.clock()
+
+
+class _ActionExchange:
+    def __init__(
+        self,
+        inner: object,
+        state: PromptModelActionState,
+        cancellation: Callable[[], bool] | None,
+        timeout_seconds: float,
+    ) -> None:
+        self._inner = inner
+        self._state = state
+        self._cancellation = cancellation
+        self._timeout_seconds = timeout_seconds
+
+    def check(self) -> None:
+        if self._cancellation is not None and self._cancellation():
+            raise PromptModelTransportError(PromptModelOutcomeId.CANCELLED)
+        if self._state.clock() - self._state.started >= ACTION_DEADLINE_SECONDS:
+            raise PromptModelTransportError(PromptModelOutcomeId.TIMEOUT)
+
+    def request(
+        self,
+        method: str,
+        path: str,
+        payload: Mapping[str, object] | None = None,
+        *,
+        timeout_seconds: float | None = None,
+    ) -> Mapping[str, object]:
+        self.check()
+        if self._state.transmissions >= MAX_ACTION_TRANSMISSIONS:
+            raise PromptModelTransportError(PromptModelOutcomeId.REQUEST_TOO_LARGE)
+        remaining = ACTION_DEADLINE_SECONDS - (self._state.clock() - self._state.started)
+        if remaining <= 0:
+            raise PromptModelTransportError(PromptModelOutcomeId.TIMEOUT)
+        timeout = min(self._timeout_seconds, remaining)
+        if timeout_seconds is not None:
+            timeout = min(timeout, timeout_seconds)
+        # CRITICAL: identity, downgrade and repair spend the same conservative budget. A failed
+        # send may have left the process, so increment before delegation, never after success.
+        self._state.transmissions += 1
+        response = self._inner.request(method, path, payload, timeout_seconds=timeout)  # type: ignore[attr-defined]
+        self.check()
+        return cast(Mapping[str, object], response)
+
+
 def run_prompt_model_session(
     request: PromptModelSessionRequest,
     exchange: object,
     *,
     cancellation: Callable[[], bool] | None = None,
     timeout_seconds: float | None = None,
+    action_state: PromptModelActionState | None = None,
+    options: RequestOptions | None = None,
 ) -> PromptModelSessionResult:
     """Verify identity, admit, send, parse. Any refusal returns before a request is issued."""
 
@@ -615,6 +709,28 @@ def run_prompt_model_session(
         raise PromptModelTransportError(PromptModelOutcomeId.TRANSPORT, "request")
     if cancellation is not None and not callable(cancellation):
         raise PromptModelTransportError(PromptModelOutcomeId.TRANSPORT, "cancellation")
+    if action_state is None:
+        action_state = PromptModelActionState()
+    if not isinstance(action_state, PromptModelActionState):
+        raise PromptModelTransportError(PromptModelOutcomeId.TRANSPORT, "action_state")
+    key = (request.profile.profile_id, request.model_id)
+    chosen_options = RequestOptions() if options is None else options
+    if not isinstance(chosen_options, RequestOptions):
+        raise PromptModelTransportError(PromptModelOutcomeId.TRANSPORT, "request_options")
+    if key in action_state.safe_preferences:
+        chosen_options = RequestOptions.safe()
+    chosen_options = options_for_metadata(request, chosen_options)
+    if request.model is not None:
+        decision = chosen_model_budget(request, chosen_options)
+        if decision.plan is None:
+            return PromptModelSessionResult(outcome=decision.outcome, answer=None)
+        request = replace(request, plan=decision.plan)
+    exchange = _ActionExchange(
+        exchange,
+        action_state,
+        cancellation,
+        _timeout(timeout_seconds, request.profile.request_timeout_seconds),
+    )
 
     admission = admit_session_request(request)
     if admission.outcome_id is not PromptModelOutcomeId.OK:
@@ -623,9 +739,14 @@ def run_prompt_model_session(
         return _failure(PromptModelOutcomeId.CANCELLED, "")
 
     try:
-        observed = resolve_prechat_identity(request.profile, exchange)
+        exchange.check()
+        if action_state.identity_key not in (None, key):
+            raise PromptModelTransportError(PromptModelOutcomeId.CANCELLED)
+        observed = action_state.identity
+        if observed is None:
+            observed = resolve_prechat_identity(request.profile, exchange, request.model)
     except PromptModelTransportError as exc:
-        return _failure(exc.outcome_id, exc.detail)
+        return _failure(exc.outcome_id, "")
     except PromptModelContractError as exc:
         # The strict reading refused the listing. The detail is this repository's own closed code,
         # never provider prose, so it is safe to carry into the receipt and useful there.
@@ -633,9 +754,18 @@ def run_prompt_model_session(
     if observed is None:
         return _failure(PromptModelOutcomeId.MODEL_MISSING, "")
 
-    identity = verify_live_identity(request.profile, observed)
+    identity = verify_live_identity(request.profile, observed, request.model)
     if identity.verification is None:
         return PromptModelSessionResult(outcome=identity.outcome, answer=None)
+    action_state.identity = observed
+    action_state.identity_key = key
+    if request.model is not None and observed.metadata is not None:
+        request = replace(request, model=replace(request.model, metadata=observed.metadata))
+        chosen_options = options_for_metadata(request, chosen_options)
+        decision = chosen_model_budget(request, chosen_options)
+        if decision.plan is None:
+            return PromptModelSessionResult(outcome=decision.outcome, answer=None)
+        request = replace(request, plan=decision.plan)
     if cancellation is not None and cancellation():
         return _failure(PromptModelOutcomeId.CANCELLED, "")
 
@@ -647,25 +777,81 @@ def run_prompt_model_session(
         path = request.profile.chat_route
     # Built before the try: a payload this build refuses to assemble is a contract violation on
     # our side, not a malformed answer from the provider, and must not be reported as one.
-    payload = build_request_payload(request)
+    payload = build_request_payload(request, chosen_options)
+    if (
+        len(json.dumps(payload, ensure_ascii=True, separators=(",", ":")).encode("utf-8"))
+        > request.profile.capabilities.max_request_bytes
+    ):
+        return _failure(PromptModelOutcomeId.REQUEST_TOO_LARGE, "")
     try:
-        response = exchange.request(  # type: ignore[attr-defined]
-            "POST", path, payload, timeout_seconds=timeout_seconds
-        )
+        response = exchange.request("POST", path, payload, timeout_seconds=timeout_seconds)
     except PromptModelTransportError as exc:
-        return _failure(exc.outcome_id, exc.detail)
+        safe_payload = build_request_payload(request, RequestOptions.safe())
+        expected_error_kind = ""
+        if request.family in REMOTE_FAMILIES:
+            expected_error_kind = (
+                "INVALID_ARGUMENT"
+                if policy_for_profile(request.profile).provider_id == "google_gemini"
+                else "invalid_request_error"
+            )
+        if (
+            exc.http_status != 400
+            or not expected_error_kind
+            or exc.error_kind != expected_error_kind
+            or request.family not in REMOTE_FAMILIES
+            or payload == safe_payload
+            or action_state.downgraded
+        ):
+            return _failure(exc.outcome_id, "")
+        # SECURITY: only a closed invalid-400 type authorizes one retry; never inspect message
+        # prose for option names, and never reset this allowance for the repair round.
+        try:
+            exchange.check()
+        except PromptModelTransportError as cancelled:
+            return _failure(cancelled.outcome_id, "")
+        action_state.downgraded = True
+        action_state.safe_preferences.add(key)
+        if request.model is not None:
+            # IMPORTANT: dropping reasoning controls changes the required output headroom.
+            # Re-admit the same measured text before retrying; never reset the action budget.
+            decision = chosen_model_budget(
+                request, options_for_metadata(request, RequestOptions.safe())
+            )
+            if decision.plan is None:
+                return PromptModelSessionResult(outcome=decision.outcome, answer=None)
+            request = replace(request, plan=decision.plan)
+            safe_payload = build_request_payload(request, RequestOptions.safe())
+            if (
+                len(
+                    json.dumps(safe_payload, ensure_ascii=True, separators=(",", ":")).encode(
+                        "utf-8"
+                    )
+                )
+                > request.capabilities.max_request_bytes
+            ):
+                return _failure(PromptModelOutcomeId.REQUEST_TOO_LARGE, "")
+        try:
+            response = exchange.request("POST", path, safe_payload, timeout_seconds=timeout_seconds)
+        except PromptModelTransportError as retry_error:
+            return _failure(retry_error.outcome_id, "")
+        except PromptModelContractError as retry_error:
+            return _failure(PromptModelOutcomeId.MALFORMED_RESPONSE, str(retry_error))
     except PromptModelContractError as exc:
         # M22-23. The identity leg above has always had this; the chat leg did not, so a contract
         # error raised inside `request` -- which the transport now deliberately lets through rather
         # than retyping -- would have left this function uncaught. Same closed code, same handling.
         return _failure(PromptModelOutcomeId.MALFORMED_RESPONSE, str(exc))
     try:
-        text = parse_response_text(request.family, response, request.profile.model_id)
+        decoded = read_response_answer(request.family, response, request.model_id)
+    except DialectResponseError as exc:
+        return _failure(exc.outcome_id, "")
     except PromptModelContractError as exc:
         return _failure(PromptModelOutcomeId.MALFORMED_RESPONSE, str(exc))
-    if cancellation is not None and cancellation():
-        return _failure(PromptModelOutcomeId.CANCELLED, "")
-
+    action_state.observed_model_id = decoded.observed_model_id
+    try:
+        exchange.check()
+    except PromptModelTransportError as exc:
+        return _failure(exc.outcome_id, "")
     return PromptModelSessionResult(
         outcome=build_prompt_model_outcome(
             PromptModelOutcomeId.OK,
@@ -674,7 +860,10 @@ def run_prompt_model_session(
             parameters=(("verification", identity.verification.value),),
         ),
         answer=PromptModelAnswer(
-            text=text, verification=identity.verification, finish_reason="stop"
+            text=decoded.text,
+            verification=identity.verification,
+            finish_reason=decoded.finish_reason,
+            observed_model_id=decoded.observed_model_id,
         ),
     )
 
@@ -1086,7 +1275,8 @@ class RemoteHttpsExchange:
                 "Accept": "application/json",
                 "Content-Type": "application/json",
             }
-            if self._policy.credential_scheme is RemoteCredentialScheme.X_API_KEY:
+            scheme = self._policy.credential_for_route(method, path)
+            if scheme is RemoteCredentialScheme.X_API_KEY:
                 # CRITICAL: Anthropic API keys are not Bearer credentials. Construct the raw
                 # x-api-key value only here, immediately before the socket receives the headers.
                 headers["x-api-key"] = self._credential.api_key_header()
@@ -1095,6 +1285,10 @@ class RemoteHttpsExchange:
                         PromptModelOutcomeId.CAPABILITY_MISMATCH, "api_version"
                     )
                 headers["anthropic-version"] = self._policy.api_version
+            elif scheme is RemoteCredentialScheme.X_GOOG_API_KEY:
+                # CRITICAL: the native Google listing key belongs only to its admitted GET;
+                # adding it to compatible chat would expose two credential schemes at once.
+                headers["x-goog-api-key"] = self._credential.api_key_header()
             else:
                 headers["Authorization"] = self._credential.authorization_header()
             headers.update(dict(self._policy.extra_headers))
@@ -1132,9 +1326,26 @@ class RemoteHttpsExchange:
                 decoded = None
             if response.status != 200:
                 error = scrub_upstream_error(response.status, decoded)
+                provider_error = decoded.get("error") if isinstance(decoded, Mapping) else None
+                error_kind = ""
+                if isinstance(provider_error, Mapping):
+                    # IMPORTANT: Google's bound policy ID is google_gemini; its closed status
+                    # field authorizes the one safe retry. Never classify from error prose.
+                    kind = (
+                        provider_error.get("status")
+                        if self._policy.provider_id == "google_gemini"
+                        else provider_error.get("type")
+                    )
+                    if isinstance(kind, str) and kind in {
+                        "invalid_request_error",
+                        "INVALID_ARGUMENT",
+                    }:
+                        error_kind = str(kind)
                 raise PromptModelTransportError(
                     map_remote_outcome(error),
-                    "" if error.detail is None else error.detail.text,
+                    "",
+                    http_status=response.status,
+                    error_kind=error_kind,
                 )
             if not isinstance(decoded, Mapping):
                 raise PromptModelTransportError(PromptModelOutcomeId.MALFORMED_RESPONSE, "shape")
@@ -1300,6 +1511,8 @@ def run_remote_prompt_model_session(
     timeout_seconds: float | None = None,
     clock: Callable[[], float] = time.monotonic,
     on_date: date | None = None,
+    action_state: PromptModelActionState | None = None,
+    options: RequestOptions | None = None,
 ) -> RemoteSessionResult:
     """Check consent before every transmission, then run the session and receipt it.
 
@@ -1341,6 +1554,8 @@ def run_remote_prompt_model_session(
         _GatedExchange(exchange, gate),
         cancellation=cancellation,
         timeout_seconds=timeout_seconds,
+        action_state=action_state,
+        options=options,
     )
     elapsed_ms = max(0, int((clock() - started) * 1000))
     observed = getattr(exchange, "metrics", None)
@@ -1361,9 +1576,8 @@ def run_remote_prompt_model_session(
         # CRITICAL: a receipt records usage facts, never any fragment of runtime authorization.
         credential_last_four="",
         provider_id=policy.provider_id,
-        model_id=policy.model_id,
+        model_id=request.model_id,
         policy_sha256=policy.fingerprint,
-        # Legacy billing fields stay empty/zero: no estimate or maximum-charge guarantee.
         usage_present=False if counted is None else counted.usage_present,
     )
     return RemoteSessionResult(outcome=result.outcome, answer=result.answer, receipt=receipt)
