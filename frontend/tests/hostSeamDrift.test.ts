@@ -2,7 +2,13 @@ import rawModalKeyboardTransition from "../../governance/contracts/host_seam_cen
 import rawWorkspaceStateTransition from "../../governance/contracts/host_seam_census_transition_workspace_state_v1.json" with { type: "json" };
 import rawRetainedMediaTransition from "../../governance/contracts/host_seam_census_transition_retained_media_v1.json" with { type: "json" };
 import rawProjectPersistenceTransition from "../../governance/contracts/host_seam_census_transition_project_persistence_v1.json" with { type: "json" };
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
 import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -1323,6 +1329,8 @@ describe("HC-10 host seam drift classification", () => {
         ),
       ).toThrow();
 
+    // IMPORTANT: clean public checkouts have no private evidence directory to inherit.
+    mkdirSync(resolve(repositoryRoot, ".planning"), { recursive: true });
     const temporary = mkdtempSync(
       resolve(repositoryRoot, ".planning", "hc10-evidence-test-"),
     );

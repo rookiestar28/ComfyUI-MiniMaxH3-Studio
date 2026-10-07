@@ -29,6 +29,8 @@ const planningRoot = resolve(repositoryRoot, ".planning");
 let temporary = "";
 
 beforeEach(() => {
+  // IMPORTANT: public checkouts omit private records; create the fixture parent before mkdtemp.
+  mkdirSync(planningRoot, { recursive: true });
   temporary = mkdtempSync(resolve(planningRoot, "hc09-policy-test-"));
 });
 
@@ -174,6 +176,8 @@ describe("HC-09 live capture policy", () => {
   it("rejects escaping and linked evidence targets", () => {
     const direct = resolve(temporary, "evidence.json");
     expect(requiredEvidencePath(repositoryRoot, direct)).toBe(direct);
+    const workspaceTemporary = resolve(repositoryRoot, ".tmp");
+    mkdirSync(workspaceTemporary, { recursive: true });
     expect(() =>
       requiredEvidencePath(
         repositoryRoot,
@@ -181,8 +185,6 @@ describe("HC-09 live capture policy", () => {
       ),
     ).toThrow("must stay inside");
 
-    const workspaceTemporary = resolve(repositoryRoot, ".tmp");
-    mkdirSync(workspaceTemporary, { recursive: true });
     const outside = mkdtempSync(
       resolve(workspaceTemporary, "hc09-policy-link-target-"),
     );

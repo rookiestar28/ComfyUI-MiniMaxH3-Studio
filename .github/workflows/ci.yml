@@ -108,6 +108,8 @@ jobs:
         run: corepack enable && corepack prepare pnpm@11.3.0 --activate
       - name: Install exact dependencies
         run: pnpm --dir frontend install --frozen-lockfile
+      - name: Install Chromium for fixture integration tests
+        run: pnpm --dir frontend exec playwright install --with-deps chromium
       - name: Run static checks
         run: pnpm --dir frontend run check
       - name: Run unit tests
