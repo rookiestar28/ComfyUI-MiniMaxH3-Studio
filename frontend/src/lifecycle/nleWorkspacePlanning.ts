@@ -75,6 +75,8 @@ export function createNleWorkspacePlanning(core: NlePlanningSessionCore) {
         ...initialNlePlanningState,
         targetSeconds,
         policy: planning.policy,
+        script: planning.script,
+        storyboardRows: planning.storyboardRows,
       }),
       readiness: initialNleReadinessState,
     });
@@ -88,8 +90,19 @@ export function createNleWorkspacePlanning(core: NlePlanningSessionCore) {
         ...initialNlePlanningState,
         targetSeconds: planning.targetSeconds,
         policy,
+        script: planning.script,
+        storyboardRows: planning.storyboardRows,
       }),
       readiness: initialNleReadinessState,
+    });
+  }
+
+  function nleSetPlanningScript(value: string): void {
+    patch({
+      planning: Object.freeze({
+        ...state().planning,
+        script: value.slice(0, 65536),
+      }),
     });
   }
 
@@ -449,6 +462,8 @@ export function createNleWorkspacePlanning(core: NlePlanningSessionCore) {
         ...initialNlePlanningState,
         targetSeconds: planning.targetSeconds,
         policy: planning.policy,
+        script: planning.script,
+        storyboardRows: planning.storyboardRows,
       }),
       readiness: initialNleReadinessState,
     });
@@ -469,6 +484,7 @@ export function createNleWorkspacePlanning(core: NlePlanningSessionCore) {
     nleSetSegmentationPolicy,
     nleSetStoryboardRows,
     nleSetTargetSeconds,
+    nleSetPlanningScript,
     abortAtViewDestroy,
   };
 }

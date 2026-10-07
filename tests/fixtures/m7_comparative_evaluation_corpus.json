@@ -1,0 +1,163 @@
+{
+  "schema": "h3.comparative.evaluation.v1",
+  "corpus_id": "m7.comparative.fixture",
+  "thresholds": {
+    "schema": "h3.comparative.evaluation.v1",
+    "policy_id": "thresholds.v1",
+    "version": "1",
+    "max_latency_seconds": 1.0,
+    "max_peak_memory_bytes": 4096,
+    "max_output_bytes": 4096,
+    "min_structural_pass_ratio": 1.0,
+    "min_hard_constraint_pass_ratio": 1.0,
+    "min_reviewer_score": null
+  },
+  "reviewer_rubric": {
+    "schema": "h3.comparative.evaluation.v1",
+    "rubric_id": "reviewer.v1",
+    "version": "1",
+    "dimensions": ["clarity", "fidelity"],
+    "scale_min": 0.0,
+    "scale_max": 5.0
+  },
+  "cases": [
+    {
+      "schema": "h3.comparative.evaluation.v1",
+      "case_id": "case.base.1",
+      "profile": "base",
+      "source_fingerprints": ["sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
+      "routes": [
+        {
+          "schema": "h3.comparative.evaluation.v1",
+          "route": "manual_deterministic",
+          "status": "recorded",
+          "structural_valid": true,
+          "hard_constraints_preserved": true,
+          "prompt_fingerprint": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "measurement": {
+            "schema": "h3.base.evaluation.v1",
+            "latency_seconds": 0.2,
+            "peak_memory_bytes": 1024,
+            "output_bytes": 2048
+          },
+          "reviewer_scores": [],
+          "oracle": null,
+          "fixed_h3": null,
+          "diagnostic_codes": [],
+          "limitation_codes": []
+        },
+        {
+          "schema": "h3.comparative.evaluation.v1",
+          "route": "local_assisted",
+          "status": "not_requested",
+          "structural_valid": null,
+          "hard_constraints_preserved": null,
+          "prompt_fingerprint": null,
+          "measurement": null,
+          "reviewer_scores": [],
+          "oracle": null,
+          "fixed_h3": null,
+          "diagnostic_codes": [],
+          "limitation_codes": ["lane_not_requested"]
+        },
+        {
+          "schema": "h3.comparative.evaluation.v1",
+          "route": "remote_custom",
+          "status": "blocked",
+          "structural_valid": null,
+          "hard_constraints_preserved": null,
+          "prompt_fingerprint": null,
+          "measurement": null,
+          "reviewer_scores": [],
+          "oracle": null,
+          "fixed_h3": null,
+          "diagnostic_codes": ["lane_not_authorized"],
+          "limitation_codes": []
+        },
+        {
+          "schema": "h3.comparative.evaluation.v1",
+          "route": "official_oracle",
+          "status": "not_requested",
+          "structural_valid": null,
+          "hard_constraints_preserved": null,
+          "prompt_fingerprint": null,
+          "measurement": null,
+          "reviewer_scores": [],
+          "oracle": null,
+          "fixed_h3": null,
+          "diagnostic_codes": [],
+          "limitation_codes": ["lane_not_requested"]
+        }
+      ]
+    },
+    {
+      "schema": "h3.comparative.evaluation.v1",
+      "case_id": "case.reference.1",
+      "profile": "reference",
+      "source_fingerprints": ["sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"],
+      "routes": [
+        {
+          "schema": "h3.comparative.evaluation.v1",
+          "route": "manual_deterministic",
+          "status": "recorded",
+          "structural_valid": true,
+          "hard_constraints_preserved": true,
+          "prompt_fingerprint": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "measurement": {
+            "schema": "h3.base.evaluation.v1",
+            "latency_seconds": 0.2,
+            "peak_memory_bytes": 1024,
+            "output_bytes": 2048
+          },
+          "reviewer_scores": [],
+          "oracle": null,
+          "fixed_h3": null,
+          "diagnostic_codes": [],
+          "limitation_codes": []
+        },
+        {
+          "schema": "h3.comparative.evaluation.v1",
+          "route": "local_assisted",
+          "status": "not_requested",
+          "structural_valid": null,
+          "hard_constraints_preserved": null,
+          "prompt_fingerprint": null,
+          "measurement": null,
+          "reviewer_scores": [],
+          "oracle": null,
+          "fixed_h3": null,
+          "diagnostic_codes": [],
+          "limitation_codes": ["lane_not_requested"]
+        },
+        {
+          "schema": "h3.comparative.evaluation.v1",
+          "route": "remote_custom",
+          "status": "blocked",
+          "structural_valid": null,
+          "hard_constraints_preserved": null,
+          "prompt_fingerprint": null,
+          "measurement": null,
+          "reviewer_scores": [],
+          "oracle": null,
+          "fixed_h3": null,
+          "diagnostic_codes": ["lane_not_authorized"],
+          "limitation_codes": []
+        },
+        {
+          "schema": "h3.comparative.evaluation.v1",
+          "route": "official_oracle",
+          "status": "not_requested",
+          "structural_valid": null,
+          "hard_constraints_preserved": null,
+          "prompt_fingerprint": null,
+          "measurement": null,
+          "reviewer_scores": [],
+          "oracle": null,
+          "fixed_h3": null,
+          "diagnostic_codes": [],
+          "limitation_codes": ["lane_not_requested"]
+        }
+      ]
+    }
+  ]
+}

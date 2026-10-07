@@ -31,6 +31,7 @@ export function createProductionSession(ctx: ShellRuntime) {
     "h3.context.production.workspace_handle.v1";
 
   const productionWorkspaceHandle = /^pw_[A-Za-z0-9_-]{32,96}$/;
+  let productionStartupPending = false;
 
   function readProductionSessionHandle(): string | undefined {
     try {
@@ -72,6 +73,20 @@ export function createProductionSession(ctx: ShellRuntime) {
 
   function activeProductionWorkflow(): object | undefined {
     return deps.appModeController.activeWorkflow();
+  }
+
+  function resumeProductionSession(): void {
+    if (
+      !productionStartupPending ||
+      session.productionState.status !== "absent" ||
+      session.productionSessionHandle === undefined ||
+      deps.productionDestinations.ownedByAnotherWorkflow(
+        session.productionSessionHandle,
+        activeProductionWorkflow(),
+      )
+    )
+      return;
+    void runProductionIntent({ action: "read_projection" });
   }
 
   function productionEnsureAdmission(
@@ -223,6 +238,16 @@ export function createProductionSession(ctx: ShellRuntime) {
     intent: ProductionIntent,
     requestedEnsure?: ProductionEnsureAdmission,
   ): Promise<void> {
+    const readWorkflow = activeProductionWorkflow();
+    // CRITICAL: setup precedes the host's initial workflow publication. Binding a stored
+    // project to the no-workflow slot strands it behind the cross-workflow ownership guard.
+    // Only a genuinely store-less single-canvas host may read with no workflow owner.
+    if (
+      intent.action === "read_projection" &&
+      readWorkflow === undefined &&
+      deps.app.extensionManager?.workflow != null
+    )
+      return;
     if (
       session.productionState.status === "loading" ||
       session.productionState.status === "pending"
@@ -335,6 +360,7 @@ export function createProductionSession(ctx: ShellRuntime) {
         else if (session.productionSessionHandle !== undefined)
           input = { workspaceHandle: session.productionSessionHandle };
         else return;
+        productionStartupPending = false;
         break;
       case "release_workspace":
       case "assemble_sequence":
@@ -366,6 +392,19 @@ export function createProductionSession(ctx: ShellRuntime) {
         abort.signal,
       );
       if (abort.signal.aborted || session.productionAbort !== abort) return;
+      // CRITICAL: the server reply belongs to the workflow captured before IO, not whichever
+      // canvas is active when it arrives. Never adopt a late project into a different owner.
+      if (
+        intent.action === "read_projection" &&
+        activeProductionWorkflow() !== readWorkflow
+      ) {
+        session.productionState = {
+          status: "error",
+          reason: "context_changed",
+          recovery: "read",
+        };
+        return;
+      }
       if (
         ensureAdmission !== undefined &&
         !currentProductionEnsureIs(ensureAdmission)
@@ -722,6 +761,7 @@ export function createProductionSession(ctx: ShellRuntime) {
   // key constant is initialized; an earlier read would hit its temporal dead zone and the
   // guarded reader would report "no handle" instead of the retained one.
   session.productionSessionHandle = readProductionSessionHandle();
+  productionStartupPending = session.productionSessionHandle !== undefined;
 
   return {
     claimProductionRequest,
@@ -740,6 +780,7 @@ export function createProductionSession(ctx: ShellRuntime) {
     readProductionSessionHandle,
     rememberProductionEnsureIdentity,
     runProductionIntent,
+    resumeProductionSession,
     runSemanticProposalReview,
     writeProductionSessionHandle,
   };

@@ -1,0 +1,270 @@
+{
+  "schema": "h3-context-open-box-contract/1",
+  "item": "M15-12",
+  "state_model": ["interactive", "working", "projected", "error"],
+  "forbidden_normal_states": [
+    "node-only",
+    "awaiting_projection",
+    "generic_fallback"
+  ],
+  "acceptance_semantics": {
+    "evidence_layers": ["reproduce", "pin", "sweep"],
+    "final_owner": "M15-18",
+    "forbidden_substitutes": [
+      "prose_only",
+      "screenshot_only",
+      "dom_existence_only",
+      "full_gate_only",
+      "viewport_equals_panel_only",
+      "prior_blocker_review_only"
+    ],
+    "legacy_gap_sources": ["M15-03", "M15-04", "M15-09", "M15-10", "M15-11"],
+    "required_join_fields": [
+      "criterion_id",
+      "test_id",
+      "transition",
+      "dom_roles_actions",
+      "graph_mutations",
+      "queue_calls",
+      "projection",
+      "geometry",
+      "privacy",
+      "cleanup",
+      "retained_artifact"
+    ],
+    "review_scope": "every_criterion"
+  },
+  "geometry": {
+    "minimum_panel_px": 480,
+    "pairs": [
+      {
+        "viewport_width": 1280,
+        "panel_width": 480
+      },
+      {
+        "viewport_width": 1440,
+        "panel_width": 480
+      },
+      {
+        "viewport_width": 1440,
+        "panel_width": 560
+      },
+      {
+        "viewport_width": 1440,
+        "panel_width": 640
+      },
+      {
+        "viewport_width": 480,
+        "panel_width": 480
+      }
+    ],
+    "metrics": [
+      "no_horizontal_overflow",
+      "visible_primary_action",
+      "readable_control_label",
+      "focus_contained"
+    ]
+  },
+  "criteria": [
+    {
+      "id": "AC-M15-12-01",
+      "test_id": "RED-M15-12-01",
+      "surface": "empty_open",
+      "expected_state": "interactive",
+      "required_roles": ["textbox", "button"],
+      "required_action": "start_h3_app_mode",
+      "transition": ["open_sidebar", "interactive"],
+      "evidence_kinds": ["interaction", "dom", "state_transition"],
+      "geometry_case": "not_applicable",
+      "privacy_assertion": "closed_boundary",
+      "retained_artifact": "m15_12_red_report",
+      "graph_mutations": 0,
+      "queue_calls": 0,
+      "projection": "none_before_start",
+      "cleanup": "mount_destroy_idempotent",
+      "red_expected": true,
+      "later_owner": "M15-13"
+    },
+    {
+      "id": "AC-M15-12-02",
+      "test_id": "RED-M15-12-02",
+      "surface": "native_preference",
+      "expected_state": "interactive",
+      "required_roles": ["textbox", "button"],
+      "required_action": "return_to_h3_app_mode",
+      "transition": ["interactive", "choose_native_manual", "interactive"],
+      "evidence_kinds": ["interaction", "dom", "state_transition", "graph"],
+      "geometry_case": "not_applicable",
+      "privacy_assertion": "closed_boundary",
+      "retained_artifact": "m15_12_red_report",
+      "graph_mutations": 0,
+      "queue_calls": 0,
+      "projection": "unchanged",
+      "cleanup": "entry_remains_mounted",
+      "red_expected": true,
+      "later_owner": "M15-13"
+    },
+    {
+      "id": "AC-M15-12-03",
+      "test_id": "RED-M15-12-03",
+      "surface": "fallback_body",
+      "expected_state": "interactive",
+      "required_roles": ["textbox", "button"],
+      "required_action": "start_h3_app_mode",
+      "transition": ["interactive", "render", "interactive"],
+      "evidence_kinds": ["dom", "source_contract"],
+      "geometry_case": "not_applicable",
+      "privacy_assertion": "closed_boundary",
+      "retained_artifact": "m15_12_red_report",
+      "forbidden_copy": [
+        "Prompt export awaiting projection",
+        "Assisted reconstruction unavailable"
+      ],
+      "graph_mutations": 0,
+      "queue_calls": 0,
+      "projection": "pending_is_not_error",
+      "cleanup": "normal_mount_cleanup",
+      "red_expected": true,
+      "later_owner": "M15-13"
+    },
+    {
+      "id": "AC-M15-12-04",
+      "test_id": "RED-M15-12-04",
+      "surface": "base_mode_choice",
+      "expected_state": "interactive",
+      "required_roles": ["textbox", "button"],
+      "forbidden_roles": ["combobox"],
+      "required_action": "start_h3_app_mode",
+      "transition": ["interactive", "render_base_capability", "interactive"],
+      "evidence_kinds": ["dom", "source_contract"],
+      "geometry_case": "not_applicable",
+      "privacy_assertion": "closed_boundary",
+      "retained_artifact": "m15_12_red_report",
+      "graph_mutations": 0,
+      "queue_calls": 0,
+      "projection": "none_before_start",
+      "cleanup": "normal_mount_cleanup",
+      "red_expected": true,
+      "later_owner": "M15-13"
+    },
+    {
+      "id": "AC-M15-12-05",
+      "test_id": "RED-M15-12-05",
+      "surface": "cancelled",
+      "expected_state": "interactive",
+      "required_roles": ["status"],
+      "forbidden_roles": ["alert"],
+      "required_action": "restart_h3_app_mode",
+      "transition": ["working", "cancel", "interactive"],
+      "evidence_kinds": ["interaction", "dom", "state_transition", "graph"],
+      "geometry_case": "not_applicable",
+      "privacy_assertion": "closed_boundary",
+      "retained_artifact": "m15_12_red_report",
+      "graph_mutations": 0,
+      "queue_calls": 0,
+      "projection": "none",
+      "cleanup": "abort_and_restore",
+      "red_expected": true,
+      "later_owner": "M15-13"
+    },
+    {
+      "id": "AC-M15-12-06",
+      "test_id": "RED-M15-12-06",
+      "surface": "dirty_canvas",
+      "expected_state": "interactive",
+      "required_roles": ["button"],
+      "required_action": "keep_current_canvas",
+      "transition": ["dirty_canvas", "choose_keep", "interactive"],
+      "evidence_kinds": ["interaction", "dom", "state_transition", "graph"],
+      "geometry_case": "not_applicable",
+      "privacy_assertion": "closed_boundary",
+      "retained_artifact": "m15_12_red_report",
+      "graph_mutations": 0,
+      "queue_calls": 0,
+      "projection": "unchanged",
+      "cleanup": "no_mutation_on_cancel",
+      "red_expected": true,
+      "later_owner": "M15-13"
+    },
+    {
+      "id": "AC-M15-12-07",
+      "test_id": "RED-M15-12-07",
+      "surface": "stage_information_architecture",
+      "expected_state": "interactive",
+      "required_roles": ["tab", "tabpanel", "button"],
+      "required_count": 5,
+      "required_action": "stage_specific_next_action",
+      "transition": ["interactive", "switch_stage", "interactive"],
+      "evidence_kinds": ["interaction", "dom", "state_transition"],
+      "geometry_case": "not_applicable",
+      "privacy_assertion": "closed_boundary",
+      "retained_artifact": "m15_12_red_report",
+      "graph_mutations": 0,
+      "queue_calls": 0,
+      "projection": "none_before_start",
+      "cleanup": "normal_mount_cleanup",
+      "red_expected": true,
+      "later_owner": "M15-13"
+    },
+    {
+      "id": "AC-M15-12-08",
+      "test_id": "RED-M15-12-08",
+      "surface": "real_error",
+      "expected_state": "error",
+      "required_roles": ["alert", "button"],
+      "required_action": "retry_h3_app_mode",
+      "transition": [
+        "working",
+        "queue_failure",
+        "error",
+        "retry",
+        "interactive"
+      ],
+      "evidence_kinds": ["interaction", "dom", "state_transition", "graph"],
+      "geometry_case": "not_applicable",
+      "privacy_assertion": "closed_boundary",
+      "retained_artifact": "m15_12_red_report",
+      "graph_mutations": 0,
+      "queue_calls": 0,
+      "projection": "none",
+      "cleanup": "abort_and_restore",
+      "red_expected": true,
+      "later_owner": "M15-13"
+    },
+    {
+      "id": "AC-M15-12-09",
+      "test_id": "RED-M15-12-09",
+      "surface": "panel_geometry",
+      "expected_state": "interactive",
+      "required_roles": ["textbox", "button"],
+      "required_action": "primary_action_visible",
+      "transition": [
+        "wide_viewport_narrow_panel",
+        "resize_panel",
+        "interactive"
+      ],
+      "evidence_kinds": [
+        "container_geometry",
+        "interaction",
+        "visual",
+        "source_contract"
+      ],
+      "geometry_case": "full_matrix",
+      "privacy_assertion": "closed_boundary",
+      "retained_artifact": "m15_12_red_report",
+      "graph_mutations": 0,
+      "queue_calls": 0,
+      "projection": "none_before_start",
+      "cleanup": "owner_values_restored",
+      "red_expected": true,
+      "later_owner": "M15-14"
+    }
+  ],
+  "privacy": {
+    "network": "disabled",
+    "provider": "absent",
+    "media": "synthetic_only",
+    "storage": "unused",
+    "sensitive_content": "forbidden"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "schema": "h3.performance.profiles.v1",
+  "profiles": [
+    {
+      "profile_id": "cpu",
+      "workload_id": "deterministic_product_pipeline",
+      "required_sources": ["package_clock", "python_traced", "process_rss"],
+      "vram_owner": null,
+      "budget": {
+        "warmups": 1,
+        "repetitions": 5,
+        "max_latency_ms": 250.0,
+        "max_process_rss_bytes": 268435456,
+        "max_python_peak_bytes": 134217728,
+        "max_vram_bytes": 0,
+        "max_output_bytes": 262144,
+        "max_output_items": 512,
+        "max_cancellation_latency_ms": 100.0,
+        "max_wall_time_ms": 1000.0,
+        "max_concurrency": 1,
+        "max_cache_ttl_seconds": 60.0
+      }
+    },
+    {
+      "profile_id": "low_resource",
+      "workload_id": "deterministic_product_pipeline",
+      "required_sources": ["package_clock", "python_traced", "process_rss"],
+      "vram_owner": null,
+      "budget": {
+        "warmups": 1,
+        "repetitions": 3,
+        "max_latency_ms": 500.0,
+        "max_process_rss_bytes": 134217728,
+        "max_python_peak_bytes": 67108864,
+        "max_vram_bytes": 0,
+        "max_output_bytes": 131072,
+        "max_output_items": 256,
+        "max_cancellation_latency_ms": 150.0,
+        "max_wall_time_ms": 1500.0,
+        "max_concurrency": 1,
+        "max_cache_ttl_seconds": 60.0
+      }
+    },
+    {
+      "profile_id": "mainstream_gpu",
+      "workload_id": "supported_host_model_execution",
+      "required_sources": ["package_clock", "comfyui_host"],
+      "vram_owner": "comfyui_host",
+      "budget": {
+        "warmups": 1,
+        "repetitions": 3,
+        "max_latency_ms": 120000.0,
+        "max_process_rss_bytes": 536870912,
+        "max_python_peak_bytes": 134217728,
+        "max_vram_bytes": 17179869184,
+        "max_output_bytes": 524288,
+        "max_output_items": 512,
+        "max_cancellation_latency_ms": 500.0,
+        "max_wall_time_ms": 180000.0,
+        "max_concurrency": 1,
+        "max_cache_ttl_seconds": 60.0
+      }
+    },
+    {
+      "profile_id": "high_fidelity",
+      "workload_id": "supported_host_model_execution",
+      "required_sources": ["package_clock", "comfyui_host"],
+      "vram_owner": "comfyui_host",
+      "budget": {
+        "warmups": 1,
+        "repetitions": 3,
+        "max_latency_ms": 300000.0,
+        "max_process_rss_bytes": 1073741824,
+        "max_python_peak_bytes": 268435456,
+        "max_vram_bytes": 25769803776,
+        "max_output_bytes": 1048576,
+        "max_output_items": 1024,
+        "max_cancellation_latency_ms": 1000.0,
+        "max_wall_time_ms": 360000.0,
+        "max_concurrency": 1,
+        "max_cache_ttl_seconds": 60.0
+      }
+    }
+  ]
+}

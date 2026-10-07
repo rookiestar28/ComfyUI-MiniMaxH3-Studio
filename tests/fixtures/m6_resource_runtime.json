@@ -1,0 +1,7 @@
+{
+  "schema": "h3.resource.runtime.v1",
+  "operation_id": "full_reference.timeline",
+  "cache_key_fields": ["contract_schema", "provider_id", "provider_version", "settings_fingerprint", "source_fingerprints"],
+  "statuses": ["complete", "partial", "stale", "cancelled", "timed_out", "memory_exceeded", "budget_exceeded", "concurrency_exceeded", "failed"],
+  "notes": "Metadata-only golden; no media bytes, locators, credentials, or runtime values."
+}

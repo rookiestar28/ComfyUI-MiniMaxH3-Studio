@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/reference_role_resolution_v1.schema.json",
+  "title": "H3 Cross-Asset Identity and Reference-Role Resolution v1",
+  "type": "object",
+  "required": ["schema", "status", "complete", "source_graph_fingerprint", "labels", "input_proposals", "assignments", "links", "alternatives", "conflicts", "diagnostics", "metrics"],
+  "properties": {
+    "schema": {"const": "h3.reference_role_resolution.v1"},
+    "status": {"enum": ["complete", "partial", "ambiguous", "conflicting", "empty"]},
+    "complete": {"type": "boolean"},
+    "source_graph_fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "labels": {"type": "array", "maxItems": 256, "items": {"type": "object"}},
+    "input_proposals": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/proposal"}},
+    "assignments": {"type": "array", "maxItems": 1024, "items": {"$ref": "#/$defs/assignment"}},
+    "links": {"type": "array", "maxItems": 1024, "items": {"$ref": "#/$defs/link"}},
+    "alternatives": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/alternative"}},
+    "conflicts": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/conflict"}},
+    "diagnostics": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+    "metrics": {"$ref": "#/$defs/metrics"}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "decimal": {"type": ["string", "null"], "pattern": "^(0(\\.[0-9]+)?|1(\\.0+)?)$"},
+    "role": {"enum": ["picture", "video", "audio", "subject", "voice", "object", "scene", "style", "motion", "camera", "edit", "keyframe"]},
+    "resolution": {"enum": ["resolved", "user_selected", "ambiguous", "unresolved", "conflicting"]},
+    "ids": {"type": "array", "maxItems": 256, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+    "proposal": {
+      "type": "object",
+      "required": ["schema", "proposal_id", "role", "candidate_ids", "label", "observation_ids", "source_asset_ids", "evidence_ids", "resolution", "confidence", "uncertainty_ids"],
+      "properties": {
+        "schema": {"const": "h3.reference_role_resolution.v1"},
+        "proposal_id": {"$ref": "#/$defs/identifier"},
+        "role": {"$ref": "#/$defs/role"},
+        "candidate_ids": {"$ref": "#/$defs/ids"},
+        "label": {"type": ["string", "null"], "maxLength": 4096},
+        "observation_ids": {"$ref": "#/$defs/ids"},
+        "source_asset_ids": {"type": "array", "minItems": 1, "maxItems": 256, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "evidence_ids": {"$ref": "#/$defs/ids"},
+        "resolution": {"$ref": "#/$defs/resolution"},
+        "confidence": {"$ref": "#/$defs/decimal"},
+        "uncertainty_ids": {"$ref": "#/$defs/ids"}
+      },
+      "additionalProperties": false
+    },
+    "assignment": {
+      "type": "object",
+      "required": ["schema", "assignment_id", "role", "candidate_id", "label", "observation_ids", "source_asset_ids", "evidence_ids", "resolution", "confidence", "uncertainty_ids", "proposal_ids"],
+      "properties": {
+        "schema": {"const": "h3.reference_role_resolution.v1"},
+        "assignment_id": {"$ref": "#/$defs/identifier"},
+        "role": {"$ref": "#/$defs/role"},
+        "candidate_id": {"$ref": "#/$defs/identifier"},
+        "label": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "observation_ids": {"$ref": "#/$defs/ids"},
+        "source_asset_ids": {"type": "array", "minItems": 1, "maxItems": 256, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "evidence_ids": {"$ref": "#/$defs/ids"},
+        "resolution": {"$ref": "#/$defs/resolution"},
+        "confidence": {"$ref": "#/$defs/decimal"},
+        "uncertainty_ids": {"$ref": "#/$defs/ids"},
+        "proposal_ids": {"$ref": "#/$defs/ids"}
+      },
+      "additionalProperties": false
+    },
+    "link": {
+      "type": "object",
+      "required": ["schema", "link_id", "proposal_id", "observation_id", "role", "candidate_ids", "resolution"],
+      "properties": {
+        "schema": {"const": "h3.reference_role_resolution.v1"},
+        "link_id": {"$ref": "#/$defs/identifier"},
+        "proposal_id": {"$ref": "#/$defs/identifier"},
+        "observation_id": {"$ref": "#/$defs/identifier"},
+        "role": {"$ref": "#/$defs/role"},
+        "candidate_ids": {"$ref": "#/$defs/ids"},
+        "resolution": {"$ref": "#/$defs/resolution"}
+      },
+      "additionalProperties": false
+    },
+    "alternative": {
+      "type": "object",
+      "required": ["schema", "alternative_id", "role", "candidate_ids", "observation_ids", "source_asset_ids", "proposal_ids", "reason", "uncertainty_ids"],
+      "properties": {
+        "schema": {"const": "h3.reference_role_resolution.v1"},
+        "alternative_id": {"$ref": "#/$defs/identifier"},
+        "role": {"$ref": "#/$defs/role"},
+        "candidate_ids": {"type": "array", "minItems": 2, "maxItems": 256, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "observation_ids": {"$ref": "#/$defs/ids"},
+        "source_asset_ids": {"type": "array", "minItems": 1, "maxItems": 256, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "proposal_ids": {"$ref": "#/$defs/ids"},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "uncertainty_ids": {"$ref": "#/$defs/ids"}
+      },
+      "additionalProperties": false
+    },
+    "conflict": {
+      "type": "object",
+      "required": ["schema", "conflict_id", "role", "candidate_ids", "observation_ids", "proposal_ids", "reason"],
+      "properties": {
+        "schema": {"const": "h3.reference_role_resolution.v1"},
+        "conflict_id": {"$ref": "#/$defs/identifier"},
+        "role": {"$ref": "#/$defs/role"},
+        "candidate_ids": {"type": "array", "minItems": 2, "maxItems": 256, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "observation_ids": {"$ref": "#/$defs/ids"},
+        "proposal_ids": {"$ref": "#/$defs/ids"},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 4096}
+      },
+      "additionalProperties": false
+    },
+    "metrics": {
+      "type": "object",
+      "required": ["proposal_count", "resolved_count", "ambiguous_count", "unresolved_count", "conflicting_count", "false_merge_count", "prevented_false_merge_count", "label_order_errors", "label_order_pass"],
+      "properties": {
+        "proposal_count": {"type": "integer", "minimum": 0},
+        "resolved_count": {"type": "integer", "minimum": 0},
+        "ambiguous_count": {"type": "integer", "minimum": 0},
+        "unresolved_count": {"type": "integer", "minimum": 0},
+        "conflicting_count": {"type": "integer", "minimum": 0},
+        "false_merge_count": {"type": "integer", "minimum": 0},
+        "prevented_false_merge_count": {"type": "integer", "minimum": 0},
+        "label_order_errors": {"type": "integer", "minimum": 0},
+        "label_order_pass": {"const": true}
+      },
+      "additionalProperties": false
+    }
+  }
+}

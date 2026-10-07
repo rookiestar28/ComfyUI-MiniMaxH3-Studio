@@ -1,0 +1,2644 @@
+{
+  "exported_names": [
+    "AUDIO_PERCEPTION_DISPLAY_NAME",
+    "AUDIO_PERCEPTION_NODE_ID",
+    "AUDIO_PRODUCER_SOCKET_TYPE",
+    "AUDIT_OVERRIDE_DISPLAY_NAME",
+    "AUDIT_OVERRIDE_NODE_ID",
+    "AUDIT_OVERRIDE_SOCKET_TYPE",
+    "AuditOverrideNodeError",
+    "COMPILER_DISPLAY_NAME",
+    "COMPILER_NODE_ID",
+    "CONSTRAINED_SEMANTIC_DISPLAY_NAME",
+    "CONSTRAINED_SEMANTIC_NODE_ID",
+    "CONSTRAINED_SEMANTIC_SOCKET_TYPE",
+    "FEASIBLE_AV_TIMELINE_DISPLAY_NAME",
+    "FEASIBLE_AV_TIMELINE_NODE_ID",
+    "FEASIBLE_AV_TIMELINE_SOCKET_TYPE",
+    "FULL_REFERENCE_DISPLAY_NAME",
+    "FULL_REFERENCE_NODE_ID",
+    "FULL_REFERENCE_TIMELINE_SOCKET_TYPE",
+    "H3AudioPerceptionProducerNode",
+    "H3ConstrainedSemanticPlanningNode",
+    "H3ContextAuditOverrideNode",
+    "H3ContextCompilerNode",
+    "H3ContextFullReferenceNode",
+    "H3ContextNativeH3AdapterNode",
+    "H3ContextPlanNode",
+    "H3ContextPreviewNode",
+    "H3ContextProductShellNode",
+    "H3ContextProviderTransparencyNode",
+    "H3ContextReliabilityNode",
+    "H3ContextRequestNode",
+    "H3ContextValidatorNode",
+    "H3CrossReferenceProducerNode",
+    "H3DirectiveAuthorityProducerNode",
+    "H3EvidenceFusionProducerNode",
+    "H3FeasibleAVTimelineNode",
+    "H3FullReferenceTimelineProducerNode",
+    "H3HardConstraintProducerNode",
+    "H3HierarchicalEvidenceReductionNode",
+    "H3IntentGraphProducerNode",
+    "H3LocalReconstructionNode",
+    "H3MediaAdmissionProducerNode",
+    "H3OfficialContextIRNode",
+    "H3ReferenceRegistryNode",
+    "H3SemanticProposalNodeError",
+    "H3SemanticProposalProducerNode",
+    "H3SourceProfiledRendererNode",
+    "H3VisualPerceptionProducerNode",
+    "HIERARCHICAL_REDUCTION_DISPLAY_NAME",
+    "HIERARCHICAL_REDUCTION_NODE_ID",
+    "HIERARCHICAL_REDUCTION_SOCKET_TYPE",
+    "INTENT_GRAPH_SOCKET_TYPE",
+    "LOCAL_RECONSTRUCTION_DISPLAY_NAME",
+    "LOCAL_RECONSTRUCTION_NODE_ID",
+    "LOCAL_RECONSTRUCTION_SOCKET_TYPE",
+    "MEDIA_ADMISSION_DISPLAY_NAME",
+    "MEDIA_ADMISSION_NODE_ID",
+    "MEDIA_PRODUCER_SOCKET_TYPE",
+    "NATIVE_H3_ADAPTER_DISPLAY_NAME",
+    "NATIVE_H3_ADAPTER_NODE_ID",
+    "NATIVE_H3_WIRING_SOCKET_TYPE",
+    "NODE_CLASS_MAPPINGS",
+    "NODE_DISPLAY_NAME_MAPPINGS",
+    "NativeH3AdapterNodeError",
+    "OfficialContextIRNodeError",
+    "PLAN_DISPLAY_NAME",
+    "PLAN_NODE_ID",
+    "PLAN_SOCKET_TYPE",
+    "PREVIEW_DISPLAY_NAME",
+    "PREVIEW_NODE_ID",
+    "PREVIEW_SOCKET_TYPE",
+    "PRODUCT_SHELL_DISPLAY_NAME",
+    "PRODUCT_SHELL_NODE_ID",
+    "PRODUCT_SHELL_SOCKET_TYPE",
+    "PROMPT_DOCUMENT_SOCKET_TYPE",
+    "PROMPT_STRING_SOCKET_TYPE",
+    "PROVIDER_CONSENT_SOCKET_TYPE",
+    "PROVIDER_SETUP_SOCKET_TYPE",
+    "PROVIDER_TRANSPARENCY_DISPLAY_NAME",
+    "PROVIDER_TRANSPARENCY_NODE_ID",
+    "PROVIDER_TRANSPARENCY_SOCKET_TYPE",
+    "PipelineNodeError",
+    "PreviewNodeError",
+    "ProductShellNodeError",
+    "ProviderTransparencyNodeError",
+    "REFERENCE_DISPLAY_NAME",
+    "REFERENCE_NODE_ID",
+    "REFERENCE_SOCKET_TYPE",
+    "RELIABILITY_DISPLAY_NAME",
+    "RELIABILITY_NODE_ID",
+    "RELIABILITY_PROGRESS_SOCKET_TYPE",
+    "RELIABILITY_RECOVERY_SOCKET_TYPE",
+    "RELIABILITY_STATUS_SOCKET_TYPE",
+    "REPORT_SOCKET_TYPE",
+    "REQUEST_DISPLAY_NAME",
+    "REQUEST_NODE_ID",
+    "REQUEST_SOCKET_TYPE",
+    "ReferenceRegistryNodeError",
+    "ReliabilityNodeError",
+    "RequestNodeError",
+    "SEMANTIC_PROPOSAL_PRODUCER_DISPLAY_NAME",
+    "SEMANTIC_PROPOSAL_PRODUCER_NODE_ID",
+    "SEMANTIC_PROPOSAL_REVIEW_AUTHORITY_SOCKET_TYPE",
+    "SOURCE_PROFILED_PROMPT_SOCKET_TYPE",
+    "SOURCE_PROFILED_RENDERER_DISPLAY_NAME",
+    "SOURCE_PROFILED_RENDERER_NODE_ID",
+    "TASK_MODE_CHOICES",
+    "VALIDATION_SOCKET_TYPE",
+    "VALIDATOR_DISPLAY_NAME",
+    "VALIDATOR_NODE_ID",
+    "VISUAL_PERCEPTION_DISPLAY_NAME",
+    "VISUAL_PERCEPTION_NODE_ID",
+    "VISUAL_PRODUCER_SOCKET_TYPE"
+  ],
+  "fingerprint": "sha256:f0641bf9113d93f6307638986a816260a41eb86802d970f2db4574b02c5b8d19",
+  "mapping_order": [
+    "comfyui_h3_context.H3Context.Request",
+    "comfyui_h3_context.H3Context.ReferenceRegistry",
+    "comfyui_h3_context.H3Context.Plan",
+    "comfyui_h3_context.H3Context.FullReference",
+    "comfyui_h3_context.H3Context.Compiler",
+    "comfyui_h3_context.H3Context.Validator",
+    "comfyui_h3_context.H3Context.Preview",
+    "comfyui_h3_context.H3Context.AuditOverride",
+    "comfyui_h3_context.H3Context.ProviderTransparency",
+    "comfyui_h3_context.H3Context.Reliability",
+    "comfyui_h3_context.H3Context.NativeH3Adapter",
+    "comfyui_h3_context.H3Context.ProductShell",
+    "comfyui_h3_context.H3Context.SemanticProposalProducer",
+    "comfyui_h3_context.H3Context.OfficialContextIR",
+    "comfyui_h3_context.H3Context.MediaAdmissionProducer",
+    "comfyui_h3_context.H3Context.VisualPerceptionProducer",
+    "comfyui_h3_context.H3Context.AudioPerceptionProducer",
+    "comfyui_h3_context.H3Context.HardConstraintProducer",
+    "comfyui_h3_context.H3Context.IntentGraphProducer",
+    "comfyui_h3_context.H3Context.EvidenceFusionProducer",
+    "comfyui_h3_context.H3Context.CrossReferenceProducer",
+    "comfyui_h3_context.H3Context.DirectiveAuthorityProducer",
+    "comfyui_h3_context.H3Context.FullReferenceTimelineProducer",
+    "comfyui_h3_context.H3Context.FeasibleAVTimeline",
+    "comfyui_h3_context.H3Context.HierarchicalEvidenceReduction",
+    "comfyui_h3_context.H3Context.ConstrainedSemanticPlanning",
+    "comfyui_h3_context.H3Context.SourceProfiledRenderer",
+    "comfyui_h3_context.H3Context.LocalReconstruction"
+  ],
+  "nodes": [
+    {
+      "category": "h3_context/perception",
+      "class_name": "H3AudioPerceptionProducerNode",
+      "description": "Host-configured short English CPU ASR. Choose whisper_large_v3_cpu_en_v1 and comfyui_native; transcript candidates remain uncertain.",
+      "display_name": "H3 Audio Perception Producer",
+      "function": "produce",
+      "input_is_list": false,
+      "input_order": {
+        "optional": [
+          "local_service_consent"
+        ],
+        "required": [
+          "media",
+          "route",
+          "profile_id",
+          "device",
+          "cancel_requested"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.AudioPerceptionProducer",
+      "output_is_list": [
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "result"
+      ],
+      "return_types": [
+        "H3_AUDIO_PRODUCER_RESULT"
+      ],
+      "sockets": [
+        {
+          "name": "local_service_consent",
+          "options": {
+            "default": false
+          },
+          "section": "optional",
+          "socket_type": "BOOLEAN"
+        },
+        {
+          "name": "cancel_requested",
+          "options": {
+            "default": false
+          },
+          "section": "required",
+          "socket_type": "BOOLEAN"
+        },
+        {
+          "name": "device",
+          "options": {
+            "default": "auto",
+            "options": [
+              "auto",
+              "cpu",
+              "cuda",
+              "mps"
+            ]
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "media",
+          "section": "required",
+          "socket_type": "H3_MEDIA_PRODUCER_RESULT"
+        },
+        {
+          "name": "profile_id",
+          "options": {
+            "default": "unqualified"
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "route",
+          "options": {
+            "default": "comfyui_native",
+            "options": [
+              "comfyui_native",
+              "ollama",
+              "specialist"
+            ]
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        }
+      ],
+      "validates_inputs": true
+    },
+    {
+      "category": "h3_context/audit",
+      "class_name": "H3ContextAuditOverrideNode",
+      "description": "Applies an explicit versioned prompt edit, preserves the typed plan, and re-runs validation without provider execution.",
+      "display_name": "H3 Context Audit Override",
+      "function": "apply",
+      "input_is_list": false,
+      "input_order": {
+        "required": [
+          "report",
+          "base_report_fingerprint",
+          "revision",
+          "reason",
+          "prompt_text"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.AuditOverride",
+      "output_is_list": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "edited_prompt",
+        "updated_report",
+        "override",
+        "prompt_document"
+      ],
+      "return_types": [
+        "H3_PROMPT_STRING",
+        "H3_CONTEXT_REPORT",
+        "H3_AUDIT_OVERRIDE",
+        "H3_PROMPT_DOCUMENT"
+      ],
+      "sockets": [
+        {
+          "name": "base_report_fingerprint",
+          "options": {
+            "default": "",
+            "tooltip": "Exact report fingerprint from the audit preview; stale edits fail."
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "prompt_text",
+          "options": {
+            "default": "",
+            "dynamicPrompts": false,
+            "multiline": true,
+            "tooltip": "Exact caller-authored prompt text; it is revalidated unchanged."
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "reason",
+          "options": {
+            "default": "Operator-approved audit edit",
+            "tooltip": "Why the manual edit is being made; no credentials or URLs."
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "report",
+          "options": {
+            "tooltip": "Source report shown by H3 Context Preview."
+          },
+          "section": "required",
+          "socket_type": "H3_CONTEXT_REPORT"
+        },
+        {
+          "name": "revision",
+          "options": {
+            "default": 1,
+            "max": 1000000,
+            "min": 1,
+            "step": 1,
+            "tooltip": "Positive operator revision for this manual edit."
+          },
+          "section": "required",
+          "socket_type": "INT"
+        }
+      ],
+      "validates_inputs": true
+    },
+    {
+      "category": "h3_context/compiler",
+      "class_name": "H3ContextCompilerNode",
+      "description": "Renders the normalized plan with its explicit H3 prompt profile.",
+      "display_name": "H3 Context Compiler",
+      "function": "compile",
+      "input_is_list": false,
+      "input_order": {
+        "required": [
+          "plan"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.Compiler",
+      "output_is_list": [
+        false,
+        false,
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "prompt",
+        "report",
+        "prompt_document"
+      ],
+      "return_types": [
+        "H3_PROMPT_STRING",
+        "H3_CONTEXT_REPORT",
+        "H3_PROMPT_DOCUMENT"
+      ],
+      "sockets": [
+        {
+          "name": "plan",
+          "options": {
+            "tooltip": "Validated typed plan from H3 Context Plan."
+          },
+          "section": "required",
+          "socket_type": "H3_CONTEXT_PLAN"
+        }
+      ],
+      "validates_inputs": true
+    },
+    {
+      "category": "h3_context/planning",
+      "class_name": "H3ConstrainedSemanticPlanningNode",
+      "description": "Records unavailable enrichment and materializes the accepted planning chain.",
+      "display_name": "H3 Constrained Semantic Planning",
+      "function": "plan",
+      "input_is_list": false,
+      "input_order": {
+        "required": [
+          "reduction",
+          "plan"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.ConstrainedSemanticPlanning",
+      "output_is_list": [
+        false,
+        false
+      ],
+      "return_names": [
+        "semantic_planning",
+        "accepted_plan"
+      ],
+      "return_types": [
+        "H3_CONSTRAINED_SEMANTIC_PLANNING",
+        "H3_CONTEXT_PLAN"
+      ],
+      "sockets": [
+        {
+          "name": "plan",
+          "section": "required",
+          "socket_type": "H3_CONTEXT_PLAN"
+        },
+        {
+          "name": "reduction",
+          "section": "required",
+          "socket_type": "H3_HIERARCHICAL_EVIDENCE_REDUCTION"
+        }
+      ]
+    },
+    {
+      "category": "h3_context/assembly",
+      "class_name": "H3CrossReferenceProducerNode",
+      "description": "Builds source-owned cross-reference identities from admitted media.",
+      "display_name": "H3 Cross Reference Producer",
+      "function": "produce",
+      "input_is_list": false,
+      "input_order": {
+        "optional": [
+          "resolution",
+          "entity_kind",
+          "candidate_a",
+          "candidate_b"
+        ],
+        "required": [
+          "reference_registry",
+          "media"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.CrossReferenceProducer",
+      "output_is_list": [
+        false,
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "cross_reference_graph",
+        "producer_report"
+      ],
+      "return_types": [
+        "H3_CROSS_REFERENCE_GRAPH",
+        "H3_DOWNSTREAM_PRODUCER_REPORT"
+      ],
+      "sockets": [
+        {
+          "name": "candidate_a",
+          "options": {
+            "default": ""
+          },
+          "section": "optional",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "candidate_b",
+          "options": {
+            "default": ""
+          },
+          "section": "optional",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "entity_kind",
+          "options": {
+            "default": "subject",
+            "options": [
+              "subject",
+              "voice",
+              "object",
+              "scene"
+            ]
+          },
+          "section": "optional",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "resolution",
+          "options": {
+            "default": "source_only",
+            "options": [
+              "source_only",
+              "ambiguous"
+            ]
+          },
+          "section": "optional",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "media",
+          "section": "required",
+          "socket_type": "H3_MEDIA_PRODUCER_RESULT"
+        },
+        {
+          "name": "reference_registry",
+          "section": "required",
+          "socket_type": "H3_REFERENCE_REGISTRY"
+        }
+      ]
+    },
+    {
+      "category": "h3_context/assembly",
+      "class_name": "H3DirectiveAuthorityProducerNode",
+      "description": "Builds deterministic directive authority without hidden conflict choices.",
+      "display_name": "H3 Directive Authority Producer",
+      "function": "produce",
+      "input_is_list": false,
+      "input_order": {
+        "required": [
+          "request",
+          "reference_registry",
+          "hard_constraints",
+          "hard_constraints_report",
+          "intent_graph",
+          "intent_report",
+          "action",
+          "target_kind",
+          "target_id",
+          "source_asset_id",
+          "retention_aspect",
+          "adaptation",
+          "exclusion_reason",
+          "authority",
+          "priority"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.DirectiveAuthorityProducer",
+      "output_is_list": [
+        false,
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "directive_authority",
+        "producer_report"
+      ],
+      "return_types": [
+        "H3_DIRECTIVE_AUTHORITY",
+        "H3_DOWNSTREAM_PRODUCER_REPORT"
+      ],
+      "sockets": [
+        {
+          "name": "action",
+          "options": {
+            "default": "none",
+            "options": [
+              "none",
+              "retain",
+              "adapt",
+              "exclude"
+            ]
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "adaptation",
+          "options": {
+            "default": "",
+            "multiline": true
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "authority",
+          "options": {
+            "default": "user_preference",
+            "options": [
+              "user_hard",
+              "user_preference",
+              "reference_only",
+              "assisted_proposal"
+            ]
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "exclusion_reason",
+          "options": {
+            "default": "",
+            "multiline": true
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "hard_constraints",
+          "section": "required",
+          "socket_type": "H3_HARD_CONSTRAINTS"
+        },
+        {
+          "name": "hard_constraints_report",
+          "section": "required",
+          "socket_type": "H3_DOWNSTREAM_PRODUCER_REPORT"
+        },
+        {
+          "name": "intent_graph",
+          "section": "required",
+          "socket_type": "H3_INTENT_GRAPH"
+        },
+        {
+          "name": "intent_report",
+          "section": "required",
+          "socket_type": "H3_DOWNSTREAM_PRODUCER_REPORT"
+        },
+        {
+          "name": "priority",
+          "options": {
+            "default": 0,
+            "max": 1000,
+            "min": 0
+          },
+          "section": "required",
+          "socket_type": "INT"
+        },
+        {
+          "name": "reference_registry",
+          "section": "required",
+          "socket_type": "H3_REFERENCE_REGISTRY"
+        },
+        {
+          "name": "request",
+          "section": "required",
+          "socket_type": "H3_CONTEXT_REQUEST"
+        },
+        {
+          "name": "retention_aspect",
+          "options": {
+            "default": "identity",
+            "options": [
+              "identity",
+              "style",
+              "camera",
+              "audio",
+              "voice",
+              "scene",
+              "action",
+              "object"
+            ]
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "source_asset_id",
+          "options": {
+            "default": ""
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "target_id",
+          "options": {
+            "default": ""
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "target_kind",
+          "options": {
+            "default": "subject",
+            "options": [
+              "subject",
+              "scene",
+              "action",
+              "asset"
+            ]
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        }
+      ]
+    },
+    {
+      "category": "h3_context/assembly",
+      "class_name": "H3EvidenceFusionProducerNode",
+      "description": "Projects admitted source metadata without claiming semantic perception.",
+      "display_name": "H3 Evidence Fusion Producer",
+      "function": "produce",
+      "input_is_list": false,
+      "input_order": {
+        "required": [
+          "media"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.EvidenceFusionProducer",
+      "output_is_list": [
+        false,
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "evidence_graph",
+        "producer_report"
+      ],
+      "return_types": [
+        "H3_UNIFIED_EVIDENCE_GRAPH",
+        "H3_DOWNSTREAM_PRODUCER_REPORT"
+      ],
+      "sockets": [
+        {
+          "name": "media",
+          "section": "required",
+          "socket_type": "H3_MEDIA_PRODUCER_RESULT"
+        }
+      ]
+    },
+    {
+      "category": "h3_context/planning",
+      "class_name": "H3FeasibleAVTimelineNode",
+      "description": "Builds the deterministic feasible audiovisual timeline.",
+      "display_name": "H3 Feasible AV Timeline",
+      "function": "plan",
+      "input_is_list": false,
+      "input_order": {
+        "required": [
+          "request",
+          "reference_registry",
+          "intent_graph",
+          "intent_report",
+          "directive_authority",
+          "directive_report"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.FeasibleAVTimeline",
+      "output_is_list": [
+        false
+      ],
+      "return_names": [
+        "feasible_timeline"
+      ],
+      "return_types": [
+        "H3_FEASIBLE_AV_TIMELINE"
+      ],
+      "sockets": [
+        {
+          "name": "directive_authority",
+          "section": "required",
+          "socket_type": "H3_DIRECTIVE_AUTHORITY"
+        },
+        {
+          "name": "directive_report",
+          "section": "required",
+          "socket_type": "H3_DOWNSTREAM_PRODUCER_REPORT"
+        },
+        {
+          "name": "intent_graph",
+          "section": "required",
+          "socket_type": "H3_INTENT_GRAPH"
+        },
+        {
+          "name": "intent_report",
+          "section": "required",
+          "socket_type": "H3_DOWNSTREAM_PRODUCER_REPORT"
+        },
+        {
+          "name": "reference_registry",
+          "section": "required",
+          "socket_type": "H3_REFERENCE_REGISTRY"
+        },
+        {
+          "name": "request",
+          "section": "required",
+          "socket_type": "H3_CONTEXT_REQUEST"
+        }
+      ]
+    },
+    {
+      "category": "h3_context/compiler",
+      "class_name": "H3ContextFullReferenceNode",
+      "description": "Adopts a validated Full-Reference timeline plan; compilation, validation, and native media wiring remain explicit downstream nodes.",
+      "display_name": "H3 Full-Reference Plan",
+      "function": "build_plan",
+      "input_is_list": false,
+      "input_order": {
+        "required": [
+          "timeline"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.FullReference",
+      "output_is_list": [
+        false,
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "plan",
+        "report"
+      ],
+      "return_types": [
+        "H3_CONTEXT_PLAN",
+        "H3_CONTEXT_REPORT"
+      ],
+      "sockets": [
+        {
+          "name": "timeline",
+          "options": {
+            "tooltip": "Validated M6 Full-Reference timeline result."
+          },
+          "section": "required",
+          "socket_type": "H3_FULL_REFERENCE_TIMELINE"
+        }
+      ],
+      "validates_inputs": true
+    },
+    {
+      "category": "h3_context/assembly",
+      "class_name": "H3FullReferenceTimelineProducerNode",
+      "description": "Build a partial Full-Reference timeline from qualified decoded-CFR video observations. Connect visual_result; missing qualified perception remains unavailable.",
+      "display_name": "H3 Full Reference Timeline Producer",
+      "function": "produce",
+      "input_is_list": false,
+      "input_order": {
+        "optional": [
+          "visual_result"
+        ],
+        "required": [
+          "request",
+          "reference_registry",
+          "media",
+          "evidence_graph",
+          "evidence_report",
+          "cross_reference_graph",
+          "cross_reference_report",
+          "directive_authority",
+          "directive_report",
+          "intent_graph",
+          "intent_report"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.FullReferenceTimelineProducer",
+      "output_is_list": [
+        false,
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "timeline",
+        "producer_report"
+      ],
+      "return_types": [
+        "H3_FULL_REFERENCE_TIMELINE",
+        "H3_DOWNSTREAM_PRODUCER_REPORT"
+      ],
+      "sockets": [
+        {
+          "name": "visual_result",
+          "section": "optional",
+          "socket_type": "H3_VISUAL_PRODUCER_RESULT"
+        },
+        {
+          "name": "cross_reference_graph",
+          "section": "required",
+          "socket_type": "H3_CROSS_REFERENCE_GRAPH"
+        },
+        {
+          "name": "cross_reference_report",
+          "section": "required",
+          "socket_type": "H3_DOWNSTREAM_PRODUCER_REPORT"
+        },
+        {
+          "name": "directive_authority",
+          "section": "required",
+          "socket_type": "H3_DIRECTIVE_AUTHORITY"
+        },
+        {
+          "name": "directive_report",
+          "section": "required",
+          "socket_type": "H3_DOWNSTREAM_PRODUCER_REPORT"
+        },
+        {
+          "name": "evidence_graph",
+          "section": "required",
+          "socket_type": "H3_UNIFIED_EVIDENCE_GRAPH"
+        },
+        {
+          "name": "evidence_report",
+          "section": "required",
+          "socket_type": "H3_DOWNSTREAM_PRODUCER_REPORT"
+        },
+        {
+          "name": "intent_graph",
+          "section": "required",
+          "socket_type": "H3_INTENT_GRAPH"
+        },
+        {
+          "name": "intent_report",
+          "section": "required",
+          "socket_type": "H3_DOWNSTREAM_PRODUCER_REPORT"
+        },
+        {
+          "name": "media",
+          "section": "required",
+          "socket_type": "H3_MEDIA_PRODUCER_RESULT"
+        },
+        {
+          "name": "reference_registry",
+          "section": "required",
+          "socket_type": "H3_REFERENCE_REGISTRY"
+        },
+        {
+          "name": "request",
+          "section": "required",
+          "socket_type": "H3_CONTEXT_REQUEST"
+        }
+      ],
+      "validates_inputs": true
+    },
+    {
+      "category": "h3_context/assembly",
+      "class_name": "H3HardConstraintProducerNode",
+      "description": "Builds exact caller-authored hard constraints without inference or rewriting.",
+      "display_name": "H3 Hard Constraint Producer",
+      "function": "produce",
+      "input_is_list": false,
+      "input_order": {
+        "optional": [
+          "dialogue_language",
+          "dialogue_speaker",
+          "dialogue_delivery"
+        ],
+        "required": [
+          "dialogue",
+          "visible_text",
+          "required_content",
+          "forbidden_content",
+          "timing_start",
+          "timing_end",
+          "keep_target",
+          "keep_value",
+          "change_replacement"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.HardConstraintProducer",
+      "output_is_list": [
+        false,
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "hard_constraints",
+        "producer_report"
+      ],
+      "return_types": [
+        "H3_HARD_CONSTRAINTS",
+        "H3_DOWNSTREAM_PRODUCER_REPORT"
+      ],
+      "sockets": [
+        {
+          "name": "dialogue_delivery",
+          "options": {
+            "default": "on_screen",
+            "options": [
+              "on_screen",
+              "voiceover"
+            ]
+          },
+          "section": "optional",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "dialogue_language",
+          "options": {
+            "default": "auto",
+            "options": [
+              "auto",
+              "Arabic",
+              "Chinese",
+              "English",
+              "French",
+              "German",
+              "Italian",
+              "Japanese",
+              "Korean",
+              "Portuguese",
+              "Russian",
+              "Spanish"
+            ]
+          },
+          "section": "optional",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "dialogue_speaker",
+          "options": {
+            "default": ""
+          },
+          "section": "optional",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "change_replacement",
+          "options": {
+            "default": ""
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "dialogue",
+          "options": {
+            "default": "",
+            "multiline": true
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "forbidden_content",
+          "options": {
+            "default": "",
+            "multiline": true
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "keep_target",
+          "options": {
+            "default": "subject",
+            "options": [
+              "subject",
+              "scene",
+              "action",
+              "camera",
+              "style",
+              "audio",
+              "dialogue",
+              "lyrics",
+              "visible_text",
+              "asset"
+            ]
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "keep_value",
+          "options": {
+            "default": ""
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "required_content",
+          "options": {
+            "default": "",
+            "multiline": true
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "timing_end",
+          "options": {
+            "default": ""
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "timing_start",
+          "options": {
+            "default": ""
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "visible_text",
+          "options": {
+            "default": "",
+            "multiline": true
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        }
+      ]
+    },
+    {
+      "category": "h3_context/planning",
+      "class_name": "H3HierarchicalEvidenceReductionNode",
+      "description": "Reduces admitted evidence under explicit deterministic budgets.",
+      "display_name": "H3 Hierarchical Evidence Reduction",
+      "function": "reduce",
+      "input_is_list": false,
+      "input_order": {
+        "required": [
+          "media",
+          "evidence_graph",
+          "evidence_report",
+          "feasible_timeline"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.HierarchicalEvidenceReduction",
+      "output_is_list": [
+        false
+      ],
+      "return_names": [
+        "reduction"
+      ],
+      "return_types": [
+        "H3_HIERARCHICAL_EVIDENCE_REDUCTION"
+      ],
+      "sockets": [
+        {
+          "name": "evidence_graph",
+          "section": "required",
+          "socket_type": "H3_UNIFIED_EVIDENCE_GRAPH"
+        },
+        {
+          "name": "evidence_report",
+          "section": "required",
+          "socket_type": "H3_DOWNSTREAM_PRODUCER_REPORT"
+        },
+        {
+          "name": "feasible_timeline",
+          "section": "required",
+          "socket_type": "H3_FEASIBLE_AV_TIMELINE"
+        },
+        {
+          "name": "media",
+          "section": "required",
+          "socket_type": "H3_MEDIA_PRODUCER_RESULT"
+        }
+      ]
+    },
+    {
+      "category": "h3_context/assembly",
+      "class_name": "H3IntentGraphProducerNode",
+      "description": "Builds a deterministic manual intent graph from request and registry.",
+      "display_name": "H3 Intent Graph Producer",
+      "function": "produce",
+      "input_is_list": false,
+      "input_order": {
+        "optional": [
+          "secondary_subject_label",
+          "secondary_action_description",
+          "complete_silence",
+          "keyframe_binding",
+          "segment_development"
+        ],
+        "required": [
+          "request",
+          "reference_registry",
+          "subject_label",
+          "action_description"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.IntentGraphProducer",
+      "output_is_list": [
+        false,
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "intent_graph",
+        "producer_report"
+      ],
+      "return_types": [
+        "H3_INTENT_GRAPH",
+        "H3_DOWNSTREAM_PRODUCER_REPORT"
+      ],
+      "sockets": [
+        {
+          "name": "complete_silence",
+          "options": {
+            "default": false
+          },
+          "section": "optional",
+          "socket_type": "BOOLEAN"
+        },
+        {
+          "name": "keyframe_binding",
+          "options": {
+            "default": "unbound",
+            "options": [
+              "unbound",
+              "first_frame",
+              "last_frame",
+              "both"
+            ]
+          },
+          "section": "optional",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "secondary_action_description",
+          "options": {
+            "default": "",
+            "multiline": true
+          },
+          "section": "optional",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "secondary_subject_label",
+          "options": {
+            "default": ""
+          },
+          "section": "optional",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "segment_development",
+          "options": {
+            "default": "unspecified",
+            "options": [
+              "unspecified",
+              "anchor_development",
+              "anchor_static_hold"
+            ]
+          },
+          "section": "optional",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "action_description",
+          "options": {
+            "default": "",
+            "multiline": true
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "reference_registry",
+          "section": "required",
+          "socket_type": "H3_REFERENCE_REGISTRY"
+        },
+        {
+          "name": "request",
+          "section": "required",
+          "socket_type": "H3_CONTEXT_REQUEST"
+        },
+        {
+          "name": "subject_label",
+          "options": {
+            "default": ""
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        }
+      ]
+    },
+    {
+      "category": "h3_context/acceptance",
+      "class_name": "H3LocalReconstructionNode",
+      "description": "Accepts only a current deterministic manual end-to-end reconstruction route.",
+      "display_name": "H3 Local Reconstruction Acceptance",
+      "function": "accept",
+      "input_is_list": false,
+      "input_order": {
+        "required": [
+          "request",
+          "reference_registry",
+          "media",
+          "hard_constraints",
+          "hard_constraints_report",
+          "intent_graph",
+          "intent_report",
+          "evidence_graph",
+          "evidence_report",
+          "cross_reference_graph",
+          "cross_reference_report",
+          "directive_authority",
+          "directive_report",
+          "feasible_timeline",
+          "hierarchical_reduction",
+          "semantic_planning",
+          "plan",
+          "profiled_prompt",
+          "validation",
+          "validated_report",
+          "native_h3_wiring"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.LocalReconstruction",
+      "output_is_list": [
+        false,
+        false,
+        false
+      ],
+      "output_node": true,
+      "return_names": [
+        "reconstruction",
+        "accepted_prompt",
+        "accepted_report"
+      ],
+      "return_types": [
+        "H3_LOCAL_RECONSTRUCTION",
+        "H3_PROMPT_STRING",
+        "H3_CONTEXT_REPORT"
+      ],
+      "sockets": [
+        {
+          "name": "cross_reference_graph",
+          "section": "required",
+          "socket_type": "H3_CROSS_REFERENCE_GRAPH"
+        },
+        {
+          "name": "cross_reference_report",
+          "section": "required",
+          "socket_type": "H3_DOWNSTREAM_PRODUCER_REPORT"
+        },
+        {
+          "name": "directive_authority",
+          "section": "required",
+          "socket_type": "H3_DIRECTIVE_AUTHORITY"
+        },
+        {
+          "name": "directive_report",
+          "section": "required",
+          "socket_type": "H3_DOWNSTREAM_PRODUCER_REPORT"
+        },
+        {
+          "name": "evidence_graph",
+          "section": "required",
+          "socket_type": "H3_UNIFIED_EVIDENCE_GRAPH"
+        },
+        {
+          "name": "evidence_report",
+          "section": "required",
+          "socket_type": "H3_DOWNSTREAM_PRODUCER_REPORT"
+        },
+        {
+          "name": "feasible_timeline",
+          "section": "required",
+          "socket_type": "H3_FEASIBLE_AV_TIMELINE"
+        },
+        {
+          "name": "hard_constraints",
+          "section": "required",
+          "socket_type": "H3_HARD_CONSTRAINTS"
+        },
+        {
+          "name": "hard_constraints_report",
+          "section": "required",
+          "socket_type": "H3_DOWNSTREAM_PRODUCER_REPORT"
+        },
+        {
+          "name": "hierarchical_reduction",
+          "section": "required",
+          "socket_type": "H3_HIERARCHICAL_EVIDENCE_REDUCTION"
+        },
+        {
+          "name": "intent_graph",
+          "section": "required",
+          "socket_type": "H3_INTENT_GRAPH"
+        },
+        {
+          "name": "intent_report",
+          "section": "required",
+          "socket_type": "H3_DOWNSTREAM_PRODUCER_REPORT"
+        },
+        {
+          "name": "media",
+          "section": "required",
+          "socket_type": "H3_MEDIA_PRODUCER_RESULT"
+        },
+        {
+          "name": "native_h3_wiring",
+          "section": "required",
+          "socket_type": "H3_NATIVE_H3_WIRING"
+        },
+        {
+          "name": "plan",
+          "section": "required",
+          "socket_type": "H3_CONTEXT_PLAN"
+        },
+        {
+          "name": "profiled_prompt",
+          "section": "required",
+          "socket_type": "H3_SOURCE_PROFILED_PROMPT"
+        },
+        {
+          "name": "reference_registry",
+          "section": "required",
+          "socket_type": "H3_REFERENCE_REGISTRY"
+        },
+        {
+          "name": "request",
+          "section": "required",
+          "socket_type": "H3_CONTEXT_REQUEST"
+        },
+        {
+          "name": "semantic_planning",
+          "section": "required",
+          "socket_type": "H3_CONSTRAINED_SEMANTIC_PLANNING"
+        },
+        {
+          "name": "validated_report",
+          "section": "required",
+          "socket_type": "H3_CONTEXT_REPORT"
+        },
+        {
+          "name": "validation",
+          "section": "required",
+          "socket_type": "H3_VALIDATION_RESULT"
+        }
+      ]
+    },
+    {
+      "category": "h3_context/perception",
+      "class_name": "H3MediaAdmissionProducerNode",
+      "description": "Admits one host-owned media value and emits a locator-free typed envelope.",
+      "display_name": "H3 Media Admission Producer",
+      "function": "admit",
+      "input_is_list": false,
+      "input_order": {
+        "optional": [
+          "image",
+          "video",
+          "audio"
+        ],
+        "required": [
+          "media_kind",
+          "asset_id",
+          "declared_source_fingerprint",
+          "width_pixels",
+          "height_pixels",
+          "duration_seconds",
+          "sample_rate_hz",
+          "channel_count",
+          "reference_role",
+          "reference_order"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.MediaAdmissionProducer",
+      "output_is_list": [
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "media"
+      ],
+      "return_types": [
+        "H3_MEDIA_PRODUCER_RESULT"
+      ],
+      "sockets": [
+        {
+          "name": "audio",
+          "options": {
+            "tooltip": "Host-owned audio value."
+          },
+          "section": "optional",
+          "socket_type": "AUDIO"
+        },
+        {
+          "name": "image",
+          "options": {
+            "tooltip": "Host-owned image value."
+          },
+          "section": "optional",
+          "socket_type": "IMAGE"
+        },
+        {
+          "name": "video",
+          "options": {
+            "tooltip": "Host-owned video value."
+          },
+          "section": "optional",
+          "socket_type": "VIDEO"
+        },
+        {
+          "name": "asset_id",
+          "options": {
+            "default": "asset-1"
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "channel_count",
+          "options": {
+            "default": 0,
+            "max": 64,
+            "min": 0
+          },
+          "section": "required",
+          "socket_type": "INT"
+        },
+        {
+          "name": "declared_source_fingerprint",
+          "options": {
+            "default": "",
+            "tooltip": "Unverified caller-declared lowercase SHA-256; not trusted-loader provenance."
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "duration_seconds",
+          "options": {
+            "default": {
+              "float": "0.0"
+            },
+            "max": {
+              "float": "86400.0"
+            },
+            "min": {
+              "float": "0.0"
+            }
+          },
+          "section": "required",
+          "socket_type": "FLOAT"
+        },
+        {
+          "name": "height_pixels",
+          "options": {
+            "default": 64,
+            "max": 32768,
+            "min": 0
+          },
+          "section": "required",
+          "socket_type": "INT"
+        },
+        {
+          "name": "media_kind",
+          "options": {
+            "default": "image",
+            "options": [
+              "image",
+              "video",
+              "audio"
+            ]
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "reference_order",
+          "options": {
+            "default": 0,
+            "max": 63,
+            "min": 0
+          },
+          "section": "required",
+          "socket_type": "INT"
+        },
+        {
+          "name": "reference_role",
+          "options": {
+            "default": "reference",
+            "options": [
+              "input",
+              "reference",
+              "first_frame",
+              "last_frame",
+              "paired_audio"
+            ]
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "sample_rate_hz",
+          "options": {
+            "default": 0,
+            "max": 768000,
+            "min": 0
+          },
+          "section": "required",
+          "socket_type": "INT"
+        },
+        {
+          "name": "width_pixels",
+          "options": {
+            "default": 64,
+            "max": 32768,
+            "min": 0
+          },
+          "section": "required",
+          "socket_type": "INT"
+        }
+      ]
+    },
+    {
+      "category": "h3_context/native",
+      "class_name": "H3ContextNativeH3AdapterNode",
+      "description": "Preserves the final prompt and describes direct original-media connections to pinned MiniMax H3 conditioning nodes.",
+      "display_name": "H3 Native MiniMax H3 Adapter",
+      "function": "adapt",
+      "input_is_list": false,
+      "input_order": {
+        "required": [
+          "report"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.NativeH3Adapter",
+      "output_is_list": [
+        false,
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "prompt",
+        "native_h3_wiring"
+      ],
+      "return_types": [
+        "H3_PROMPT_STRING",
+        "H3_NATIVE_H3_WIRING"
+      ],
+      "sockets": [
+        {
+          "name": "report",
+          "options": {
+            "tooltip": "Rendered H3 context report to map to native H3."
+          },
+          "section": "required",
+          "socket_type": "H3_CONTEXT_REPORT"
+        }
+      ],
+      "validates_inputs": true
+    },
+    {
+      "category": "h3_context/providers",
+      "class_name": "H3OfficialContextIRNode",
+      "description": "Requires host configuration (transport_unconfigured): configure the official Context-IR transport before queueing. Explicit upload/network consent and credentials are required.",
+      "display_name": "H3 Official Context-IR",
+      "function": "execute",
+      "input_is_list": false,
+      "input_order": {
+        "optional": [
+          "reference_registry",
+          "media"
+        ],
+        "required": [
+          "request",
+          "ratio",
+          "upload_consent",
+          "network_allowed",
+          "credential_reference"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.OfficialContextIR",
+      "output_is_list": [
+        false,
+        false,
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "prompt",
+        "receipt",
+        "consent_notice"
+      ],
+      "return_types": [
+        "H3_PROMPT_STRING",
+        "H3_PROVIDER_RECEIPT",
+        "H3_PROVIDER_CONSENT"
+      ],
+      "sockets": [
+        {
+          "name": "media",
+          "options": {
+            "tooltip": "Already-admitted OfficialContextIRMedia values in canonical order."
+          },
+          "section": "optional",
+          "socket_type": "H3_CONTEXT_IR_MEDIA"
+        },
+        {
+          "name": "reference_registry",
+          "options": {
+            "tooltip": "Optional canonical registry to reconcile before mapping media."
+          },
+          "section": "optional",
+          "socket_type": "H3_REFERENCE_REGISTRY"
+        },
+        {
+          "name": "credential_reference",
+          "options": {
+            "default": "env.official_minimax",
+            "dynamicPrompts": false,
+            "multiline": false,
+            "tooltip": "Opaque runtime credential reference; never the credential value."
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "network_allowed",
+          "options": {
+            "default": false,
+            "tooltip": "Explicitly allow the selected official provider network path."
+          },
+          "section": "required",
+          "socket_type": "BOOLEAN"
+        },
+        {
+          "name": "ratio",
+          "options": {
+            "default": "adaptive",
+            "options": [
+              "adaptive",
+              "21:9",
+              "16:9",
+              "4:3",
+              "1:1",
+              "3:4",
+              "9:16"
+            ],
+            "tooltip": "Official Context-IR aspect-ratio contract."
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "request",
+          "options": {
+            "tooltip": "Typed H3 request envelope; no native H3 generation is queued."
+          },
+          "section": "required",
+          "socket_type": "H3_CONTEXT_REQUEST"
+        },
+        {
+          "name": "upload_consent",
+          "options": {
+            "default": false,
+            "tooltip": "Explicitly confirm that media may leave this host."
+          },
+          "section": "required",
+          "socket_type": "BOOLEAN"
+        }
+      ],
+      "validates_inputs": true
+    },
+    {
+      "category": "h3_context/compiler",
+      "class_name": "H3ContextPlanNode",
+      "description": "Normalizes a typed request and assembles an explicit intent graph; omitted semantic detail remains a visible manual skeleton.",
+      "display_name": "H3 Context Plan",
+      "function": "build_plan",
+      "input_is_list": false,
+      "input_order": {
+        "optional": [
+          "reference_registry",
+          "intent_graph"
+        ],
+        "required": [
+          "request"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.Plan",
+      "output_is_list": [
+        false,
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "plan",
+        "report"
+      ],
+      "return_types": [
+        "H3_CONTEXT_PLAN",
+        "H3_CONTEXT_REPORT"
+      ],
+      "sockets": [
+        {
+          "name": "intent_graph",
+          "options": {
+            "tooltip": "Optional explicit semantic graph; no free-text inference."
+          },
+          "section": "optional",
+          "socket_type": "H3_INTENT_GRAPH"
+        },
+        {
+          "name": "reference_registry",
+          "options": {
+            "tooltip": "Optional explicit reference ownership."
+          },
+          "section": "optional",
+          "socket_type": "H3_REFERENCE_REGISTRY"
+        },
+        {
+          "name": "request",
+          "options": {
+            "tooltip": "Typed request envelope from H3 Context Request."
+          },
+          "section": "required",
+          "socket_type": "H3_CONTEXT_REQUEST"
+        }
+      ],
+      "validates_inputs": true
+    },
+    {
+      "category": "h3_context/audit",
+      "class_name": "H3ContextPreviewNode",
+      "description": "Shows a bounded redacted context audit projection and the source prompt.",
+      "display_name": "H3 Context Preview",
+      "function": "emit",
+      "input_is_list": false,
+      "input_order": {
+        "required": [
+          "report"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.Preview",
+      "output_is_list": [
+        false,
+        false
+      ],
+      "output_node": true,
+      "return_names": [
+        "prompt",
+        "preview"
+      ],
+      "return_types": [
+        "H3_PROMPT_STRING",
+        "H3_CONTEXT_PREVIEW"
+      ],
+      "sockets": [
+        {
+          "name": "report",
+          "options": {
+            "tooltip": "Inspectable typed context report from Plan or Compiler."
+          },
+          "section": "required",
+          "socket_type": "H3_CONTEXT_REPORT"
+        }
+      ],
+      "validates_inputs": true
+    },
+    {
+      "category": "h3_context/product",
+      "class_name": "H3ContextProductShellNode",
+      "declares_is_changed": true,
+      "description": "Emits the manual-only product projection for the supported sidebar host pair.",
+      "display_name": "H3 Product Shell Boundary",
+      "function": "emit",
+      "input_is_list": false,
+      "input_order": {
+        "hidden": [
+          "execution_node_id"
+        ],
+        "optional": [
+          "recompute_plan",
+          "pipeline_transaction",
+          "generation_sequence_state",
+          "semantic_proposal_review_authority"
+        ],
+        "required": [
+          "report",
+          "native_h3_wiring"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.ProductShell",
+      "output_is_list": [
+        false,
+        false
+      ],
+      "output_node": true,
+      "return_names": [
+        "prompt",
+        "product_shell"
+      ],
+      "return_types": [
+        "STRING",
+        "H3_PRODUCT_SHELL"
+      ],
+      "sockets": [
+        {
+          "name": "execution_node_id",
+          "section": "hidden",
+          "socket_type": "UNIQUE_ID"
+        },
+        {
+          "name": "generation_sequence_state",
+          "section": "optional",
+          "socket_type": "H3_GENERATION_SEQUENCE_STATE"
+        },
+        {
+          "name": "pipeline_transaction",
+          "section": "optional",
+          "socket_type": "H3_PIPELINE_TRANSACTION"
+        },
+        {
+          "name": "recompute_plan",
+          "section": "optional",
+          "socket_type": "H3_RECOMPUTE_PLAN"
+        },
+        {
+          "name": "semantic_proposal_review_authority",
+          "section": "optional",
+          "socket_type": "H3_SEMANTIC_PROPOSAL_REVIEW_AUTHORITY"
+        },
+        {
+          "name": "native_h3_wiring",
+          "section": "required",
+          "socket_type": "H3_NATIVE_H3_WIRING"
+        },
+        {
+          "name": "report",
+          "section": "required",
+          "socket_type": "H3_CONTEXT_REPORT"
+        }
+      ]
+    },
+    {
+      "category": "h3_context/providers",
+      "class_name": "H3ContextProviderTransparencyNode",
+      "description": "Displays explicit network, upload, credential, retention, cost, and fallback policy before execution; it never calls a provider or selects a fallback.",
+      "display_name": "H3 Provider Transparency",
+      "function": "describe",
+      "input_is_list": false,
+      "input_order": {
+        "optional": [
+          "local_backend"
+        ],
+        "required": [
+          "provider",
+          "privacy_mode",
+          "offline",
+          "network_allowed",
+          "upload_consent",
+          "credential_reference",
+          "fallback_provider"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.ProviderTransparency",
+      "output_is_list": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "transparency",
+        "consent_notice",
+        "disclosure",
+        "provider_setup"
+      ],
+      "return_types": [
+        "H3_PROVIDER_TRANSPARENCY",
+        "H3_PROVIDER_CONSENT",
+        "STRING",
+        "H3_PROVIDER_SETUP"
+      ],
+      "sockets": [
+        {
+          "name": "local_backend",
+          "options": {
+            "default": "none",
+            "options": [
+              "none",
+              "comfyui_native",
+              "ollama"
+            ],
+            "tooltip": "Local defaults to preferred comfyui_native; Ollama is explicit and uses a disclosed loopback process boundary."
+          },
+          "section": "optional",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "credential_reference",
+          "options": {
+            "default": "none",
+            "dynamicPrompts": false,
+            "multiline": false,
+            "tooltip": "Opaque runtime reference only; never returned in disclosure."
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "fallback_provider",
+          "options": {
+            "default": "none",
+            "options": [
+              "none",
+              "manual",
+              "local",
+              "remote_custom",
+              "official_minimax"
+            ],
+            "tooltip": "Optional caller-selected fallback metadata; never automatic."
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "network_allowed",
+          "options": {
+            "default": false,
+            "tooltip": "Explicitly permit the selected provider's network path."
+          },
+          "section": "required",
+          "socket_type": "BOOLEAN"
+        },
+        {
+          "name": "offline",
+          "options": {
+            "default": true,
+            "tooltip": "Keep the selected route offline when true."
+          },
+          "section": "required",
+          "socket_type": "BOOLEAN"
+        },
+        {
+          "name": "privacy_mode",
+          "options": {
+            "default": "local_only",
+            "options": [
+              "local_only",
+              "explicit_remote"
+            ],
+            "tooltip": "Explicit local-only or remote privacy decision."
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "provider",
+          "options": {
+            "default": "manual",
+            "options": [
+              "manual",
+              "local",
+              "remote_custom",
+              "official_minimax"
+            ],
+            "tooltip": "Explicit provider identity; no route is inferred."
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "upload_consent",
+          "options": {
+            "default": false,
+            "tooltip": "Explicitly consent to remote media transfer."
+          },
+          "section": "required",
+          "socket_type": "BOOLEAN"
+        }
+      ],
+      "validates_inputs": true
+    },
+    {
+      "category": "h3_context/contracts",
+      "class_name": "H3ReferenceRegistryNode",
+      "declares_is_changed": true,
+      "description": "Assigns deterministic reference slots and explicit frame/pair roles while preserving the order of grouped media.",
+      "display_name": "H3 Reference Registry",
+      "function": "build_registry",
+      "input_is_list": true,
+      "input_order": {
+        "optional": [
+          "first_frame",
+          "last_frame",
+          "images",
+          "videos",
+          "paired_audios",
+          "audios"
+        ],
+        "required": []
+      },
+      "node_id": "comfyui_h3_context.H3Context.ReferenceRegistry",
+      "output_is_list": [
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "reference_registry"
+      ],
+      "return_types": [
+        "H3_REFERENCE_REGISTRY"
+      ],
+      "sockets": [
+        {
+          "name": "audios",
+          "options": {
+            "max_items": 3,
+            "tooltip": "Ordered standalone audio references; up to three items."
+          },
+          "section": "optional",
+          "socket_type": "AUDIO"
+        },
+        {
+          "name": "first_frame",
+          "options": {
+            "max_items": 1,
+            "tooltip": "Optional explicit first-frame image anchor; at most one."
+          },
+          "section": "optional",
+          "socket_type": "IMAGE"
+        },
+        {
+          "name": "images",
+          "options": {
+            "max_items": 9,
+            "tooltip": "Ordered image references; up to nine items."
+          },
+          "section": "optional",
+          "socket_type": "IMAGE"
+        },
+        {
+          "name": "last_frame",
+          "options": {
+            "max_items": 1,
+            "tooltip": "Optional explicit last-frame image anchor; at most one."
+          },
+          "section": "optional",
+          "socket_type": "IMAGE"
+        },
+        {
+          "name": "paired_audios",
+          "options": {
+            "max_items": 3,
+            "tooltip": "Explicit paired soundtrack items; item N pairs only with video N and must precede it in canonical order."
+          },
+          "section": "optional",
+          "socket_type": "AUDIO"
+        },
+        {
+          "name": "videos",
+          "options": {
+            "max_items": 3,
+            "tooltip": "Ordered video references; up to three items."
+          },
+          "section": "optional",
+          "socket_type": "VIDEO"
+        }
+      ],
+      "validates_inputs": true
+    },
+    {
+      "category": "h3_context/runtime",
+      "class_name": "H3ContextReliabilityNode",
+      "description": "Shows bounded progress, cancellation, and retry/resume decisions; it never starts, retries, resumes, or cancels a worker implicitly.",
+      "display_name": "H3 Reliability Status",
+      "function": "describe",
+      "input_is_list": false,
+      "input_order": {
+        "required": [
+          "operation_id",
+          "stage",
+          "completed_units",
+          "total_units",
+          "run_state",
+          "cancel_requested",
+          "attempt",
+          "max_attempts",
+          "checkpoint_status",
+          "resume_requested"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.Reliability",
+      "output_is_list": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "status",
+        "progress",
+        "recovery",
+        "disclosure"
+      ],
+      "return_types": [
+        "H3_EXECUTION_STATUS",
+        "H3_PROGRESS_EVENT",
+        "H3_RECOVERY_DECISION",
+        "STRING"
+      ],
+      "sockets": [
+        {
+          "name": "attempt",
+          "options": {
+            "default": 1,
+            "max": 8,
+            "min": 1,
+            "step": 1
+          },
+          "section": "required",
+          "socket_type": "INT"
+        },
+        {
+          "name": "cancel_requested",
+          "options": {
+            "default": false,
+            "tooltip": "Explicit caller cancellation request."
+          },
+          "section": "required",
+          "socket_type": "BOOLEAN"
+        },
+        {
+          "name": "checkpoint_status",
+          "options": {
+            "default": "incompatible",
+            "options": [
+              "none",
+              "compatible",
+              "stale",
+              "incompatible"
+            ],
+            "tooltip": "Explicit caller checkpoint compatibility result."
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "completed_units",
+          "options": {
+            "default": 0,
+            "max": 1000000,
+            "min": 0,
+            "step": 1
+          },
+          "section": "required",
+          "socket_type": "INT"
+        },
+        {
+          "name": "max_attempts",
+          "options": {
+            "default": 2,
+            "max": 8,
+            "min": 1,
+            "step": 1
+          },
+          "section": "required",
+          "socket_type": "INT"
+        },
+        {
+          "name": "operation_id",
+          "options": {
+            "default": "h3.context",
+            "dynamicPrompts": false,
+            "multiline": false,
+            "tooltip": "Bounded operation identity; no paths or credentials."
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "resume_requested",
+          "options": {
+            "default": false,
+            "tooltip": "Explicit caller resume request."
+          },
+          "section": "required",
+          "socket_type": "BOOLEAN"
+        },
+        {
+          "name": "run_state",
+          "options": {
+            "default": "running",
+            "options": [
+              "pending",
+              "running",
+              "completed",
+              "cancel_requested",
+              "cancelled",
+              "retryable_failure",
+              "failed",
+              "stale",
+              "recovered"
+            ]
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "stage",
+          "options": {
+            "default": "planning",
+            "options": [
+              "extraction",
+              "provider",
+              "planning",
+              "rendering",
+              "validation",
+              "host"
+            ],
+            "tooltip": "Explicit long-running stage."
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "total_units",
+          "options": {
+            "default": 1,
+            "max": 1000000,
+            "min": 1,
+            "step": 1
+          },
+          "section": "required",
+          "socket_type": "INT"
+        }
+      ],
+      "validates_inputs": true
+    },
+    {
+      "category": "h3_context/contracts",
+      "class_name": "H3ContextRequestNode",
+      "description": "Builds a typed H3 request envelope. Reference binding and prompt compilation are later nodes.",
+      "display_name": "H3 Context Request",
+      "function": "build_request",
+      "input_is_list": false,
+      "input_order": {
+        "optional": [
+          "duration_seconds",
+          "hard_constraints"
+        ],
+        "required": [
+          "task_mode",
+          "user_intent"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.Request",
+      "output_is_list": [
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "request"
+      ],
+      "return_types": [
+        "H3_CONTEXT_REQUEST"
+      ],
+      "sockets": [
+        {
+          "name": "duration_seconds",
+          "options": {
+            "max": {
+              "float": "149.687"
+            },
+            "min": {
+              "float": "0.0"
+            },
+            "step": {
+              "float": "0.01"
+            },
+            "tooltip": "Optional expected duration in seconds; the H3 frame count is derived and snapped to the 17k+5 lattice."
+          },
+          "section": "optional",
+          "socket_type": "FLOAT"
+        },
+        {
+          "name": "hard_constraints",
+          "options": {
+            "tooltip": "Optional immutable hard-constraint set from a typed node."
+          },
+          "section": "optional",
+          "socket_type": "H3_HARD_CONSTRAINTS"
+        },
+        {
+          "name": "task_mode",
+          "options": {
+            "default": "t2va",
+            "options": [
+              "t2va",
+              "i2va",
+              "fl2va",
+              "l2va",
+              "ref2va"
+            ],
+            "tooltip": "Explicit H3 task mode."
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "user_intent",
+          "options": {
+            "default": "",
+            "dynamicPrompts": false,
+            "multiline": true,
+            "tooltip": "User-declared intent; exact hard text is preserved."
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        }
+      ],
+      "validates_inputs": true
+    },
+    {
+      "category": "h3_context/semantic",
+      "class_name": "H3SemanticProposalProducerNode",
+      "declares_is_changed": true,
+      "description": "Produces a qualified process-local semantic proposal review authority.",
+      "display_name": "H3 Semantic Proposal Producer",
+      "function": "produce",
+      "input_is_list": false,
+      "input_order": {
+        "hidden": [
+          "prompt_id",
+          "execution_node_id"
+        ],
+        "optional": [
+          "ollama_model"
+        ],
+        "required": [
+          "report",
+          "wiring",
+          "provider_setup",
+          "ollama_profile"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.SemanticProposalProducer",
+      "output_is_list": [
+        false
+      ],
+      "output_node": true,
+      "return_names": [
+        "review_authority"
+      ],
+      "return_types": [
+        "H3_SEMANTIC_PROPOSAL_REVIEW_AUTHORITY"
+      ],
+      "sockets": [
+        {
+          "name": "execution_node_id",
+          "section": "hidden",
+          "socket_type": "UNIQUE_ID"
+        },
+        {
+          "name": "prompt_id",
+          "section": "hidden",
+          "socket_type": "PROMPT"
+        },
+        {
+          "name": "ollama_model",
+          "options": {
+            "default": ""
+          },
+          "section": "optional",
+          "socket_type": "STRING"
+        },
+        {
+          "choices": [
+            "ollama.local",
+            "ollama.qwen3_8.27b_bf16.local"
+          ],
+          "name": "ollama_profile",
+          "options": {
+            "default": "ollama.local"
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "provider_setup",
+          "section": "required",
+          "socket_type": "H3_PROVIDER_SETUP"
+        },
+        {
+          "name": "report",
+          "section": "required",
+          "socket_type": "H3_CONTEXT_REPORT"
+        },
+        {
+          "name": "wiring",
+          "section": "required",
+          "socket_type": "H3_NATIVE_H3_WIRING"
+        }
+      ]
+    },
+    {
+      "category": "h3_context/compiler",
+      "class_name": "H3SourceProfiledRendererNode",
+      "description": "Renders and semantically validates a plan against the pinned official guide.",
+      "display_name": "H3 Source-Profiled Renderer",
+      "function": "render",
+      "input_is_list": false,
+      "input_order": {
+        "required": [
+          "plan"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.SourceProfiledRenderer",
+      "output_is_list": [
+        false,
+        false,
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "prompt",
+        "profiled_result",
+        "prompt_document"
+      ],
+      "return_types": [
+        "H3_PROMPT_STRING",
+        "H3_SOURCE_PROFILED_PROMPT",
+        "H3_PROMPT_DOCUMENT"
+      ],
+      "sockets": [
+        {
+          "name": "plan",
+          "section": "required",
+          "socket_type": "H3_CONTEXT_PLAN"
+        }
+      ]
+    },
+    {
+      "category": "h3_context/validation",
+      "class_name": "H3ContextValidatorNode",
+      "description": "Audits prompt structure and hard constraints without auto-correction.",
+      "display_name": "H3 Context Validator",
+      "function": "validate",
+      "input_is_list": false,
+      "input_order": {
+        "required": [
+          "plan",
+          "prompt_document"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.Validator",
+      "output_is_list": [
+        false,
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "validation",
+        "validated_report"
+      ],
+      "return_types": [
+        "H3_VALIDATION_RESULT",
+        "H3_CONTEXT_REPORT"
+      ],
+      "sockets": [
+        {
+          "name": "plan",
+          "options": {
+            "tooltip": "Typed plan under audit."
+          },
+          "section": "required",
+          "socket_type": "H3_CONTEXT_PLAN"
+        },
+        {
+          "name": "prompt_document",
+          "options": {
+            "tooltip": "Rendered or explicitly parsed prompt document."
+          },
+          "section": "required",
+          "socket_type": "H3_PROMPT_DOCUMENT"
+        }
+      ],
+      "validates_inputs": true
+    },
+    {
+      "category": "h3_context/perception",
+      "class_name": "H3VisualPerceptionProducerNode",
+      "description": "Host-configured Qwen frame observations for decoded CPU IMAGE/CFR VIDEO. Choose qwen38_27b_q4_visual_v2 and ollama; local transfer requires consent. Connect request to sample only the frames kept by reference conditioning.",
+      "display_name": "H3 Visual Perception Producer",
+      "function": "produce",
+      "input_is_list": false,
+      "input_order": {
+        "optional": [
+          "local_service_consent",
+          "request"
+        ],
+        "required": [
+          "media",
+          "route",
+          "profile_id",
+          "device",
+          "cancel_requested"
+        ]
+      },
+      "node_id": "comfyui_h3_context.H3Context.VisualPerceptionProducer",
+      "output_is_list": [
+        false
+      ],
+      "output_node": false,
+      "return_names": [
+        "result"
+      ],
+      "return_types": [
+        "H3_VISUAL_PRODUCER_RESULT"
+      ],
+      "sockets": [
+        {
+          "name": "local_service_consent",
+          "options": {
+            "default": false
+          },
+          "section": "optional",
+          "socket_type": "BOOLEAN"
+        },
+        {
+          "name": "request",
+          "section": "optional",
+          "socket_type": "H3_CONTEXT_REQUEST"
+        },
+        {
+          "name": "cancel_requested",
+          "options": {
+            "default": false
+          },
+          "section": "required",
+          "socket_type": "BOOLEAN"
+        },
+        {
+          "name": "device",
+          "options": {
+            "default": "auto",
+            "options": [
+              "auto",
+              "cpu",
+              "cuda",
+              "mps"
+            ]
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        },
+        {
+          "name": "media",
+          "section": "required",
+          "socket_type": "H3_MEDIA_PRODUCER_RESULT"
+        },
+        {
+          "name": "profile_id",
+          "options": {
+            "default": "unqualified"
+          },
+          "section": "required",
+          "socket_type": "STRING"
+        },
+        {
+          "name": "route",
+          "options": {
+            "default": "comfyui_native",
+            "options": [
+              "comfyui_native",
+              "ollama",
+              "specialist"
+            ]
+          },
+          "section": "required",
+          "socket_type": "COMBO"
+        }
+      ],
+      "validates_inputs": true
+    }
+  ],
+  "schema": "h3-context-node-surface/1"
+}

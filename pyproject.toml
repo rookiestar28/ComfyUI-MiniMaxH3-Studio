@@ -1,10 +1,11 @@
 [build-system]
 requires = ["setuptools>=80,<84", "wheel>=0.46.2,<0.47"]
-build-backend = "setuptools.build_meta"
+build-backend = "scripts.public_build_backend"
+backend-path = ["."]
 
 [project]
 name = "minimax-h3-studio"
-version = "1.0.2"
+version = "1.1.0"
 description = "Turn a description into a finished MiniMax H3 video without leaving ComfyUI, prompt, segments, continuity and final cut in one workbench."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -38,9 +39,31 @@ includes = [
     "README.md",
     "LICENSE",
     "NOTICE",
+    ".pre-commit-config.yaml",
+    ".github/workflows/ci.yml",
+    ".github/workflows/publish.yml",
+]
+
+[tool.h3-context.development]
+roots = ["tests", "frontend", "scripts", "governance", "compatibility", "requirements"]
+required = [
+    ".gitignore",
+    "MANIFEST.in",
+    ".pre-commit-config.yaml",
+    ".github/workflows/ci.yml",
+    ".github/workflows/publish.yml",
+    "requirements/secret-scan-baseline.json",
+    "frontend/package.json",
+    "frontend/pnpm-lock.yaml",
+    "frontend/vitest.config.ts",
+    "frontend/playwright.config.ts",
+    "scripts/run_full_tests_windows.ps1",
+    "scripts/run_full_tests_linux.sh",
 ]
 
 [project.optional-dependencies]
+# Hermetic host-route tests use an in-process HTTP server; this never becomes a runtime dependency.
+host-tests = ["aiohttp>=3.11,<4"]
 dev = [
     "numpy>=2.2,<3",
     "ruff>=0.16,<0.17",

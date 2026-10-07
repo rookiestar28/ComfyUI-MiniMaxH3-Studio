@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/reachability_v1.schema.json",
+  "title": "ComfyUI H3 context public reachability manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "entries", "fingerprint"],
+  "properties": {
+    "schema": {"const": "h3.context.reachability.v1"},
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "items": {"$ref": "#/$defs/Entry"}
+    },
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "Producer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["node_id", "socket_name", "source"],
+      "properties": {
+        "node_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+        "socket_name": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+        "source": {"enum": ["public_node", "host_input", "injected_fixture", "none"]}
+      }
+    },
+    "Entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entry_id",
+        "stage",
+        "disposition",
+        "description",
+        "task_mode",
+        "binding_node_id",
+        "binding_port_name",
+        "producer",
+        "failure_code",
+        "normal_use"
+      ],
+      "properties": {
+        "entry_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+        "stage": {"enum": ["context_ir", "compiler", "native_generation"]},
+        "disposition": {"enum": ["reachable", "injected_only", "explicit_unavailable", "unsupported"]},
+        "description": {"type": "string", "minLength": 1, "maxLength": 1024},
+        "task_mode": {"enum": ["t2va", "i2va", "fl2va", "l2va", "ref2va", null]},
+        "binding_node_id": {"type": ["string", "null"]},
+        "binding_port_name": {"type": ["string", "null"]},
+        "producer": {"anyOf": [{"$ref": "#/$defs/Producer"}, {"type": "null"}]},
+        "failure_code": {"type": ["string", "null"]},
+        "normal_use": {"type": "boolean"}
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/media_admission_v1.schema.json",
+  "title": "H3 media admission and canonical descriptor contract",
+  "type": "object",
+  "required": ["schema", "source_identity", "preprocessing_fingerprint", "frames", "audio_segments", "decoded_payload_bytes", "status", "diagnostics"],
+  "properties": {
+    "schema": {"const": "h3.media.admission.v1"},
+    "source_identity": {"$ref": "#/$defs/SourceIdentity"},
+    "preprocessing_fingerprint": {"$ref": "#/$defs/Fingerprint"},
+    "frames": {"type": "array", "maxItems": 4096, "items": {"$ref": "#/$defs/Frame"}},
+    "audio_segments": {"type": "array", "maxItems": 4096, "items": {"$ref": "#/$defs/AudioSegment"}},
+    "status": {"enum": ["complete", "partial", "cancelled", "failed"]},
+    "diagnostics": {"type": "array", "maxItems": 32, "items": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"}},
+    "decoded_payload_bytes": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "SourceIdentity": {
+      "type": "object",
+      "required": ["source_fingerprint", "size_bytes", "identity_fingerprint"],
+      "properties": {
+        "source_fingerprint": {"$ref": "#/$defs/Fingerprint"},
+        "size_bytes": {"type": "integer", "minimum": 1},
+        "identity_fingerprint": {"$ref": "#/$defs/Fingerprint"}
+      },
+      "additionalProperties": false
+    },
+    "Timestamp": {
+      "type": "object",
+      "required": ["ticks", "time_base", "seconds"],
+      "properties": {
+        "ticks": {"type": "integer", "minimum": 0},
+        "time_base": {"type": "array", "prefixItems": [{"type": "integer", "minimum": 1}, {"type": "integer", "minimum": 1}], "minItems": 2, "maxItems": 2},
+        "seconds": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+)?$"}
+      },
+      "additionalProperties": false
+    },
+    "Frame": {
+      "type": "object",
+      "required": ["frame_id", "source_fingerprint", "timestamp", "width", "height", "pixel_format", "payload_fingerprint", "preprocessing_fingerprint", "sequence", "payload_bytes"],
+      "properties": {
+        "frame_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+        "source_fingerprint": {"$ref": "#/$defs/Fingerprint"},
+        "timestamp": {"$ref": "#/$defs/Timestamp"},
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1},
+        "pixel_format": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._+-]{0,63}$"},
+        "payload_fingerprint": {"$ref": "#/$defs/Fingerprint"},
+        "preprocessing_fingerprint": {"$ref": "#/$defs/Fingerprint"},
+        "sequence": {"type": "integer", "minimum": 0},
+        "payload_bytes": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "AudioSegment": {
+      "type": "object",
+      "required": ["segment_id", "source_fingerprint", "start", "end", "sample_rate", "channels", "payload_fingerprint", "preprocessing_fingerprint", "payload_bytes"],
+      "properties": {
+        "segment_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+        "source_fingerprint": {"$ref": "#/$defs/Fingerprint"},
+        "start": {"$ref": "#/$defs/Timestamp"},
+        "end": {"$ref": "#/$defs/Timestamp"},
+        "sample_rate": {"type": "integer", "minimum": 1},
+        "channels": {"type": "integer", "minimum": 1},
+        "payload_fingerprint": {"$ref": "#/$defs/Fingerprint"},
+        "preprocessing_fingerprint": {"$ref": "#/$defs/Fingerprint"},
+        "payload_bytes": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    }
+  }
+}

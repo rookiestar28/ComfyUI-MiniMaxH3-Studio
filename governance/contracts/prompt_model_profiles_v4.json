@@ -1,0 +1,186 @@
+{
+  "default_profile_id": null,
+  "profiles": [
+    {
+      "adapter_version": "1.0.0",
+      "capabilities": {
+        "accepted_media": [
+          "text"
+        ],
+        "family": "ollama",
+        "local_only": true,
+        "max_context_tokens": 32768,
+        "max_output_tokens": 4096,
+        "max_request_bytes": 262144,
+        "provider_managed_context": true,
+        "provider_managed_kv_cache": true,
+        "requires_credential": false,
+        "streaming": false
+      },
+      "chat_route": "/api/chat",
+      "cost_class": "local_resource",
+      "discovery_routes": [
+        "/api/tags",
+        "/api/show"
+      ],
+      "endpoint": "http://127.0.0.1:11434",
+      "family": "ollama",
+      "license_id": "Apache-2.0",
+      "license_source": "ollama_show_observed",
+      "license_text_sha256": "sha256:4c6a8e842ef0d8504549facfb03f1273a8d0022991519bc1888522cc1a5517d1",
+      "limitations": [
+        "text_only_drafting"
+      ],
+      "max_calls_per_action": 2,
+      "max_concurrency": 1,
+      "max_retries": 0,
+      "model_digest": "sha256:25b843619e944cd0ae6069f94ff4e5e26a16e109ccbc0a66a0f05979ed70098e",
+      "model_id": "qwen3.8:27b-q4_K_M",
+      "model_revision": null,
+      "parser_version": "h3.prompt_model.draft_json.v1",
+      "profile_id": "ollama.qwen3_8_27b.local",
+      "provider_label": "Ollama",
+      "qualification_evidence": {
+        "kind": "local_ollama",
+        "adapter_version": "1.0.0",
+        "context_length": 262144,
+        "evidence_basis_id": "M22-13.local-census.1",
+        "license_text_sha256": "sha256:4c6a8e842ef0d8504549facfb03f1273a8d0022991519bc1888522cc1a5517d1",
+        "model_digest": "sha256:25b843619e944cd0ae6069f94ff4e5e26a16e109ccbc0a66a0f05979ed70098e",
+        "model_family": "qwen35",
+        "model_format": "gguf",
+        "model_id": "qwen3.8:27b-q4_K_M",
+        "model_size_bytes": 17741872132,
+        "parameter_size": "27.3B",
+        "parser_version": "h3.prompt_model.draft_json.v1",
+        "quantization_level": "Q4_K_M",
+        "required_capabilities": [
+          "completion",
+          "thinking",
+          "tools",
+          "vision"
+        ],
+        "show_identity_sha256": "sha256:5724bbd0a60d6a301a88b4290e01aaafea5c86824036c5ece3a2f5ae71a4acb7"
+      },
+      "qualification_state": "qualified",
+      "request_timeout_seconds": 60,
+      "retention_policy": "local_process_only",
+      "task_modes": [
+        "t2va",
+        "i2va",
+        "fl2va",
+        "l2va",
+        "ref2va"
+      ],
+      "usage_receipt_required": false,
+      "wire_dialect": "ollama_chat"
+    },
+    {
+      "adapter_version": "1.0.0",
+      "capabilities": {
+        "accepted_media": [
+          "text"
+        ],
+        "family": "remote_openai_compatible",
+        "local_only": false,
+        "max_context_tokens": 32768,
+        "max_output_tokens": 4096,
+        "max_request_bytes": 262144,
+        "provider_managed_context": true,
+        "provider_managed_kv_cache": true,
+        "requires_credential": true,
+        "streaming": false
+      },
+      "chat_route": "/v1/chat/completions",
+      "cost_class": "paid_remote",
+      "discovery_routes": [
+        "/v1/models"
+      ],
+      "endpoint": "https://api.openai.com",
+      "family": "remote_openai_compatible",
+      "license_id": "proprietary",
+      "license_source": "provider_terms",
+      "license_text_sha256": null,
+      "limitations": [
+        "remote_activation_pending",
+        "retention_depends_on_provider_policy"
+      ],
+      "max_calls_per_action": 2,
+      "max_concurrency": 1,
+      "max_retries": 0,
+      "model_digest": null,
+      "model_id": "gpt-5.6-terra",
+      "model_revision": "gpt-5.6-terra",
+      "parser_version": "h3.prompt_model.draft_json.v1",
+      "profile_id": "openai.gpt_5_6_terra.remote",
+      "provider_label": "OpenAI",
+      "qualification_evidence": null,
+      "qualification_state": "catalog_only",
+      "request_timeout_seconds": 60,
+      "retention_policy": "provider_policy",
+      "task_modes": [
+        "t2va",
+        "i2va",
+        "fl2va",
+        "l2va",
+        "ref2va"
+      ],
+      "usage_receipt_required": true,
+      "wire_dialect": "openai_chat_completions"
+    },
+    {
+      "adapter_version": "1.0.0",
+      "capabilities": {
+        "accepted_media": [
+          "text"
+        ],
+        "family": "remote_openai_compatible",
+        "local_only": false,
+        "max_context_tokens": 32768,
+        "max_output_tokens": 4096,
+        "max_request_bytes": 262144,
+        "provider_managed_context": true,
+        "provider_managed_kv_cache": true,
+        "requires_credential": true,
+        "streaming": false
+      },
+      "chat_route": "/v1beta/openai/chat/completions",
+      "cost_class": "paid_remote",
+      "discovery_routes": [
+        "/v1beta/openai/models"
+      ],
+      "endpoint": "https://generativelanguage.googleapis.com",
+      "family": "remote_openai_compatible",
+      "license_id": "proprietary",
+      "license_source": "provider_terms",
+      "license_text_sha256": null,
+      "limitations": [
+        "remote_activation_pending",
+        "retention_depends_on_provider_policy"
+      ],
+      "max_calls_per_action": 2,
+      "max_concurrency": 1,
+      "max_retries": 0,
+      "model_digest": null,
+      "model_id": "gemini-3.7-flash",
+      "model_revision": "gemini-3.7-flash",
+      "parser_version": "h3.prompt_model.draft_json.v1",
+      "profile_id": "gemini.gemini_3_7_flash.remote",
+      "provider_label": "Google Gemini",
+      "qualification_evidence": null,
+      "qualification_state": "catalog_only",
+      "request_timeout_seconds": 60,
+      "retention_policy": "provider_policy",
+      "task_modes": [
+        "t2va",
+        "i2va",
+        "fl2va",
+        "l2va",
+        "ref2va"
+      ],
+      "usage_receipt_required": true,
+      "wire_dialect": "openai_chat_completions"
+    }
+  ],
+  "schema": "h3.prompt_model.profiles.v4"
+}

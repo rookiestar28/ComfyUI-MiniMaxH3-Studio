@@ -1,0 +1,21 @@
+{
+  "schema": "h3-context-sidebar-media-receipt-vectors/1",
+  "vectors": [
+    {
+      "name": "i2va_first_frame_only",
+      "producer_case": {
+        "task_mode": "i2va",
+        "reference_roles": ["first_frame"]
+      },
+      "media_receipt": {
+        "status": "verified",
+        "queue_ready": true,
+        "asset_count": 1,
+        "image_count": 1,
+        "video_count": 0,
+        "audio_count": 0,
+        "binding_count": 1
+      }
+    }
+  ]
+}

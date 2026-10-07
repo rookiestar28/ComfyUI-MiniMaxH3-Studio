@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/speaker_perception_v1.schema.json",
+  "title": "H3 source-owned speaker and voice-reference perception",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "document_id", "status", "privacy_policy", "request", "turns", "hypotheses", "associations", "receipt", "diagnostics"],
+  "properties": {
+    "schema": {"const": "h3.audio.speaker.v1"},
+    "document_id": {"$ref": "#/$defs/identifier"},
+    "status": {"enum": ["complete", "partial", "empty", "corrupt", "unsupported", "cancelled"]},
+    "privacy_policy": {"const": "biometric_opt_in_fingerprint_only_never_logged"},
+    "request": {"$ref": "#/$defs/request"},
+    "turns": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/turn"}},
+    "hypotheses": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/hypothesis"}},
+    "associations": {"type": "array", "maxItems": 32, "items": {"$ref": "#/$defs/association"}},
+    "receipt": {"anyOf": [{"$ref": "#/$defs/receipt"}, {"type": "null"}]},
+    "diagnostics": {"type": "array", "maxItems": 32, "items": {"type": "string", "minLength": 1, "maxLength": 512}}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "version": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+){1,2}$"},
+    "confidence": {"type": ["string", "null"], "pattern": "^(?:0|1|0\\.[0-9]+|1\\.0+)$"},
+    "timestamp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ticks", "time_base", "seconds"],
+      "properties": {
+        "ticks": {"type": "integer", "minimum": 0},
+        "time_base": {"type": "array", "prefixItems": [{"type": "integer", "minimum": 1}, {"type": "integer", "minimum": 1}], "minItems": 2, "maxItems": 2},
+        "seconds": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+)?$"}
+      }
+    },
+    "span": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "asset_id", "source_id", "source_fingerprint", "start", "end"],
+      "properties": {
+        "schema": {"const": "h3.audio.perception_benchmark.v1"},
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "start": {"$ref": "#/$defs/timestamp"},
+        "end": {"$ref": "#/$defs/timestamp"}
+      }
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "asset_id", "source_id", "source_fingerprint"],
+      "properties": {
+        "schema": {"const": "h3.audio.speaker.v1"},
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"}
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "kind", "detail"],
+      "properties": {
+        "schema": {"const": "h3.audio.speaker.v1"},
+        "kind": {"enum": ["unknown_speaker", "low_confidence", "overlap", "ambiguous", "false_link_risk", "timing_uncertain", "av_association_missing", "privacy_redacted", "corrupt", "no_speech"]},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 512}
+      }
+    },
+    "turn": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "turn_id", "span", "speaker_label", "confidence", "uncertainties", "overlap_group", "embedding_fingerprint", "embedding_retention"],
+      "properties": {
+        "schema": {"const": "h3.audio.speaker.v1"},
+        "turn_id": {"$ref": "#/$defs/identifier"},
+        "span": {"$ref": "#/$defs/span"},
+        "speaker_label": {"type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "uncertainties": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/uncertainty"}},
+        "overlap_group": {"type": ["string", "null"], "maxLength": 128},
+        "embedding_fingerprint": {"anyOf": [{"$ref": "#/$defs/fingerprint"}, {"type": "null"}]},
+        "embedding_retention": {"enum": ["ephemeral", "session", "explicit", null]}
+      }
+    },
+    "hypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "hypothesis_id", "speaker_label", "reference", "confidence", "false_link_risk_bps", "ambiguous", "user_confirmed", "uncertainties"],
+      "properties": {
+        "schema": {"const": "h3.audio.speaker.v1"},
+        "hypothesis_id": {"$ref": "#/$defs/identifier"},
+        "speaker_label": {"$ref": "#/$defs/identifier"},
+        "reference": {"$ref": "#/$defs/reference"},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "false_link_risk_bps": {"type": "integer", "minimum": 0, "maximum": 10000},
+        "ambiguous": {"type": "boolean"},
+        "user_confirmed": {"type": "boolean"},
+        "uncertainties": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/uncertainty"}}
+      }
+    },
+    "association": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "association_id", "speaker_label", "video_asset_id", "video_source_id", "evidence_kind", "confidence", "video_source_fingerprint", "evidence_fingerprint", "user_selected"],
+      "properties": {
+        "schema": {"const": "h3.audio.speaker.v1"},
+        "association_id": {"$ref": "#/$defs/identifier"},
+        "speaker_label": {"$ref": "#/$defs/identifier"},
+        "video_asset_id": {"$ref": "#/$defs/identifier"},
+        "video_source_id": {"type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+        "evidence_kind": {"enum": ["av_evidence", "user_selection"]},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "video_source_fingerprint": {"anyOf": [{"$ref": "#/$defs/fingerprint"}, {"type": "null"}]},
+        "evidence_fingerprint": {"anyOf": [{"$ref": "#/$defs/fingerprint"}, {"type": "null"}]},
+        "user_selected": {"type": "boolean"}
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "asset_id", "source_id", "source_fingerprint", "preprocessing_fingerprint", "duration_end", "references", "embedding_requested", "biometric_opt_in", "retention", "user_selected_speaker_ids", "route", "max_turns", "max_hypotheses", "max_associations"],
+      "properties": {
+        "schema": {"const": "h3.audio.speaker.v1"},
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "preprocessing_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "duration_end": {"$ref": "#/$defs/timestamp"},
+        "references": {"type": "array", "maxItems": 16, "items": {"$ref": "#/$defs/reference"}},
+        "embedding_requested": {"type": "boolean"},
+        "biometric_opt_in": {"type": "boolean"},
+        "retention": {"enum": ["ephemeral", "session", "explicit"]},
+        "user_selected_speaker_ids": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/identifier"}},
+        "route": {"enum": ["static_injected", "comfyui_native", "ollama", "specialist"]},
+        "max_turns": {"type": "integer", "minimum": 1, "maximum": 64},
+        "max_hypotheses": {"type": "integer", "minimum": 1, "maximum": 64},
+        "max_associations": {"type": "integer", "minimum": 1, "maximum": 32}
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "route", "adapter_id", "adapter_version", "model_id", "model_fingerprint", "source_fingerprint", "preprocessing_fingerprint", "embedding_generated", "embedding_logged", "network_contacted", "decoder_started"],
+      "properties": {
+        "schema": {"const": "h3.audio.speaker.v1"},
+        "route": {"enum": ["static_injected", "comfyui_native", "ollama", "specialist"]},
+        "adapter_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$"},
+        "adapter_version": {"$ref": "#/$defs/version"},
+        "model_id": {"$ref": "#/$defs/identifier"},
+        "model_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "preprocessing_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "embedding_generated": {"type": "boolean"},
+        "embedding_logged": {"const": false},
+        "network_contacted": {"type": "boolean"},
+        "decoder_started": {"type": "boolean"}
+      }
+    }
+  }
+}

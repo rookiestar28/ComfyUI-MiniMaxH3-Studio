@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/visual_evidence_fusion_v1.schema.json",
+  "title": "H3 Visual Evidence Fusion v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "document_id",
+    "status",
+    "candidates",
+    "groups",
+    "decisions",
+    "calibration_profile",
+    "receipt",
+    "benchmark",
+    "evaluation",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema": {"const": "h3.visual.evidence_fusion.v1"},
+    "document_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "status": {
+      "enum": ["complete", "partial", "empty", "corrupt", "unsupported", "cancelled"]
+    },
+    "candidates": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/candidate"}},
+    "groups": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/group"}},
+    "decisions": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/decision"}},
+    "calibration_profile": {"$ref": "#/$defs/calibrationProfile"},
+    "receipt": {"anyOf": [{"$ref": "#/$defs/receipt"}, {"type": "null"}]},
+    "benchmark": {"anyOf": [{"$ref": "#/$defs/benchmark"}, {"type": "null"}]},
+    "evaluation": {"anyOf": [{"$ref": "#/$defs/evaluation"}, {"type": "null"}]},
+    "diagnostics": {"type": "array", "maxItems": 32, "items": {"type": "string"}}
+  },
+  "$defs": {
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "source": {
+      "type": "object",
+      "required": ["asset_id", "source_id", "source_fingerprint", "interval"],
+      "properties": {
+        "asset_id": {"type": "string"},
+        "source_id": {"type": "string"},
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "interval": {"type": ["object", "null"]}
+      },
+      "additionalProperties": true
+    },
+    "candidateReceipt": {
+      "type": "object",
+      "required": ["route", "adapter_id", "adapter_version", "model_id", "model_digest", "output_fingerprint"],
+      "properties": {
+        "route": {"enum": ["comfyui_native", "ollama", "specialist"]},
+        "adapter_id": {"type": "string"},
+        "adapter_version": {"type": "string"},
+        "model_id": {"type": "string"},
+        "model_digest": {"$ref": "#/$defs/fingerprint"},
+        "output_fingerprint": {"$ref": "#/$defs/fingerprint"}
+      },
+      "additionalProperties": false
+    },
+    "candidate": {
+      "type": "object",
+      "required": ["candidate_id", "group_id", "category", "label", "support", "confidence", "source", "receipt", "uncertainties"],
+      "properties": {
+        "candidate_id": {"type": "string"},
+        "group_id": {"type": "string"},
+        "category": {"type": "string"},
+        "label": {"type": ["string", "null"]},
+        "support": {"enum": ["supported", "uncertain", "unsupported"]},
+        "confidence": {"type": ["string", "null"]},
+        "source": {"$ref": "#/$defs/source"},
+        "receipt": {"$ref": "#/$defs/candidateReceipt"},
+        "uncertainties": {"type": "array", "maxItems": 64}
+      },
+      "additionalProperties": false
+    },
+    "group": {
+      "type": "object",
+      "required": ["group_id", "category", "source", "candidate_ids", "resolution"],
+      "properties": {
+        "group_id": {"type": "string"},
+        "category": {"type": "string"},
+        "source": {"$ref": "#/$defs/source"},
+        "candidate_ids": {"type": "array", "maxItems": 256, "items": {"type": "string"}},
+        "resolution": {"enum": ["consensus", "alternatives", "conflict", "uncertain", "abstained"]}
+      },
+      "additionalProperties": false
+    },
+    "decision": {
+      "type": "object",
+      "required": ["decision_id", "group_id", "resolution", "selected_candidate_ids", "alternative_candidate_ids", "raw_confidence", "calibrated_confidence", "abstention_reason"],
+      "properties": {
+        "decision_id": {"type": "string"},
+        "group_id": {"type": "string"},
+        "resolution": {"enum": ["consensus", "alternatives", "conflict", "uncertain", "abstained"]},
+        "selected_candidate_ids": {"type": "array", "items": {"type": "string"}},
+        "alternative_candidate_ids": {"type": "array", "items": {"type": "string"}},
+        "raw_confidence": {"type": ["string", "null"]},
+        "calibrated_confidence": {"type": ["string", "null"]},
+        "abstention_reason": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "calibrationProfile": {
+      "type": "object",
+      "required": ["schema", "profile_id", "version", "fit_case_ids", "held_out_case_ids", "bins"],
+      "properties": {
+        "schema": {"const": "h3.visual.evidence_fusion.v1"},
+        "profile_id": {"type": "string"},
+        "version": {"type": "string"},
+        "fit_case_ids": {"type": "array", "items": {"type": "string"}},
+        "held_out_case_ids": {"type": "array", "items": {"type": "string"}},
+        "bins": {"type": "array", "items": {"$ref": "#/$defs/calibrationBin"}}
+      },
+      "additionalProperties": false
+    },
+    "calibrationBin": {
+      "type": "object",
+      "required": ["lower", "upper", "calibrated"],
+      "properties": {
+        "lower": {"type": "string"},
+        "upper": {"type": "string"},
+        "calibrated": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "receipt": {
+      "type": "object",
+      "required": ["schema", "route", "adapter_id", "adapter_version", "output_fingerprint", "source_fingerprints"],
+      "properties": {
+        "schema": {"const": "h3.visual.evidence_fusion.v1"},
+        "route": {"enum": ["comfyui_native", "ollama", "specialist", "mixed"]},
+        "adapter_id": {"type": "string"},
+        "adapter_version": {"type": "string"},
+        "output_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "source_fingerprints": {"type": "array", "items": {"$ref": "#/$defs/fingerprint"}}
+      },
+      "additionalProperties": false
+    },
+    "benchmark": {"type": "object"},
+    "evaluation": {"type": "object"}
+  },
+  "additionalProperties": false
+}

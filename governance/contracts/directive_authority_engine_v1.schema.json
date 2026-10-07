@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/directive_authority_engine_v1.schema.json",
+  "title": "H3 directive authority engine v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "status",
+    "input_fingerprint",
+    "resolved_fingerprint",
+    "scopes",
+    "decisions",
+    "precedence",
+    "clarifications",
+    "abstentions",
+    "metrics",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema": {"const": "h3.directive_authority_engine.v1"},
+    "status": {"enum": ["empty", "complete", "partial", "blocked", "conflicting"]},
+    "input_fingerprint": {"pattern": "^sha256:[0-9a-f]{64}$"},
+    "resolved_fingerprint": {"pattern": "^sha256:[0-9a-f]{64}$"},
+    "scopes": {"type": "array", "maxItems": 512},
+    "decisions": {"type": "array", "maxItems": 512},
+    "precedence": {"type": "array", "maxItems": 512},
+    "clarifications": {"type": "array", "maxItems": 512},
+    "abstentions": {"type": "array", "maxItems": 512},
+    "metrics": {"type": "object"},
+    "diagnostics": {"type": "array", "maxItems": 512}
+  },
+  "additionalProperties": false
+}

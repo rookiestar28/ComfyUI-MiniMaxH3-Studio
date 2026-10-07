@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/host_seam_shape_fixture_v1.schema.json",
+  "title": "ComfyUI H3 Context content-free host seam shape fixture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "profile", "subject", "observations"],
+  "properties": {
+    "schema": { "const": "h3.context.host_seam_shape_fixture.v1" },
+    "profile": { "const": "comfyui_host_seams_v1" },
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "comfyui_version",
+        "comfyui_revision",
+        "frontend_version",
+        "fixture_version"
+      ],
+      "properties": {
+        "comfyui_version": {
+          "type": "string",
+          "pattern": "^[0-9]+(?:\\.[0-9]+){1,3}(?:[-+][A-Za-z0-9.-]+)?$"
+        },
+        "comfyui_revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "frontend_version": {
+          "type": "string",
+          "pattern": "^[0-9]+(?:\\.[0-9]+){1,3}(?:[-+][A-Za-z0-9.-]+)?$"
+        },
+        "fixture_version": { "type": "integer", "minimum": 1, "maximum": 255 }
+      }
+    },
+    "observations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/observation" }
+    }
+  },
+  "$defs": {
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "seam_id",
+        "presence",
+        "kind",
+        "key_shape",
+        "element_kind",
+        "readiness_state",
+        "count_bucket",
+        "byte_bucket",
+        "latency_bucket"
+      ],
+      "properties": {
+        "seam_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z0-9_]+)+$"
+        },
+        "presence": { "enum": ["present", "absent"] },
+        "kind": {
+          "enum": [
+            "callable",
+            "collection",
+            "event_target",
+            "mapping",
+            "module",
+            "object",
+            "route_registry",
+            "text"
+          ]
+        },
+        "key_shape": { "enum": ["closed_members", "node_type", "none"] },
+        "element_kind": {
+          "enum": [
+            "callable",
+            "display_name",
+            "node_class",
+            "node_definition_wrapper",
+            "none",
+            "object",
+            "path_string",
+            "route"
+          ]
+        },
+        "readiness_state": {
+          "enum": ["absent", "present_not_ready", "ready", "unavailable"]
+        },
+        "count_bucket": { "enum": ["none", "one", "tens", "thousands"] },
+        "byte_bucket": {
+          "enum": ["not_measured", "sub_1kb", "sub_100kb", "sub_100mb"]
+        },
+        "latency_bucket": {
+          "enum": ["not_measured", "sub_10ms", "sub_100ms", "sub_5s"]
+        }
+      }
+    }
+  }
+}

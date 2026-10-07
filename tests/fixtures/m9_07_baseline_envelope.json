@@ -1,0 +1,177 @@
+{
+  "schema": "h3.reconstruction.baseline.v1",
+  "baseline_id": "m9-07-frozen-metadata",
+  "baseline_revision": "baseline.rev_1",
+  "corpus_id": "m9-03-synthetic-governance",
+  "envelope": {
+    "envelope_id": "m9-07-envelope",
+    "revision": "envelope.rev_1",
+    "effective_date": "2026-08-07",
+    "expires_at": "2026-08-14",
+    "limits": {
+      "max_calls": 1,
+      "max_spend_minor_units": 0,
+      "currency": "usd",
+      "max_compute_seconds": 60,
+      "max_storage_bytes": 1024,
+      "max_retention_days": 7,
+      "max_reviewer_minutes": 30,
+      "max_candidates": 1,
+      "max_wall_seconds": 120
+    },
+    "lane_limits": [
+      {
+        "lane_id": "manual_baseline",
+        "max_calls": 1,
+        "max_spend_minor_units": 0,
+        "max_compute_seconds": 60,
+        "max_wall_seconds": 120
+      }
+    ],
+    "capabilities": [
+      {
+        "capability_id": "manual.baseline",
+        "lane_id": "manual_baseline",
+        "maturity": "mandatory",
+        "rationale": "deterministic structural baseline"
+      },
+      {
+        "capability_id": "perception.local",
+        "lane_id": "local_perception",
+        "maturity": "unsupported",
+        "rationale": "concrete perception runtime is a later milestone"
+      },
+      {
+        "capability_id": "oracle.live",
+        "lane_id": "official_live_oracle",
+        "maturity": "unsupported",
+        "rationale": "reviewed official lane remains unavailable"
+      }
+    ],
+    "stop_rules": [
+      {
+        "rule_id": "stop.calls",
+        "resource": "calls",
+        "threshold": 2,
+        "decision": "stop",
+        "rationale": "no unreviewed expansion"
+      }
+    ],
+    "marginal_value_rules": ["marginal_value.review_before_expansion"],
+    "reauthorization_triggers": [
+      {
+        "trigger_id": "reauth.expiry",
+        "trigger_kind": "date_expiry",
+        "due_date": "2026-08-14",
+        "rationale": "renew before the envelope expires"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "case_id": "m9-07-case-test-fl2va",
+      "corpus_id": "m9-03-synthetic-governance",
+      "partition_id": "test",
+      "task_mode": "fl2va",
+      "language": "multilingual",
+      "risk_classes": ["resource", "missing_media"],
+      "input_fingerprints": ["sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
+      "source_fingerprints": ["sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"]
+    }
+  ],
+  "observations": [
+    {
+      "case_id": "m9-07-case-test-fl2va",
+      "layer": "structural",
+      "outcome": "passed",
+      "lane_id": "manual_baseline",
+      "input_fingerprints": ["sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
+      "metrics": {"hard_constraints": "1"},
+      "source_revision": "baseline.rev_1",
+      "claim_ceiling": "structural_only"
+    },
+    {
+      "case_id": "m9-07-case-test-fl2va",
+      "layer": "perception",
+      "outcome": "missing",
+      "lane_id": "unavailable_lane",
+      "input_fingerprints": ["sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
+      "diagnostic_codes": ["lane.unavailable"],
+      "source_revision": "baseline.rev_1"
+    },
+    {
+      "case_id": "m9-07-case-test-fl2va",
+      "layer": "planning",
+      "outcome": "missing",
+      "lane_id": "unavailable_lane",
+      "input_fingerprints": ["sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
+      "diagnostic_codes": ["lane.unavailable"],
+      "source_revision": "baseline.rev_1"
+    },
+    {
+      "case_id": "m9-07-case-test-fl2va",
+      "layer": "oracle",
+      "outcome": "missing",
+      "lane_id": "official_live_oracle",
+      "input_fingerprints": ["sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
+      "diagnostic_codes": ["lane.unavailable"],
+      "source_revision": "baseline.rev_1"
+    },
+    {
+      "case_id": "m9-07-case-test-fl2va",
+      "layer": "fixed_h3",
+      "outcome": "missing",
+      "lane_id": "unavailable_lane",
+      "input_fingerprints": ["sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
+      "diagnostic_codes": ["lane.unavailable"],
+      "source_revision": "baseline.rev_1"
+    },
+    {
+      "case_id": "m9-07-case-test-fl2va",
+      "layer": "human",
+      "outcome": "missing",
+      "lane_id": "unavailable_lane",
+      "input_fingerprints": ["sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
+      "diagnostic_codes": ["lane.unavailable"],
+      "source_revision": "baseline.rev_1"
+    },
+    {
+      "case_id": "m9-07-case-test-fl2va",
+      "layer": "latency_resource",
+      "outcome": "missing",
+      "lane_id": "unavailable_lane",
+      "input_fingerprints": ["sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
+      "diagnostic_codes": ["lane.unavailable"],
+      "source_revision": "baseline.rev_1"
+    },
+    {
+      "case_id": "m9-07-case-test-fl2va",
+      "layer": "failure",
+      "outcome": "missing",
+      "lane_id": "unavailable_lane",
+      "input_fingerprints": ["sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
+      "diagnostic_codes": ["lane.unavailable"],
+      "source_revision": "baseline.rev_1"
+    }
+  ],
+  "error_taxonomy": [
+    {
+      "error_code": "lane.unavailable",
+      "layer": "perception",
+      "classification": "missing",
+      "description": "selected execution lane is unavailable"
+    }
+  ],
+  "regressions": [
+    {
+      "regression_id": "regression.missing-lanes",
+      "error_code": "lane.unavailable",
+      "layer": "perception",
+      "priority": "p0",
+      "status": "open",
+      "case_count": 7,
+      "rationale": "runtime evidence is absent from the frozen baseline",
+      "next_action": "qualify a bounded local adapter or preserve unsupported status"
+    }
+  ]
+}

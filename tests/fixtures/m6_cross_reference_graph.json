@@ -1,0 +1,8 @@
+{
+  "schema": "h3.cross_reference.graph.v1",
+  "fixture_id": "m6-cross-reference-contract-v1",
+  "selected_assets": ["image_1", "video_1", "audio_1"],
+  "entity_kinds": ["subject", "voice", "object", "scene", "source_asset"],
+  "resolution_cases": ["resolved", "user_selected", "ambiguous", "unresolved", "conflicting"],
+  "diagnostic_cases": ["occlusion", "missing_evidence", "duplicate_identity", "provider_conflict"]
+}

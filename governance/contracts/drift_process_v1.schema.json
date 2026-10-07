@@ -1,0 +1,236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/drift_process_v1.schema.json",
+  "title": "H3 Offline Drift Process Report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "event_fingerprint",
+    "source_id",
+    "baseline_identity",
+    "observed_identity",
+    "baseline_semantic_fingerprint",
+    "observed_semantic_fingerprint",
+    "availability",
+    "change_signal",
+    "observed_on",
+    "drift_kind",
+    "materiality",
+    "affected_routes",
+    "claim_ceiling",
+    "required_check_ids",
+    "disposition",
+    "review_state",
+    "closure_state",
+    "publication_state",
+    "published_artifact_hash",
+    "publication_monitoring_state",
+    "issue_template",
+    "advisory_template"
+  ],
+  "properties": {
+    "schema": {"const": "h3.drift.process.report.v1"},
+    "event_fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "source_id": {"$ref": "#/$defs/identifier"},
+    "baseline_identity": {"$ref": "#/$defs/identity"},
+    "observed_identity": {"$ref": "#/$defs/nullableIdentity"},
+    "baseline_semantic_fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "observed_semantic_fingerprint": {"$ref": "#/$defs/nullableFingerprint"},
+    "availability": {"$ref": "#/$defs/availability"},
+    "change_signal": {"$ref": "#/$defs/changeSignal"},
+    "observed_on": {
+      "type": "string",
+      "pattern": "^20[0-9]{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$"
+    },
+    "drift_kind": {"$ref": "#/$defs/driftKind"},
+    "materiality": {"enum": ["NONE", "NON_BLOCKING", "BLOCKING"]},
+    "affected_routes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/route"}
+    },
+    "claim_ceiling": {
+      "enum": ["EXISTING_CLAIMS_ONLY", "OWNED_ROUTE_ONLY", "NO_PUBLICATION"]
+    },
+    "required_check_ids": {"$ref": "#/$defs/identifierArray"},
+    "disposition": {"$ref": "#/$defs/disposition"},
+    "review_state": {"enum": ["NOT_REQUIRED", "REQUIRED"]},
+    "closure_state": {"enum": ["CLOSED", "OPEN"]},
+    "publication_state": {"$ref": "#/$defs/publicationState"},
+    "published_artifact_hash": {"$ref": "#/$defs/nullableFingerprint"},
+    "publication_monitoring_state": {
+      "enum": ["BLOCKED_BY_POLICY", "INACTIVE_NO_PUBLISHED_HASH", "ACTIVE_EXACT_HASH"]
+    },
+    "issue_template": {"$ref": "#/$defs/template"},
+    "advisory_template": {"$ref": "#/$defs/template"}
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9][a-z0-9_.:-]{0,127}$"
+    },
+    "identity": {
+      "type": "string",
+      "pattern": "^(?:(?:git|gitblob):[0-9a-f]{40}|sha256:[0-9a-f]{64})$"
+    },
+    "nullableIdentity": {
+      "oneOf": [{"$ref": "#/$defs/identity"}, {"type": "null"}]
+    },
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "nullableFingerprint": {
+      "oneOf": [{"$ref": "#/$defs/fingerprint"}, {"type": "null"}]
+    },
+    "availability": {"enum": ["AVAILABLE", "UNAVAILABLE"]},
+    "changeSignal": {
+      "enum": [
+        "NONE",
+        "ADDITIVE",
+        "PRESENTATION_BUILD",
+        "COMPATIBLE_CONTRACT",
+        "CONTRACT_BREAKING",
+        "SECURITY_LICENSE",
+        "INTEGRITY_MISMATCH",
+        "UNAVAILABLE",
+        "UNRESOLVED"
+      ]
+    },
+    "driftKind": {
+      "enum": [
+        "NO_DRIFT",
+        "UNCHANGED_SEAM_AT_NEW_REPO_REVISION",
+        "ADDITIVE_NON_SUBSTITUTING",
+        "PRESENTATION_OR_BUILD_DRIFT",
+        "COMPATIBLE_CONTRACT_DRIFT",
+        "ROUTE_BLOCKING_CONTRACT_DRIFT",
+        "SECURITY_OR_LICENSE_BLOCKER",
+        "SOURCE_UNAVAILABLE",
+        "UNRESOLVED"
+      ]
+    },
+    "publicationState": {
+      "enum": ["DO_NOT_PUBLISH", "APPROVED_UNPUBLISHED", "PUBLISHED_EXACT"]
+    },
+    "disposition": {
+      "enum": ["PASS", "RUN_AFFECTED_CHECKS", "BLOCK_OWNED_ROUTE", "BLOCK_PUBLICATION"]
+    },
+    "identifierArray": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/identifier"}
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "route_id",
+        "task_mode",
+        "product_surface",
+        "host_profile",
+        "provider_profile",
+        "evaluation_layer"
+      ],
+      "properties": {
+        "route_id": {"$ref": "#/$defs/identifier"},
+        "task_mode": {"enum": ["NONE", "MANUAL", "ASSISTED"]},
+        "product_surface": {
+          "enum": [
+            "PROMPT_CONTRACT",
+            "MEDIA_CONTRACT",
+            "NATIVE_HOST",
+            "SIDEBAR",
+            "SUBGRAPH",
+            "CONTAINER",
+            "PROVIDER",
+            "SUPPLY_CHAIN",
+            "EVALUATION"
+          ]
+        },
+        "host_profile": {"enum": ["NONE", "SUPPORTED", "LATEST"]},
+        "provider_profile": {"enum": ["NONE", "OLLAMA_OPTIONAL"]},
+        "evaluation_layer": {"enum": ["NONE", "STRUCTURAL", "COMPATIBILITY", "RELEASE"]}
+      }
+    },
+    "template": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "template_kind",
+        "source_id",
+        "baseline_identity",
+        "observed_identity",
+        "drift_kind",
+        "disposition",
+        "route_ids",
+        "check_ids",
+        "owner_roles",
+        "publication_state"
+      ],
+      "properties": {
+        "template_kind": {"enum": ["ISSUE", "ADVISORY"]},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "baseline_identity": {"$ref": "#/$defs/identity"},
+        "observed_identity": {"$ref": "#/$defs/nullableIdentity"},
+        "drift_kind": {"$ref": "#/$defs/driftKind"},
+        "disposition": {"$ref": "#/$defs/disposition"},
+        "route_ids": {"$ref": "#/$defs/identifierArray"},
+        "check_ids": {"$ref": "#/$defs/identifierArray"},
+        "owner_roles": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "CORE_MAINTAINER",
+              "HOST_INTEGRATION_REVIEWER",
+              "PROVIDER_REVIEWER",
+              "RELEASE_REVIEWER",
+              "EVALUATION_REVIEWER"
+            ]
+          }
+        },
+        "publication_state": {"$ref": "#/$defs/publicationState"}
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "source_id",
+        "baseline_identity",
+        "observed_identity",
+        "baseline_semantic_fingerprint",
+        "observed_semantic_fingerprint",
+        "availability",
+        "change_signal",
+        "observed_on",
+        "publication_state",
+        "published_artifact_hash"
+      ],
+      "properties": {
+        "schema": {"const": "h3.drift.event.v1"},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "baseline_identity": {"$ref": "#/$defs/identity"},
+        "observed_identity": {"$ref": "#/$defs/nullableIdentity"},
+        "baseline_semantic_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "observed_semantic_fingerprint": {"$ref": "#/$defs/nullableFingerprint"},
+        "availability": {"$ref": "#/$defs/availability"},
+        "change_signal": {"$ref": "#/$defs/changeSignal"},
+        "observed_on": {
+          "type": "string",
+          "pattern": "^20[0-9]{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])$"
+        },
+        "publication_state": {"$ref": "#/$defs/publicationState"},
+        "published_artifact_hash": {"$ref": "#/$defs/nullableFingerprint"}
+      }
+    }
+  }
+}

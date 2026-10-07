@@ -1,0 +1,1037 @@
+{
+  "schema": "h3-context-reconstruction-regression/1",
+  "item": "M16-02",
+  "version": "1.0.0",
+  "updated_at": "2026-08-11",
+  "qualification_status": "MANUAL_ONLY_SCOPED",
+  "supported_profile_id": "supported-c44-v1",
+  "profiles": [
+    {
+      "profile_id": "supported-c44-v1",
+      "route": "v1",
+      "disposition": "qualified",
+      "claim_ceiling": "structural_native_manual_only",
+      "qualified": true,
+      "native_required": true,
+      "evidence_refs": [
+        "governance/contracts/compatibility_matrix_v1.json",
+        "tests/test_native_h3_adapter.py"
+      ],
+      "host_version": "0.30.0",
+      "host_revision": "c44dea18809e3ca0e12e25cbe6938c2c45a29c9d",
+      "frontend_version": "1.47.12",
+      "frontend_revision": "f339c6b2ec0cc90e1c4fa717d9f7d6d565a8f6da",
+      "node_api": "V1_ONLY",
+      "prompt_socket": "STRING",
+      "evidence_kind": "structural_fixture"
+    },
+    {
+      "profile_id": "v3-numbered",
+      "route": "v3",
+      "disposition": "blocked",
+      "claim_ceiling": "no_v3_executable_claim",
+      "qualified": false,
+      "native_required": true,
+      "evidence_refs": [
+        "governance/contracts/compatibility_matrix_v1.json",
+        "tests/fixtures/m16_01_source_requalification.json"
+      ],
+      "host_version": "unavailable",
+      "host_revision": "unavailable",
+      "frontend_version": "1.47.12",
+      "frontend_revision": "f339c6b2ec0cc90e1c4fa717d9f7d6d565a8f6da",
+      "node_api": "V3_UNPINNED",
+      "prompt_socket": "STRING",
+      "evidence_kind": "structural_fixture"
+    },
+    {
+      "profile_id": "latest-compatible",
+      "route": "latest",
+      "disposition": "blocked",
+      "claim_ceiling": "no_latest_substitution",
+      "qualified": false,
+      "native_required": true,
+      "evidence_refs": [
+        "governance/contracts/compatibility_matrix_v1.json",
+        "scripts/m16_01_source_requalification.py"
+      ],
+      "host_version": "latest-compatible",
+      "host_revision": "unavailable",
+      "frontend_version": "latest-compatible",
+      "frontend_revision": "unavailable",
+      "node_api": "UNDECLARED",
+      "prompt_socket": "STRING",
+      "evidence_kind": "structural_fixture"
+    },
+    {
+      "profile_id": "fixed-h3-generation",
+      "route": "h3",
+      "disposition": "unavailable",
+      "claim_ceiling": "no_fixed_h3_generation_claim",
+      "qualified": false,
+      "native_required": true,
+      "evidence_refs": [
+        "governance/contracts/fixed_h3_generation_v1.schema.json",
+        "tests/fixtures/m14_05_fixed_h3_generation.json"
+      ],
+      "host_version": "0.30.0",
+      "host_revision": "c44dea18809e3ca0e12e25cbe6938c2c45a29c9d",
+      "frontend_version": "1.47.12",
+      "frontend_revision": "f339c6b2ec0cc90e1c4fa717d9f7d6d565a8f6da",
+      "node_api": "V1_ONLY",
+      "prompt_socket": "STRING",
+      "evidence_kind": "generation_disposition"
+    },
+    {
+      "profile_id": "official-oracle",
+      "route": "oracle",
+      "disposition": "unavailable",
+      "claim_ceiling": "no_official_oracle_claim",
+      "qualified": false,
+      "native_required": false,
+      "evidence_refs": [
+        "tests/test_comparative_evaluation.py"
+      ],
+      "host_version": "unavailable",
+      "host_revision": "unavailable",
+      "frontend_version": "unavailable",
+      "frontend_revision": "unavailable",
+      "node_api": "UNAVAILABLE",
+      "prompt_socket": "STRING",
+      "evidence_kind": "oracle_disposition"
+    },
+    {
+      "profile_id": "ollama-live",
+      "route": "ollama",
+      "disposition": "unavailable",
+      "claim_ceiling": "no_live_ollama_claim",
+      "qualified": false,
+      "native_required": false,
+      "evidence_refs": [
+        "comfyui_h3_context/contracts/prompt_model_profiles_v5.json",
+        "tests/test_provider_policy.py"
+      ],
+      "host_version": "unavailable",
+      "host_revision": "unavailable",
+      "frontend_version": "unavailable",
+      "frontend_revision": "unavailable",
+      "node_api": "UNAVAILABLE",
+      "prompt_socket": "STRING",
+      "evidence_kind": "provider_disposition"
+    }
+  ],
+  "criteria": [
+    {
+      "id": "R3",
+      "title": "clean_artifact",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "release_artifact",
+      "evidence_refs": [
+        "scripts/build_gate_report.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "R4",
+      "title": "clean_install",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "release_artifact",
+      "evidence_refs": [
+        "scripts/release_matrix.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "R5",
+      "title": "one_entry_bundle",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "release_artifact",
+      "evidence_refs": [
+        "scripts/frontend_build_report.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "R6",
+      "title": "packaging_migration_rollback",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "release_artifact",
+      "evidence_refs": [
+        "scripts/release_matrix.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "R8",
+      "title": "co_installation",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "release_artifact",
+      "evidence_refs": [
+        "scripts/release_matrix.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "R9",
+      "title": "performance_cancellation",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "host_e2e",
+      "evidence_refs": [
+        "tests/test_performance_gate.py",
+        "tests/test_media_subprocess_hardening.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "R10",
+      "title": "offline_extension_provider_absence",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "security_audit",
+      "evidence_refs": [
+        "scripts/security_audit.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "P1",
+      "title": "secret_and_hygiene",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "security_audit",
+      "evidence_refs": [
+        "scripts/security_audit.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "P2",
+      "title": "format_lint_type_unit_build",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "structural_fixture",
+      "evidence_refs": [
+        "scripts/run_full_tests_windows.ps1",
+        "scripts/run_full_tests_linux.sh"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "P3",
+      "title": "pure_core",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "structural_fixture",
+      "evidence_refs": [
+        "tests/test_contracts_v2.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "P4",
+      "title": "schema_golden_property",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "structural_fixture",
+      "evidence_refs": [
+        "tests/test_contracts_v2.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "P5",
+      "title": "adversarial_media_provider",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "provider_disposition",
+      "evidence_refs": [
+        "tests/test_media_security.py",
+        "tests/test_provider_policy.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "P6",
+      "title": "browser_and_frontend_boundary",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "browser_host_probe",
+      "evidence_refs": [
+        "scripts/m15_03_host_frontend_e2e.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": true,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "P7",
+      "title": "perception",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "structural_fixture",
+      "evidence_refs": [
+        "tests/test_perturbation_evaluation.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "P8",
+      "title": "fusion_and_planner",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "structural_fixture",
+      "evidence_refs": [
+        "tests/test_constrained_semantic_planning.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "P9",
+      "title": "official_oracle",
+      "status": "UNAVAILABLE",
+      "disposition": "unavailable",
+      "reason": "official_oracle_not_authorized_or_available",
+      "claim_ceiling": "no_official_oracle_claim",
+      "evidence_kind": "oracle_disposition",
+      "evidence_refs": [
+        "tests/test_comparative_evaluation.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "P10",
+      "title": "fixed_h3_generation",
+      "status": "UNAVAILABLE",
+      "disposition": "unavailable",
+      "reason": "weight_backed_fixed_h3_lane_not_authorized",
+      "claim_ceiling": "no_fixed_h3_generation_claim",
+      "evidence_kind": "generation_disposition",
+      "evidence_refs": [
+        "tests/fixtures/m14_05_fixed_h3_generation.json"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "P11",
+      "title": "standard_string_export",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "host_e2e",
+      "evidence_refs": [
+        "tests/test_native_h3_adapter.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": true,
+        "native_present": true
+      },
+      "native_required": true,
+      "substitution_allowed": false
+    },
+    {
+      "id": "P12",
+      "title": "native_schema_inputs_enums",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "host_e2e",
+      "evidence_refs": [
+        "tests/test_native_h3_adapter.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": true,
+        "native_present": true
+      },
+      "native_required": true,
+      "substitution_allowed": false
+    },
+    {
+      "id": "P13",
+      "title": "fully_qualified_v3_child_bindings",
+      "status": "BLOCKED",
+      "disposition": "blocked",
+      "reason": "numbered_v3_profile_not_requalified_after_source_drift",
+      "claim_ceiling": "no_v3_executable_claim",
+      "evidence_kind": "host_e2e",
+      "evidence_refs": [
+        "tests/test_supported_host_e2e.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": true,
+        "native_present": true
+      },
+      "native_required": true,
+      "substitution_allowed": false
+    },
+    {
+      "id": "P14",
+      "title": "serialized_queued_identity_order_pairing_ownership",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "structural_fixture",
+      "evidence_refs": [
+        "tests/test_workflow_fixtures.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": true
+      },
+      "native_required": true,
+      "substitution_allowed": false
+    },
+    {
+      "id": "P15",
+      "title": "workflow_migration_and_recovery",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "host_e2e",
+      "evidence_refs": [
+        "tests/test_workflow_migration.py",
+        "tests/test_supported_host_e2e.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": true,
+        "native_present": true
+      },
+      "native_required": true,
+      "substitution_allowed": false
+    },
+    {
+      "id": "E1",
+      "title": "structural_evidence",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "structural_fixture",
+      "evidence_refs": [
+        "tests/acceptance_baseline.json",
+        "scripts/run_full_tests_windows.ps1"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "E2",
+      "title": "supported_host_evidence",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "host_e2e",
+      "evidence_refs": [
+        "tests/test_supported_host_e2e.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": true,
+        "native_present": true
+      },
+      "native_required": true,
+      "substitution_allowed": false
+    },
+    {
+      "id": "E3",
+      "title": "oracle_evidence",
+      "status": "UNAVAILABLE",
+      "disposition": "unavailable",
+      "reason": "official_oracle_not_authorized_or_available",
+      "claim_ceiling": "no_oracle_comparison_claim",
+      "evidence_kind": "oracle_disposition",
+      "evidence_refs": [
+        "tests/test_comparative_evaluation.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "E4",
+      "title": "fixed_h3_evidence",
+      "status": "UNAVAILABLE",
+      "disposition": "unavailable",
+      "reason": "weight_backed_fixed_h3_lane_not_authorized",
+      "claim_ceiling": "no_fixed_h3_generation_claim",
+      "evidence_kind": "generation_disposition",
+      "evidence_refs": [
+        "tests/fixtures/m14_05_fixed_h3_generation.json"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "E5",
+      "title": "perception_fusion_planner_evidence",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "structural_fixture",
+      "evidence_refs": [
+        "tests/test_perturbation_evaluation.py",
+        "tests/test_constrained_semantic_planning.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "E6",
+      "title": "adversarial_and_privacy_evidence",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "security_audit",
+      "evidence_refs": [
+        "tests/test_media_security.py",
+        "scripts/security_audit.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    },
+    {
+      "id": "E7",
+      "title": "claim_and_disposition_evidence",
+      "status": "PASS",
+      "disposition": "manual_only",
+      "reason": null,
+      "claim_ceiling": "structural_and_declared_matrix_only",
+      "evidence_kind": "manual_boundary",
+      "evidence_refs": [
+        "governance/contracts/capability_manifest_v1.schema.json",
+        "governance/contracts/fixed_h3_generation_v1.schema.json"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false,
+      "substitution_allowed": false
+    }
+  ],
+  "regressions": [
+    {
+      "id": "standard_string_export",
+      "status": "PASS",
+      "subject_disposition": "manual_only",
+      "assertion": "standard STRING export remains typed and is not replaced by H3_PROMPT_STRING",
+      "evidence_kind": "host_e2e",
+      "evidence_refs": [
+        "tests/test_native_h3_adapter.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": true,
+        "native_present": true
+      },
+      "native_required": true
+    },
+    {
+      "id": "real_native_prompt_validation",
+      "status": "PASS",
+      "subject_disposition": "manual_only",
+      "assertion": "real native classes and prompt wiring are validated; stripped classes do not pass",
+      "evidence_kind": "host_e2e",
+      "evidence_refs": [
+        "tests/test_native_h3_adapter.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": true,
+        "native_present": true
+      },
+      "native_required": true
+    },
+    {
+      "id": "fully_qualified_v3_child_bindings",
+      "status": "PASS",
+      "subject_disposition": "blocked",
+      "assertion": "unqualified V3 child bindings are rejected and not promoted",
+      "evidence_kind": "host_e2e",
+      "evidence_refs": [
+        "tests/test_supported_host_e2e.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": true,
+        "native_present": true
+      },
+      "native_required": true
+    },
+    {
+      "id": "native_required_inputs_enums",
+      "status": "PASS",
+      "subject_disposition": "manual_only",
+      "assertion": "required native inputs and enum values are checked against the accepted profile",
+      "evidence_kind": "host_e2e",
+      "evidence_refs": [
+        "tests/test_native_h3_adapter.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": true,
+        "native_present": true
+      },
+      "native_required": true
+    },
+    {
+      "id": "graph_identity_order_pairing_ownership",
+      "status": "PASS",
+      "subject_disposition": "manual_only",
+      "assertion": "manifest, serialized graph, and queued edges retain identity/order/pairing/ownership",
+      "evidence_kind": "structural_fixture",
+      "evidence_refs": [
+        "tests/test_workflow_fixtures.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": true
+      },
+      "native_required": true
+    },
+    {
+      "id": "workflow_migration",
+      "status": "PASS",
+      "subject_disposition": "manual_only",
+      "assertion": "legacy and current workflow migration paths are explicit and rollback-safe",
+      "evidence_kind": "structural_fixture",
+      "evidence_refs": [
+        "tests/test_workflow_migration.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": true
+      },
+      "native_required": true
+    },
+    {
+      "id": "cancellation_and_cleanup",
+      "status": "PASS",
+      "subject_disposition": "manual_only",
+      "assertion": "cancelled execution does not emit a fake result and cleans its bounded resources",
+      "evidence_kind": "host_e2e",
+      "evidence_refs": [
+        "tests/test_media_subprocess_hardening.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false
+    },
+    {
+      "id": "node_only_fallback",
+      "status": "PASS",
+      "subject_disposition": "manual_only",
+      "assertion": "node-only fallback remains usable without silently enabling an unavailable shell/provider",
+      "evidence_kind": "host_e2e",
+      "evidence_refs": [
+        "tests/test_supported_host_e2e.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": true,
+        "native_present": false
+      },
+      "native_required": false
+    },
+    {
+      "id": "offline_provider_absence",
+      "status": "PASS",
+      "subject_disposition": "manual_only",
+      "assertion": "offline and optional-provider-absent paths remain explicit and no fallback satisfies native evidence",
+      "evidence_kind": "provider_disposition",
+      "evidence_refs": [
+        "tests/test_provider_policy.py",
+        "scripts/security_audit.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false
+    },
+    {
+      "id": "disable_uninstall_rollback",
+      "status": "PASS",
+      "subject_disposition": "manual_only",
+      "assertion": "disable, uninstall, and rollback leave no stale registration or bundle entry",
+      "evidence_kind": "release_artifact",
+      "evidence_refs": [
+        "tests/test_registration_harness.py",
+        "scripts/release_matrix.py"
+      ],
+      "execution": {
+        "network_contacted": false,
+        "provider_enabled": false,
+        "model_loaded": false,
+        "media_opened": false,
+        "host_started": false,
+        "native_present": false
+      },
+      "native_required": false
+    }
+  ],
+  "execution_boundary": {
+    "network_contacted": false,
+    "provider_enabled": false,
+    "model_loaded": false,
+    "media_opened": false,
+    "credentials_used": false
+  },
+  "artifact_boundary": {
+    "clean_install": true,
+    "coinstallation": true,
+    "rollback": true,
+    "one_entry_bundle": true,
+    "runtime_entry_count": 1,
+    "runtime_entries": [
+      "h3-context-sidebar.js"
+    ],
+    "artifact_kinds": [
+      "sdist",
+      "direct_wheel",
+      "wheel_from_sdist"
+    ],
+    "network": "disabled",
+    "provider_absence": true,
+    "artifact_hashes_bound": true,
+    "release_matrix_bound": true,
+    "evidence_kind": "release_artifact",
+    "evidence_refs": [
+      "scripts/build_gate_report.py",
+      "scripts/release_matrix.py",
+      "scripts/frontend_build_report.py"
+    ]
+  },
+  "skip_debt": {
+    "approved_count": 5,
+    "unapproved_count": 0,
+    "items": [
+      {
+        "skip_id": "symlink_guard_1",
+        "reason": "governed contained-symlink fixture guard",
+        "status": "approved"
+      },
+      {
+        "skip_id": "symlink_guard_2",
+        "reason": "governed contained-symlink fixture guard",
+        "status": "approved"
+      },
+      {
+        "skip_id": "symlink_guard_3",
+        "reason": "governed contained-symlink fixture guard",
+        "status": "approved"
+      },
+      {
+        "skip_id": "symlink_guard_4",
+        "reason": "governed contained-symlink fixture guard",
+        "status": "approved"
+      },
+      {
+        "skip_id": "symlink_guard_5",
+        "reason": "governed contained-symlink fixture guard",
+        "status": "approved"
+      }
+    ]
+  },
+  "substitution_guards": {
+    "native_stripped_qualifies": false,
+    "fallback_satisfies_native": false,
+    "latest_satisfies_supported": false,
+    "ollama_satisfies_native": false,
+    "generic_registration_satisfies_native": false,
+    "unavailable_scored_as_pass": false
+  },
+  "fingerprint": "sha256:9ed34aeba58fca0ecb618aaf6be52a467eb074f2f467f0a97e2a4c970f6fd68c"
+}

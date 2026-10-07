@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/h3_context_report_v1.schema.json",
+  "title": "ComfyUI-MiniMaxH3-Context Report Contract v1",
+  "description": "Local typed plan/prompt/report artifact; not an official MiniMax Context-IR schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "report_id",
+    "schema_version",
+    "request",
+    "plan",
+    "prompt_document",
+    "validation",
+    "evidence",
+    "limitations",
+    "diagnostics",
+    "provider_receipt"
+  ],
+  "properties": {
+    "report_id": {"$ref": "#/$defs/Identifier"},
+    "schema_version": {"const": "1.0"},
+    "request": {"$ref": "#/$defs/NormalizedRequest"},
+    "plan": {"$ref": "#/$defs/ContextPlan"},
+    "prompt_document": {"$ref": "#/$defs/PromptDocument"},
+    "validation": {"$ref": "#/$defs/ValidationResult"},
+    "evidence": {"$ref": "#/$defs/EvidenceSet"},
+    "limitations": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/Limitation"}},
+    "diagnostics": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/ValidationDiagnostic"}},
+    "provider_receipt": {"anyOf": [{"$ref": "#/$defs/ProviderReceipt"}, {"type": "null"}]}
+  },
+  "$defs": {
+    "Identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "Code": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{0,63}$"
+    },
+    "SchemaVersion": {"type": "string", "const": "1.0"},
+    "ProfileIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"type": "string", "enum": ["h3_base", "h3_full_reference"]},
+        "version": {"$ref": "#/$defs/SchemaVersion"}
+      }
+    },
+    "AssetDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["asset_id", "kind", "role"],
+      "properties": {
+        "asset_id": {"$ref": "#/$defs/Identifier"},
+        "kind": {"type": "string", "enum": ["image", "video", "audio"]},
+        "role": {"type": "string"}
+      }
+    },
+    "TimePoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["raw", "seconds"],
+      "properties": {
+        "raw": {"type": "string", "minLength": 1, "maxLength": 64},
+        "seconds": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+)?$"}
+      }
+    },
+    "ReferenceRegistry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assets", "labels"],
+      "properties": {
+        "assets": {"type": "array", "maxItems": 1000, "items": {"type": "object"}},
+        "labels": {"type": "array", "maxItems": 1000, "items": {"type": "object"}}
+      }
+    },
+    "EvidenceSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["records"],
+      "properties": {
+        "records": {"type": "array", "maxItems": 256, "items": {"type": "object"}}
+      }
+    },
+    "HardConstraintSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constraints", "transformations"],
+      "properties": {
+        "constraints": {"type": "array", "maxItems": 256, "items": {"type": "object"}},
+        "transformations": {"type": "array", "maxItems": 256, "items": {"type": "object"}}
+      }
+    },
+    "NormalizedRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "profile",
+        "task_mode",
+        "model_variant",
+        "user_intent",
+        "requested_duration_seconds",
+        "effective_frame_count",
+        "effective_duration_seconds",
+        "duration_source",
+        "assets",
+        "hard_constraints",
+        "reference_registry",
+        "evidence"
+      ],
+      "properties": {
+        "schema_version": {"$ref": "#/$defs/SchemaVersion"},
+        "profile": {"$ref": "#/$defs/ProfileIdentity"},
+        "task_mode": {"type": "string", "enum": ["t2va", "i2va", "fl2va", "l2va", "ref2va"]},
+        "model_variant": {"type": "string", "enum": ["base_fl2va", "base_ref2va"]},
+        "user_intent": {"type": "string", "minLength": 1, "maxLength": 65536},
+        "requested_duration_seconds": {"type": ["number", "null"]},
+        "effective_frame_count": {"type": "integer", "minimum": 5, "maximum": 3600},
+        "effective_duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "duration_source": {"type": "string", "enum": ["default", "seconds"]},
+        "assets": {"type": "array", "items": {"$ref": "#/$defs/AssetDescriptor"}},
+        "hard_constraints": {"$ref": "#/$defs/HardConstraintSet"},
+        "reference_registry": {"$ref": "#/$defs/ReferenceRegistry"},
+        "evidence": {"$ref": "#/$defs/EvidenceSet"}
+      }
+    },
+    "IntentGraph": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "effective_duration",
+        "registry",
+        "subjects",
+        "scenes",
+        "actions",
+        "cameras",
+        "styles",
+        "audios",
+        "events",
+        "retention",
+        "segments",
+        "allow_gaps"
+      ],
+      "properties": {
+        "effective_duration": {"$ref": "#/$defs/TimePoint"},
+        "registry": {"$ref": "#/$defs/ReferenceRegistry"},
+        "subjects": {"type": "array", "items": {"type": "object"}},
+        "scenes": {"type": "array", "items": {"type": "object"}},
+        "actions": {"type": "array", "items": {"type": "object"}},
+        "cameras": {"type": "array", "items": {"type": "object"}},
+        "styles": {"type": "array", "items": {"type": "object"}},
+        "audios": {"type": "array", "items": {"type": "object"}},
+        "events": {"type": "array", "items": {"type": "object"}},
+        "retention": {"type": "array", "items": {"type": "object"}},
+        "segments": {"type": "array", "items": {"type": "object"}},
+        "allow_gaps": {"type": "boolean"}
+      }
+    },
+    "PlanStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["step_id", "stage", "status", "description", "input_evidence_ids", "output_ids"],
+      "properties": {
+        "step_id": {"$ref": "#/$defs/Identifier"},
+        "stage": {"type": "string", "enum": ["normalize", "bind_references", "assemble_intent", "render", "validate", "provider"]},
+        "status": {"type": "string", "enum": ["planned", "completed", "blocked"]},
+        "description": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "input_evidence_ids": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/Identifier"}},
+        "output_ids": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/Identifier"}}
+      }
+    },
+    "Limitation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["limitation_id", "code", "message", "severity", "evidence_ids"],
+      "properties": {
+        "limitation_id": {"$ref": "#/$defs/Identifier"},
+        "code": {"$ref": "#/$defs/Code"},
+        "message": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "severity": {"type": "string", "enum": ["info", "warning", "error", "fatal"]},
+        "evidence_ids": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/Identifier"}}
+      }
+    },
+    "ValidationDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "code", "message", "location"],
+      "properties": {
+        "severity": {"type": "string", "enum": ["info", "warning", "error", "fatal"]},
+        "code": {"$ref": "#/$defs/Code"},
+        "message": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "location": {"type": ["string", "null"], "maxLength": 256}
+      }
+    },
+    "ContextPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan_id", "schema_version", "request", "intent_graph", "hard_constraints", "evidence", "steps", "limitations", "diagnostics"],
+      "properties": {
+        "plan_id": {"$ref": "#/$defs/Identifier"},
+        "schema_version": {"$ref": "#/$defs/SchemaVersion"},
+        "request": {"$ref": "#/$defs/NormalizedRequest"},
+        "intent_graph": {"$ref": "#/$defs/IntentGraph"},
+        "hard_constraints": {"$ref": "#/$defs/HardConstraintSet"},
+        "evidence": {"$ref": "#/$defs/EvidenceSet"},
+        "steps": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/PlanStep"}},
+        "limitations": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/Limitation"}},
+        "diagnostics": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/ValidationDiagnostic"}}
+      }
+    },
+    "PromptSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["section_id", "order", "heading", "body", "source_evidence_ids"],
+      "properties": {
+        "section_id": {"$ref": "#/$defs/Identifier"},
+        "order": {"type": "integer", "minimum": 1, "maximum": 256},
+        "heading": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "body": {"type": "string", "minLength": 1, "maxLength": 65536},
+        "source_evidence_ids": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/Identifier"}}
+      }
+    },
+    "PromptDocument": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document_id", "schema_version", "profile", "task_mode", "plan_id", "text", "sections", "status", "source_evidence_ids"],
+      "properties": {
+        "document_id": {"$ref": "#/$defs/Identifier"},
+        "schema_version": {"$ref": "#/$defs/SchemaVersion"},
+        "profile": {"$ref": "#/$defs/ProfileIdentity"},
+        "task_mode": {"type": "string", "enum": ["t2va", "i2va", "fl2va", "l2va", "ref2va"]},
+        "plan_id": {"$ref": "#/$defs/Identifier"},
+        "text": {"type": "string", "minLength": 1, "maxLength": 65536},
+        "sections": {"type": "array", "minItems": 1, "maxItems": 256, "items": {"$ref": "#/$defs/PromptSection"}},
+        "status": {"type": "string", "enum": ["draft", "rendered"]},
+        "source_evidence_ids": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/Identifier"}}
+      }
+    },
+    "ValidationResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["validation_id", "schema_version", "target_id", "status", "diagnostics", "validator_version"],
+      "properties": {
+        "validation_id": {"$ref": "#/$defs/Identifier"},
+        "schema_version": {"$ref": "#/$defs/SchemaVersion"},
+        "target_id": {"$ref": "#/$defs/Identifier"},
+        "status": {"type": "string", "enum": ["passed", "failed", "not_run"]},
+        "diagnostics": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/ValidationDiagnostic"}},
+        "validator_version": {"type": ["string", "null"], "maxLength": 256}
+      }
+    },
+    "ProviderReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["receipt_id", "provider", "outcome", "provider_version", "endpoint_revision", "task_id", "input_fingerprint", "output_fingerprint", "redacted_message"],
+      "properties": {
+        "receipt_id": {"$ref": "#/$defs/Identifier"},
+        "provider": {"type": "string", "enum": ["manual", "local", "remote_custom", "official_minimax"]},
+        "outcome": {"type": "string", "enum": ["not_requested", "succeeded", "failed", "retryable_transport", "moderated", "unsupported_media", "quota", "authentication", "timeout", "cancelled"]},
+        "provider_version": {"type": ["string", "null"], "maxLength": 256},
+        "endpoint_revision": {"type": ["string", "null"], "maxLength": 256},
+        "task_id": {"anyOf": [{"$ref": "#/$defs/Identifier"}, {"type": "null"}]},
+        "input_fingerprint": {"anyOf": [{"type": "string", "pattern": "^[0-9a-f]{64}$"}, {"type": "null"}]},
+        "output_fingerprint": {"anyOf": [{"type": "string", "pattern": "^[0-9a-f]{64}$"}, {"type": "null"}]},
+        "redacted_message": {"type": ["string", "null"], "maxLength": 4096}
+      }
+    }
+  }
+}

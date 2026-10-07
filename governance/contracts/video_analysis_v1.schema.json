@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/video_analysis_v1.schema.json",
+  "title": "H3 bounded video sampling and shot analysis",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "batch_id", "status", "complete", "selected_asset_ids", "sampled_frame_count", "keyframes", "observations", "shots", "diagnostics", "admitted_frame_count", "frame_rate", "conditioning_window"],
+  "properties": {
+    "schema": {"const": "h3.video.analysis.v1"},
+    "batch_id": {"$ref": "#/$defs/identifier"},
+    "status": {"enum": ["complete", "partial", "empty", "corrupt", "unsupported"]},
+    "complete": {"type": "boolean"},
+    "selected_asset_ids": {"type": "array", "minItems": 1, "maxItems": 3, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+    "sampled_frame_count": {"type": "integer", "minimum": 0, "maximum": 2048},
+    "keyframes": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/keyframe"}},
+    "observations": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/observation"}},
+    "shots": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/shot"}},
+    "diagnostics": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/diagnostic"}},
+    "admitted_frame_count": {"type": ["integer", "null"], "minimum": 1, "maximum": 300},
+    "frame_rate": {"type": ["string", "null"], "maxLength": 64, "pattern": "^[0-9]+(?:\\.[0-9]+)?$"},
+    "conditioning_window": {"anyOf": [{"type": "null"}, {"$ref": "#/$defs/conditioning_window"}]}
+  },
+  "$defs": {
+    "conditioning_window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["window_frame_count", "sample_indices", "native_timestamps"],
+      "properties": {
+        "window_frame_count": {"type": "integer", "minimum": 5, "maximum": 3600},
+        "sample_indices": {"type": "array", "minItems": 1, "maxItems": 300, "uniqueItems": true, "items": {"type": "integer", "minimum": 0, "maximum": 3599}},
+        "native_timestamps": {"type": "array", "minItems": 1, "maxItems": 300, "items": {"type": "string", "maxLength": 64, "pattern": "^[0-9]+(?:\\.[0-9]+)?$"}}
+      }
+    },
+    "identifier": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "time": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["raw", "seconds"],
+      "properties": {
+        "raw": {"type": "string", "minLength": 1, "maxLength": 64},
+        "seconds": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+)?$"}
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "detail", "severity"],
+      "properties": {
+        "kind": {"enum": ["missing_source", "low_confidence", "ambiguous", "conflicting", "unsupported", "unintelligible", "truncated", "stale"]},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "severity": {"enum": ["info", "warning", "error", "fatal"]}
+      }
+    },
+    "keyframe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["keyframe_id", "asset_id", "source_id", "timestamp", "frame_index", "orientation", "uncertainties"],
+      "properties": {
+        "keyframe_id": {"$ref": "#/$defs/identifier"},
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "timestamp": {"$ref": "#/$defs/time"},
+        "frame_index": {"type": ["integer", "null"], "minimum": 1},
+        "orientation": {"enum": ["up", "rotate_90", "rotate_180", "rotate_270", "mirror_horizontal", "mirror_vertical", "unknown"]},
+        "uncertainties": {"type": "array", "maxItems": 32, "items": {"$ref": "#/$defs/uncertainty"}}
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observation_id", "asset_id", "kind", "evidence"],
+      "properties": {
+        "observation_id": {"$ref": "#/$defs/identifier"},
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "kind": {"enum": ["scene", "action", "camera"]},
+        "evidence": {"type": "object"}
+      }
+    },
+    "shot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shot_id", "asset_id", "source_id", "start", "end", "keyframe_ids", "observation_ids", "uncertainties"],
+      "properties": {
+        "shot_id": {"$ref": "#/$defs/identifier"},
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "start": {"$ref": "#/$defs/time"},
+        "end": {"$ref": "#/$defs/time"},
+        "keyframe_ids": {"type": "array", "maxItems": 512, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "observation_ids": {"type": "array", "maxItems": 512, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "uncertainties": {"type": "array", "maxItems": 32, "items": {"$ref": "#/$defs/uncertainty"}}
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message", "severity"],
+      "properties": {
+        "code": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+        "message": {"type": "string", "minLength": 1, "maxLength": 1024},
+        "severity": {"enum": ["info", "warning", "error", "fatal"]}
+      }
+    }
+  }
+}

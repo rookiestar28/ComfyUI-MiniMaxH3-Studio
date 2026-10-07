@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/retirement_eligibility_v1.schema.json",
+  "title": "ComfyUI H3 context schema retirement eligibility",
+  "description": "Deterministic, content-free record giving every inventoried JSON Schema a retirement verdict and, where the verdict is not eligible, the reasons that decided it. It also names every schema that has actually been retired, with the commit whose tree still contains it -- which is what keeps a stable $id from disappearing silently. It records; it retires nothing by itself.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "verdicts", "retired", "fingerprint"],
+  "properties": {
+    "schema": { "const": "h3-context-retirement-eligibility/1" },
+    "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "verdicts": {
+      "description": "One row per live inventoried JSON Schema, sorted and unique by contract_id. A retired schema is absent here: it no longer exists, so it cannot carry a live verdict.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 512,
+      "items": { "$ref": "#/$defs/verdict" }
+    },
+    "retired": {
+      "description": "Schemas that stopped shipping. Empty is a valid state; a non-empty entry is a deprecation record, not a changelog line.",
+      "type": "array",
+      "maxItems": 512,
+      "items": { "$ref": "#/$defs/retired" }
+    }
+  },
+  "$defs": {
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 260,
+      "pattern": "^[A-Za-z0-9._-](?:[A-Za-z0-9._ -]*[A-Za-z0-9._-])?(?:/[A-Za-z0-9._-](?:[A-Za-z0-9._ -]*[A-Za-z0-9._-])?)*$"
+    },
+    "identity": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z][A-Za-z0-9_.:/@+-]*$"
+    },
+    "verdict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_id",
+        "schema_path",
+        "verdict",
+        "described_wires",
+        "internal_consumers",
+        "external_consumers",
+        "hidden_consumers",
+        "reasons"
+      ],
+      "properties": {
+        "contract_id": { "$ref": "#/$defs/identity" },
+        "schema_path": { "$ref": "#/$defs/path" },
+        "verdict": {
+          "description": "eligible is the only verdict that carries no reasons, because it is the only one with nothing standing in the way.",
+          "enum": ["eligible", "eligible_with_consumers", "blocked", "no_redundancy"]
+        },
+        "described_wires": {
+          "description": "Inventoried wires whose shape this schema states a second time. Empty means there is no redundancy to remove.",
+          "type": "array",
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/identity" }
+        },
+        "internal_consumers": {
+          "description": "Readers under tests/ or scripts/. They are real evidence and block retirement, but they could in principle be replaced by a typed invariant test.",
+          "type": "array",
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/path" }
+        },
+        "external_consumers": {
+          "description": "Readers anywhere else. This item cannot re-migrate them, so they block outright.",
+          "type": "array",
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/path" }
+        },
+        "hidden_consumers": {
+          "description": "Readers living in files the contract inventory deliberately excludes from its scan, found by reading those files separately. Without this column a deliberate blind spot would report a used schema as safe to delete.",
+          "type": "array",
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/path" }
+        },
+        "reasons": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 200 }
+        }
+      }
+    },
+    "retired": {
+      "description": "One retirement. The first five members are what the item declared; the last four are recomputed from the repository every time this record is generated, so the declaration cannot outlive the evidence that justified it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_id",
+        "schema_path",
+        "rollback_commit",
+        "surviving_authority",
+        "item",
+        "described_wires",
+        "wire_boundaries",
+        "wire_persistence",
+        "surviving_references"
+      ],
+      "properties": {
+        "contract_id": { "$ref": "#/$defs/identity" },
+        "schema_path": { "$ref": "#/$defs/path" },
+        "rollback_commit": {
+          "description": "A commit whose tree still contains the file, so `git show <commit>:<schema_path>` restores it.",
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "surviving_authority": {
+          "description": "The typed module that always decided the shape. The retired schema stated it a second time and enforced nothing. It is also the evidence anchor: the wires below are found through it.",
+          "$ref": "#/$defs/path"
+        },
+        "item": { "type": "string", "minLength": 1, "maxLength": 32 },
+        "described_wires": {
+          "description": "Recomputed: the inventoried wires reached through surviving_authority. Never empty -- a retirement whose schema restated no surviving wire has no redundancy story to tell.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 512,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/identity" }
+        },
+        "wire_boundaries": {
+          "description": "Recomputed: those wires' trust boundaries. Every one is process_local, or the retirement is refused.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "const": "process_local" }
+        },
+        "wire_persistence": {
+          "description": "Recomputed: those wires' persistence classes. Every one is transient, or the retirement is refused.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "const": "transient" }
+        },
+        "surviving_references": {
+          "description": "Recomputed: every file that still names this identity, searched across the shipped surface including docs/ and examples/. Always empty -- a non-empty result stops the record from being built at all.",
+          "type": "array",
+          "maxItems": 0,
+          "items": { "$ref": "#/$defs/path" }
+        }
+      }
+    }
+  }
+}

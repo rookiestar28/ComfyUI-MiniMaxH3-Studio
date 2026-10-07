@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/constrained_semantic_planning_v1.schema.json",
+  "title": "H3 constrained semantic planning",
+  "description": "One complete, locally validated, copy-on-write semantic proposal document.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "status", "document", "diff", "receipt", "diagnostics"],
+  "properties": {
+    "schema": {"const": "h3.constrained_semantic_planning.v1"},
+    "status": {"enum": ["complete", "blocked", "rejected", "unavailable"]},
+    "document": {"anyOf": [{"$ref": "#/$defs/document"}, {"type": "null"}]},
+    "diff": {"anyOf": [{"$ref": "#/$defs/diff"}, {"type": "null"}]},
+    "receipt": {"$ref": "#/$defs/receipt"},
+    "diagnostics": {"type": "array", "maxItems": 256, "items": {"type": "object"}}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "exact_text": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "target_id", "text"],
+      "properties": {
+        "schema": {"const": "h3.constrained_semantic_planning.v1"},
+        "target_id": {"$ref": "#/$defs/identifier"},
+        "text": {"type": "string", "minLength": 1, "maxLength": 4096}
+      }
+    },
+    "proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "proposal_id", "target_kind", "target_id", "claim", "evidence_label", "source_ids", "confidence", "rationale"],
+      "properties": {
+        "schema": {"const": "h3.constrained_semantic_planning.v1"},
+        "proposal_id": {"$ref": "#/$defs/identifier"},
+        "target_kind": {"enum": ["asset", "shot", "segment", "subject", "scene", "action", "camera", "style", "audio", "event", "relation"]},
+        "target_id": {"$ref": "#/$defs/identifier"},
+        "claim": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "evidence_label": {"enum": ["source", "inferred", "creative"]},
+        "source_ids": {"type": "array", "minItems": 1, "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "confidence": {"type": "string", "pattern": "^(?:0(?:\\.[0-9]+)?|1(?:\\.0+)?)$"},
+        "rationale": {"type": ["string", "null"], "maxLength": 1024}
+      }
+    },
+    "document": {
+      "oneOf": [{"$ref": "#/$defs/legacy_document"}, {"$ref": "#/$defs/typed_document"}]
+    },
+    "dialogue_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constraint_id", "language", "speaker_keys"],
+      "properties": {
+        "constraint_id": {"$ref": "#/$defs/identifier"},
+        "language": {"type": ["string", "null"], "minLength": 1, "maxLength": 64},
+        "speaker_keys": {"type": "array", "minItems": 1, "maxItems": 256, "uniqueItems": true, "items": {"type": "string", "pattern": "^(?:@anonymous:)?[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"}}
+      }
+    },
+    "typed_intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "description", "dialogue_bindings"],
+      "properties": {
+        "kind": {"enum": ["subject", "scene", "action", "camera", "style", "audio"]},
+        "description": {"type": "string", "minLength": 1, "maxLength": 4096, "pattern": "^[^<>\\[\\]\\x00-\\x1f\\x7f-\\x9f\\u2028\\u2029]+$"},
+        "dialogue_bindings": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/dialogue_binding"}}
+      },
+      "if": {"properties": {"kind": {"not": {"const": "audio"}}}},
+      "then": {"properties": {"dialogue_bindings": {"maxItems": 0}}}
+    },
+    "typed_proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "proposal_id", "target_kind", "target_id", "intent", "evidence_label", "source_ids", "confidence", "rationale"],
+      "properties": {
+        "schema": {"const": "h3.constrained_semantic_planning.v2"},
+        "proposal_id": {"$ref": "#/$defs/identifier"},
+        "target_kind": {"enum": ["subject", "scene", "action", "camera", "style", "audio"]},
+        "target_id": {"$ref": "#/$defs/identifier"},
+        "intent": {"$ref": "#/$defs/typed_intent"},
+        "evidence_label": {"enum": ["source", "inferred", "creative"]},
+        "source_ids": {"type": "array", "minItems": 1, "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "confidence": {"type": "string", "pattern": "^(?:0(?:\\.[0-9]+)?|1(?:\\.0+)?)$"},
+        "rationale": {"type": ["string", "null"], "maxLength": 1024}
+      }
+    },
+    "typed_document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "document_id", "policy", "task_mode", "effective_duration", "asset_ids", "reference_order", "timeline_fingerprint", "reduction_fingerprint", "preserved_exact_text", "proposals", "complete"],
+      "properties": {
+        "schema": {"const": "h3.constrained_semantic_planning.v2"},
+        "document_id": {"$ref": "#/$defs/identifier"},
+        "policy": {"enum": ["strict", "evidence_bounded", "creative_allowed"]},
+        "task_mode": {"type": "string"},
+        "effective_duration": {"type": "string", "minLength": 1, "maxLength": 128},
+        "asset_ids": {"type": "array", "items": {"$ref": "#/$defs/identifier"}},
+        "reference_order": {"type": "array", "items": {"$ref": "#/$defs/identifier"}},
+        "timeline_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "reduction_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "preserved_exact_text": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/exact_text"}},
+        "proposals": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/typed_proposal"}},
+        "complete": {"const": true}
+      }
+    },
+    "legacy_document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "document_id", "policy", "task_mode", "effective_duration", "asset_ids", "reference_order", "timeline_fingerprint", "reduction_fingerprint", "preserved_exact_text", "proposals", "complete"],
+      "properties": {
+        "schema": {"const": "h3.constrained_semantic_planning.v1"},
+        "document_id": {"$ref": "#/$defs/identifier"},
+        "policy": {"enum": ["strict", "evidence_bounded", "creative_allowed"]},
+        "task_mode": {"type": "string"},
+        "effective_duration": {"type": "string", "minLength": 1, "maxLength": 128},
+        "asset_ids": {"type": "array", "items": {"$ref": "#/$defs/identifier"}},
+        "reference_order": {"type": "array", "items": {"$ref": "#/$defs/identifier"}},
+        "timeline_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "reduction_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "preserved_exact_text": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/exact_text"}},
+        "proposals": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/proposal"}},
+        "complete": {"const": true}
+      }
+    },
+    "diff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "before_fingerprint", "after_fingerprint", "added_proposal_ids", "changed_fields", "diff_fingerprint"],
+      "properties": {
+        "schema": {"const": "h3.constrained_semantic_planning.v1"},
+        "before_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "after_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "added_proposal_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "changed_fields": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "diff_fingerprint": {"$ref": "#/$defs/fingerprint"}
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "max_proposals", "max_output_tokens", "max_claim_chars", "max_diff_fields"],
+      "properties": {
+        "schema": {"const": "h3.constrained_semantic_planning.v1"},
+        "max_proposals": {"type": "integer", "minimum": 1},
+        "max_output_tokens": {"type": "integer", "minimum": 1},
+        "max_claim_chars": {"type": "integer", "minimum": 1},
+        "max_diff_fields": {"type": "integer", "minimum": 1}
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "status", "profile_id", "backend_family", "model_id", "model_digest", "model_output_fingerprint", "input_reduction_fingerprint", "input_timeline_fingerprint", "policy", "seed", "raw_media_used", "before_fingerprint", "after_fingerprint", "revision_id", "diff_fingerprint", "budget", "diagnostics"],
+      "properties": {
+        "schema": {"const": "h3.constrained_semantic_planning.v1"},
+        "status": {"enum": ["complete", "blocked", "rejected", "unavailable"]},
+        "profile_id": {"$ref": "#/$defs/identifier"},
+        "backend_family": {"enum": ["comfyui_native", "ollama"]},
+        "model_id": {"$ref": "#/$defs/identifier"},
+        "model_digest": {"$ref": "#/$defs/fingerprint"},
+        "model_output_fingerprint": {"anyOf": [{"$ref": "#/$defs/fingerprint"}, {"type": "null"}]},
+        "input_reduction_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "input_timeline_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "policy": {"enum": ["strict", "evidence_bounded", "creative_allowed"]},
+        "seed": {"type": ["integer", "null"], "minimum": 0},
+        "raw_media_used": {"type": "boolean"},
+        "before_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "after_fingerprint": {"anyOf": [{"$ref": "#/$defs/fingerprint"}, {"type": "null"}]},
+        "revision_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+        "diff_fingerprint": {"anyOf": [{"$ref": "#/$defs/fingerprint"}, {"type": "null"}]},
+        "budget": {"$ref": "#/$defs/budget"},
+        "diagnostics": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}}
+      }
+    }
+  }
+}

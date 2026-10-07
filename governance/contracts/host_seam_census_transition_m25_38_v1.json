@@ -1,0 +1,64 @@
+{
+  "schema": "h3.context.host_seam_census_transition_m25_38.v1",
+  "item": "M25-38",
+  "source": {
+    "commit_parts": [
+      "d051d1b0",
+      "28d553ed",
+      "a32a99cb",
+      "58195eeb",
+      "42f6dc38"
+    ],
+    "tree_parts": ["1e4a08fd", "22f8a453", "6cd892a1", "2b041695", "47d7b645"]
+  },
+  "artifacts": {
+    "from_census_sha256_parts": [
+      "efd2dc9f",
+      "293d0973",
+      "7211948f",
+      "4475ef76",
+      "f8b091e1",
+      "979d373b",
+      "c28ce33e",
+      "70c073a6"
+    ],
+    "to_census_sha256_parts": [
+      "7dedcf4e",
+      "52d930ef",
+      "2076fee4",
+      "b3569ab2",
+      "ab7102d3",
+      "a59ad473",
+      "f4b9e667",
+      "2c55b1c2"
+    ],
+    "fixture_sha256_parts": [
+      "6c5b39b2",
+      "d8681074",
+      "e5742cef",
+      "b81a574e",
+      "5087834f",
+      "df89fdb5",
+      "aea23c70",
+      "2cf2a023"
+    ],
+    "seam_contract_sha256_parts": [
+      "c6522421",
+      "bebc84e1",
+      "b68d716f",
+      "b600edfb",
+      "fe035ed8",
+      "0068c58b",
+      "8c0ab3c2",
+      "6e9e07f9"
+    ]
+  },
+  "changes": [
+    {
+      "seam_id": "frontend.app.graph",
+      "removed_source_paths": ["frontend/src/lifecycle/appModeSession.ts"],
+      "from_owner": "frontend/src/lifecycle/appModeSession.ts",
+      "to_owner": "frontend/src/host/hostSeams.ts"
+    }
+  ]
+}

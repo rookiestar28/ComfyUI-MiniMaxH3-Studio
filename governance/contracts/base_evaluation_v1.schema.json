@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/base_evaluation_v1.schema.json",
+  "title": "H3 Base-mode evaluation corpus",
+  "description": "Separate structural, oracle, and fixed-H3 evaluation metadata.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "corpus_id", "cases"],
+  "properties": {
+    "schema": {"const": "h3.base.evaluation.v1"},
+    "corpus_id": {"$ref": "#/$defs/identifier"},
+    "cases": {"type": "array", "minItems": 1, "maxItems": 256, "items": {"$ref": "#/$defs/case"}}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["case_id", "route", "task_mode", "source_fingerprints"],
+      "properties": {
+        "case_id": {"$ref": "#/$defs/identifier"},
+        "route": {"enum": ["deterministic", "assisted", "official_provider"]},
+        "task_mode": {"enum": ["t2va", "i2va", "fl2va", "l2va"]},
+        "source_fingerprints": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/fingerprint"}}
+      }
+    }
+  }
+}

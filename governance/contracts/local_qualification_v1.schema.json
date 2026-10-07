@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/local_qualification_v1.schema.json",
+  "title": "H3 local qualification report v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "plan_id",
+    "plan_fingerprint",
+    "product_scope",
+    "candidate_receipts",
+    "backend_summaries",
+    "ablation_receipts",
+    "qualified_candidate_ids",
+    "pareto_candidate_ids",
+    "limitations"
+  ],
+  "properties": {
+    "schema": {"const": "h3.local.qualification.v1"},
+    "plan_id": {"$ref": "#/$defs/code"},
+    "plan_fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "product_scope": {
+      "enum": ["ASSISTED_PROFILE_QUALIFIED", "MANUAL_ONLY_SCOPED"]
+    },
+    "candidate_receipts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {"$ref": "#/$defs/candidateReceipt"}
+    },
+    "backend_summaries": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {"$ref": "#/$defs/backendSummary"}
+    },
+    "ablation_receipts": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 16,
+      "items": {"$ref": "#/$defs/ablationReceipt"}
+    },
+    "qualified_candidate_ids": {"$ref": "#/$defs/codeArray"},
+    "pareto_candidate_ids": {"$ref": "#/$defs/codeArray"},
+    "limitations": {"$ref": "#/$defs/codeArray"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"product_scope": {"const": "MANUAL_ONLY_SCOPED"}}},
+      "then": {
+        "properties": {
+          "qualified_candidate_ids": {"maxItems": 0},
+          "pareto_candidate_ids": {"maxItems": 0}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"product_scope": {"const": "ASSISTED_PROFILE_QUALIFIED"}}},
+      "then": {"properties": {"qualified_candidate_ids": {"minItems": 1}}}
+    }
+  ],
+  "$defs": {
+    "code": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.:-]{0,127}$",
+      "not": {
+        "enum": ["secret", "token", "password", "authorization", "credential", "cookie"]
+      }
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "nullableNonNegativeInteger": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "codeArray": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/code"}
+    },
+    "candidateReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_id",
+        "backend",
+        "topology",
+        "profile_id",
+        "disposition",
+        "failed_checks",
+        "limitations",
+        "evaluated_case_count",
+        "mean_source_grounding_bp",
+        "max_unsupported_fact_bp",
+        "max_latency_ms",
+        "max_peak_vram_mb",
+        "max_peak_ram_mb",
+        "total_failures",
+        "executable"
+      ],
+      "properties": {
+        "candidate_id": {"$ref": "#/$defs/code"},
+        "backend": {"enum": ["comfyui_native", "ollama"]},
+        "topology": {
+          "enum": ["modular_only", "omni_only", "modular_plus_planner"]
+        },
+        "profile_id": {"$ref": "#/$defs/code"},
+        "disposition": {"enum": ["qualified", "rejected", "unavailable"]},
+        "failed_checks": {"$ref": "#/$defs/codeArray"},
+        "limitations": {"$ref": "#/$defs/codeArray"},
+        "evaluated_case_count": {"type": "integer", "minimum": 0, "maximum": 32},
+        "mean_source_grounding_bp": {"$ref": "#/$defs/nullableNonNegativeInteger"},
+        "max_unsupported_fact_bp": {"$ref": "#/$defs/nullableNonNegativeInteger"},
+        "max_latency_ms": {"$ref": "#/$defs/nullableNonNegativeInteger"},
+        "max_peak_vram_mb": {"$ref": "#/$defs/nullableNonNegativeInteger"},
+        "max_peak_ram_mb": {"$ref": "#/$defs/nullableNonNegativeInteger"},
+        "total_failures": {"$ref": "#/$defs/nullableNonNegativeInteger"},
+        "executable": {"type": "boolean"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"disposition": {"const": "qualified"}}},
+          "then": {
+            "properties": {
+              "executable": {"const": true},
+              "failed_checks": {"maxItems": 0},
+              "evaluated_case_count": {"minimum": 1},
+              "mean_source_grounding_bp": {"type": "integer"},
+              "max_unsupported_fact_bp": {"type": "integer"},
+              "max_latency_ms": {"type": "integer"},
+              "max_peak_vram_mb": {"type": "integer"},
+              "max_peak_ram_mb": {"type": "integer"},
+              "total_failures": {"type": "integer"}
+            }
+          },
+          "else": {"properties": {"executable": {"const": false}}}
+        },
+        {
+          "if": {"properties": {"disposition": {"const": "unavailable"}}},
+          "then": {
+            "properties": {
+              "failed_checks": {"maxItems": 0},
+              "limitations": {"minItems": 1},
+              "evaluated_case_count": {"const": 0},
+              "mean_source_grounding_bp": {"type": "null"},
+              "max_unsupported_fact_bp": {"type": "null"},
+              "max_latency_ms": {"type": "null"},
+              "max_peak_vram_mb": {"type": "null"},
+              "max_peak_ram_mb": {"type": "null"},
+              "total_failures": {"type": "null"}
+            }
+          }
+        }
+      ]
+    },
+    "backendSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["backend", "candidate_ids", "qualified_candidate_ids"],
+      "properties": {
+        "backend": {"enum": ["comfyui_native", "ollama"]},
+        "candidate_ids": {"$ref": "#/$defs/codeArray"},
+        "qualified_candidate_ids": {"$ref": "#/$defs/codeArray"}
+      }
+    },
+    "ablationReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ablation_id",
+        "factor",
+        "baseline_candidate_id",
+        "variant_candidate_id",
+        "status",
+        "source_grounding_delta_bp",
+        "unsupported_fact_delta_bp",
+        "latency_delta_ms",
+        "peak_vram_delta_mb",
+        "peak_ram_delta_mb",
+        "failure_delta",
+        "limitation"
+      ],
+      "properties": {
+        "ablation_id": {"$ref": "#/$defs/code"},
+        "factor": {
+          "enum": [
+            "adapter",
+            "fusion_rule",
+            "prompt_strategy",
+            "enrichment_model",
+            "planner",
+            "backend"
+          ]
+        },
+        "baseline_candidate_id": {"$ref": "#/$defs/code"},
+        "variant_candidate_id": {"$ref": "#/$defs/code"},
+        "status": {"enum": ["complete", "missing"]},
+        "source_grounding_delta_bp": {"type": ["integer", "null"]},
+        "unsupported_fact_delta_bp": {"type": ["integer", "null"]},
+        "latency_delta_ms": {"type": ["integer", "null"]},
+        "peak_vram_delta_mb": {"type": ["integer", "null"]},
+        "peak_ram_delta_mb": {"type": ["integer", "null"]},
+        "failure_delta": {"type": ["integer", "null"]},
+        "limitation": {"type": "string", "maxLength": 128}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "complete"}}},
+          "then": {
+            "properties": {
+              "source_grounding_delta_bp": {"type": "integer"},
+              "unsupported_fact_delta_bp": {"type": "integer"},
+              "latency_delta_ms": {"type": "integer"},
+              "peak_vram_delta_mb": {"type": "integer"},
+              "peak_ram_delta_mb": {"type": "integer"},
+              "failure_delta": {"type": "integer"},
+              "limitation": {"const": ""}
+            }
+          },
+          "else": {
+            "properties": {
+              "source_grounding_delta_bp": {"type": "null"},
+              "unsupported_fact_delta_bp": {"type": "null"},
+              "latency_delta_ms": {"type": "null"},
+              "peak_vram_delta_mb": {"type": "null"},
+              "peak_ram_delta_mb": {"type": "null"},
+              "failure_delta": {"type": "null"},
+              "limitation": {"minLength": 1}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

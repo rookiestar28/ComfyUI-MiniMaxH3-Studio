@@ -1,0 +1,718 @@
+{
+  "schema": "h3-context-source-requalification/1",
+  "item": "M16-01",
+  "version": "1.0.0",
+  "updated_at": "2026-08-11",
+  "baseline": {
+    "checkpoint_id": "m14_09",
+    "fixture": "tests/fixtures/m14_09_source_drift_checkpoint.json",
+    "fingerprint": "sha256:f1cb7e797c09deefb8b99ba9d0f1df0eb8eae9684ff50fbde4426db134bd75b7"
+  },
+  "supported_profile": {
+    "core_version": "0.30.0",
+    "core_revision": "c44dea18809e3ca0e12e25cbe6938c2c45a29c9d",
+    "frontend_version": "1.47.12",
+    "frontend_revision": "f339c6b2ec0cc90e1c4fa717d9f7d6d565a8f6da",
+    "node_api": "V1_ONLY",
+    "native_h3_source": "22bc91cd4570a071c664ec4848a5be748909e1e7",
+    "status": "QUALIFIED_UNCHANGED",
+    "latest_substitution_authorized": false,
+    "manual_only_scoped": true,
+    "prompt_boundary": "STRING",
+    "autogrow_transport": "fully_qualified_zero_based",
+    "presentation_labels": "one_based",
+    "h3_execution_status": "NOT_IMPLEMENTED"
+  },
+  "surfaces": [
+    {
+      "surface_id": "minimax.repository",
+      "group": "minimax_repository",
+      "url": "https://github.com/MiniMax-AI/MiniMax-H3/tree/05d91ff89f58b665e56424fd66db9ef0351b3015",
+      "baseline_revision": "git:b7227fa6a6206e9fb30562383d39e53cf3866a48",
+      "observed_revision": "git:05d91ff89f58b665e56424fd66db9ef0351b3015",
+      "observed_fingerprint": "sha256:b83769c3e1ca584461780017b6190f4d1b06d2e7bcdea7655b56bc1c4981e34e",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "ADDITIVE_NON_SUBSTITUTING",
+      "affected_seams": [
+        "prompt_guidance",
+        "context_ir_boundary"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "minimax.guide",
+      "group": "minimax_repository",
+      "url": "https://github.com/MiniMax-AI/MiniMax-H3/blob/05d91ff89f58b665e56424fd66db9ef0351b3015/README.md",
+      "baseline_revision": "sha256:6e4cfcfd85a796cf3c965a2dcc0cc328b59dd680d9718d1e0fef0add7aca8ada",
+      "observed_revision": "git:05d91ff89f58b665e56424fd66db9ef0351b3015",
+      "observed_fingerprint": "sha256:b83769c3e1ca584461780017b6190f4d1b06d2e7bcdea7655b56bc1c4981e34e",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "ADDITIVE_NON_SUBSTITUTING",
+      "affected_seams": [
+        "prompt_guidance",
+        "context_ir_boundary"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "minimax.model",
+      "group": "minimax_model",
+      "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3/tree/9ac0dd7aabc2c651fcf0ace4c00b2bffd9c8c8a6",
+      "baseline_revision": "git:6818f6c32d12b210915e44ad56a4228c2608f160",
+      "observed_revision": "git:9ac0dd7aabc2c651fcf0ace4c00b2bffd9c8c8a6",
+      "observed_fingerprint": "sha256:5a587fe13b2371427415ac892463142683aefcd8d322e274a3a095eac37ac7d2",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "model_revision",
+        "checkpoint_digest"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "minimax.model.license",
+      "group": "minimax_model",
+      "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/9ac0dd7aabc2c651fcf0ace4c00b2bffd9c8c8a6/LICENSE",
+      "baseline_revision": "sha256:59b99642b95ea21630e311198ddbfffbfe05aadba0c2f5d884cbdf4efcc90f44",
+      "observed_revision": "sha256:59b99642b95ea21630e311198ddbfffbfe05aadba0c2f5d884cbdf4efcc90f44",
+      "observed_fingerprint": "sha256:59b99642b95ea21630e311198ddbfffbfe05aadba0c2f5d884cbdf4efcc90f44",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [
+        "license"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "minimax.model.index",
+      "group": "minimax_model",
+      "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/9ac0dd7aabc2c651fcf0ace4c00b2bffd9c8c8a6/model_index.json",
+      "baseline_revision": "sha256:5a587fe13b2371427415ac892463142683aefcd8d322e274a3a095eac37ac7d2",
+      "observed_revision": "sha256:5a587fe13b2371427415ac892463142683aefcd8d322e274a3a095eac37ac7d2",
+      "observed_fingerprint": "sha256:5a587fe13b2371427415ac892463142683aefcd8d322e274a3a095eac37ac7d2",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [
+        "model_metadata"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "comfyui.core",
+      "group": "comfyui_core",
+      "url": "https://github.com/Comfy-Org/ComfyUI/tree/34744cd29eacea9bbdec17e628a81c2ce0737d16",
+      "baseline_revision": "git:c44dea18809e3ca0e12e25cbe6938c2c45a29c9d",
+      "observed_revision": "git:34744cd29eacea9bbdec17e628a81c2ce0737d16",
+      "observed_fingerprint": "git:34744cd29eacea9bbdec17e628a81c2ce0737d16",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "latest_host",
+        "v3_api"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "comfyui.text_generate",
+      "group": "comfyui_core",
+      "url": "https://github.com/Comfy-Org/ComfyUI/blob/34744cd29eacea9bbdec17e628a81c2ce0737d16/comfy_extras/nodes_textgen.py",
+      "baseline_revision": "gitblob:5a947d5c57b32e7e8d2ed1ef364064959d841cc4",
+      "observed_revision": "gitblob:5a947d5c57b32e7e8d2ed1ef364064959d841cc4",
+      "observed_fingerprint": "sha256:b328e8a2dc89cfd3a93ab49c1be880a3e89ec4521eef506823753617c86c99e9",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [
+        "text_generate",
+        "model_family"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "comfyui.clip_loader",
+      "group": "comfyui_core",
+      "url": "https://github.com/Comfy-Org/ComfyUI/blob/34744cd29eacea9bbdec17e628a81c2ce0737d16/nodes.py",
+      "baseline_revision": "gitblob:08529d8dc414138e56d0cc6e68367f95da70f038",
+      "observed_revision": "gitblob:432f04d8951acd75808e53a96b4eebfe89ef51aa",
+      "observed_fingerprint": "sha256:aa7e2a87bb7c1b43273736eef9fcf4811cb55497c5bde2e201135b244b97431a",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "clip_loader",
+        "latest_host"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "comfyui.model_family",
+      "group": "comfyui_core",
+      "url": "https://github.com/Comfy-Org/ComfyUI/blob/34744cd29eacea9bbdec17e628a81c2ce0737d16/comfy/model_detection.py",
+      "baseline_revision": "gitblob:103680fd12d39395ed49258c04e0bcf49bcb6c56",
+      "observed_revision": "gitblob:103680fd12d39395ed49258c04e0bcf49bcb6c56",
+      "observed_fingerprint": "sha256:3475b30e2c3995902b3cfefb82f4b9bfa1529022a33c7b8707791595bd3ef733",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [
+        "model_family",
+        "checkpoint_loader"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "comfyui.native_h3",
+      "group": "comfyui_native_h3",
+      "url": "https://github.com/Comfy-Org/ComfyUI/blob/34744cd29eacea9bbdec17e628a81c2ce0737d16/comfy_extras/nodes_minimax_h3.py",
+      "baseline_revision": "gitblob:22bc91cd4570a071c664ec4848a5be748909e1e7",
+      "observed_revision": "git:34744cd29eacea9bbdec17e628a81c2ce0737d16",
+      "observed_fingerprint": "sha256:f767df4074b908efb345f5a87c2fd263ba82c12e65bcca932846207cc213e064",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "sigma_sampler",
+        "latest_native_workflow"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "comfyui.frontend",
+      "group": "comfyui_frontend",
+      "url": "https://github.com/Comfy-Org/ComfyUI_frontend/tree/36aec4afa2b71afca5ca41a1cc4293ec1682daf7",
+      "baseline_revision": "git:f339c6b2ec0cc90e1c4fa717d9f7d6d565a8f6da",
+      "observed_revision": "git:36aec4afa2b71afca5ca41a1cc4293ec1682daf7",
+      "observed_fingerprint": "sha256:fc7030a06777f25eb318b619ea493d3477f4fbd325a42933d296b536a8da1aba",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "ADDITIVE_NON_SUBSTITUTING",
+      "affected_seams": [
+        "latest_frontend",
+        "sidebar_lifecycle"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "comfyui.docs.v3",
+      "group": "comfyui_docs",
+      "url": "https://docs.comfy.org/custom-nodes/v3_migration",
+      "baseline_revision": "sha256:bc6c4a7bdafba5e0fcad23186ea0478a841b708451c924e0337302f8b5e677a5",
+      "observed_revision": "sha256:fafda2e4739a7d50d2cd70f3630385d8a2f8b72a62aa4de830f393484e3fd83f",
+      "observed_fingerprint": "sha256:fafda2e4739a7d50d2cd70f3630385d8a2f8b72a62aa4de830f393484e3fd83f",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "v3_api",
+        "hidden_fields"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "comfyui.docs.sidebar",
+      "group": "comfyui_docs",
+      "url": "https://docs.comfy.org/custom-nodes/js/javascript_sidebar_tabs",
+      "baseline_revision": "sha256:da8f294db0ef5ccfd278e615495f7b2202b9a8d7e9067b22a9ba1b0c37c184f1",
+      "observed_revision": "sha256:d3faa5472a1ce636653eca58a25b3ee7dcaf7536c75ec8d8b7c1251085da3468",
+      "observed_fingerprint": "sha256:d3faa5472a1ce636653eca58a25b3ee7dcaf7536c75ec8d8b7c1251085da3468",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "sidebar_lifecycle"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "comfyui.docs.app_mode",
+      "group": "comfyui_docs",
+      "url": "https://docs.comfy.org/interface/app-mode",
+      "baseline_revision": "unavailable",
+      "observed_revision": "sha256:d9a0dc2420a40754dce4c01cc728cd56c0e638d5017d46f91b3c479870a71185",
+      "observed_fingerprint": "sha256:d9a0dc2420a40754dce4c01cc728cd56c0e638d5017d46f91b3c479870a71185",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "app_mode",
+        "queue_cancel"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "comfyui.docs.subgraph_blueprints",
+      "group": "comfyui_docs",
+      "url": "https://docs.comfy.org/custom-nodes/subgraph_blueprints",
+      "baseline_revision": "unavailable",
+      "observed_revision": "sha256:cd572f821f1207a41e64a455ea3dab65d42ff7d0e24022591af6b0ea9479f6fe",
+      "observed_fingerprint": "sha256:cd572f821f1207a41e64a455ea3dab65d42ff7d0e24022591af6b0ea9479f6fe",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "subgraph_blueprints",
+        "dynamic_inputs"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "comfyui.docs.subgraphs",
+      "group": "comfyui_docs",
+      "url": "https://docs.comfy.org/custom-nodes/js/subgraphs",
+      "baseline_revision": "unavailable",
+      "observed_revision": "sha256:6f45a143d5eaf3779443d6355b19c81bb48df0e25d2571122165e58ee955556b",
+      "observed_fingerprint": "sha256:6f45a143d5eaf3779443d6355b19c81bb48df0e25d2571122165e58ee955556b",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "subgraph_traversal",
+        "widget_promotion"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "ollama.server",
+      "group": "ollama_server",
+      "url": "https://github.com/ollama/ollama/tree/4f066a6fb0c05d7dcf68e02858a5ddd399af716a",
+      "baseline_revision": "git:5a173edb63dbe5d1f555ae258a7930135d7c9336",
+      "observed_revision": "git:4f066a6fb0c05d7dcf68e02858a5ddd399af716a",
+      "observed_fingerprint": "git:4f066a6fb0c05d7dcf68e02858a5ddd399af716a",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "ollama_server_api",
+        "ollama_runtime_qualification"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "ollama.python_client",
+      "group": "ollama_python_client",
+      "url": "https://github.com/ollama/ollama-python/tree/25b93290d8cd07b0d00732641f812ee34fd4c989",
+      "baseline_revision": "git:25b93290d8cd07b0d00732641f812ee34fd4c989",
+      "observed_revision": "git:25b93290d8cd07b0d00732641f812ee34fd4c989",
+      "observed_fingerprint": "git:25b93290d8cd07b0d00732641f812ee34fd4c989",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [
+        "python_client"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "ollama.docs.introduction",
+      "group": "ollama_docs",
+      "url": "https://docs.ollama.com/api/introduction",
+      "baseline_revision": "sha256:a4f4f1d59067ebff92da446d1c92c80a2a4b6066e566d9c9dc0cba96ba877394",
+      "observed_revision": "sha256:929616d0b385d590e1217aabe3883717edbb9b6951461baca52d464eaf10c7b7",
+      "observed_fingerprint": "sha256:929616d0b385d590e1217aabe3883717edbb9b6951461baca52d464eaf10c7b7",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "ollama_versioning",
+        "cloud_boundary"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "ollama.docs.chat",
+      "group": "ollama_docs",
+      "url": "https://docs.ollama.com/api/chat",
+      "baseline_revision": "sha256:309ef5fbdc781525eb04e091478c51e4e17be3f6baafb7bd4b6e3b23e726cb49",
+      "observed_revision": "sha256:da1ceed85db014e6a64db609bc932ddd5642e28bae5f05a2eb82be6c035dc4a8",
+      "observed_fingerprint": "sha256:da1ceed85db014e6a64db609bc932ddd5642e28bae5f05a2eb82be6c035dc4a8",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "ollama_chat",
+        "structured_output_validation"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "ollama.docs.tags",
+      "group": "ollama_docs",
+      "url": "https://docs.ollama.com/api/tags",
+      "baseline_revision": "sha256:70b873546ce4cb19113f8de8ce3cd8fb22e36d130c80d2a753254f2a45e1b20f",
+      "observed_revision": "sha256:4daadba9d6263100f20e867c2a0c7c03304ca8d648235f65d82a14ec3345bba0",
+      "observed_fingerprint": "sha256:4daadba9d6263100f20e867c2a0c7c03304ca8d648235f65d82a14ec3345bba0",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "ollama_model_inventory"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "ollama.docs.show",
+      "group": "ollama_docs",
+      "url": "https://docs.ollama.com/api-reference/show-model-details",
+      "baseline_revision": "sha256:75e200fa9ec92986579c8fcc7319c38fd85dc1310e853ee20eeba1d1fb02d2ad",
+      "observed_revision": "sha256:9648e166574c05da6905e1364786a58ec604b0f0ee8415eee7658b3a88c356ce",
+      "observed_fingerprint": "sha256:9648e166574c05da6905e1364786a58ec604b0f0ee8415eee7658b3a88c356ce",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "ollama_model_metadata"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "ollama.docs.ps",
+      "group": "ollama_docs",
+      "url": "https://docs.ollama.com/api/ps",
+      "baseline_revision": "sha256:c7d9eb1ee9ecae4a275aa5b6a5ff209e4a303b32b3fc994d60aec853ef5fd8ee",
+      "observed_revision": "sha256:bd82a81bf71a02e1fb82a2daf7772cafd7d89379d8fd06e33b0d64d59bf202dc",
+      "observed_fingerprint": "sha256:bd82a81bf71a02e1fb82a2daf7772cafd7d89379d8fd06e33b0d64d59bf202dc",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "ollama_runtime_inventory"
+      ],
+      "requalification_owner": "M16-01"
+    },
+    {
+      "surface_id": "ollama.docs.structured_outputs",
+      "group": "ollama_docs",
+      "url": "https://docs.ollama.com/capabilities/structured-outputs",
+      "baseline_revision": "sha256:4e21cd3eca241db09adb7775c98ca8b2e1878d76fde1684ef34531345df7aa6f",
+      "observed_revision": "sha256:7b310ff1136adb541cdaac08bbd86761bde1a6e04c63a7106cad9b9f93aa67c2",
+      "observed_fingerprint": "sha256:7b310ff1136adb541cdaac08bbd86761bde1a6e04c63a7106cad9b9f93aa67c2",
+      "retrieved_at": "2026-08-11",
+      "evidence_class": "official",
+      "confidence": "high",
+      "material": true,
+      "disposition": "ADDITIVE_NON_SUBSTITUTING",
+      "affected_seams": [
+        "structured_output_validation"
+      ],
+      "requalification_owner": "M16-01"
+    }
+  ],
+  "schema_diffs": [
+    {
+      "diff_id": "native_h3.sigma_shift",
+      "surface_id": "comfyui.native_h3",
+      "component": "MiniMaxH3SigmaShift",
+      "baseline_fingerprint": "sha256:5c3f78efef772850f90660c5ff82e31078b5baef10f427053ed82fb8b4a7ecd1",
+      "observed_fingerprint": "sha256:f767df4074b908efb345f5a87c2fd263ba82c12e65bcca932846207cc213e064",
+      "severity": "material",
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "details": "Latest source changes ModelSamplingDiscreteFlow to ModelSamplingAV and passes audio_shift into set_parameters.",
+      "affected_profiles": [
+        "latest_native_h3"
+      ]
+    },
+    {
+      "diff_id": "native_h3.string_autogrow",
+      "surface_id": "comfyui.native_h3",
+      "component": "MiniMaxH3ImageToVideo/MiniMaxH3ReferenceToVideo",
+      "baseline_fingerprint": "sha256:5c3f78efef772850f90660c5ff82e31078b5baef10f427053ed82fb8b4a7ecd1",
+      "observed_fingerprint": "sha256:f767df4074b908efb345f5a87c2fd263ba82c12e65bcca932846207cc213e064",
+      "severity": "unchanged",
+      "disposition": "UNCHANGED_CONTRACT",
+      "details": "Prompt remains STRING; reference prefixes remain zero-based transport paths with one-based presentation labels.",
+      "affected_profiles": [
+        "supported_c44_v1"
+      ]
+    },
+    {
+      "diff_id": "frontend.version",
+      "surface_id": "comfyui.frontend",
+      "component": "package.version",
+      "baseline_fingerprint": "sha256:60c06ca4ef7b462b80d6543491f050e69981605086d34894fde049fc3d270c53",
+      "observed_fingerprint": "sha256:fc7030a06777f25eb318b619ea493d3477f4fbd325a42933d296b536a8da1aba",
+      "severity": "material",
+      "disposition": "ADDITIVE_NON_SUBSTITUTING",
+      "details": "Latest frontend package is 1.51.0; the supported profile remains pinned to 1.47.12.",
+      "affected_profiles": [
+        "latest_frontend"
+      ]
+    },
+    {
+      "diff_id": "model.license_index",
+      "surface_id": "minimax.model.license",
+      "component": "LICENSE/model_index.json",
+      "baseline_fingerprint": "sha256:59b99642b95ea21630e311198ddbfffbfe05aadba0c2f5d884cbdf4efcc90f44",
+      "observed_fingerprint": "sha256:59b99642b95ea21630e311198ddbfffbfe05aadba0c2f5d884cbdf4efcc90f44",
+      "severity": "unchanged",
+      "disposition": "UNCHANGED_CONTRACT",
+      "details": "License bytes remain identical; model_index bytes are also unchanged at sha256:5a587fe13b2371427415ac892463142683aefcd8d322e274a3a095eac37ac7d2.",
+      "affected_profiles": [
+        "model_metadata"
+      ]
+    },
+    {
+      "diff_id": "comfyui.text_generate_schema",
+      "surface_id": "comfyui.text_generate",
+      "component": "TextGenerate schema",
+      "baseline_fingerprint": "sha256:b328e8a2dc89cfd3a93ab49c1be880a3e89ec4521eef506823753617c86c99e9",
+      "observed_fingerprint": "sha256:b328e8a2dc89cfd3a93ab49c1be880a3e89ec4521eef506823753617c86c99e9",
+      "severity": "unchanged",
+      "disposition": "UNCHANGED_CONTRACT",
+      "details": "The current and supported nodes_textgen.py blob are identical; TextGenerate remains a host-owned optional V3 seam and is not a local execution claim.",
+      "affected_profiles": [
+        "text_generate"
+      ]
+    },
+    {
+      "diff_id": "comfyui.api.versioning",
+      "surface_id": "comfyui.docs.v3",
+      "component": "comfy_api route authority",
+      "baseline_fingerprint": "sha256:bc6c4a7bdafba5e0fcad23186ea0478a841b708451c924e0337302f8b5e677a5",
+      "observed_fingerprint": "sha256:fafda2e4739a7d50d2cd70f3630385d8a2f8b72a62aa4de830f393484e3fd83f",
+      "severity": "material",
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "details": "Current V3 documentation uses comfy_api.latest examples; no stable numbered V3 route was requalified, so the supported decision remains V1_ONLY.",
+      "affected_profiles": [
+        "supported_c44_v1",
+        "latest_host"
+      ]
+    },
+    {
+      "diff_id": "comfyui.dynamic_subgraph",
+      "surface_id": "comfyui.docs.subgraphs",
+      "component": "Subgraph traversal and widget promotion",
+      "baseline_fingerprint": "unavailable",
+      "observed_fingerprint": "sha256:6f45a143d5eaf3779443d6355b19c81bb48df0e25d2571122165e58ee955556b",
+      "severity": "material",
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "details": "Current Subgraph documentation describes evolving widget promotion and graph events; this source was not present in the M14 checkpoint and cannot broaden the accepted dynamic boundary.",
+      "affected_profiles": [
+        "supported_c44_v1",
+        "latest_host"
+      ]
+    },
+    {
+      "diff_id": "ollama.api_versioning",
+      "surface_id": "ollama.docs.introduction",
+      "component": "API versioning/base URLs",
+      "baseline_fingerprint": "sha256:a4f4f1d59067ebff92da446d1c92c80a2a4b6066e566d9c9dc0cba96ba877394",
+      "observed_fingerprint": "sha256:929616d0b385d590e1217aabe3883717edbb9b6951461baca52d464eaf10c7b7",
+      "severity": "material",
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "details": "Current docs describe localhost and cloud bases and say the API is not strictly versioned; the project remains loopback-only and does not promote this drift.",
+      "affected_profiles": [
+        "optional_ollama"
+      ]
+    }
+  ],
+  "claims": [
+    {
+      "record_id": "product.scope",
+      "statement": "MANUAL_ONLY_SCOPED",
+      "status": "resolved",
+      "confidence": "high",
+      "source_ids": [
+        "minimax.repository",
+        "comfyui.native_h3"
+      ],
+      "affected_profiles": [
+        "supported_c44_v1"
+      ]
+    },
+    {
+      "record_id": "native.string_boundary",
+      "statement": "STRING",
+      "status": "resolved",
+      "confidence": "high",
+      "source_ids": [
+        "comfyui.native_h3"
+      ],
+      "affected_profiles": [
+        "supported_c44_v1"
+      ]
+    },
+    {
+      "record_id": "latest.non_substituting",
+      "statement": "latest observations cannot satisfy exact supported profile",
+      "status": "resolved",
+      "confidence": "high",
+      "source_ids": [
+        "comfyui.core",
+        "comfyui.frontend",
+        "ollama.server"
+      ],
+      "affected_profiles": [
+        "latest_host",
+        "latest_frontend",
+        "optional_ollama"
+      ]
+    },
+    {
+      "record_id": "model.license",
+      "statement": "MiniMax H3 Community License remains separate from this Apache-2.0 package",
+      "status": "resolved",
+      "confidence": "high",
+      "source_ids": [
+        "minimax.model.license"
+      ],
+      "affected_profiles": [
+        "model_metadata"
+      ]
+    }
+  ],
+  "unknowns": [
+    {
+      "record_id": "fixed_h3.generation",
+      "statement": "No weight-backed fixed-H3 generation qualification exists in this item",
+      "status": "open",
+      "confidence": "high",
+      "source_ids": [
+        "minimax.model",
+        "comfyui.native_h3"
+      ],
+      "affected_profiles": [
+        "fixed_h3"
+      ]
+    },
+    {
+      "record_id": "context_ir.equivalence",
+      "statement": "Local behavior is not equivalent to the private hosted H3-Context-IR service",
+      "status": "open",
+      "confidence": "high",
+      "source_ids": [
+        "minimax.repository"
+      ],
+      "affected_profiles": [
+        "official_oracle"
+      ]
+    },
+    {
+      "record_id": "latest.host_qualification",
+      "statement": "Latest ComfyUI/frontend/native H3 and Ollama profiles are not qualified by this ledger",
+      "status": "open",
+      "confidence": "high",
+      "source_ids": [
+        "comfyui.core",
+        "comfyui.native_h3",
+        "comfyui.frontend",
+        "ollama.server"
+      ],
+      "affected_profiles": [
+        "latest_host",
+        "latest_frontend",
+        "optional_ollama"
+      ]
+    }
+  ],
+  "attributions": [
+    {
+      "attribution_id": "minimax_h3",
+      "subject": "MiniMax H3 model and repository",
+      "license": "MiniMax H3 Community License Agreement",
+      "source_ids": [
+        "minimax.repository",
+        "minimax.model.license"
+      ],
+      "status": "recorded"
+    },
+    {
+      "attribution_id": "qwen3_vl",
+      "subject": "Qwen3-VL-32B encoder referenced by H3 license",
+      "license": "Apache-2.0 (upstream notice)",
+      "source_ids": [
+        "minimax.model.license"
+      ],
+      "status": "recorded"
+    },
+    {
+      "attribution_id": "ollama",
+      "subject": "Optional Ollama adapter boundary",
+      "license": "MIT (upstream project)",
+      "source_ids": [
+        "ollama.server",
+        "ollama.python_client"
+      ],
+      "status": "recorded"
+    },
+    {
+      "attribution_id": "comfyui",
+      "subject": "ComfyUI core/frontend integration",
+      "license": "GPL-3.0-only for frontend; host terms remain external",
+      "source_ids": [
+        "comfyui.core",
+        "comfyui.frontend"
+      ],
+      "status": "recorded"
+    },
+    {
+      "attribution_id": "project",
+      "subject": "ComfyUI-MiniMaxH3-Context package",
+      "license": "Apache-2.0",
+      "source_ids": [
+        "comfyui.core"
+      ],
+      "status": "recorded"
+    }
+  ],
+  "guards": {
+    "network_performed": false,
+    "model_downloaded": false,
+    "media_read": false,
+    "provider_called": false,
+    "credentials_used": false,
+    "paid_calls": false,
+    "latest_substitution_authorized": false
+  }
+}

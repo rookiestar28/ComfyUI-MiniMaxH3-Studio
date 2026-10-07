@@ -1,0 +1,686 @@
+{
+  "canonical_string_limit": 65536,
+  "schema": "h3-context-canonical-cross-language-vectors/1",
+  "vectors": [
+    {
+      "description": "the empty string still has an identity",
+      "name": "empty",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+      "segments": [
+        {
+          "code_points": []
+        }
+      ]
+    },
+    {
+      "description": "the shortest agreement already asserted by the browser suite",
+      "name": "ascii_hello",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:5aa762ae383fbb727af3c7a36d4940a5b8c40a989452d2304fc958ff3f354e7a",
+      "segments": [
+        {
+          "code_points": [
+            104,
+            101,
+            108,
+            108,
+            111
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a realistic prompt carrying a native reference label",
+      "name": "ascii_prompt_with_label",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:a5102d76597965aececb57a5520d23ef29bc7bf884579716921ae9a663ac536a",
+      "segments": [
+        {
+          "code_points": [
+            83,
+            117,
+            98,
+            106,
+            101,
+            99,
+            116,
+            58,
+            32,
+            65,
+            32,
+            115,
+            97,
+            102,
+            101,
+            32,
+            112,
+            114,
+            111,
+            109,
+            112,
+            116,
+            32,
+            119,
+            105,
+            116,
+            104,
+            32,
+            60,
+            80,
+            105,
+            99,
+            116,
+            117,
+            114,
+            101,
+            32,
+            49,
+            62,
+            46
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a quotation mark must be escaped identically by both encoders",
+      "name": "json_quote",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:0c926fba014b31b506cd4ceb60d646c0c867432650fa0671fcafed6b772614a3",
+      "segments": [
+        {
+          "code_points": [
+            34
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a backslash must be escaped identically by both encoders",
+      "name": "json_backslash",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:687a9ed5a2b7019504648f874bb683f56e7787e1a4738493d84349c8d4e72b23",
+      "segments": [
+        {
+          "code_points": [
+            92
+          ]
+        }
+      ]
+    },
+    {
+      "description": "neither encoder escapes a forward solidus",
+      "name": "json_solidus",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:df7e940f72aa93cbcb6d70cc35124b0767c7a0e353043c7c24b660ea9be7b952",
+      "segments": [
+        {
+          "code_points": [
+            47
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a short escape rather than a numeric one",
+      "name": "control_tab",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:729e2865c247816a9f99d1f7fe87f8b8fe1e74815fdb5547de30a0e570b275ea",
+      "segments": [
+        {
+          "code_points": [
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a short escape rather than a numeric one",
+      "name": "control_line_feed",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:d7a5e915306d21dc1937ad5616f1dc9682e759e75ef51dd05fd9ddc98a078ea1",
+      "segments": [
+        {
+          "code_points": [
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a short escape rather than a numeric one",
+      "name": "control_carriage_return",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:8eb852fe331310caa37e80df8a4d52ee8deb3ddc0a5143b52c662d984d9e8018",
+      "segments": [
+        {
+          "code_points": [
+            13
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a short escape rather than a numeric one",
+      "name": "control_backspace",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:764b71f1436ed52909511f169b4a41282426dc60382846132cd6c2a02f4df149",
+      "segments": [
+        {
+          "code_points": [
+            8
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a short escape rather than a numeric one",
+      "name": "control_form_feed",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:28712b453e305cb36748f9f0aed7bf52bdc87fc8666627c3cd647d3fba5f61c1",
+      "segments": [
+        {
+          "code_points": [
+            12
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a numeric escape below the short-escape set",
+      "name": "control_unit_separator",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:6e1f297fd3657440862f051f44e4bc0ee6b26348011e5891e91aa1aa7e9c0759",
+      "segments": [
+        {
+          "code_points": [
+            31
+          ]
+        }
+      ]
+    },
+    {
+      "description": "U+007F is above the escaping threshold and stays literal",
+      "name": "control_delete",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:6fe76740e12a93d5598fe685cb6ad3d3c94e44609065a56866b69647772026ec",
+      "segments": [
+        {
+          "code_points": [
+            127
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a C1 control is not escaped by either encoder",
+      "name": "control_c1_next_line",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:5f425940e5b672f0d14d288eee5fa46d859f0b2344780811552d0c3abcdcf41e",
+      "segments": [
+        {
+          "code_points": [
+            133
+          ]
+        }
+      ]
+    },
+    {
+      "description": "the code point both runtimes refuse outright",
+      "name": "nul",
+      "python_accepted": false,
+      "segments": [
+        {
+          "code_points": [
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "description": "the composed form is already normal",
+      "name": "nfc_precomposed_e_acute",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:f2886017e9c7abacf804b54d64787dce2b611c9544ba21f3affdd126a6e50086",
+      "segments": [
+        {
+          "code_points": [
+            233
+          ]
+        }
+      ]
+    },
+    {
+      "description": "must fold onto the composed form",
+      "name": "nfc_decomposed_e_acute",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:f2886017e9c7abacf804b54d64787dce2b611c9544ba21f3affdd126a6e50086",
+      "segments": [
+        {
+          "code_points": [
+            101,
+            769
+          ]
+        }
+      ]
+    },
+    {
+      "description": "canonical ordering must reorder cedilla before acute",
+      "name": "nfc_reordered_combining_marks",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:0af5418825302c4f2c3826469c1cb0dbb88be739467df9b835a02e8fa86dcbcf",
+      "segments": [
+        {
+          "code_points": [
+            101,
+            769,
+            807
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a singleton decomposition folds to U+00C5",
+      "name": "nfc_singleton_angstrom",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:20d8dab8ec900ac4fb89517b03abf6cf0c88fb9488ad3530519d98e9b6a6046c",
+      "segments": [
+        {
+          "code_points": [
+            8491
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a singleton decomposition folds to U+03A9",
+      "name": "nfc_singleton_ohm",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:81ada254356134f629692f3e740667f4da398e8ea45b22d1cd8c005b6b289c83",
+      "segments": [
+        {
+          "code_points": [
+            8486
+          ]
+        }
+      ]
+    },
+    {
+      "description": "conjoining jamo must compose to U+AC01",
+      "name": "nfc_hangul_jamo",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:2aa0a53dec832e9fc6d600ce69192d98f5e6b7eac66b8f991506e35846748bfc",
+      "segments": [
+        {
+          "code_points": [
+            4352,
+            4449,
+            4520
+          ]
+        }
+      ]
+    },
+    {
+      "description": "the composed syllable the jamo vector must equal",
+      "name": "nfc_hangul_precomposed",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:2aa0a53dec832e9fc6d600ce69192d98f5e6b7eac66b8f991506e35846748bfc",
+      "segments": [
+        {
+          "code_points": [
+            44033
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a compatibility ligature is NOT folded by NFC",
+      "name": "nfc_ligature_unchanged",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:717e2b24b2b18af8fb12ae78f7342e823547ef3ed99b0ac32ecd63c1047ff488",
+      "segments": [
+        {
+          "code_points": [
+            64257
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a compatibility digit is NOT folded by NFC",
+      "name": "nfc_circled_digit_unchanged",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:973d2fd2f97e26a666f403b12da6d87e527985b36bcf4ff0a47c7e7e8c36321a",
+      "segments": [
+        {
+          "code_points": [
+            9312
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a combining mark with nothing to combine with",
+      "name": "nfc_combining_mark_alone",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:9f90c7ea39901ebcdbe9cfdfb8e4d8e01872d79efdad572ff8d520fe2dc4c78c",
+      "segments": [
+        {
+          "code_points": [
+            769
+          ]
+        }
+      ]
+    },
+    {
+      "description": "U+2028 stays literal in JSON on both sides",
+      "name": "line_separator",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:8aa716ff98153a8b537e4e21f27cb75d7ebe92f4754aca11a38ee7a27b714941",
+      "segments": [
+        {
+          "code_points": [
+            8232
+          ]
+        }
+      ]
+    },
+    {
+      "description": "U+2029 stays literal in JSON on both sides",
+      "name": "paragraph_separator",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:301d777bfad5f47e69141d3dfebb34b4f16b755845525ec6076a99c4bc194135",
+      "segments": [
+        {
+          "code_points": [
+            8233
+          ]
+        }
+      ]
+    },
+    {
+      "description": "U+FEFF is ordinary text here, not a signature",
+      "name": "byte_order_mark",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:b839e4168b1e2225296aa76599e3ada57bf459000ffb0a192f211b1eeb23e9a8",
+      "segments": [
+        {
+          "code_points": [
+            65279
+          ]
+        }
+      ]
+    },
+    {
+      "description": "U+200D survives normalization unchanged",
+      "name": "zero_width_joiner",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:3d96d54856c2db3febdaca1906648348d72f8f5c15d9e67413b0574625ae418d",
+      "segments": [
+        {
+          "code_points": [
+            8205
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a bidi control is text, not a rendering instruction",
+      "name": "right_to_left_override",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:e819e36a46f372f5baf032f5afbaf23d0caebbd2989b4bd2cd57aae4c8eeae56",
+      "segments": [
+        {
+          "code_points": [
+            8238
+          ]
+        }
+      ]
+    },
+    {
+      "description": "U+FFFD is a legitimate input, not a decode failure",
+      "name": "replacement_character",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:568601070314e0f4489c9944b3c151d5251d379330008293bb7e1a826a22a845",
+      "segments": [
+        {
+          "code_points": [
+            65533
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a noncharacter is still a code point both may hash",
+      "name": "noncharacter_fffe",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:a967623f44b2e95aef4cc06b2e60b07738e8e582181199a497e2b4e2cecf54ca",
+      "segments": [
+        {
+          "code_points": [
+            65534
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a noncharacter is still a code point both may hash",
+      "name": "noncharacter_ffff",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:7c6c5c98a320272b95b2a73e2a2ff15825794b0460f8af7835c9dfd9e76b38bb",
+      "segments": [
+        {
+          "code_points": [
+            65535
+          ]
+        }
+      ]
+    },
+    {
+      "description": "an unpaired high surrogate is refused",
+      "name": "lone_high_surrogate",
+      "python_accepted": false,
+      "segments": [
+        {
+          "code_points": [
+            55296
+          ]
+        }
+      ]
+    },
+    {
+      "description": "an unpaired low surrogate is refused",
+      "name": "lone_low_surrogate",
+      "python_accepted": false,
+      "segments": [
+        {
+          "code_points": [
+            57343
+          ]
+        }
+      ]
+    },
+    {
+      "description": "two surrogates that cannot pair are refused",
+      "name": "reversed_surrogates",
+      "python_accepted": false,
+      "segments": [
+        {
+          "code_points": [
+            56832,
+            55357
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a plane-1 character both runtimes accept",
+      "name": "astral_emoji",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:7a0c50b92434b015545fe93ab723db2d4b2cdd14a441405624a9ce8be29f1d5a",
+      "segments": [
+        {
+          "code_points": [
+            128512
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a plane-2 CJK extension character",
+      "name": "astral_plane2_ideograph",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:c220da000ce1b288cc0a8875a9e446157d41ea26cf71f357bdcf84314ccdcd84",
+      "segments": [
+        {
+          "code_points": [
+            173746
+          ]
+        }
+      ]
+    },
+    {
+      "description": "the last usable private-use code point",
+      "name": "astral_plane16_private",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:53d42c9c6404db5c7d1f11f7b421ffd620ea39455231c6d1858837180618f74b",
+      "segments": [
+        {
+          "code_points": [
+            1114109
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a joined sequence, not one character",
+      "name": "emoji_zwj_sequence",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:68bd513785d7e5483925f71b531f83457c9cca23578055d247ace8f32c25419d",
+      "segments": [
+        {
+          "code_points": [
+            128104,
+            8205,
+            128187
+          ]
+        }
+      ]
+    },
+    {
+      "description": "a flag is two regional indicators",
+      "name": "regional_indicator_pair",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:89dc8edd1388f4f9524043c9cf9233385f433b7066316317d51cc1d1d44146d0",
+      "segments": [
+        {
+          "code_points": [
+            127481,
+            127484
+          ]
+        }
+      ]
+    },
+    {
+      "description": "exactly the limit in code points and in UTF-16 units",
+      "name": "bmp_at_limit",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:201fb98a7c4428f1fcabb656e811f387fc61987e76488abc192f00ba85d02921",
+      "segments": [
+        {
+          "code_points": [
+            97
+          ],
+          "repeat": 65536
+        }
+      ]
+    },
+    {
+      "description": "one code point past the limit",
+      "name": "bmp_over_limit",
+      "python_accepted": false,
+      "segments": [
+        {
+          "code_points": [
+            97
+          ],
+          "repeat": 65537
+        }
+      ]
+    },
+    {
+      "description": "half the limit in code points, exactly the limit in UTF-16 units",
+      "name": "astral_at_utf16_limit",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:1167a281dc6adf57b07154b536766344bd09a183cc69b7e7cd1dd72c485d2a1f",
+      "segments": [
+        {
+          "code_points": [
+            128512
+          ],
+          "repeat": 32768
+        }
+      ]
+    },
+    {
+      "description": "inside the code-point limit and outside the UTF-16 limit: the M18-02 split",
+      "name": "astral_over_utf16_limit_only",
+      "python_accepted": false,
+      "segments": [
+        {
+          "code_points": [
+            128512
+          ],
+          "repeat": 32769
+        }
+      ]
+    },
+    {
+      "description": "exactly the limit in code points, one UTF-16 unit past it",
+      "name": "mixed_over_utf16_limit_by_one",
+      "python_accepted": false,
+      "segments": [
+        {
+          "code_points": [
+            97
+          ],
+          "repeat": 65535
+        },
+        {
+          "code_points": [
+            128512
+          ]
+        }
+      ]
+    },
+    {
+      "description": "twice the limit before normalization, exactly the limit after it",
+      "name": "nfc_folds_to_exactly_the_limit",
+      "python_accepted": true,
+      "python_fingerprint": "sha256:506e2145622a398d99d764ca7fbcaa442169dd9f29d9e5f11e083695533caeb8",
+      "segments": [
+        {
+          "code_points": [
+            101,
+            769
+          ],
+          "repeat": 65536
+        }
+      ]
+    },
+    {
+      "description": "normalization shrinks it and it is still one past the limit",
+      "name": "nfc_folds_to_one_past_the_limit",
+      "python_accepted": false,
+      "segments": [
+        {
+          "code_points": [
+            101,
+            769
+          ],
+          "repeat": 65537
+        }
+      ]
+    }
+  ]
+}

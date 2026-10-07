@@ -1,0 +1,260 @@
+{
+  "achieved_power": null,
+  "adjudication_rules": [
+    {
+      "category": "perception",
+      "failure_count": 0,
+      "fixture_count": 0,
+      "fixture_fingerprints": [],
+      "privacy_safe_fixture_required": true,
+      "status": "MISSING"
+    },
+    {
+      "category": "fusion",
+      "failure_count": 0,
+      "fixture_count": 0,
+      "fixture_fingerprints": [],
+      "privacy_safe_fixture_required": true,
+      "status": "MISSING"
+    },
+    {
+      "category": "planning",
+      "failure_count": 0,
+      "fixture_count": 0,
+      "fixture_fingerprints": [],
+      "privacy_safe_fixture_required": true,
+      "status": "MISSING"
+    },
+    {
+      "category": "rendering",
+      "failure_count": 0,
+      "fixture_count": 0,
+      "fixture_fingerprints": [],
+      "privacy_safe_fixture_required": true,
+      "status": "MISSING"
+    },
+    {
+      "category": "provider",
+      "failure_count": 0,
+      "fixture_count": 0,
+      "fixture_fingerprints": [],
+      "privacy_safe_fixture_required": true,
+      "status": "MISSING"
+    },
+    {
+      "category": "h3",
+      "failure_count": 0,
+      "fixture_count": 0,
+      "fixture_fingerprints": [],
+      "privacy_safe_fixture_required": true,
+      "status": "MISSING"
+    }
+  ],
+  "admitted_reviewer_count": 0,
+  "claim_cap": "NO_HUMAN_QUALITY_CLAIM",
+  "compensation_paid": false,
+  "consent_collected": false,
+  "consent_receipts": [],
+  "disposition": "HUMAN_REVIEW_UNAVAILABLE",
+  "enrolled_reviewer_count": 0,
+  "equivalence_conclusion": null,
+  "equivalence_estimate": null,
+  "equivalence_interval": null,
+  "ethics_review_complete": false,
+  "evidence_class": "NO_HUMAN_REVIEW_EVIDENCE",
+  "fixed_h3_claim_cap": "NO_FIXED_H3_GENERATION_EVIDENCE",
+  "fixed_h3_disposition": "UNAVAILABLE",
+  "fixed_h3_terminal_fingerprint": "\u0073\u0068\u0061\u0032\u0035\u0036\u003a\u0039\u0061\u0031\u0031\u0065\u0062\u0066\u0064\u0035\u0065\u0032\u0064\u0066\u0034\u0030\u0031\u0065\u0036\u0065\u0038\u0039\u0032\u0066\u0061\u0039\u0065\u0066\u0033\u0066\u0063\u0036\u0066\u0065\u0063\u0063\u0035\u0033\u0062\u0063\u0030\u0061\u0032\u0038\u0061\u0034\u0063\u0034\u0065\u0038\u0034\u0064\u0030\u0030\u0033\u0061\u0037\u0064\u0065\u0034\u0066\u0035\u0032\u0062\u0030",
+  "fixture_fingerprints": [],
+  "governance_receipts": [
+    {
+      "authority_granted": false,
+      "evidence_receipts": [],
+      "reason": "informed_consent_authority_unavailable",
+      "requirement": "informed_consent",
+      "status": "MISSING"
+    },
+    {
+      "authority_granted": false,
+      "evidence_receipts": [],
+      "reason": "compensation_or_volunteer_terms_authority_unavailable",
+      "requirement": "compensation_or_volunteer_terms",
+      "status": "MISSING"
+    },
+    {
+      "authority_granted": false,
+      "evidence_receipts": [],
+      "reason": "reviewer_pii_retention_deletion_authority_unavailable",
+      "requirement": "reviewer_pii_retention_deletion",
+      "status": "MISSING"
+    },
+    {
+      "authority_granted": false,
+      "evidence_receipts": [],
+      "reason": "response_retention_deletion_authority_unavailable",
+      "requirement": "response_retention_deletion",
+      "status": "MISSING"
+    },
+    {
+      "authority_granted": false,
+      "evidence_receipts": [],
+      "reason": "language_qualification_authority_unavailable",
+      "requirement": "language_qualification",
+      "status": "MISSING"
+    },
+    {
+      "authority_granted": false,
+      "evidence_receipts": [],
+      "reason": "task_qualification_authority_unavailable",
+      "requirement": "task_qualification",
+      "status": "MISSING"
+    },
+    {
+      "authority_granted": false,
+      "evidence_receipts": [],
+      "reason": "restricted_media_access_authority_unavailable",
+      "requirement": "restricted_media_access",
+      "status": "MISSING"
+    },
+    {
+      "authority_granted": false,
+      "evidence_receipts": [],
+      "reason": "conflicts_authority_unavailable",
+      "requirement": "conflicts",
+      "status": "MISSING"
+    },
+    {
+      "authority_granted": false,
+      "evidence_receipts": [],
+      "reason": "exclusion_authority_unavailable",
+      "requirement": "exclusion",
+      "status": "MISSING"
+    },
+    {
+      "authority_granted": false,
+      "evidence_receipts": [],
+      "reason": "withdrawal_authority_unavailable",
+      "requirement": "withdrawal",
+      "status": "MISSING"
+    },
+    {
+      "authority_granted": false,
+      "evidence_receipts": [],
+      "reason": "accessibility_authority_unavailable",
+      "requirement": "accessibility",
+      "status": "MISSING"
+    },
+    {
+      "authority_granted": false,
+      "evidence_receipts": [],
+      "reason": "fatigue_session_limits_authority_unavailable",
+      "requirement": "fatigue_session_limits",
+      "status": "MISSING"
+    },
+    {
+      "authority_granted": false,
+      "evidence_receipts": [],
+      "reason": "order_learning_controls_authority_unavailable",
+      "requirement": "order_learning_controls",
+      "status": "MISSING"
+    },
+    {
+      "authority_granted": false,
+      "evidence_receipts": [],
+      "reason": "human_subjects_ethics_review_authority_unavailable",
+      "requirement": "human_subjects_ethics_review",
+      "status": "MISSING"
+    }
+  ],
+  "invited_reviewer_count": 0,
+  "lawful_review_authority_granted": false,
+  "limitations": [
+    "lawful_review_authority_unavailable",
+    "qualified_reviewer_cohort_unavailable",
+    "human_subjects_ethics_review_unavailable",
+    "restricted_media_access_unavailable",
+    "fixed_h3_generation_evidence_unavailable",
+    "no_human_review_evidence",
+    "no_human_quality_claim",
+    "no_noninferiority_claim",
+    "no_equivalence_claim",
+    "no_regression_promotion"
+  ],
+  "locators": [],
+  "media_accessed": false,
+  "media_receipts": [],
+  "model_judge_used": false,
+  "noninferiority_conclusion": null,
+  "noninferiority_estimate": null,
+  "noninferiority_interval": null,
+  "observed_failure_count": 0,
+  "pairwise_comparison_count": 0,
+  "payment_receipts": [],
+  "pii_collected": false,
+  "pii_receipts": [],
+  "preference_estimate": null,
+  "privacy_safe_fixture_count": 0,
+  "privacy_safe_fixture_created": false,
+  "promotion_authorized": false,
+  "protocol": {
+    "balanced_candidate_position_required": true,
+    "blinded_required": true,
+    "candidate_position_target_basis_points": 5000,
+    "equivalence_margin": null,
+    "noninferiority_margin": null,
+    "observed_power": null,
+    "observed_qualification_score": null,
+    "observed_swapped_order_consistency": null,
+    "pairwise_tie_required": true,
+    "planned_power_floor_basis_points": 8000,
+    "protocol_date": "2026-08-09",
+    "qualification_anchor_class": "deterministic_p0",
+    "qualification_score_floor_basis_points": 9000,
+    "randomized_order_required": true,
+    "reviewer_source_uncertainty_required": true,
+    "rubric_dimensions": [
+      "instruction_adherence",
+      "identity_consistency",
+      "temporal_coherence",
+      "visual_fidelity",
+      "audio_alignment",
+      "hard_constraint_preservation"
+    ],
+    "rubric_outcomes": [
+      "left_preferred",
+      "tie",
+      "right_preferred"
+    ],
+    "rubric_schema": "h3.human_review.rubric.v1",
+    "rubric_version": "1",
+    "schema": "h3.human_review.protocol.v1",
+    "separate_comparison_reporting_required": true,
+    "study_authorized": false,
+    "swapped_order_consistency_floor_basis_points": 9500,
+    "swapped_order_controls_required": true,
+    "tie_adjusted_noninferiority_required": true,
+    "two_sided_equivalence_required": true,
+    "uncertainty_method": "reviewer_source_clustered"
+  },
+  "publication_authorized": false,
+  "qualification_anchor_response_count": 0,
+  "qualification_score": null,
+  "qualified_reviewer_cohort_available": false,
+  "record_date": "2026-08-09",
+  "recruitment_started": false,
+  "response_count": 0,
+  "response_receipts": [],
+  "responses_collected": false,
+  "restricted_media_access_granted": false,
+  "retained_pii_count": 0,
+  "retained_response_count": 0,
+  "retention_started": false,
+  "reviewer_contacted": false,
+  "reviewer_ids": [],
+  "reviewer_source_variance": null,
+  "schema": "h3.human_review.terminal.v1",
+  "security_failure_override_authorized": false,
+  "structural_failure_override_authorized": false,
+  "study_started": false,
+  "swapped_order_consistency": null
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "h3.base.evaluation.v1",
+  "corpus_id": "corpus_m5_smoke",
+  "cases": [
+    {
+      "case_id": "case.deterministic",
+      "route": "deterministic",
+      "task_mode": "t2va",
+      "source_fingerprints": []
+    },
+    {
+      "case_id": "case.assisted",
+      "route": "assisted",
+      "task_mode": "t2va",
+      "source_fingerprints": ["sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]
+    },
+    {
+      "case_id": "case.official",
+      "route": "official_provider",
+      "task_mode": "t2va",
+      "source_fingerprints": ["sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]
+    }
+  ]
+}

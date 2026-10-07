@@ -1,0 +1,62 @@
+{
+  "schema": "h3.context.host_seam_census_transition_retained_media.v1",
+  "item": "RETAINED-MEDIA",
+  "source": {
+    "commit_parts": [
+      "1f0525b5",
+      "ed51d113",
+      "21399355",
+      "b2afbce5",
+      "cc8fb0f0"
+    ],
+    "tree_parts": ["b59ec169", "3ec58c6f", "c00b60cb", "8ab433eb", "66f5a24b"]
+  },
+  "artifacts": {
+    "from_census_sha256_parts": [
+      "56176c5f",
+      "014e0070",
+      "fbffade8",
+      "94bf09e7",
+      "eed2a2f8",
+      "3f20984e",
+      "5ed6ceb1",
+      "51e5e331"
+    ],
+    "to_census_sha256_parts": [
+      "ae93e492",
+      "d3b5255b",
+      "f06eb122",
+      "6c6f5c20",
+      "e85f3612",
+      "04cdebfe",
+      "658243be",
+      "904d1e9c"
+    ],
+    "fixture_sha256_parts": [
+      "ff152fbb",
+      "78ca29b4",
+      "4a0c439e",
+      "9281a0ef",
+      "5bafc89c",
+      "943a3965",
+      "41f8478e",
+      "763e6ad7"
+    ],
+    "seam_contract_sha256_parts": [
+      "40132e41",
+      "d71efd79",
+      "5a853ecc",
+      "1d6e0eef",
+      "572a207c",
+      "8460dfe8",
+      "d4b0edff",
+      "01336a12"
+    ]
+  },
+  "changes": [
+    {
+      "seam_id": "frontend.api.fetch_api",
+      "added_source_paths": ["frontend/src/host/retainedAssetsClient.ts"]
+    }
+  ]
+}

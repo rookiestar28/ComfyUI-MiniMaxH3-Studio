@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/feasible_av_timeline_planner_v1.schema.json",
+  "title": "H3 Feasible Audiovisual Timeline Planner v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "status", "task_mode", "effective_duration", "frame_grid", "shots", "events", "anchors", "relations", "reference_order", "mode_report_fingerprint", "diagnostics", "limitations", "plan_fingerprint"],
+  "properties": {
+    "schema": {"const": "h3.feasible_av_timeline_planner.v1"},
+    "status": {"enum": ["complete", "partial", "blocked", "conflicting"]},
+    "task_mode": {"enum": ["t2va", "i2va", "fl2va", "l2va", "ref2va"]},
+    "effective_duration": {"$ref": "#/$defs/time"},
+    "frame_grid": {"$ref": "#/$defs/frameGrid"},
+    "shots": {"type": "array", "minItems": 1, "maxItems": 128, "items": {"$ref": "#/$defs/shot"}},
+    "events": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/event"}},
+    "anchors": {"type": "array", "maxItems": 128, "items": {"$ref": "#/$defs/anchor"}},
+    "relations": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/relation"}},
+    "reference_order": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/id"}},
+    "mode_report_fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "diagnostics": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/diagnostic"}},
+    "limitations": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/diagnostic"}},
+    "plan_fingerprint": {"$ref": "#/$defs/fingerprint"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "time": {
+      "type": "object", "additionalProperties": false,
+      "required": ["raw", "seconds"],
+      "properties": {"raw": {"type": "string", "minLength": 1, "maxLength": 64}, "seconds": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)?$"}}
+    },
+    "frameGrid": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "fps_num", "fps_den", "rounding", "max_frames"],
+      "properties": {
+        "schema": {"const": "h3.feasible_av_timeline_planner.v1"},
+        "fps_num": {"type": "integer", "minimum": 1, "maximum": 1000000},
+        "fps_den": {"type": "integer", "minimum": 1, "maximum": 1000000},
+        "rounding": {"enum": ["reject", "floor", "ceil", "nearest"]},
+        "max_frames": {"type": "integer", "minimum": 1, "maximum": 10000000}
+      }
+    },
+    "shot": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "shot_id", "start", "end", "cut_time", "anchor_ids", "event_ids", "source_asset_ids"],
+      "properties": {
+        "schema": {"const": "h3.feasible_av_timeline_planner.v1"}, "shot_id": {"$ref": "#/$defs/id"},
+        "start": {"$ref": "#/$defs/time"}, "end": {"$ref": "#/$defs/time"}, "cut_time": {"anyOf": [{"$ref": "#/$defs/time"}, {"type": "null"}]},
+        "anchor_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/id"}},
+        "event_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/id"}},
+        "source_asset_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/id"}}
+      }
+    },
+    "event": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "event_id", "kind", "start", "end", "text", "exact", "lip_state", "asset_ids", "hard", "evidence_ids"],
+      "properties": {
+        "schema": {"const": "h3.feasible_av_timeline_planner.v1"}, "event_id": {"$ref": "#/$defs/id"},
+        "kind": {"enum": ["shot", "action", "state", "camera", "dialogue", "visible_text", "lip_state", "ambience", "sfx", "music", "source_audio", "transition", "reference"]},
+        "start": {"$ref": "#/$defs/time"}, "end": {"$ref": "#/$defs/time"}, "text": {"type": ["string", "null"], "maxLength": 65536}, "exact": {"type": "boolean"},
+        "lip_state": {"type": ["string", "null"], "enum": ["open", "closed", "unknown", null]}, "asset_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/id"}}, "hard": {"type": "boolean"}, "evidence_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/id"}}
+      }
+    },
+    "anchor": {
+      "type": "object", "additionalProperties": false, "required": ["schema", "anchor_id", "kind", "asset_id", "at", "hard"],
+      "properties": {"schema": {"const": "h3.feasible_av_timeline_planner.v1"}, "anchor_id": {"$ref": "#/$defs/id"}, "kind": {"enum": ["first_frame", "last_frame", "reference"]}, "asset_id": {"$ref": "#/$defs/id"}, "at": {"$ref": "#/$defs/time"}, "hard": {"type": "boolean"}}
+    },
+    "relation": {
+      "type": "object", "additionalProperties": false, "required": ["schema", "relation_id", "kind", "source_event_ids", "target_event_ids"],
+      "properties": {"schema": {"const": "h3.feasible_av_timeline_planner.v1"}, "relation_id": {"$ref": "#/$defs/id"}, "kind": {"enum": ["continues_across_cut", "audio_cross_shot", "before", "after"]}, "source_event_ids": {"type": "array", "minItems": 1, "maxItems": 256, "items": {"$ref": "#/$defs/id"}}, "target_event_ids": {"type": "array", "minItems": 1, "maxItems": 256, "items": {"$ref": "#/$defs/id"}}}
+    },
+    "diagnostic": {
+      "type": "object", "additionalProperties": false, "required": ["severity", "code", "message", "location"],
+      "properties": {"severity": {"enum": ["info", "warning", "error", "fatal"]}, "code": {"$ref": "#/$defs/id"}, "message": {"type": "string", "minLength": 1, "maxLength": 4096}, "location": {"type": ["string", "null"], "maxLength": 256}}
+    }
+  }
+}

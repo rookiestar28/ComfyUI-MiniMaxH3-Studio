@@ -1,0 +1,68 @@
+{
+  "schema": "h3.context.host_seam_census_transition_m16_05_release.v1",
+  "item": "M16-05",
+  "source": {
+    "commit_parts": [
+      "1814597b",
+      "355e2e17",
+      "780d61d7",
+      "2daf0e08",
+      "0e907490"
+    ],
+    "tree_parts": ["ff867dc8", "2ef78c90", "700a4431", "aa3023b6", "47997e99"]
+  },
+  "artifacts": {
+    "from_census_sha256_parts": [
+      "0ef890f6",
+      "a6c3f2d3",
+      "9ecfb010",
+      "4d6f6ef5",
+      "a218128c",
+      "b3e7b0c3",
+      "b5bd3a05",
+      "e25e3a3e"
+    ],
+    "to_census_sha256_parts": [
+      "efd2dc9f",
+      "293d0973",
+      "7211948f",
+      "4475ef76",
+      "f8b091e1",
+      "979d373b",
+      "c28ce33e",
+      "70c073a6"
+    ],
+    "fixture_sha256_parts": [
+      "6c5b39b2",
+      "d8681074",
+      "e5742cef",
+      "b81a574e",
+      "5087834f",
+      "df89fdb5",
+      "aea23c70",
+      "2cf2a023"
+    ],
+    "seam_contract_sha256_parts": [
+      "c6522421",
+      "bebc84e1",
+      "b68d716f",
+      "b600edfb",
+      "fe035ed8",
+      "0068c58b",
+      "8c0ab3c2",
+      "6e9e07f9"
+    ]
+  },
+  "changes": [
+    {
+      "seam_id": "frontend.app.extension_manager.workflow.active_workflow",
+      "added_source_paths": [
+        "frontend/src/host/appMode.ts",
+        "frontend/src/host/productionSession.ts",
+        "frontend/src/lifecycle/appModeSession.ts",
+        "frontend/src/lifecycle/managedProjectMember.ts",
+        "frontend/src/lifecycle/presentationBinding.tsx"
+      ]
+    }
+  ]
+}

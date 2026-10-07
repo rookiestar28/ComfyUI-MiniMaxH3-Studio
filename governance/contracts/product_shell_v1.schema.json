@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://comfyui-h3-context.invalid/contracts/product_shell_v1.schema.json",
+  "title": "H3 Context Product Shell Projection v1",
+  "type": "object",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": { "properties": { "native_queue_ready": { "const": true } } },
+      "then": { "properties": { "readiness_reason": { "const": "manual_only_scoped" } } },
+      "else": { "properties": { "readiness_reason": { "const": "native_input_unqualified" } } }
+    }
+  ],
+  "required": [
+    "schema",
+    "product_scope",
+    "qualification_plan_fingerprint",
+    "report_id",
+    "report_revision",
+    "report_fingerprint",
+    "prompt_fingerprint",
+    "correlation",
+    "task_mode",
+    "profile",
+    "host",
+    "native_node_id",
+    "prompt_export_ready",
+    "native_queue_ready",
+    "assisted_ready",
+    "readiness_reason",
+    "field_ids",
+    "bindings",
+    "limitations",
+    "assisted_authoring"
+  ],
+  "properties": {
+    "schema": { "const": "h3.context.product.shell.v1" },
+    "product_scope": { "const": "MANUAL_ONLY_SCOPED" },
+    "qualification_plan_fingerprint": { "$ref": "#/$defs/fingerprint" },
+    "report_id": { "$ref": "#/$defs/identifier" },
+    "report_revision": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+    "report_fingerprint": { "$ref": "#/$defs/fingerprint" },
+    "prompt_fingerprint": { "$ref": "#/$defs/fingerprint" },
+    "correlation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prompt_id", "execution_node_id"],
+      "properties": {
+        "prompt_id": { "$ref": "#/$defs/identifier" },
+        "execution_node_id": { "$ref": "#/$defs/identifier" }
+      }
+    },
+    "task_mode": { "$ref": "#/$defs/identifier" },
+    "profile": { "$ref": "#/$defs/identifier" },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "node_api",
+        "core_version",
+        "core_revision",
+        "frontend_version",
+        "frontend_revision"
+      ],
+      "properties": {
+        "node_api": { "const": "V1_ONLY" },
+        "core_version": { "type": "string", "minLength": 1, "maxLength": 64, "pattern": "^(?![\\s\\S]*[\\r\\n])[0-9]+(?:\\.[0-9]+){1,3}(?:[-+][A-Za-z0-9.-]+)?$" },
+        "core_revision": { "type": "string", "pattern": "^(?![\\s\\S]*[\\r\\n])[0-9a-f]{40}$" },
+        "frontend_version": { "type": "string", "minLength": 1, "maxLength": 64, "pattern": "^(?![\\s\\S]*[\\r\\n])[0-9]+(?:\\.[0-9]+){1,3}(?:[-+][A-Za-z0-9.-]+)?$" },
+        "frontend_revision": { "type": "string", "pattern": "^(?![\\s\\S]*[\\r\\n])[0-9a-f]{40}$" }
+      }
+    },
+    "native_node_id": {
+      "enum": ["MiniMaxH3ImageToVideo", "MiniMaxH3ReferenceToVideo"]
+    },
+    "prompt_export_ready": { "const": true },
+    "native_queue_ready": { "type": "boolean" },
+    "assisted_ready": { "const": false },
+    "readiness_reason": { "enum": ["manual_only_scoped", "native_input_unqualified"] },
+    "field_ids": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^h3\\.[a-z0-9_.-]{1,191}$" }
+    },
+    "bindings": {
+      "type": "array",
+      "maxItems": 32,
+      "items": { "$ref": "#/$defs/binding" }
+    },
+    "limitations": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1, "maxLength": 256 }
+    },
+    "assisted_authoring": { "$ref": "#/$defs/assisted_authoring" }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,191}$"
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "assisted_authoring": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["available", "selected", "ready", "authorized_for_this_action", "defaulted"],
+      "properties": {
+        "available": { "const": true },
+        "selected": { "const": false },
+        "ready": { "const": false },
+        "authorized_for_this_action": { "const": false },
+        "defaulted": { "const": false }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asset_id",
+        "kind",
+        "presentation_label",
+        "presentation_ordinal",
+        "native_input",
+        "native_child_path"
+      ],
+      "properties": {
+        "asset_id": { "$ref": "#/$defs/identifier" },
+        "kind": { "enum": ["image", "video", "audio"] },
+        "presentation_label": {
+          "type": "string",
+          "pattern": "^<(Picture|Video|Audio) [1-9][0-9]{0,2}>$"
+        },
+        "presentation_ordinal": { "type": "integer", "minimum": 1, "maximum": 256 },
+        "native_input": { "$ref": "#/$defs/identifier" },
+        "native_child_path": {
+          "type": "string",
+          "pattern": "^(MiniMaxH3ImageToVideo\\.(first_frame|last_frame)|MiniMaxH3ReferenceToVideo\\.(ref_images\\.ref_image_(0|[1-9][0-9]{0,2})|ref_videos\\.ref_video_(0|[1-9][0-9]{0,2})|ref_video_audios\\.ref_video_audio_(0|[1-9][0-9]{0,2})|ref_audios\\.ref_audio_(0|[1-9][0-9]{0,2})))$"
+        }
+      }
+    }
+  }
+}

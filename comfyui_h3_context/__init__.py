@@ -20,6 +20,7 @@ from .adapters.comfyui_build_provenance import ensure_build_provenance_route_reg
 from .adapters.comfyui_duration_resolution import (
     ensure_duration_resolution_route_registered,
 )
+from .adapters.comfyui_editor_recovery import ensure_editor_recovery_route_registered
 from .adapters.comfyui_generation_profile import (
     ensure_generation_profile_route_registered,
 )
@@ -27,9 +28,11 @@ from .adapters.comfyui_input_geometry import ensure_input_geometry_route_registe
 from .adapters.comfyui_media_preview import ensure_media_preview_route_registered
 from .adapters.comfyui_media_runtime_setup import ensure_media_runtime_setup_route_registered
 from .adapters.comfyui_production_workspace import ensure_production_route_registered
+from .adapters.comfyui_project_document import ensure_project_document_route_registered
 from .adapters.comfyui_provider_settings import (
     ensure_provider_settings_route_registered,
 )
+from .adapters.comfyui_retained_assets import ensure_retained_assets_routes_registered
 from .adapters.comfyui_sequence_coordinator import (
     ensure_sequence_coordinator_route_registered,
 )
@@ -37,6 +40,7 @@ from .adapters.comfyui_sidebar_workspace import (
     ensure_assisted_sidebar_route_registered,
     ensure_sidebar_route_registered,
 )
+from .adapters.comfyui_workspace_state import ensure_workspace_state_route_registered
 from .adapters.managed_sequence_service import ensure_managed_sequence_route_registered
 from .adapters.production_authoring_import_service import (
     ensure_production_authoring_import_route_registered,
@@ -122,7 +126,7 @@ if os.environ.get("H3_CONTEXT_HOST_TWO_ENDED_BRIDGE_CANARY") == "1":
         TWO_ENDED_BRIDGE_CANARY_NODE_ID: "H3 Context (two-ended AV bridge canary)",
     }
 
-__version__ = "1.0.2"
+__version__ = "1.1.0"
 WEB_DIRECTORY = "web"
 
 # IMPORTANT: route registration is optional and lazy; missing host modules preserve clean import.
@@ -147,6 +151,10 @@ ensure_input_geometry_route_registered()
 ensure_build_provenance_route_registered()
 ensure_managed_sequence_route_registered()
 ensure_media_runtime_setup_route_registered()
+ensure_workspace_state_route_registered()
+ensure_retained_assets_routes_registered()
+ensure_project_document_route_registered()
+ensure_editor_recovery_route_registered()
 
 __all__ = [
     "NODE_CLASS_MAPPINGS",

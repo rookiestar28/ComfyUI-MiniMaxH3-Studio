@@ -533,6 +533,7 @@ export function createNleWorkspaceSession(ctx: ShellRuntime) {
   });
   const {
     nleAdmitStoryboard,
+    nleSetPlanningScript,
     nleApproveAndImportPlan,
     nleCreatePlannedProject,
     nleOpenStoryboardReview,
@@ -1035,6 +1036,7 @@ export function createNleWorkspaceSession(ctx: ShellRuntime) {
 
   return {
     nleAdmitStoryboard,
+    nleSetPlanningScript,
     nleApproveAndImportPlan,
     nleCreatePlannedProject,
     nleAssembly,

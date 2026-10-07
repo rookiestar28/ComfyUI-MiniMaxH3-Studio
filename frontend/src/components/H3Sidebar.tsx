@@ -40,6 +40,8 @@ import {
 } from "../contracts/sidebarEditorUiContract";
 import { UNSCOPED, type SidebarRetention } from "../state/sidebarRetention";
 import type { MediaToolsBinding } from "../state/mediaRuntimeState";
+import type { WorkspaceStateBinding } from "../lifecycle/workspaceStateSession";
+import type { RetainedAssetsBinding } from "../lifecycle/retainedAssetsSession";
 import type { SidebarWorkspaceState } from "../state/sidebarWorkspace";
 import type { SemanticProposalReviewState } from "../state/semanticProposalReview";
 import {
@@ -83,6 +85,7 @@ import type {
   AuthoringViewState,
 } from "../state/authoringViewState";
 import { NleProjectSummary } from "./nle/NleProjectSummary";
+import type { ProjectFileBinding } from "../lifecycle/projectFileSession";
 import {
   ProductionWorkbench,
   type ProductionGenerationControl,
@@ -1128,6 +1131,9 @@ export function H3Sidebar({
   buildProvenance,
   retention,
   mediaTools,
+  recoveryMetadata,
+  retainedAssets,
+  projectFile,
 }: {
   state: ShellState;
   workspaceState?: SidebarWorkspaceState;
@@ -1207,6 +1213,9 @@ export function H3Sidebar({
   retention?: SidebarRetention;
   /** M25-33: the shared Media tools status, setup job and continuation. */
   mediaTools?: MediaToolsBinding;
+  recoveryMetadata?: WorkspaceStateBinding;
+  retainedAssets?: RetainedAssetsBinding;
+  projectFile?: ProjectFileBinding;
 }) {
   const text = sidebarCopy(locale);
   const pages = pageCopy(locale);
@@ -1482,6 +1491,8 @@ export function H3Sidebar({
           onProviderCredentialClearerChange={onProviderCredentialClearerChange}
           retention={retention}
           mediaTools={mediaTools}
+          recoveryMetadata={recoveryMetadata}
+          retainedAssets={retainedAssets}
         />
       ) : pageRegistry.selected === "production" ? (
         <div className="h3-director">
@@ -1536,6 +1547,8 @@ export function H3Sidebar({
                 mediaPreview={productionMediaPreview}
                 onMediaPreview={onProductionMediaPreview}
                 onMediaPreviewClose={onProductionMediaPreviewClose}
+                retainedAssets={retainedAssets}
+                projectFile={projectFile}
                 retention={retention}
                 destination={appMode?.productionDestination}
                 accumulationNotice={productionAccumulationNotice}
@@ -1557,6 +1570,7 @@ export function H3Sidebar({
                 <NleProjectSummary
                   locale={locale}
                   authoring={authoringState}
+                  projectFile={projectFile}
                   contextAvailable={
                     nle?.planning?.contextAvailable ??
                     contextWorkspaceHandle !== undefined

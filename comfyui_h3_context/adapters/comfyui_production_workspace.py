@@ -24,11 +24,13 @@ from ..core.av_reconstruction import (
 )
 from ..core.canonical import canonical_bytes, canonical_fingerprint
 from ..core.continuity_handoff import ContinuityBoundaryReceipt, ContinuityMode
+from ..core.durable_workspace_state import RecordIdentityMap, StateRecord, decode_record
 from ..core.generation_sequence import (
     GENERATION_SEQUENCE_PROJECTION_SCHEMA,
     GenerationJobState,
     GenerationSequenceProjection,
 )
+from ..core.length import resolve_milliseconds
 from ..core.m26_assembly import (
     M26_OUTPUT_PROFILE_ID,
     M26AssemblyAuthorizationV1,
@@ -77,8 +79,15 @@ from ..core.production_workbench import (
     ProductionDeliveredVideoProjection,
     ProductionGenerationSequenceSummary,
     ProductionOutputProjection,
+    ProductionSegmentProjection,
     ProductionWorkbenchProjection,
     build_production_workbench_projection,
+)
+from ..core.project_document import (
+    ProjectDocument,
+    decode_project_value,
+    encode_project_document,
+    project_bytes,
 )
 from ..core.segment_artifacts import ArtifactLifecycleState, SegmentArtifactReceipt
 from ..core.segment_workspace import (
@@ -822,6 +831,32 @@ class _EmptyAccumulatedProject:
         repr=False,
     )
     mutation_claim: threading.Lock = field(default_factory=threading.Lock)
+
+
+@dataclass(slots=True)
+class _EditableProjectEntry:
+    """Imported editable data; deliberately not a MultiSegmentWorkspace authority."""
+
+    workspace_id: str
+    document: ProjectDocument
+    document_bytes: int
+    touched_at: float
+    lineage_token: object = field(repr=False)
+    revision: int = 1
+
+    @property
+    def fingerprint(self) -> str:
+        return (
+            "sha256:"
+            + sha256(
+                project_bytes(
+                    {
+                        "segments": [row.to_wire() for row in self.document.segments],
+                        "selection": list(self.document.selection),
+                    }
+                )
+            ).hexdigest()
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -1748,6 +1783,7 @@ class ProductionWorkspaceRegistry:
         self._media_lease = media_lease
         self._assembly_executor: ThreadPoolExecutor | None = None
         self._entries: dict[str, _ProductionEntry] = {}
+        self._editable_projects: dict[str, _EditableProjectEntry] = {}
         self._authoring_anchors: dict[str, _ProjectAuthoringAnchor] = {}
         self._empty_projects: dict[str, _EmptyAccumulatedProject] = {}
         self._project_revisions: dict[str, int] = {}
@@ -1756,6 +1792,63 @@ class ProductionWorkspaceRegistry:
         self._ledger: OrderedDict[str, _LedgerEntry] = OrderedDict()
         self._tombstones: OrderedDict[str, _Tombstone] = OrderedDict()
         self._lock = threading.RLock()
+        self._recovery_ids = RecordIdentityMap()
+        self._editor_recovery_changed: Callable[[str, bool], None] | None = None
+        self._editor_recovery_protected: Callable[[str], bool] | None = None
+
+    def configure_editor_recovery(
+        self, changed: Callable[[str, bool], None] | None, protected: Callable[[str], bool] | None
+    ) -> None:
+        with self._lock:
+            self._editor_recovery_changed, self._editor_recovery_protected = changed, protected
+
+    def _notify_editor_recovery(self, handle: str) -> None:
+        if self._editor_recovery_changed is not None:
+            self._editor_recovery_changed(
+                handle,
+                handle not in self._entries
+                and handle not in self._editable_projects
+                and handle not in self._empty_projects,
+            )
+
+    def recovery_metadata(self) -> tuple[StateRecord, ...]:
+        """Copy only no-prose facts; the caller writes after releasing this business lock."""
+        with self._lock:
+            keys = tuple(self._entries) + tuple(self._empty_projects)
+            identities = self._recovery_ids.reconcile(keys)
+            rows = []
+            # CRITICAL: never use the public projection here; it contains live receipts and
+            # source authority. Replacement entries share a metadata ID through this owner map.
+            for handle in keys:
+                identifier, created = identities[handle]
+                entry = self._entries.get(handle)
+                revision = (
+                    entry.workspace.revision
+                    if entry is not None
+                    else self._empty_projects[handle].revision
+                )
+                count = len(entry.workspace.segments) if entry is not None else 0
+                rows.append(
+                    decode_record(
+                        {
+                            "record_id": identifier,
+                            "kind": "production",
+                            "created_at_ms": created,
+                            "closed_at_ms": None,
+                            "segment_count": count,
+                            "state": "workspace_active",
+                            "last_transition": None,
+                            "revisions": {
+                                "workspace": revision,
+                                "reference": None,
+                                "timeline": None,
+                                "context": None,
+                                "transition": 0,
+                            },
+                        }
+                    )
+                )
+            return tuple(rows)
 
     def _record_tombstone(self, handle: str, tombstone: _Tombstone) -> None:
         self._preprepare_terminals.pop(handle, None)
@@ -2121,6 +2214,10 @@ class ProductionWorkspaceRegistry:
                 # doing so leaks one workspace per serial child or strands a live run without its
                 # workspace. The callback is supplied only by ManagedRunReleaseService after its
                 # centralized M23-51 decision.
+                if self._editor_recovery_protected is not None and self._editor_recovery_protected(
+                    workspace_handle
+                ):
+                    raise ProductionWorkbenchError("dirty_recovery_protected", 409)
                 release_live_sequence()
                 if self._live_sequence_probe is not None and self._live_sequence_probe(
                     workspace_handle
@@ -2128,6 +2225,7 @@ class ProductionWorkspaceRegistry:
                     raise ProductionWorkbenchError("managed_child_release_authority_mismatch", 409)
                 self._cancel_entry_assembly(entry)
                 self._entries.pop(workspace_handle)
+                self._notify_editor_recovery(workspace_handle)
                 self._record_tombstone(workspace_handle, _Tombstone("released", now))
         finally:
             entry.mutation_claim.release()
@@ -2168,9 +2266,15 @@ class ProductionWorkspaceRegistry:
             if now - entry.touched_at >= self._ttl_seconds
             and handle not in leased
             and not (self._live_sequence_probe is not None and self._live_sequence_probe(handle))
+            # CRITICAL: dirty content/pending IO owns a bounded recovery lease before TTL prune.
+            and not (
+                self._editor_recovery_protected is not None
+                and self._editor_recovery_protected(handle)
+            )
         ]
         for handle in expired_handles:
             entry = self._entries.pop(handle, None)
+            self._notify_editor_recovery(handle)
             if entry is not None:
                 self._cancel_entry_assembly(entry)
             self._project_revisions.pop(handle, None)
@@ -2183,9 +2287,14 @@ class ProductionWorkspaceRegistry:
             # CRITICAL: the first live generation owns an empty destination after its admission
             # is consumed. Dropping that lease here deletes the project before verified promotion.
             and not (self._live_sequence_probe is not None and self._live_sequence_probe(handle))
+            and not (
+                self._editor_recovery_protected is not None
+                and self._editor_recovery_protected(handle)
+            )
         ]
         for handle in expired_empty_handles:
             self._empty_projects.pop(handle, None)
+            self._notify_editor_recovery(handle)
             self._project_revisions.pop(handle, None)
             self._record_tombstone(handle, _Tombstone("expired", now))
         expired_stages = [
@@ -2202,9 +2311,21 @@ class ProductionWorkspaceRegistry:
         ]
         for handle in expired_tombstones:
             self._tombstones.pop(handle, None)
-        retained_handles = set(self._entries) | set(self._tombstones)
+        for handle, project in tuple(self._editable_projects.items()):
+            if now - project.touched_at >= self._ttl_seconds and not (
+                self._editor_recovery_protected is not None
+                and self._editor_recovery_protected(handle)
+            ):
+                self._editable_projects.pop(handle)
+                self._notify_editor_recovery(handle)
+                self._record_tombstone(handle, _Tombstone("expired", now))
+        retained_handles = set(self._entries) | set(self._editable_projects) | set(self._tombstones)
         for handle in tuple(self._authoring_anchors):
-            if handle not in self._entries and handle not in self._empty_projects:
+            if (
+                handle not in self._entries
+                and handle not in self._empty_projects
+                and handle not in self._editable_projects
+            ):
                 self._authoring_anchors.pop(handle, None)
         for request_id in tuple(self._ledger):
             if self._ledger[request_id].workspace_handle not in retained_handles:
@@ -2438,6 +2559,180 @@ class ProductionWorkspaceRegistry:
             assembly=self._assembly_projection(entry),
         )
 
+    @staticmethod
+    def _editable_projection(
+        handle: str, entry: _EditableProjectEntry
+    ) -> ProductionWorkbenchProjection | None:
+        if not entry.document.segments:
+            return None
+        boundaries = {
+            "independent": "independent",
+            "predecessor": "native_handoff",
+            "adjacent_pair": "adjacent",
+            "cut": "cut",
+            "reset": "reset",
+        }
+        rows = []
+        for ordinal, segment in enumerate(entry.document.segments, 1):
+            duration = resolve_milliseconds(segment.duration_milliseconds)
+            rows.append(
+                ProductionSegmentProjection(
+                    segment.segment_id,
+                    ordinal,
+                    segment.task_mode,
+                    segment.duration_milliseconds,
+                    duration.delivered_milliseconds,
+                    duration.frame_count,
+                    duration.snapped,
+                    segment.relation,
+                    segment.predecessor_segment_id,
+                    boundaries[segment.relation],
+                )
+            )
+        actions: tuple[str, ...] = (
+            "read_projection",
+            "release_workspace",
+            "set_selection",
+            "set_segment_relation",
+        )
+        if len(rows) > 1:
+            actions += ("delete_segment", "reorder_segments")
+        return ProductionWorkbenchProjection(
+            handle,
+            entry.workspace_id,
+            entry.revision,
+            entry.fingerprint,
+            tuple(rows),
+            entry.document.selection,
+            "unavailable",
+            0,
+            0,
+            None,
+            "unavailable",
+            (),
+            (),
+            actions,
+            ("source_relink_required",),
+        )
+
+    def _dispatch_editable(
+        self, action: dict[str, object], digest: str, handle: str, entry: _EditableProjectEntry
+    ) -> ProductionDispatchResult:
+        name = str(action["action"])
+        payload = cast(dict[str, object], action["payload"])
+        projection = self._editable_projection(handle, entry)
+        # SECURITY: refuse before claiming Context/member sources; imported bytes are never grants.
+        permitted = {
+            "read_projection",
+            "release_workspace",
+            "set_selection",
+            "set_segment_relation",
+            "delete_segment",
+            "reorder_segments",
+        }
+        if name not in permitted or projection is None:
+            raise ProductionWorkbenchError("editable_project_requires_context", 409)
+        now = self._clock()
+        if name == "read_projection":
+            entry.touched_at = now
+            return ProductionDispatchResult(200, projection)
+        replay = self._replay(request_id=str(action["request_id"]), request_digest=digest)
+        if replay is not None:
+            return replay
+        if (
+            payload["expected_workspace_revision"] != entry.revision
+            or payload["expected_workspace_fingerprint"] != entry.fingerprint
+        ):
+            return ProductionDispatchResult(409, projection, "workspace_conflict")
+        if name == "release_workspace":
+            if self._editor_recovery_protected is not None and self._editor_recovery_protected(
+                handle
+            ):
+                raise ProductionWorkbenchError("dirty_recovery_protected", 409)
+            self._editable_projects.pop(handle)
+            self._notify_editor_recovery(handle)
+            self._record_tombstone(
+                handle, _Tombstone("released", now, str(action["request_id"]), digest)
+            )
+            return ProductionDispatchResult(204)
+        wire = entry.document.to_wire()
+        production = cast(dict[str, object], wire["production"])
+        rows = cast(list[dict[str, object]], production["segments"])
+        if name == "set_selection":
+            production["selection"] = payload["segment_ids"]
+        elif name == "reorder_segments":
+            ordered = cast(list[str], payload["segment_ids"])
+            if len(ordered) != len(rows) or set(ordered) != {row["segment_id"] for row in rows}:
+                raise ProductionWorkbenchError("invalid_order", 400)
+            by_id = {row["segment_id"]: row for row in rows}
+            production["segments"] = [by_id[key] for key in ordered]
+        else:
+            row = next((row for row in rows if row["segment_id"] == payload["segment_id"]), None)
+            if row is None:
+                raise ProductionWorkbenchError("segment_unavailable", 404)
+            if name == "delete_segment":
+                if len(rows) == 1:
+                    raise ProductionWorkbenchError("last_segment", 409)
+                rows.remove(row)
+                production["selection"] = [
+                    key for key in entry.document.selection if key != row["segment_id"]
+                ]
+            else:
+                row["relation"] = payload["relation"]
+                row["predecessor_segment_id"] = payload["predecessor_segment_id"]
+        try:
+            segments = cast(list[dict[str, object]], production["segments"])
+            used: set[object] = {
+                key for row in segments for key in cast(list[str], row["reference_asset_ids"])
+            }
+            used.update(
+                row["source_asset_id"] for row in segments if row["source_asset_id"] is not None
+            )
+            if wire["editor"] is not None:
+                editor = cast(dict[str, object], wire["editor"])
+                used.update(
+                    row["asset_id"]
+                    for row in cast(list[dict[str, object]], editor["assets"])
+                    if row["kind"] != "font"
+                )
+                reference = cast(dict[str, object], editor["reference"])
+                used.update(
+                    row["source_id"] for row in cast(list[dict[str, object]], reference["sources"])
+                )
+            wire["media"] = [
+                row
+                for row in cast(list[dict[str, object]], wire["media"])
+                if row["asset_id"] in used
+            ]
+            candidate = decode_project_value(wire)
+        except ValueError:
+            raise ProductionWorkbenchError("invalid_project_edit", 409) from None
+        self._ensure_ledger_capacity(str(action["request_id"]))
+        updated = replace(
+            entry,
+            document=candidate,
+            document_bytes=len(encode_project_document(candidate)),
+            revision=entry.revision + 1,
+            touched_at=now,
+        )
+        if (
+            self._reserved_registry_bytes() - entry.document_bytes + updated.document_bytes
+            > MAX_PRODUCTION_REGISTRY_BYTES
+        ):
+            raise ProductionWorkbenchError("workspace_capacity", 429)
+        projection = self._editable_projection(handle, updated)
+        self._editable_projects[handle] = updated
+        self._notify_editor_recovery(handle)
+        self._ledger[str(action["request_id"])] = _LedgerEntry(
+            digest,
+            name,
+            handle,
+            updated.revision,
+            updated.fingerprint,
+            now,
+        )
+        return ProductionDispatchResult(200, projection)
+
     def _accumulated_projection(
         self,
         handle: str,
@@ -2565,6 +2860,7 @@ class ProductionWorkspaceRegistry:
     def _advance_project_revision(self, handle: str) -> None:
         current = self._project_revisions.get(handle, 1)
         self._project_revisions[handle] = min(current + 1, 1_000_000)
+        self._notify_editor_recovery(handle)
 
     def _refuse_member_mode(self, handle: str, entry: _ProductionEntry) -> None:
         # CRITICAL: whole-project writers replace every segment's generation authority at once.
@@ -3891,6 +4187,16 @@ class ProductionWorkspaceRegistry:
         if previous.request_digest != request_digest:
             raise ProductionWorkbenchError("request_id_conflict", 409)
         entry = self._entries.get(previous.workspace_handle)
+        editable = self._editable_projects.get(previous.workspace_handle)
+        if editable is not None:
+            projection = self._editable_projection(previous.workspace_handle, editable)
+            if (
+                editable.revision == previous.committed_revision
+                and editable.fingerprint == previous.committed_fingerprint
+            ):
+                editable.touched_at = self._clock()
+                return ProductionDispatchResult(200, projection)
+            return ProductionDispatchResult(409, projection, "replay_superseded")
         if entry is None:
             self._terminal_or_missing(previous.workspace_handle)
         projection = self._projection(previous.workspace_handle, entry)
@@ -3924,6 +4230,7 @@ class ProductionWorkspaceRegistry:
             committed_fingerprint=workspace.fingerprint,
             touched_at=now,
         )
+        self._notify_editor_recovery(handle)
 
     def _check_expected(
         self,
@@ -3962,6 +4269,8 @@ class ProductionWorkspaceRegistry:
         retained_ids = {entry.workspace.workspace_id for entry in self._entries.values()} | {
             entry.workspace.workspace_id for entry in self._staged.values()
         }
+        retained_ids.update(entry.workspace_id for entry in self._editable_projects.values())
+        retained_ids.update(entry.workspace_id for entry in self._empty_projects.values())
         for _ in range(8):
             candidate = "workspace_" + secrets.token_urlsafe(18)
             if candidate not in retained_ids:
@@ -3971,7 +4280,12 @@ class ProductionWorkspaceRegistry:
     def _new_workspace_handle(self) -> str:
         for _ in range(8):
             candidate = "pw_" + secrets.token_urlsafe(32)
-            if candidate not in self._entries and candidate not in self._tombstones:
+            if (
+                candidate not in self._entries
+                and candidate not in self._tombstones
+                and candidate not in self._editable_projects
+                and candidate not in self._empty_projects
+            ):
                 return candidate
         raise ProductionWorkbenchError("workspace_capacity", 429)
 
@@ -4096,12 +4410,18 @@ class ProductionWorkspaceRegistry:
         with self._lock:
             self._prune(self._clock())
             entry = self._entries.get(workspace_handle)
-            if entry is None:
+            editable = self._editable_projects.get(workspace_handle)
+            if entry is None and editable is None:
                 self._terminal_or_missing(workspace_handle)
-            if entry.workspace.workspace_id != workspace_id:
+            if entry is not None:
+                identity, lineage = entry.workspace.workspace_id, entry.lineage_token
+            else:
+                portable = cast(_EditableProjectEntry, editable)
+                identity, lineage = portable.workspace_id, portable.lineage_token
+            if identity != workspace_id:
                 raise ProductionWorkbenchError("destination_mismatch", 409)
             anchor = self._authoring_anchors.get(workspace_handle)
-            if anchor is None or anchor.seed.lineage_token is not entry.lineage_token:
+            if anchor is None or anchor.seed.lineage_token is not lineage:
                 raise ProductionWorkbenchError("authoring_seed_unavailable", 422)
             return anchor.seed
 
@@ -4704,11 +5024,18 @@ class ProductionWorkspaceRegistry:
         # IMPORTANT: an open create admission holds an entry slot that no other writer may take;
         # a manual create that ignored it would refuse the admitted Start after its queue decision.
         pending_creates = sum(item.workspace_handle is None for item in self._open_admissions())
-        return len(self._entries) + len(self._empty_projects) + len(self._staged) + pending_creates
+        return (
+            len(self._entries)
+            + len(self._editable_projects)
+            + len(self._empty_projects)
+            + len(self._staged)
+            + pending_creates
+        )
 
     def _reserved_registry_bytes(self) -> int:
         return (
             sum(item.authority_bytes for item in self._entries.values())
+            + sum(item.document_bytes for item in self._editable_projects.values())
             + sum(item.authority_bytes for item in self._staged.values())
             + sum(_member_rows_bytes(item.members) for item in self._empty_projects.values())
             + len(self._open_admissions()) * PRODUCTION_MEMBER_ATTEMPT_RESERVE_BYTES
@@ -5501,7 +5828,14 @@ class ProductionWorkspaceRegistry:
                 item.workspace_handle is None and item is not admission
                 for item in self._open_admissions()
             )
-            if len(self._entries) + len(self._staged) + pending_creates >= self._max_entries:
+            if (
+                len(self._entries)
+                + len(self._editable_projects)
+                + len(self._empty_projects)
+                + len(self._staged)
+                + pending_creates
+                >= self._max_entries
+            ):
                 raise ProductionWorkbenchError("workspace_capacity", 429)
             segment_id = execution.segment_id
             declaration = attempt.declaration
@@ -6137,6 +6471,17 @@ class ProductionWorkspaceRegistry:
     def dispatch(self, action_value: object) -> ProductionDispatchResult:
         action = _validate_action(action_value)
         request_digest = canonical_fingerprint(action)
+        payload = cast(dict[str, object], action["payload"])
+        with self._lock:
+            handle = str(payload.get("workspace_handle", ""))
+            editable = self._editable_projects.get(handle)
+            if editable is not None:
+                # IMPORTANT: this early data-only branch must honor the same TTL as Context owners.
+                self._prune(self._clock())
+                editable = self._editable_projects.get(handle)
+                if editable is None:
+                    self._terminal_or_missing(handle)
+                return self._dispatch_editable(action, request_digest, handle, editable)
         if action["action"] == "admit_generation_destination_v2":
             return self._admit_destination_v2(action, request_digest)
         if action["action"] == "release_generation_destination_v2":
@@ -6189,7 +6534,7 @@ class ProductionWorkspaceRegistry:
                 raise ProductionWorkbenchError("workspace_unavailable", 404)
             return self._create(action, seed, request_digest)
 
-        payload = action["payload"]
+        payload = cast(dict[str, object], action["payload"])
         if type(payload) is not dict:  # pragma: no cover - admitted above
             raise ProductionWorkbenchError("invalid_action", 400)
         handle = _workspace_handle(payload["workspace_handle"])
@@ -6236,6 +6581,11 @@ class ProductionWorkspaceRegistry:
                 self._check_expected(payload, handle, entry)
                 if action["action"] == "release_workspace":
                     if (
+                        self._editor_recovery_protected is not None
+                        and self._editor_recovery_protected(handle)
+                    ):
+                        raise ProductionWorkbenchError("dirty_recovery_protected", 409)
+                    if (
                         self._live_sequence_probe is not None and self._live_sequence_probe(handle)
                     ) or (
                         entry.members is not None
@@ -6244,6 +6594,7 @@ class ProductionWorkspaceRegistry:
                         raise ProductionWorkbenchError("workspace_sequence_live", 409)
                     self._cancel_entry_assembly(entry)
                     self._entries.pop(handle, None)
+                    self._notify_editor_recovery(handle)
                     self._project_revisions.pop(handle, None)
                     self._record_tombstone(
                         handle,

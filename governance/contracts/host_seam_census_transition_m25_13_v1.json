@@ -1,0 +1,62 @@
+{
+  "schema": "h3.context.host_seam_census_transition_m25_13.v1",
+  "item": "M25-13",
+  "source": {
+    "commit_parts": [
+      "2e0cba0c",
+      "4135359a",
+      "4a630163",
+      "f17d4a48",
+      "77843d67"
+    ],
+    "tree_parts": ["88aa057c", "e2e5da21", "524116a2", "f5150daf", "2ca95268"]
+  },
+  "artifacts": {
+    "from_census_sha256_parts": [
+      "afad11c6",
+      "e0889484",
+      "419723eb",
+      "b809ad8c",
+      "467afa55",
+      "bc9246b1",
+      "79c9c215",
+      "392f3e6f"
+    ],
+    "to_census_sha256_parts": [
+      "3a7d07c7",
+      "0b6d3707",
+      "00fbd717",
+      "5c6cdef8",
+      "ed29a06c",
+      "4b6b5e6d",
+      "aa4691db",
+      "20e7a42a"
+    ],
+    "fixture_sha256_parts": [
+      "6c5b39b2",
+      "d8681074",
+      "e5742cef",
+      "b81a574e",
+      "5087834f",
+      "df89fdb5",
+      "aea23c70",
+      "2cf2a023"
+    ],
+    "seam_contract_sha256_parts": [
+      "c6522421",
+      "bebc84e1",
+      "b68d716f",
+      "b600edfb",
+      "fe035ed8",
+      "0068c58b",
+      "8c0ab3c2",
+      "6e9e07f9"
+    ]
+  },
+  "changes": [
+    {
+      "seam_id": "frontend.api.fetch_api",
+      "added_source_paths": ["frontend/src/host/authoringMediaSourceLease.ts"]
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rookiestar28.github.io/ComfyUI-MinimaxH3-Context/contracts/prompt_fidelity_v2.schema.json",
+  "title": "H3 Context Prompt Fidelity Audit V2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "length_band",
+    "description_characters",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema": {
+      "const": "h3.context.prompt_fidelity.v2"
+    },
+    "length_band": {
+      "enum": [
+        "severely_short",
+        "below_target",
+        "within_target",
+        "above_target"
+      ]
+    },
+    "description_characters": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65536
+    },
+    "diagnostics": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+        "$ref": "#/$defs/diagnostic"
+      }
+    }
+  },
+  "$defs": {
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "diagnostic_id",
+        "severity",
+        "evidence_level",
+        "location",
+        "message",
+        "remediation",
+        "parameters"
+      ],
+      "properties": {
+        "diagnostic_id": {
+          "enum": [
+            "fidelity.audio.final_track_contradicted",
+            "fidelity.audio.ownership_unresolved",
+            "fidelity.audio.unlinked",
+            "fidelity.camera.unrequested_cut",
+            "fidelity.camera.unrequested_motion",
+            "fidelity.constraint.excluded_source_trait",
+            "fidelity.constraint.negated_technique_used",
+            "fidelity.description.length_band",
+            "fidelity.description.semantic_empty",
+            "fidelity.dialogue.language_derived",
+            "fidelity.dialogue.language_missing",
+            "fidelity.dialogue.language_tag_invalid",
+            "fidelity.dialogue.language_unstable",
+            "fidelity.dialogue.speaker_identity_missing",
+            "fidelity.dialogue.speaker_unbound",
+            "fidelity.internal_vocabulary.present",
+            "fidelity.keyframe.anchor_missing",
+            "fidelity.keyframe.development_missing",
+            "fidelity.keyframe.path_unowned",
+            "fidelity.keyframe.static_hold_contradicted",
+            "fidelity.reference.unused",
+            "fidelity.retention.scope_unspecified",
+            "fidelity.shot_timestamp.malformed",
+            "fidelity.shot_timestamp.not_increasing",
+            "fidelity.shot_timestamp.on_first_shot",
+            "fidelity.shot_timestamp.out_of_duration",
+            "fidelity.soundscape.unspecified"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "error",
+            "fatal"
+          ]
+        },
+        "evidence_level": {
+          "enum": [
+            "official",
+            "framework_reference",
+            "community_recommended",
+            "experimental",
+            "modified"
+          ]
+        },
+        "location": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "parameters": {
+          "type": "object",
+          "maxProperties": 8,
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              {
+                "type": "integer",
+                "minimum": -1000000,
+                "maximum": 1000000
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

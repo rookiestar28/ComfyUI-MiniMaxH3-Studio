@@ -1,0 +1,332 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/authoring_render_receipt_v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "h3.authoring.render_receipt.v1"
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "h3.authoring.render_job_request.v1"
+        },
+        "workspace_handle": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$(?![\\s\\S])",
+          "maxLength": 128
+        },
+        "workspace_revision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "timeline_revision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "snapshot_fingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+          "maxLength": 71
+        },
+        "plan_fingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+          "maxLength": 71
+        },
+        "source_manifest_fingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+          "maxLength": 71
+        },
+        "font_facts_fingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+          "maxLength": 71
+        },
+        "font_package_fingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+          "maxLength": 71
+        },
+        "renderer_profile_fingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+          "maxLength": 71
+        },
+        "currentness_fingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+          "maxLength": 71
+        },
+        "output_profile_fingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+          "maxLength": 71
+        },
+        "idempotency_key": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{15,127}$(?![\\s\\S])",
+          "maxLength": 128
+        },
+        "timeout_ms": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 900000
+        }
+      },
+      "required": [
+        "schema",
+        "workspace_handle",
+        "workspace_revision",
+        "timeline_revision",
+        "snapshot_fingerprint",
+        "plan_fingerprint",
+        "source_manifest_fingerprint",
+        "font_facts_fingerprint",
+        "font_package_fingerprint",
+        "renderer_profile_fingerprint",
+        "currentness_fingerprint",
+        "output_profile_fingerprint",
+        "idempotency_key",
+        "timeout_ms"
+      ]
+    },
+    "semantic_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+      "maxLength": 71
+    },
+    "renderer_artifact_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+      "maxLength": 71
+    },
+    "probe_artifact_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+      "maxLength": 71
+    },
+    "qualification_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+      "maxLength": 71
+    },
+    "publication_currentness_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+      "maxLength": 71
+    },
+    "observed": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "h3.authoring.render_output_facts.v1"
+        },
+        "output_fingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+          "maxLength": 71
+        },
+        "byte_length": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000000
+        },
+        "container": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_]{0,31}$(?![\\s\\S])",
+          "maxLength": 32
+        },
+        "video_codec": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_]{0,31}$(?![\\s\\S])",
+          "maxLength": 32
+        },
+        "video_streams": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "other_streams": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "frame_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "frame_rate_num": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "frame_rate_den": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "time_base_num": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "time_base_den": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "pixel_format": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_]{0,31}$(?![\\s\\S])",
+          "maxLength": 32
+        },
+        "pixel_aspect_num": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "pixel_aspect_den": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "color_range": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_]{0,31}$(?![\\s\\S])",
+          "maxLength": 32
+        },
+        "color_space": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_]{0,31}$(?![\\s\\S])",
+          "maxLength": 32
+        },
+        "color_primaries": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_]{0,31}$(?![\\s\\S])",
+          "maxLength": 32
+        },
+        "color_transfer": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_]{0,31}$(?![\\s\\S])",
+          "maxLength": 32
+        },
+        "video_timing_fingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+          "maxLength": 71
+        },
+        "audio_streams": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "audio_codec": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9_]{0,31}$(?![\\s\\S])",
+              "maxLength": 32
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "audio_sample_rate": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "audio_channels": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "audio_effective_samples": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000000000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schema",
+        "output_fingerprint",
+        "byte_length",
+        "container",
+        "video_codec",
+        "video_streams",
+        "other_streams",
+        "width",
+        "height",
+        "frame_count",
+        "frame_rate_num",
+        "frame_rate_den",
+        "time_base_num",
+        "time_base_den",
+        "pixel_format",
+        "pixel_aspect_num",
+        "pixel_aspect_den",
+        "color_range",
+        "color_space",
+        "color_primaries",
+        "color_transfer",
+        "video_timing_fingerprint",
+        "audio_streams",
+        "audio_codec",
+        "audio_sample_rate",
+        "audio_channels",
+        "audio_effective_samples"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "request",
+    "semantic_fingerprint",
+    "renderer_artifact_fingerprint",
+    "probe_artifact_fingerprint",
+    "qualification_fingerprint",
+    "publication_currentness_fingerprint",
+    "observed"
+  ]
+}

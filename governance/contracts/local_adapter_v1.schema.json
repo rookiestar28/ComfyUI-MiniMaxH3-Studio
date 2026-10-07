@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/local_adapter_v1.schema.json",
+  "title": "H3 local adapter capability descriptor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "adapter_id",
+    "kind",
+    "adapter_version",
+    "minimum_version",
+    "maximum_version",
+    "supported_task_modes",
+    "supported_media",
+    "supported_devices",
+    "optional_dependencies",
+    "output_schema",
+    "limits",
+    "supports_determinism",
+    "supports_seed",
+    "supports_cancellation"
+  ],
+  "properties": {
+    "adapter_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "kind": {"enum": ["perception", "reasoning"]},
+    "adapter_version": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+){1,2}$"},
+    "minimum_version": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+){1,2}$"},
+    "maximum_version": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+){1,2}$"},
+    "supported_task_modes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+    "supported_media": {"type": "array", "uniqueItems": true, "items": {"enum": ["image", "video", "audio"]}},
+    "supported_devices": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["auto", "cpu", "cuda", "mps"]}},
+    "optional_dependencies": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$"}},
+    "output_schema": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_memory_bytes", "max_wall_time_seconds", "max_references", "max_output_bytes", "max_output_items", "max_concurrency"],
+      "properties": {
+        "max_memory_bytes": {"type": "integer", "minimum": 1},
+        "max_wall_time_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "max_references": {"type": "integer", "minimum": 0},
+        "max_output_bytes": {"type": "integer", "minimum": 1},
+        "max_output_items": {"type": "integer", "minimum": 1},
+        "max_concurrency": {"type": "integer", "minimum": 1}
+      }
+    },
+    "supports_determinism": {"type": "boolean"},
+    "supports_seed": {"type": "boolean"},
+    "supports_cancellation": {"type": "boolean"}
+  }
+}

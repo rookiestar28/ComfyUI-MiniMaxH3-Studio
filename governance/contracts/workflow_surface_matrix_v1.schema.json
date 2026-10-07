@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "h3-context://contracts/workflow_surface_matrix_v1.schema.json",
+  "title": "H3 workflow and product-surface matrix v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "runtime_audit_dispositions",
+    "modes",
+    "artifacts",
+    "legacy_dispositions",
+    "privacy"
+  ],
+  "properties": {
+    "schema": {"const": "h3-context-workflow-surface-matrix/1"},
+    "version": {"const": 1},
+    "runtime_audit_dispositions": {
+      "const": ["ACCEPTED", "REJECTED"]
+    },
+    "modes": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {"$ref": "#/$defs/mode"}
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 21,
+      "maxItems": 21,
+      "items": {"$ref": "#/$defs/artifact"}
+    },
+    "legacy_dispositions": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 16,
+      "items": {"$ref": "#/$defs/legacy"}
+    },
+    "privacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "browser_media_authority",
+        "unknown_graph_mutation",
+        "raw_graph_logging",
+        "provider_fallback"
+      ],
+      "properties": {
+        "browser_media_authority": {"const": false},
+        "unknown_graph_mutation": {"const": false},
+        "raw_graph_logging": {"const": false},
+        "provider_fallback": {"const": false}
+      }
+    }
+  },
+  "$defs": {
+    "surface": {
+      "enum": [
+        "qualified",
+        "qualified_base_examples",
+        "qualified_reference_examples",
+        "qualified_base",
+        "qualified_reference_bounded",
+        "unavailable_no_published_fixture"
+      ]
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["image", "video", "standalone_audio", "total_min", "total_max"],
+      "properties": {
+        "image": {"const": 1},
+        "video": {"const": 1},
+        "standalone_audio": {"const": 1},
+        "total_min": {"const": 1},
+        "total_max": {"const": 3}
+      }
+    },
+    "mode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "direct_node", "sidebar", "api_headless", "saved_workflow", "fixed_subgraph"],
+      "properties": {
+        "mode": {"enum": ["t2va", "i2va", "fl2va", "l2va", "ref2va"]},
+        "direct_node": {"$ref": "#/$defs/surface"},
+        "sidebar": {"$ref": "#/$defs/surface"},
+        "api_headless": {"$ref": "#/$defs/surface"},
+        "saved_workflow": {"$ref": "#/$defs/surface"},
+        "fixed_subgraph": {"$ref": "#/$defs/surface"},
+        "sidebar_limits": {"$ref": "#/$defs/limits"}
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "purpose", "qualification", "lifecycle", "rollback"],
+      "properties": {
+        "path": {"type": "string", "pattern": "^(workflows|subgraphs|examples)/[^/]+(?:\\.json|\\.py)$"},
+        "purpose": {"enum": ["adapter", "compatibility", "convenience", "executable_example", "scenario"]},
+        "qualification": {"enum": ["qualified", "retained_compatibility", "retained_structural"]},
+        "lifecycle": {"const": "RETAIN"},
+        "rollback": {"const": "preserve_original_bytes"}
+      }
+    },
+    "legacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "lifecycle", "reason", "safe_action", "mutates_rejected_input"],
+      "properties": {
+        "source": {"type": "string", "pattern": "^[a-z0-9_]{1,96}$"},
+        "lifecycle": {"enum": ["MIGRATE", "RETAIN", "REJECT", "ROLLBACK"]},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 256},
+        "safe_action": {"type": "string", "pattern": "^[a-z0-9_]{1,128}$"},
+        "mutates_rejected_input": {"const": false}
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "h3.test.clip_audio_admission_rows.v1",
+  "description": "One table for both snapshot decoders: which clip of the accepted composition (`m25_10_composition_contract_v1.json`) may carry an audio member that is not the identity. `clip_id` names the clip that is given `audio`; `asset_id`, when present, first makes that clip use another asset; `embedded_audio`, when present, first declares that clip's asset with that audio. `result` is `accepted` or the refusal code.",
+  "audio": {"gain_mb": -600, "muted": false, "fade_in_frames": 2, "fade_out_frames": 2},
+  "rows": [
+    {"name": "primary_clip_with_bound_audio", "clip_id": "clip-main", "result": "accepted"},
+    {
+      "name": "overlay_clip_with_bound_audio",
+      "clip_id": "clip-video-overlay",
+      "asset_id": "vid-primary",
+      "result": "accepted"
+    },
+    {
+      "name": "video_whose_audio_the_overlay_policy_excludes",
+      "clip_id": "clip-video-overlay",
+      "result": "invalid_contract"
+    },
+    {
+      "name": "video_without_audio",
+      "clip_id": "clip-video-overlay",
+      "embedded_audio": "absent",
+      "result": "invalid_contract"
+    },
+    {
+      "name": "video_whose_audio_is_unavailable",
+      "clip_id": "clip-video-overlay",
+      "embedded_audio": "unavailable",
+      "result": "invalid_contract"
+    },
+    {"name": "image_clip", "clip_id": "clip-image", "result": "invalid_contract"},
+    {"name": "title_clip", "clip_id": "clip-title", "result": "invalid_contract"}
+  ]
+}

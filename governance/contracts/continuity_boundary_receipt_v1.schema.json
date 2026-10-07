@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/continuity_boundary_receipt_v1.schema.json",
+  "title": "ContinuityBoundaryReceipt v1",
+  "description": "Strict boundary-scoped native continuity receipt; process-local policy and evidence are not represented here.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/native"
+    },
+    {
+      "$ref": "#/$defs/restart"
+    },
+    {
+      "$ref": "#/$defs/cut"
+    }
+  ],
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "sha256Bare": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "sha1Bare": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "base": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "const": "h3.context.continuity_boundary_receipt.v1"
+        },
+        "boundary_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "continuity_mode": {
+          "type": "string"
+        },
+        "audio_not_carried": {
+          "const": true
+        },
+        "receipt_fingerprint": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "schema",
+        "boundary_id",
+        "continuity_mode",
+        "audio_not_carried",
+        "receipt_fingerprint"
+      ]
+    },
+    "native": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "continuity_mode": {
+              "const": "native_frame_handoff"
+            },
+            "predecessor_segment_id": {
+              "$ref": "#/$defs/identifier"
+            },
+            "predecessor_receipt_fingerprint": {
+              "$ref": "#/$defs/sha256"
+            },
+            "predecessor_output_fingerprint": {
+              "$ref": "#/$defs/sha256"
+            },
+            "successor_segment_id": {
+              "$ref": "#/$defs/identifier"
+            },
+            "successor_job_id": {
+              "$ref": "#/$defs/identifier"
+            },
+            "successor_graph_fingerprint": {
+              "$ref": "#/$defs/sha256"
+            },
+            "first_frame_node_instance_id": {
+              "$ref": "#/$defs/identifier"
+            },
+            "first_frame_socket_name": {
+              "const": "first_frame"
+            },
+            "first_frame_connection_order": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 128
+            },
+            "host_version": {
+              "type": "string",
+              "maxLength": 64,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9.+_-]{0,63}$"
+            },
+            "host_revision": {
+              "$ref": "#/$defs/sha1Bare"
+            },
+            "video_node_source_sha256": {
+              "$ref": "#/$defs/sha256Bare"
+            },
+            "video_types_source_sha256": {
+              "$ref": "#/$defs/sha256Bare"
+            },
+            "decoder_name": {
+              "$ref": "#/$defs/identifier"
+            },
+            "decoder_version": {
+              "type": "string",
+              "maxLength": 64,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9.+_-]{0,63}$"
+            },
+            "decoded_frame_count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000000
+            },
+            "carried_frame_count": {
+              "const": 1
+            },
+            "delivered_frame_count": {
+              "const": 1
+            },
+            "tail_content_sha256": {
+              "$ref": "#/$defs/sha256Bare"
+            }
+          },
+          "required": [
+            "schema",
+            "boundary_id",
+            "continuity_mode",
+            "audio_not_carried",
+            "receipt_fingerprint",
+            "predecessor_segment_id",
+            "predecessor_receipt_fingerprint",
+            "predecessor_output_fingerprint",
+            "successor_segment_id",
+            "successor_job_id",
+            "successor_graph_fingerprint",
+            "first_frame_node_instance_id",
+            "first_frame_socket_name",
+            "first_frame_connection_order",
+            "host_version",
+            "host_revision",
+            "video_node_source_sha256",
+            "video_types_source_sha256",
+            "decoder_name",
+            "decoder_version",
+            "decoded_frame_count",
+            "carried_frame_count",
+            "delivered_frame_count",
+            "tail_content_sha256"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "restart": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "continuity_mode": {
+              "const": "restart"
+            },
+            "restart_root_id": {
+              "$ref": "#/$defs/identifier"
+            }
+          },
+          "required": [
+            "schema",
+            "boundary_id",
+            "continuity_mode",
+            "audio_not_carried",
+            "receipt_fingerprint",
+            "restart_root_id"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "cut": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "continuity_mode": {
+              "const": "cut"
+            }
+          },
+          "required": [
+            "schema",
+            "boundary_id",
+            "continuity_mode",
+            "audio_not_carried",
+            "receipt_fingerprint"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  }
+}

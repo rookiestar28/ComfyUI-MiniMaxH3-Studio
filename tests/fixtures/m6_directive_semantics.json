@@ -1,0 +1,11 @@
+{
+  "schema": "h3.reference.directives.v1",
+  "case": "multi_action_precedence",
+  "registry_asset_ids": ["image_1", "video_1", "audio_1"],
+  "directives": [
+    {"directive_id": "copy_1", "action": "copy_event", "target_kind": "event", "target_id": "event_1", "source_asset_ids": ["video_1"], "target_segment_id": "segment_1", "authority": "user_preference"},
+    {"directive_id": "retain_1", "action": "retain", "target_kind": "subject", "target_id": "subject_1", "source_asset_ids": ["image_1"], "retention_aspects": ["identity", "style"], "authority": "reference_only", "evidence_ids": ["evidence_1"]},
+    {"directive_id": "adapt_1", "action": "adapt", "target_kind": "subject", "target_id": "subject_1", "source_asset_ids": ["image_1"], "adaptation": "change only the coat color", "authority": "user_preference"},
+    {"directive_id": "exclude_1", "action": "exclude", "target_kind": "audio", "target_id": "audio_1", "source_asset_ids": ["audio_1"], "reason": "do not copy the original signal", "authority": "user_hard"}
+  ]
+}

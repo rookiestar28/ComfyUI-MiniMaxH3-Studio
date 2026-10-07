@@ -1,0 +1,194 @@
+{
+  "final": [
+    "expired",
+    "terminal_cancelled",
+    "terminal_failed",
+    "terminal_succeeded",
+    "terminal_unknown_ownership"
+  ],
+  "initial": "created",
+  "phases": [
+    "prepare",
+    "guards",
+    "before",
+    "exit",
+    "set",
+    "enter",
+    "on_final",
+    "after",
+    "finalize"
+  ],
+  "schema": "h3.context.managed_run_stategraph.v1",
+  "states": [
+    "artifact_recorded",
+    "context_ready",
+    "created",
+    "expired",
+    "production_ready",
+    "running",
+    "sequence_prepared",
+    "submitted",
+    "terminal_cancelled",
+    "terminal_failed",
+    "terminal_succeeded",
+    "terminal_unknown_ownership"
+  ],
+  "transitions": [
+    {
+      "guard": null,
+      "source": "artifact_recorded",
+      "target": "terminal_unknown_ownership",
+      "trigger": "cancel_after_host"
+    },
+    {
+      "guard": null,
+      "source": "running",
+      "target": "terminal_unknown_ownership",
+      "trigger": "cancel_after_host"
+    },
+    {
+      "guard": null,
+      "source": "submitted",
+      "target": "terminal_unknown_ownership",
+      "trigger": "cancel_after_host"
+    },
+    {
+      "guard": null,
+      "source": "context_ready",
+      "target": "terminal_cancelled",
+      "trigger": "cancel_before_host"
+    },
+    {
+      "guard": null,
+      "source": "production_ready",
+      "target": "terminal_cancelled",
+      "trigger": "cancel_before_host"
+    },
+    {
+      "guard": null,
+      "source": "sequence_prepared",
+      "target": "terminal_cancelled",
+      "trigger": "cancel_before_host"
+    },
+    {
+      "guard": null,
+      "source": "context_ready",
+      "target": "production_ready",
+      "trigger": "create_production"
+    },
+    {
+      "guard": "single_segment_sequence",
+      "source": "production_ready",
+      "target": "sequence_prepared",
+      "trigger": "prepare_sequence"
+    },
+    {
+      "guard": null,
+      "source": "running",
+      "target": "artifact_recorded",
+      "trigger": "record_artifact"
+    },
+    {
+      "guard": null,
+      "source": "artifact_recorded",
+      "target": "terminal_failed",
+      "trigger": "record_failed"
+    },
+    {
+      "guard": null,
+      "source": "running",
+      "target": "terminal_failed",
+      "trigger": "record_failed"
+    },
+    {
+      "guard": null,
+      "source": "submitted",
+      "target": "running",
+      "trigger": "record_running"
+    },
+    {
+      "guard": null,
+      "source": "sequence_prepared",
+      "target": "submitted",
+      "trigger": "record_submission"
+    },
+    {
+      "guard": null,
+      "source": "artifact_recorded",
+      "target": "terminal_succeeded",
+      "trigger": "record_succeeded"
+    },
+    {
+      "guard": null,
+      "source": "running",
+      "target": "terminal_succeeded",
+      "trigger": "record_succeeded"
+    },
+    {
+      "guard": "no_live_sequence",
+      "source": "artifact_recorded",
+      "target": "expired",
+      "trigger": "release_production"
+    },
+    {
+      "guard": "no_live_sequence",
+      "source": "production_ready",
+      "target": "expired",
+      "trigger": "release_production"
+    },
+    {
+      "guard": "no_live_sequence",
+      "source": "running",
+      "target": "expired",
+      "trigger": "release_production"
+    },
+    {
+      "guard": "no_live_sequence",
+      "source": "sequence_prepared",
+      "target": "expired",
+      "trigger": "release_production"
+    },
+    {
+      "guard": "no_live_sequence",
+      "source": "submitted",
+      "target": "expired",
+      "trigger": "release_production"
+    },
+    {
+      "guard": null,
+      "source": "terminal_cancelled",
+      "target": "expired",
+      "trigger": "release_sequence"
+    },
+    {
+      "guard": null,
+      "source": "terminal_failed",
+      "target": "expired",
+      "trigger": "release_sequence"
+    },
+    {
+      "guard": null,
+      "source": "terminal_succeeded",
+      "target": "expired",
+      "trigger": "release_sequence"
+    },
+    {
+      "guard": null,
+      "source": "terminal_unknown_ownership",
+      "target": "expired",
+      "trigger": "release_sequence"
+    },
+    {
+      "guard": null,
+      "source": "context_ready",
+      "target": "context_ready",
+      "trigger": "stage_context"
+    },
+    {
+      "guard": null,
+      "source": "created",
+      "target": "context_ready",
+      "trigger": "stage_context"
+    }
+  ]
+}

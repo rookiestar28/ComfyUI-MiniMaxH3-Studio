@@ -1,0 +1,147 @@
+{
+  "fingerprint": "sha256:46461ce64410715e9e3d6d45a909c273f60747404f8f54a4e468fe1a88d2bc4e",
+  "host_subject": {
+    "comfyui_revision": "8cfe5e1ecb97512dea8deaac15e1228d7e6feeb1",
+    "comfyui_version": "0.38.0",
+    "fixture_profile": "comfyui_host_seams_v1",
+    "fixture_schema": "h3.context.host_seam_shape_fixture.v1",
+    "frontend_version": "1.53.6",
+    "seam_count": 29
+  },
+  "locales": [
+    "en",
+    "zh-TW",
+    "zh-CN"
+  ],
+  "manual_default": {
+    "assisted_authoring": {
+      "authorized_for_this_action": false,
+      "available": true,
+      "defaulted": false,
+      "ready": false,
+      "selected": false
+    },
+    "canonical_owner": "manual_prompt",
+    "network_observation": "none",
+    "profile_id": null
+  },
+  "profiles": [
+    {
+      "capability_id": "provider.prompt_model_remote_anthropic",
+      "capability_maturity": "injected_only",
+      "defaulted": false,
+      "evidence_fingerprint": null,
+      "evidence_kind": null,
+      "executable": false,
+      "family": "remote_anthropic",
+      "installation_profile_id": "remote_anthropic_service",
+      "limitations": [
+        "retention_depends_on_provider_policy",
+        "remote_activation_pending"
+      ],
+      "local_only": false,
+      "manual_fallback": "canonical",
+      "model_selection_required": true,
+      "profile_id": "anthropic.remote",
+      "provider_label": "Anthropic",
+      "qualification_state": "catalog_only",
+      "requires_consent": true,
+      "requires_credential": true,
+      "wire_dialect": "anthropic_messages"
+    },
+    {
+      "capability_id": "provider.prompt_model_remote_openai_compatible",
+      "capability_maturity": "injected_only",
+      "defaulted": false,
+      "evidence_fingerprint": "sha256:45ad1f2bbadf65e4bf7ac0296a6ed6dcca326cd600ed3d1d48f0bedced6b80d8",
+      "evidence_kind": "provider_connection",
+      "executable": false,
+      "family": "remote_openai_compatible",
+      "installation_profile_id": "remote_openai_compatible_service",
+      "limitations": [
+        "retention_depends_on_provider_policy"
+      ],
+      "local_only": false,
+      "manual_fallback": "canonical",
+      "model_selection_required": true,
+      "profile_id": "gemini.remote",
+      "provider_label": "Google Gemini",
+      "qualification_state": "qualified",
+      "requires_consent": true,
+      "requires_credential": true,
+      "wire_dialect": "openai_chat_completions"
+    },
+    {
+      "capability_id": "provider.prompt_model_ollama",
+      "capability_maturity": "injected_only",
+      "defaulted": false,
+      "evidence_fingerprint": "sha256:c1ef60c42f1f98a5f06348c78e9358b7687e6a43c1ec5d6a23a1fd7718db2819",
+      "evidence_kind": "provider_connection",
+      "executable": false,
+      "family": "ollama",
+      "installation_profile_id": "external_ollama",
+      "limitations": [
+        "text_only_drafting"
+      ],
+      "local_only": true,
+      "manual_fallback": "canonical",
+      "model_selection_required": true,
+      "profile_id": "ollama.local",
+      "provider_label": "Ollama",
+      "qualification_state": "qualified",
+      "requires_consent": false,
+      "requires_credential": false,
+      "wire_dialect": "ollama_chat"
+    },
+    {
+      "capability_id": "provider.prompt_model_remote_openai_compatible",
+      "capability_maturity": "injected_only",
+      "defaulted": false,
+      "evidence_fingerprint": null,
+      "evidence_kind": null,
+      "executable": false,
+      "family": "remote_openai_compatible",
+      "installation_profile_id": "remote_openai_compatible_service",
+      "limitations": [
+        "retention_depends_on_provider_policy",
+        "remote_activation_pending"
+      ],
+      "local_only": false,
+      "manual_fallback": "canonical",
+      "model_selection_required": true,
+      "profile_id": "openai.remote",
+      "provider_label": "OpenAI",
+      "qualification_state": "catalog_only",
+      "requires_consent": true,
+      "requires_credential": true,
+      "wire_dialect": "openai_chat_completions"
+    }
+  ],
+  "proposal_review": {
+    "canonical_mutations": [
+      "accept",
+      "validated_edit"
+    ],
+    "max_attempts": 2,
+    "non_mutating_outcomes": [
+      "reject",
+      "cancel",
+      "failure"
+    ],
+    "proposal_schema": "h3.context.assisted_prompt_proposal.v1"
+  },
+  "public_contract": {
+    "node_count": 28,
+    "node_ids_fingerprint": "sha256:ddde8c9e67c72fc0cd17ea93c286c97fa91469c9b9946b7042d75c4064c2ab89",
+    "workflow_modes": [
+      "t2va",
+      "i2va",
+      "fl2va",
+      "l2va",
+      "ref2va"
+    ],
+    "workflow_surface_fingerprint": "sha256:af93a00ca0607922ef2472fbde8ddae8eb71b17f5674b37ec78af0c853284678"
+  },
+  "schema": "h3.context.assisted_authoring_compatibility.v2",
+  "version": 2
+}

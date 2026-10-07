@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://qualification/m19_07/qualification_evidence_v1.schema.json",
+  "title": "M19-07 pre-M20 capability qualification matrix v1",
+  "description": "Internal, qualification-only evidence record. Deliberately not part of the product contract surface: it is not a runtime authority and not a portable workflow contract, and no product code may import or depend on it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "subject", "rows", "limitations"],
+  "properties": {
+    "schema": {
+      "const": "h3.m19_07_qualification_evidence.v1"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "subject": {
+      "$ref": "#/$defs/subject"
+    },
+    "rows": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "$ref": "#/$defs/row"
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 1024
+      }
+    }
+  },
+  "$defs": {
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item",
+        "project_commit",
+        "native_source",
+        "frozen_host_version",
+        "frozen_host_revision",
+        "model_subject",
+        "host",
+        "host_state"
+      ],
+      "properties": {
+        "item": {
+          "const": "M19-07"
+        },
+        "project_commit": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "native_source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["label", "blob", "sha256", "byte_length"],
+          "properties": {
+            "label": {
+              "type": "string",
+              "description": "Repository-relative source name. Never an absolute or private path.",
+              "pattern": "^[A-Za-z0-9_./-]+$",
+              "maxLength": 256
+            },
+            "blob": {
+              "type": "string",
+              "pattern": "^gitblob:[0-9a-f]{40}$"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "byte_length": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "frozen_host_version": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "frozen_host_revision": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "model_subject": {
+          "type": "array",
+          "description": "Bounded opaque identities. A model locator never appears in full.",
+          "items": {
+            "type": "string",
+            "pattern": "^weight:[0-9a-f]{16}$"
+          }
+        },
+        "host": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "comfyui_version",
+                "frontend_version",
+                "templates_version",
+                "python_version",
+                "torch_version",
+                "device_class",
+                "argv"
+              ],
+              "properties": {
+                "comfyui_version": { "type": "string", "maxLength": 32 },
+                "frontend_version": { "type": "string", "maxLength": 32 },
+                "templates_version": { "type": "string", "maxLength": 32 },
+                "python_version": { "type": "string", "maxLength": 32 },
+                "torch_version": { "type": "string", "maxLength": 32 },
+                "device_class": { "type": "string", "maxLength": 32 },
+                "argv": {
+                  "type": "array",
+                  "items": { "type": "string", "maxLength": 128 }
+                }
+              }
+            }
+          ]
+        },
+        "host_state": {
+          "enum": ["probed_read_only", "not_probed"]
+        }
+      }
+    },
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["row", "status", "reason_code", "consumer", "source_evidence", "findings"],
+      "properties": {
+        "row": {
+          "enum": [
+            "temporal_profile",
+            "joint_av_latent_descriptor",
+            "completed_boundary_resume",
+            "dual_domain_av_mask",
+            "two_ended_av_bridge"
+          ]
+        },
+        "status": {
+          "enum": ["supported", "unsupported", "unqualified", "retired"]
+        },
+        "reason_code": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,63}$"
+        },
+        "consumer": {
+          "type": "string",
+          "pattern": "^M[0-9]{2}-[0-9]{2}$"
+        },
+        "source_evidence": {
+          "type": "object"
+        },
+        "live_evidence": {
+          "type": "object"
+        },
+        "live_applicability": {
+          "type": "string",
+          "description": "Required when status is supported and no live_evidence is present: why a weight-backed run could not change the result.",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "exhaustiveness": {
+          "type": "object",
+          "description": "Required when status is unsupported: what turns an absence into affirmative evidence.",
+          "additionalProperties": false,
+          "required": [
+            "source_identity",
+            "candidate_mechanisms",
+            "live_node_inventory",
+            "inventory_source"
+          ],
+          "properties": {
+            "source_identity": { "type": "string", "minLength": 1, "maxLength": 128 },
+            "candidate_mechanisms": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "maxLength": 128 }
+            },
+            "live_node_inventory": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string", "maxLength": 128 }
+            },
+            "inventory_source": { "type": "string", "minLength": 1, "maxLength": 256 }
+          }
+        },
+        "findings": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 2048 }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "status": { "const": "supported" } },
+            "required": ["status"]
+          },
+          "then": {
+            "anyOf": [
+              { "required": ["live_evidence"] },
+              { "required": ["live_applicability"] }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": { "status": { "const": "unsupported" } },
+            "required": ["status"]
+          },
+          "then": {
+            "required": ["exhaustiveness"]
+          }
+        }
+      ]
+    }
+  }
+}

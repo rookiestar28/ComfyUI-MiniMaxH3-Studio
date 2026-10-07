@@ -13,6 +13,13 @@ import { createDurationResolutionClient } from "./host/durationResolutionClient"
 import { createGenerationSequenceDriver } from "./host/generationSequence";
 import { createInputGeometryClient } from "./host/inputGeometry";
 import { createMediaRuntimeClient } from "./host/mediaRuntimeClient";
+import { createWorkspaceStateClient } from "./host/workspaceStateClient";
+import { createWorkspaceStateLifecycle } from "./lifecycle/workspaceStateSession";
+import { createRetainedAssetsClient } from "./host/retainedAssetsClient";
+import { createRetainedAssetsLifecycle } from "./lifecycle/retainedAssetsSession";
+import { createProjectDocumentClient } from "./host/projectDocumentClient";
+import { createProjectRecoveryClient } from "./host/projectRecoveryClient";
+import { createProjectPersistenceSession } from "./lifecycle/projectPersistenceSession";
 import {
   createBrowserManagedSequenceReattachStore,
   createManagedSequenceClient,
@@ -161,6 +168,16 @@ const authoringOutputPreview = createOutputPreview(outputFetch);
 // M25-33: media runtime status, setup and job routes; read on Settings open, a contextual
 // runtime refusal or while a setup job runs.
 const mediaRuntimeClient = createMediaRuntimeClient({ fetchApi });
+const workspaceStateClient = createWorkspaceStateClient({ fetchApi });
+const projectDocumentClient = createProjectDocumentClient({
+  fetchApi: outputFetch,
+});
+const projectRecoveryClient = createProjectRecoveryClient({
+  fetchApi: outputFetch,
+});
+const retainedAssetsClient = createRetainedAssetsClient({
+  fetchApi: outputFetch,
+});
 
 const providerSettingsActions = createProviderSettingsClient({
   fetchApi,
@@ -304,6 +321,10 @@ const deps: ShellDeps = Object.freeze({
   authoringOutputClient,
   authoringOutputPreview,
   mediaRuntimeClient,
+  workspaceStateClient,
+  retainedAssetsClient,
+  projectDocumentClient,
+  projectRecoveryClient,
 });
 
 const runtime: ShellRuntime = Object.freeze({
@@ -322,6 +343,9 @@ Object.assign(
   createPresentationBinding(runtime),
   createNleWorkspaceSession(runtime),
   createMediaRuntimeSession(runtime),
+  createWorkspaceStateLifecycle(runtime),
+  createRetainedAssetsLifecycle(runtime),
+  createProjectPersistenceSession(runtime),
 );
 
 // IMPORTANT: use the session that owns host events and detach fencing. A second runner

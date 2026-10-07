@@ -1,0 +1,361 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/task_mode_retention_classifier_v2.schema.json",
+  "title": "H3 task mode and retention classifier",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "mode",
+    "task_types",
+    "retention",
+    "diagnostics",
+    "calibration",
+    "oracle_comparison",
+    "input_fingerprint",
+    "registry_fingerprint",
+    "role_graph_fingerprint",
+    "authority_report_fingerprint",
+    "report_fingerprint"
+  ],
+  "properties": {
+    "schema": {
+      "const": "h3.task_mode_retention_classifier.v2"
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "partial",
+        "abstained",
+        "blocked",
+        "conflicting"
+      ]
+    },
+    "mode": {
+      "$ref": "#/$defs/modeDecision"
+    },
+    "task_types": {
+      "type": "array",
+      "maxItems": 512,
+      "items": {
+        "$ref": "#/$defs/taskTypeDecision"
+      }
+    },
+    "retention": {
+      "type": "array",
+      "maxItems": 512,
+      "items": {
+        "$ref": "#/$defs/retentionDecision"
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "maxItems": 512,
+      "items": {
+        "type": "object"
+      }
+    },
+    "calibration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "accept_threshold",
+        "abstention_threshold"
+      ],
+      "properties": {
+        "schema": {
+          "const": "h3.task_mode_retention_classifier.v2"
+        },
+        "accept_threshold": {
+          "const": "0.90"
+        },
+        "abstention_threshold": {
+          "const": "0.60"
+        }
+      }
+    },
+    "oracle_comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "status",
+        "note"
+      ],
+      "properties": {
+        "schema": {
+          "const": "h3.task_mode_retention_classifier.v2"
+        },
+        "status": {
+          "enum": [
+            "not_requested",
+            "separate",
+            "unavailable"
+          ]
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      }
+    },
+    "input_fingerprint": {
+      "$ref": "#/$defs/fingerprint"
+    },
+    "registry_fingerprint": {
+      "$ref": "#/$defs/fingerprint"
+    },
+    "role_graph_fingerprint": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/fingerprint"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "authority_report_fingerprint": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/fingerprint"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "report_fingerprint": {
+      "$ref": "#/$defs/fingerprint"
+    }
+  },
+  "$defs": {
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "modeDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "mode",
+        "disposition",
+        "source",
+        "confidence",
+        "evidence_ids",
+        "reason"
+      ],
+      "properties": {
+        "schema": {
+          "const": "h3.task_mode_retention_classifier.v2"
+        },
+        "mode": {
+          "enum": [
+            "t2va",
+            "i2va",
+            "fl2va",
+            "l2va",
+            "ref2va"
+          ]
+        },
+        "disposition": {
+          "enum": [
+            "accepted",
+            "abstained",
+            "rejected",
+            "conflicting"
+          ]
+        },
+        "source": {
+          "enum": [
+            "user_directive",
+            "supported_evidence",
+            "role_resolution",
+            "directive_authority"
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "pattern": "^(0|1|0\\.[0-9]+)$"
+        },
+        "evidence_ids": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "type": "string"
+          }
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      }
+    },
+    "taskTypeDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "task_type",
+        "disposition",
+        "source",
+        "confidence",
+        "source_asset_ids",
+        "evidence_ids",
+        "reason"
+      ],
+      "properties": {
+        "schema": {
+          "const": "h3.task_mode_retention_classifier.v2"
+        },
+        "task_type": {
+          "enum": [
+            "keyframe_completion",
+            "reference_generation",
+            "video_editing",
+            "video_continuation",
+            "audio_reuse",
+            "audio_reference"
+          ]
+        },
+        "disposition": {
+          "enum": [
+            "accepted",
+            "abstained",
+            "rejected",
+            "conflicting"
+          ]
+        },
+        "source": {
+          "enum": [
+            "user_directive",
+            "supported_evidence",
+            "role_resolution",
+            "directive_authority"
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "pattern": "^(0|1|0\\.[0-9]+)$"
+        },
+        "source_asset_ids": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidence_ids": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "type": "string"
+          }
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      }
+    },
+    "retentionDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "domain",
+        "marker",
+        "disposition",
+        "source",
+        "confidence",
+        "source_asset_ids",
+        "target_id",
+        "evidence_ids",
+        "reason",
+        "scope"
+      ],
+      "properties": {
+        "schema": {
+          "const": "h3.task_mode_retention_classifier.v2"
+        },
+        "domain": {
+          "enum": [
+            "visual",
+            "audio"
+          ]
+        },
+        "marker": {
+          "enum": [
+            "fully_preserved",
+            "partially_preserved",
+            "attribute_transfer",
+            "weak_reference",
+            "fully_copy",
+            "partially_copy",
+            "reference"
+          ]
+        },
+        "disposition": {
+          "enum": [
+            "accepted",
+            "abstained",
+            "rejected",
+            "conflicting"
+          ]
+        },
+        "source": {
+          "enum": [
+            "user_directive",
+            "supported_evidence",
+            "role_resolution",
+            "directive_authority"
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "pattern": "^(0|1|0\\.[0-9]+)$"
+        },
+        "source_asset_ids": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "type": "string"
+          }
+        },
+        "target_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "evidence_ids": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "type": "string"
+          }
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "scope": {
+          "enum": [
+            "unspecified",
+            "subject",
+            "picture",
+            "video_structure",
+            "audio_layer",
+            "complete_final_audio_track"
+          ]
+        }
+      }
+    }
+  }
+}

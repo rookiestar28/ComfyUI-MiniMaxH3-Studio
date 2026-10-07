@@ -1,0 +1,53 @@
+{
+  "schema": "h3-context-base-assistant-migration/1",
+  "fixture_id": "m7-01-base-assistant-novice",
+  "fixture_status": "static_model_free_contract",
+  "legacy": {
+    "schema": "h3-context-subgraph-fixture/1",
+    "version": 1,
+    "widgets_values": [
+      "t2va",
+      "A red kite crosses the sky while the camera follows its arc.",
+      120
+    ]
+  },
+  "migration": {
+    "source": "legacy_widget_tuple",
+    "target": "named_external_inputs",
+    "mapping": {
+      "widgets_values[0]": "task_mode",
+      "widgets_values[1]": "user_intent",
+      "widgets_values[2]": "duration_seconds"
+    },
+    "length_conversion": "legacy_frame_count_to_aligned_duration",
+    "unknown_fields": "reject",
+    "hard_text": "preserve_exactly"
+  },
+  "expected": {
+    "controls": {
+      "task_mode": "t2va",
+      "user_intent": "A red kite crosses the sky while the camera follows its arc.",
+      "duration_seconds": 5.0
+    },
+    "prompt_fingerprint_parts": [
+      "sha256:86eb6bd0",
+      "8a7c4a74",
+      "9b5a1895",
+      "0c0b9e82",
+      "ad2e25f2",
+      "84737acc",
+      "189ba279",
+      "f266ea85"
+    ],
+    "report_fingerprint_parts": [
+      "sha256:7b5ff288",
+      "11b27186",
+      "8561847f",
+      "8eda3648",
+      "61618c36",
+      "7c216767",
+      "8b2249f6",
+      "bc80978f"
+    ]
+  }
+}

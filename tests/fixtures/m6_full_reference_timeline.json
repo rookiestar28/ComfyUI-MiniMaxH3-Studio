@@ -1,0 +1,12 @@
+{
+  "schema": "h3.full_reference.timeline.v1",
+  "task_mode": "ref2va",
+  "effective_duration": "4",
+  "video_assets": ["video_1"],
+  "audio_assets": ["audio_1"],
+  "segments": [
+    {"segment_id": "segment_shot_1", "start": "0", "end": "2", "transition": "opening", "source_shot_ids": ["shot_1"]},
+    {"segment_id": "segment_gap_1", "start": "2", "end": "4", "transition": "gap_fill", "missing_source": true}
+  ],
+  "notes": "Metadata-only golden; no media bytes or locators."
+}

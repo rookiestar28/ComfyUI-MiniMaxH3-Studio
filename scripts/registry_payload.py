@@ -30,29 +30,52 @@ from comfyui_h3_context.core.safe_paths import (  # noqa: E402
     validate_directory,
     validate_regular_file,
 )
+from scripts.product_completeness import (  # noqa: E402
+    CompletenessError,
+    checkout_required_paths,
+    require_present,
+    smoke_archive,
+)
 
-MAX_FILES = 2_048
+MAX_FILES = 4_096
 MAX_FILE_BYTES = 16 * 1024 * 1024
 MAX_TOTAL_BYTES = 64 * 1024 * 1024
 MAX_ARCHIVE_BYTES = 80 * 1024 * 1024
 MAX_MEMBER_NAME_CHARS = 1_024
 MAX_PATH_COMPONENT_CHARS = 255
 READ_CHUNK_BYTES = 1024 * 1024
-TEXT_SUFFIXES = frozenset({".css", ".html", ".js", ".json", ".md", ".py", ".svg", ".txt"})
+TEXT_SUFFIXES = frozenset(
+    {
+        ".css",
+        ".html",
+        ".js",
+        ".mjs",
+        ".json",
+        ".md",
+        ".py",
+        ".svg",
+        ".txt",
+        ".ts",
+        ".tsx",
+        ".yaml",
+        ".yml",
+        ".toml",
+        ".ps1",
+        ".sh",
+    }
+)
 TEXT_NAMES = frozenset({"license", "notice", "readme"})
 ALLOWED_COMPRESSION = frozenset({zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED})
 PRIVATE_PATH_PARTS = frozenset(
     {
         ".git",
-        ".github",
         ".planning",
         ".sessions",
         ".tmp",
-        "frontend",
         "node_modules",
         "reference",
-        "scripts",
-        "tests",
+        ".reference",
+        "__pycache__",
     }
 )
 BYTECODE_SUFFIXES = frozenset({".pyc", ".pyo"})
@@ -221,6 +244,12 @@ def _validate_member_policy(relative: str) -> None:
         )
     if any(part in PRIVATE_PATH_PARTS for part in folded_parts):
         raise RegistryPayloadError(f"Registry archive contains a private path: {relative}")
+    from scripts.public_projection import allowed
+
+    # IMPORTANT: developer trees are public, but cannot admit private SOPs, dependency
+    # installs, ignored files or arbitrary workflow files through that broader boundary.
+    if not allowed(relative):
+        raise RegistryPayloadError(f"Registry archive contains a private path: {relative}")
 
 
 def _validate_member_metadata(info: zipfile.ZipInfo, relative: str) -> None:
@@ -271,6 +300,30 @@ def _read_member(archive: zipfile.ZipFile, info: zipfile.ZipInfo, relative: str)
 
 def _inspect_text(payload: bytes, relative: str) -> None:
     path = Path(relative)
+    if relative.startswith(("tests/fixtures/", "frontend/tests/fixtures/")) and path.suffix in {
+        ".mp4",
+        ".wav",
+        ".bin",
+    }:
+        from scripts.security_audit import (
+            PRIVATE_PATH_PATTERN,
+            PRIVATE_SECRET_PATTERN,
+            SIGNED_QUERY_PATTERN,
+        )
+
+        # CRITICAL: intentionally malformed media is a valid test fixture, but raw binary
+        # bytes must still be screened for operator paths, credentials and signed URLs.
+        binary_text = payload.decode("latin-1")
+        if any(
+            pattern.search(binary_text)
+            for pattern in (
+                PRIVATE_PATH_PATTERN,
+                PRIVATE_SECRET_PATTERN,
+                SIGNED_QUERY_PATTERN,
+            )
+        ):
+            raise RegistryPayloadError("Registry test fixture exposes private content: " + relative)
+        return
     if path.suffix.casefold() not in TEXT_SUFFIXES and path.name.casefold() not in TEXT_NAMES:
         return
     try:
@@ -279,7 +332,20 @@ def _inspect_text(payload: bytes, relative: str) -> None:
         raise RegistryPayloadError(
             f"Registry archive public text is not strict UTF-8: {relative}"
         ) from exc
-    if any(marker in text for marker in FORBIDDEN_CONTENT_MARKERS):
+    code_literal = relative.startswith(
+        ("tests/", "scripts/", "frontend/")
+    ) and path.suffix.casefold() in {".py", ".ts", ".tsx", ".js", ".ps1", ".sh"}
+    policy_literal = relative in {
+        ".comfyignore",
+        ".pre-commit-config.yaml",
+        "frontend/.prettierignore",
+        "tests/fixtures/m8_04_release_matrix.json",
+    }
+    # CRITICAL: negative fixtures and deny-list code name forbidden paths as literals.
+    # Keep the exception source/type-specific; prose/private records must still fail.
+    if not (code_literal or policy_literal) and any(
+        marker in text for marker in FORBIDDEN_CONTENT_MARKERS
+    ):
         raise RegistryPayloadError(
             f"Registry archive public text exposes an internal marker: {relative}"
         )
@@ -350,8 +416,8 @@ def build_registry_payload_report(
                         "Registry archive contains a normalized path collision or duplicate"
                     )
                 seen.add(collision_key)
-                _validate_member_policy(relative)
                 _validate_member_metadata(info, relative)
+                _validate_member_policy(relative)
                 expanded_total += info.file_size
                 if expanded_total > MAX_TOTAL_BYTES:
                     raise RegistryPayloadError(
@@ -396,6 +462,11 @@ def build_registry_payload_report(
     entries.sort(key=lambda entry: str(entry["path"]))
     if sum(entry["path"] == RUNTIME_MEMBER for entry in entries) != 1:
         raise RegistryPayloadError("Registry archive must contain exactly one runtime bundle")
+    try:
+        required = checkout_required_paths(root, tracked)
+        require_present(required, (str(entry["path"]) for entry in entries), phase="Registry ZIP")
+    except (CompletenessError, OSError) as exc:
+        raise RegistryPayloadError(str(exc)) from exc
     return {
         "archive_sha256": archive_digest,
         "archive_size": archive_size,
@@ -424,6 +495,8 @@ def main(argv: list[str] | None = None) -> int:
             if _paths_alias(archive_file, report_path):
                 raise RegistryPayloadError("Registry report path aliases the audited archive")
         report = build_registry_payload_report(args.archive, source_root=args.source_root)
+        root = ROOT if args.source_root is None else validate_directory(args.source_root)
+        smoke_archive(_archive_candidate(args.archive, root), root, report)
         encoded = json.dumps(report, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
         if report_path is not None:
             report_path.write_text(encoded + "\n", encoding="utf-8")
@@ -431,6 +504,7 @@ def main(argv: list[str] | None = None) -> int:
         EOFError,
         OSError,
         RegistryPayloadError,
+        CompletenessError,
         UnicodeDecodeError,
         UnsafePathError,
         zlib.error,

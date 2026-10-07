@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "h3-context://contracts/reconstruction_regression_v1.schema.json",
+  "title": "H3 Context reconstruction regression and clean-install matrix",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "item",
+    "version",
+    "updated_at",
+    "qualification_status",
+    "supported_profile_id",
+    "profiles",
+    "criteria",
+    "regressions",
+    "execution_boundary",
+    "artifact_boundary",
+    "skip_debt",
+    "substitution_guards",
+    "fingerprint"
+  ],
+  "properties": {
+    "schema": {"const": "h3-context-reconstruction-regression/1"},
+    "item": {"const": "M16-02"},
+    "version": {"const": "1.0.0"},
+    "updated_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+    "qualification_status": {"const": "MANUAL_ONLY_SCOPED"},
+    "supported_profile_id": {"const": "supported-c44-v1"},
+    "profiles": {"type": "array", "minItems": 6, "maxItems": 16, "items": {"$ref": "#/$defs/Profile"}},
+    "criteria": {"type": "array", "minItems": 29, "maxItems": 29, "items": {"$ref": "#/$defs/Criterion"}},
+    "regressions": {"type": "array", "minItems": 10, "maxItems": 10, "items": {"$ref": "#/$defs/Regression"}},
+    "execution_boundary": {"$ref": "#/$defs/ExecutionBoundary"},
+    "artifact_boundary": {"$ref": "#/$defs/ArtifactBoundary"},
+    "skip_debt": {"$ref": "#/$defs/SkipDebt"},
+    "substitution_guards": {"$ref": "#/$defs/SubstitutionGuards"},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "Evidence": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 512}
+    },
+    "Execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["network_contacted", "provider_enabled", "model_loaded", "media_opened", "host_started", "native_present"],
+      "properties": {
+        "network_contacted": {"type": "boolean", "const": false},
+        "provider_enabled": {"type": "boolean", "const": false},
+        "model_loaded": {"type": "boolean", "const": false},
+        "media_opened": {"type": "boolean", "const": false},
+        "host_started": {"type": "boolean"},
+        "native_present": {"type": "boolean"}
+      }
+    },
+    "ExecutionBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["network_contacted", "provider_enabled", "model_loaded", "media_opened", "credentials_used"],
+      "properties": {
+        "network_contacted": {"type": "boolean", "const": false},
+        "provider_enabled": {"type": "boolean", "const": false},
+        "model_loaded": {"type": "boolean", "const": false},
+        "media_opened": {"type": "boolean", "const": false},
+        "credentials_used": {"type": "boolean", "const": false}
+      }
+    },
+    "Profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile_id", "route", "disposition", "claim_ceiling", "qualified", "native_required", "evidence_kind", "evidence_refs", "host_version", "host_revision", "frontend_version", "frontend_revision", "node_api", "prompt_socket"],
+      "properties": {
+        "profile_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "route": {"type": "string", "minLength": 1, "maxLength": 64},
+        "disposition": {"enum": ["qualified", "manual_only", "blocked", "unavailable", "unsupported"]},
+        "claim_ceiling": {"type": "string", "minLength": 1, "maxLength": 256},
+        "qualified": {"type": "boolean"},
+        "native_required": {"type": "boolean"},
+        "evidence_kind": {"enum": ["structural_fixture", "host_e2e", "browser_host_probe", "release_artifact", "security_audit", "oracle_disposition", "generation_disposition", "provider_disposition", "manual_boundary"]},
+        "evidence_refs": {"$ref": "#/$defs/Evidence"},
+        "host_version": {"type": "string", "minLength": 1, "maxLength": 32},
+        "host_revision": {"type": "string", "minLength": 1, "maxLength": 64},
+        "frontend_version": {"type": "string", "minLength": 1, "maxLength": 32},
+        "frontend_revision": {"type": "string", "minLength": 1, "maxLength": 64},
+        "node_api": {"type": "string", "minLength": 1, "maxLength": 32},
+        "prompt_socket": {"type": "string", "minLength": 1, "maxLength": 32}
+      }
+    },
+    "Criterion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "status", "disposition", "reason", "claim_ceiling", "evidence_kind", "evidence_refs", "execution", "native_required", "substitution_allowed"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1, "maxLength": 16},
+        "title": {"type": "string", "minLength": 1, "maxLength": 256},
+        "status": {"enum": ["PASS", "BLOCKED", "UNAVAILABLE", "UNSUPPORTED", "NOT_APPLICABLE"]},
+        "disposition": {"enum": ["qualified", "manual_only", "blocked", "unavailable", "unsupported", "not_applicable"]},
+        "reason": {"anyOf": [{"type": "string", "minLength": 1, "maxLength": 512}, {"type": "null"}]},
+        "claim_ceiling": {"type": "string", "minLength": 1, "maxLength": 512},
+        "evidence_kind": {"enum": ["structural_fixture", "host_e2e", "browser_host_probe", "release_artifact", "security_audit", "oracle_disposition", "generation_disposition", "provider_disposition", "manual_boundary"]},
+        "evidence_refs": {"$ref": "#/$defs/Evidence"},
+        "execution": {"$ref": "#/$defs/Execution"},
+        "native_required": {"type": "boolean"},
+        "substitution_allowed": {"const": false}
+      }
+    },
+    "Regression": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "subject_disposition", "assertion", "evidence_kind", "evidence_refs", "execution", "native_required"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "status": {"const": "PASS"},
+        "subject_disposition": {"enum": ["qualified", "manual_only", "blocked", "unavailable", "unsupported", "not_applicable"]},
+        "assertion": {"type": "string", "minLength": 1, "maxLength": 512},
+        "evidence_kind": {"enum": ["structural_fixture", "host_e2e", "browser_host_probe", "release_artifact", "security_audit", "oracle_disposition", "generation_disposition", "provider_disposition", "manual_boundary"]},
+        "evidence_refs": {"$ref": "#/$defs/Evidence"},
+        "execution": {"$ref": "#/$defs/Execution"},
+        "native_required": {"type": "boolean"}
+      }
+    },
+    "SkipDebt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approved_count", "unapproved_count", "items"],
+      "properties": {
+        "approved_count": {"type": "integer", "minimum": 0},
+        "unapproved_count": {"const": 0},
+        "items": {"type": "array", "maxItems": 16, "items": {"$ref": "#/$defs/Skip"}}
+      }
+    },
+    "Skip": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["skip_id", "reason", "status"],
+      "properties": {
+        "skip_id": {"type": "string", "minLength": 1, "maxLength": 128},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 256},
+        "status": {"const": "approved"}
+      }
+    },
+    "SubstitutionGuards": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["native_stripped_qualifies", "fallback_satisfies_native", "latest_satisfies_supported", "ollama_satisfies_native", "generic_registration_satisfies_native", "unavailable_scored_as_pass"],
+      "properties": {
+        "native_stripped_qualifies": {"const": false},
+        "fallback_satisfies_native": {"const": false},
+        "latest_satisfies_supported": {"const": false},
+        "ollama_satisfies_native": {"const": false},
+        "generic_registration_satisfies_native": {"const": false},
+        "unavailable_scored_as_pass": {"const": false}
+      }
+    },
+    "ArtifactBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["clean_install", "coinstallation", "rollback", "one_entry_bundle", "runtime_entry_count", "runtime_entries", "artifact_kinds", "network", "provider_absence", "artifact_hashes_bound", "release_matrix_bound", "evidence_kind", "evidence_refs"],
+      "properties": {
+        "clean_install": {"const": true},
+        "coinstallation": {"const": true},
+        "rollback": {"const": true},
+        "one_entry_bundle": {"const": true},
+        "runtime_entry_count": {"const": 1},
+        "runtime_entries": {"const": ["h3-context-sidebar.js"]},
+        "artifact_kinds": {"const": ["sdist", "direct_wheel", "wheel_from_sdist"]},
+        "network": {"const": "disabled"},
+        "provider_absence": {"const": true},
+        "artifact_hashes_bound": {"const": true},
+        "release_matrix_bound": {"const": true},
+        "evidence_kind": {"const": "release_artifact"},
+        "evidence_refs": {"const": ["scripts/build_gate_report.py", "scripts/release_matrix.py", "scripts/frontend_build_report.py"]}
+      }
+    }
+  }
+}

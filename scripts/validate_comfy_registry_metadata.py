@@ -45,6 +45,9 @@ EXPECTED_INCLUDES = frozenset(
         "README.md",
         "LICENSE",
         "NOTICE",
+        ".pre-commit-config.yaml",
+        ".github/workflows/ci.yml",
+        ".github/workflows/publish.yml",
     }
 )
 SEMVER_PATTERN = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
@@ -244,8 +247,8 @@ def validate_metadata(
     for required in ("README.md", "LICENSE", "NOTICE", "MANIFEST.in", ".comfyignore"):
         if not (root / required).is_file():
             raise MetadataError(f"public packaging file is missing: {required}")
-    # CRITICAL: projected payload intentionally excludes development identities; the default
-    # dev validator still checks all of them. Never fabricate private tooling in the payload.
+    # CRITICAL: validate the identities actually shipped by this source policy. A reduced
+    # projection must never fabricate absent development inputs to satisfy metadata validation.
     validate_public_identity(source_root=root, public_projection=public_projection)
     return version
 

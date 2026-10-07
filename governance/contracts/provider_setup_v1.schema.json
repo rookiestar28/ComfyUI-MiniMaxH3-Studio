@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/provider_setup_v1.schema.json",
+  "title": "H3 Provider Setup v1",
+  "description": "Serializable provider setup containing opaque references but no resolved credential or private endpoint.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "revision",
+    "provider",
+    "local_backend",
+    "destination",
+    "transfer_boundary",
+    "preflight_required",
+    "policy_valid",
+    "diagnostics",
+    "policy",
+    "disclosure",
+    "setup_fingerprint"
+  ],
+  "properties": {
+    "schema": {"const": "h3-context-provider-setup/1"},
+    "revision": {"type": "integer", "minimum": 1, "maximum": 2147483647},
+    "provider": {"enum": ["manual", "local", "remote_custom", "official_minimax"]},
+    "local_backend": {"enum": ["none", "comfyui_native", "ollama"]},
+    "destination": {"enum": ["none", "in_process", "loopback_http", "internet"]},
+    "transfer_boundary": {"enum": ["none", "in_process", "ollama_process", "remote_upload"]},
+    "preflight_required": {"type": "boolean"},
+    "policy_valid": {"type": "boolean"},
+    "diagnostics": {
+      "type": "array",
+      "maxItems": 16,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,255}$"}
+    },
+    "policy": {"$ref": "#/$defs/policy"},
+    "disclosure": {"$ref": "#/$defs/disclosure"},
+    "setup_fingerprint": {"$ref": "#/$defs/fingerprint"}
+  },
+  "$defs": {
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "privacy_mode",
+        "offline",
+        "network_allowed",
+        "upload_consent",
+        "credential_reference",
+        "fallback_provider"
+      ],
+      "properties": {
+        "provider": {"enum": ["manual", "local", "remote_custom", "official_minimax"]},
+        "privacy_mode": {"enum": ["local_only", "explicit_remote"]},
+        "offline": {"type": "boolean"},
+        "network_allowed": {"type": "boolean"},
+        "upload_consent": {"type": "boolean"},
+        "credential_reference": {
+          "oneOf": [
+            {"type": "null"},
+            {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,255}$"}
+          ]
+        },
+        "fallback_provider": {
+          "oneOf": [
+            {"type": "null"},
+            {"enum": ["manual", "local", "remote_custom", "official_minimax"]}
+          ]
+        }
+      }
+    },
+    "disclosure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "network",
+        "media_transfer",
+        "retention",
+        "cost",
+        "credential",
+        "credential_runtime_only",
+        "fallback"
+      ],
+      "properties": {
+        "network": {"enum": ["none", "loopback", "internet"]},
+        "media_transfer": {"enum": ["none", "in_process", "ollama_process", "remote_upload"]},
+        "retention": {"enum": ["none", "local_runtime", "provider_defined", "not_declared"]},
+        "cost": {"enum": ["none", "local_runtime", "provider_pricing", "not_declared"]},
+        "credential": {"enum": ["none", "optional", "required"]},
+        "credential_runtime_only": {"type": "boolean"},
+        "fallback": {"enum": ["never_automatic", "caller_selected_only"]}
+      }
+    }
+  }
+}

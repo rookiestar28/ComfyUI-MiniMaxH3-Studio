@@ -1,0 +1,295 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/av_reconstruction_receipt_v1.schema.json",
+  "title": "AVReconstructionReceipt v1",
+  "description": "The sole portable M17-11 reconstruction receipt. It contains opaque handles and content-free identities only.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "h3.context.av_reconstruction_receipt.v1"
+    },
+    "transaction_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "plan_fingerprint": {
+      "$ref": "#/$defs/fingerprint"
+    },
+    "approval_fingerprint": {
+      "$ref": "#/$defs/fingerprint"
+    },
+    "selective_plan_fingerprint": {
+      "$ref": "#/$defs/fingerprint"
+    },
+    "generation_state_fingerprint": {
+      "$ref": "#/$defs/fingerprint"
+    },
+    "artifact_receipt_fingerprints": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/fingerprint"
+      }
+    },
+    "boundary_receipt_fingerprints": {
+      "type": "array",
+      "maxItems": 63,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/fingerprint"
+      }
+    },
+    "capability_fingerprint": {
+      "$ref": "#/$defs/fingerprint"
+    },
+    "execution_fingerprint": {
+      "$ref": "#/$defs/fingerprint"
+    },
+    "segment_results": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/segmentResult"
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 65,
+      "items": {
+        "$ref": "#/$defs/output"
+      }
+    },
+    "publication_state": {
+      "const": "complete"
+    },
+    "completed_at_ms": {
+      "$ref": "#/$defs/positiveInteger"
+    },
+    "receipt_fingerprint": {
+      "$ref": "#/$defs/fingerprint"
+    }
+  },
+  "required": [
+    "schema",
+    "transaction_id",
+    "plan_fingerprint",
+    "approval_fingerprint",
+    "selective_plan_fingerprint",
+    "generation_state_fingerprint",
+    "artifact_receipt_fingerprints",
+    "boundary_receipt_fingerprints",
+    "capability_fingerprint",
+    "execution_fingerprint",
+    "segment_results",
+    "outputs",
+    "publication_state",
+    "completed_at_ms",
+    "receipt_fingerprint"
+  ],
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "handle": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{15,127}$"
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "positiveInteger": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9999999999999
+    },
+    "rational": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "numerator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9999999999999
+        },
+        "denominator": {
+          "$ref": "#/$defs/positiveInteger"
+        }
+      },
+      "required": [
+        "numerator",
+        "denominator"
+      ]
+    },
+    "accounting": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "decoded_frames": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "carried_frames": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "dropped_frames": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "generated_frames": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "emitted_frames": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "decoded_samples": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "carried_samples": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "dropped_samples": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "inserted_samples": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "emitted_samples": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        }
+      },
+      "required": [
+        "decoded_frames",
+        "carried_frames",
+        "dropped_frames",
+        "generated_frames",
+        "emitted_frames",
+        "decoded_samples",
+        "carried_samples",
+        "dropped_samples",
+        "inserted_samples",
+        "emitted_samples"
+      ]
+    },
+    "operation": {
+      "enum": [
+        "passthrough",
+        "remux",
+        "normalize_video",
+        "normalize_audio",
+        "insert_silence",
+        "drop_leading",
+        "drop_trailing"
+      ]
+    },
+    "segmentResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "segment_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "artifact_receipt_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "operations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 7,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/operation"
+          }
+        },
+        "accounting": {
+          "$ref": "#/$defs/accounting"
+        },
+        "output_start": {
+          "$ref": "#/$defs/rational"
+        },
+        "output_end": {
+          "$ref": "#/$defs/rational"
+        },
+        "derived_output_handle": {
+          "$ref": "#/$defs/handle"
+        }
+      },
+      "required": [
+        "segment_id",
+        "artifact_receipt_fingerprint",
+        "operations",
+        "accounting",
+        "output_start",
+        "output_end"
+      ]
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "handle": {
+          "$ref": "#/$defs/handle"
+        },
+        "kind": {
+          "enum": [
+            "reconstruction_full",
+            "segment_export"
+          ]
+        },
+        "byte_length": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4294967296
+        },
+        "content_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "video_frame_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000000
+        },
+        "audio_sample_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "duration": {
+          "$ref": "#/$defs/rational"
+        }
+      },
+      "required": [
+        "handle",
+        "kind",
+        "byte_length",
+        "content_fingerprint",
+        "video_frame_count",
+        "audio_sample_count",
+        "duration"
+      ]
+    }
+  }
+}

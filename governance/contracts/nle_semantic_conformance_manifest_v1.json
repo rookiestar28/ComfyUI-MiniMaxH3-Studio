@@ -1,0 +1,2538 @@
+{
+  "schema": "h3.context.nle_semantic_conformance_manifest.v1",
+  "version": 1,
+  "corpus_version": "nle_semantic_corpus.v1",
+  "tolerance_version": "nle_semantic_tolerance.v1",
+  "operation_profile_id": "h3.authoring.nle_operation.v1",
+  "engine_profile_id": "h3.native_media_canvas_backend.v1",
+  "output_profile_id": "h3.authoring.output.h264_aac_24fps.v1",
+  "joined_sources": {
+    "control_coverage_manifest_sha256": "sha256:921399a9f7d1aa9f3aea76fc25c90b89e9a0c8f0fefbb22018a4ba165c5323d9",
+    "sidebar_editor_ui_contract_sha256": "sha256:3a0bba2e967f413fafef6784b3a9691811a9fb390a271bac882ff8aadf68eede"
+  },
+  "limits": {
+    "max_corpus_cases": 512,
+    "max_case_payload_bytes": 131072,
+    "max_report_bytes": 67108864,
+    "max_case_output_frames": 384
+  },
+  "tolerance": {
+    "version": "nle_semantic_tolerance.v1",
+    "preview_max_av_drift_samples": 2000,
+    "final_impulse_tolerance_samples": 2048,
+    "geometry_max_abs_pixels": 2,
+    "text_bounds_max_abs_pixels": 2,
+    "patch_max_abs_channel": 8,
+    "color_adjust_max_abs_channel": 12,
+    "patch_size_px": 5,
+    "patch_min_edge_distance_px": 4,
+    "alpha_max_abs_error_milli": 30,
+    "silence_max_abs_peak": 1,
+    "codec_boundary_exclusion_samples": 2048,
+    "duration_max_abs_samples": 1,
+    "audio_level_relative_error_ppm": 50000,
+    "audio_level_floor_ppm": 100
+  },
+  "counts_by_class": {
+    "command": 68,
+    "property": 240,
+    "ui_invariant": 11,
+    "import_integration": 2,
+    "deferred_negative": 13
+  },
+  "command_rows": [
+    {
+      "case_id": "command.create_track.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "create_track",
+      "control_operation_id": "track.add"
+    },
+    {
+      "case_id": "command.create_track.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "create_track",
+      "control_operation_id": "track.add"
+    },
+    {
+      "case_id": "command.remove_track.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "remove_track",
+      "control_operation_id": "track.remove"
+    },
+    {
+      "case_id": "command.remove_track.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "remove_track",
+      "control_operation_id": "track.remove"
+    },
+    {
+      "case_id": "command.reorder_track.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "reorder_track",
+      "control_operation_id": "track.reorder"
+    },
+    {
+      "case_id": "command.reorder_track.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "reorder_track",
+      "control_operation_id": "track.reorder"
+    },
+    {
+      "case_id": "command.set_track_enabled.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "set_track_enabled",
+      "control_operation_id": "track.enabled"
+    },
+    {
+      "case_id": "command.set_track_enabled.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "set_track_enabled",
+      "control_operation_id": "track.enabled"
+    },
+    {
+      "case_id": "command.set_track_locked.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "set_track_locked",
+      "control_operation_id": "track.locked"
+    },
+    {
+      "case_id": "command.set_track_locked.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "set_track_locked",
+      "control_operation_id": "track.locked"
+    },
+    {
+      "case_id": "command.insert_asset_clip.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "insert_asset_clip",
+      "control_operation_id": "asset.insert"
+    },
+    {
+      "case_id": "command.insert_asset_clip.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "insert_asset_clip",
+      "control_operation_id": "asset.insert"
+    },
+    {
+      "case_id": "command.insert_title_clip.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "insert_title_clip",
+      "control_operation_id": "title.insert"
+    },
+    {
+      "case_id": "command.insert_title_clip.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "insert_title_clip",
+      "control_operation_id": "title.insert"
+    },
+    {
+      "case_id": "command.replace_clip_asset.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "replace_clip_asset",
+      "control_operation_id": "asset.replace"
+    },
+    {
+      "case_id": "command.replace_clip_asset.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "replace_clip_asset",
+      "control_operation_id": "asset.replace"
+    },
+    {
+      "case_id": "command.remove_clip.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "remove_clip",
+      "control_operation_id": "clip.remove"
+    },
+    {
+      "case_id": "command.remove_clip.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "remove_clip",
+      "control_operation_id": "clip.remove"
+    },
+    {
+      "case_id": "command.move_clip.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "move_clip",
+      "control_operation_id": "clip.move"
+    },
+    {
+      "case_id": "command.move_clip.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "move_clip",
+      "control_operation_id": "clip.move"
+    },
+    {
+      "case_id": "command.move_group.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "move_group",
+      "control_operation_id": "clip.move_group"
+    },
+    {
+      "case_id": "command.move_group.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "move_group",
+      "control_operation_id": "clip.move_group"
+    },
+    {
+      "case_id": "command.trim_clip.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "trim_clip",
+      "control_operation_id": "clip.trim"
+    },
+    {
+      "case_id": "command.trim_clip.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "trim_clip",
+      "control_operation_id": "clip.trim"
+    },
+    {
+      "case_id": "command.split_clip.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "split_clip",
+      "control_operation_id": "clip.split"
+    },
+    {
+      "case_id": "command.split_clip.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "split_clip",
+      "control_operation_id": "clip.split"
+    },
+    {
+      "case_id": "command.merge_clips.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "merge_clips",
+      "control_operation_id": "clip.merge"
+    },
+    {
+      "case_id": "command.merge_clips.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "merge_clips",
+      "control_operation_id": "clip.merge"
+    },
+    {
+      "case_id": "command.insert_range.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "insert_range",
+      "control_operation_id": "range.insert"
+    },
+    {
+      "case_id": "command.insert_range.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "insert_range",
+      "control_operation_id": "range.insert"
+    },
+    {
+      "case_id": "command.overwrite_range.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "overwrite_range",
+      "control_operation_id": "range.overwrite"
+    },
+    {
+      "case_id": "command.overwrite_range.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "overwrite_range",
+      "control_operation_id": "range.overwrite"
+    },
+    {
+      "case_id": "command.ripple_delete.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "ripple_delete",
+      "control_operation_id": "range.ripple_delete"
+    },
+    {
+      "case_id": "command.ripple_delete.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "ripple_delete",
+      "control_operation_id": "range.ripple_delete"
+    },
+    {
+      "case_id": "command.ripple_trim.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "ripple_trim",
+      "control_operation_id": "range.ripple_trim"
+    },
+    {
+      "case_id": "command.ripple_trim.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "ripple_trim",
+      "control_operation_id": "range.ripple_trim"
+    },
+    {
+      "case_id": "command.roll_edit.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "roll_edit",
+      "control_operation_id": "boundary.roll"
+    },
+    {
+      "case_id": "command.roll_edit.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "roll_edit",
+      "control_operation_id": "boundary.roll"
+    },
+    {
+      "case_id": "command.slip_clip.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "slip_clip",
+      "control_operation_id": "clip.slip"
+    },
+    {
+      "case_id": "command.slip_clip.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "slip_clip",
+      "control_operation_id": "clip.slip"
+    },
+    {
+      "case_id": "command.slide_clip.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "slide_clip",
+      "control_operation_id": "clip.slide"
+    },
+    {
+      "case_id": "command.slide_clip.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "slide_clip",
+      "control_operation_id": "clip.slide"
+    },
+    {
+      "case_id": "command.set_clip_enabled.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "set_clip_enabled",
+      "control_operation_id": "clip.enabled"
+    },
+    {
+      "case_id": "command.set_clip_enabled.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "set_clip_enabled",
+      "control_operation_id": "clip.enabled"
+    },
+    {
+      "case_id": "command.set_visual_transform.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "set_visual_transform",
+      "control_operation_id": "visual.transform"
+    },
+    {
+      "case_id": "command.set_visual_transform.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "set_visual_transform",
+      "control_operation_id": "visual.transform"
+    },
+    {
+      "case_id": "command.set_crop.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "set_crop",
+      "control_operation_id": "visual.crop"
+    },
+    {
+      "case_id": "command.set_crop.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "set_crop",
+      "control_operation_id": "visual.crop"
+    },
+    {
+      "case_id": "command.set_opacity_blend.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "set_opacity_blend",
+      "control_operation_id": "visual.opacity_blend"
+    },
+    {
+      "case_id": "command.set_opacity_blend.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "set_opacity_blend",
+      "control_operation_id": "visual.opacity_blend"
+    },
+    {
+      "case_id": "command.set_text_content.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "set_text_content",
+      "control_operation_id": "text.content"
+    },
+    {
+      "case_id": "command.set_text_content.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "set_text_content",
+      "control_operation_id": "text.content"
+    },
+    {
+      "case_id": "command.set_text_style.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "set_text_style",
+      "control_operation_id": "text.style"
+    },
+    {
+      "case_id": "command.set_text_style.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "set_text_style",
+      "control_operation_id": "text.style"
+    },
+    {
+      "case_id": "command.set_transition.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "set_transition",
+      "control_operation_id": "boundary.transition"
+    },
+    {
+      "case_id": "command.set_transition.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "set_transition",
+      "control_operation_id": "boundary.transition"
+    },
+    {
+      "case_id": "command.set_effect.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "set_effect",
+      "control_operation_id": "visual.effect"
+    },
+    {
+      "case_id": "command.set_effect.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "set_effect",
+      "control_operation_id": "visual.effect"
+    },
+    {
+      "case_id": "command.set_clip_audio.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "set_clip_audio",
+      "control_operation_id": "audio.clip"
+    },
+    {
+      "case_id": "command.set_clip_audio.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "set_clip_audio",
+      "control_operation_id": "audio.clip"
+    },
+    {
+      "case_id": "command.select_clips.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "select_clips",
+      "control_operation_id": "selection.set"
+    },
+    {
+      "case_id": "command.select_clips.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "select_clips",
+      "control_operation_id": "selection.set"
+    },
+    {
+      "case_id": "command.undo.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "undo",
+      "control_operation_id": "history.undo"
+    },
+    {
+      "case_id": "command.undo.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "undo",
+      "control_operation_id": "history.undo"
+    },
+    {
+      "case_id": "command.redo.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "redo",
+      "control_operation_id": "history.redo"
+    },
+    {
+      "case_id": "command.redo.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "redo",
+      "control_operation_id": "history.redo"
+    },
+    {
+      "case_id": "command.rebase_transaction.accepted",
+      "family": "command",
+      "leaf": "accepted",
+      "supported": true,
+      "refusal_expected": false,
+      "command": "rebase_transaction",
+      "control_operation_id": "conflict.rebase"
+    },
+    {
+      "case_id": "command.rebase_transaction.refused",
+      "family": "command",
+      "leaf": "refused",
+      "supported": true,
+      "refusal_expected": true,
+      "command": "rebase_transaction",
+      "control_operation_id": "conflict.rebase"
+    }
+  ],
+  "property_rows": [
+    {
+      "case_id": "transform.anchor_x_bp.identity",
+      "family": "transform",
+      "leaf": "anchor_x_bp.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.anchor_x_bp.interior",
+      "family": "transform",
+      "leaf": "anchor_x_bp.interior",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.anchor_x_bp.lower",
+      "family": "transform",
+      "leaf": "anchor_x_bp.lower",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.anchor_x_bp.upper",
+      "family": "transform",
+      "leaf": "anchor_x_bp.upper",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.anchor_x_bp.underflow",
+      "family": "transform",
+      "leaf": "anchor_x_bp.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "transform.anchor_x_bp.overflow",
+      "family": "transform",
+      "leaf": "anchor_x_bp.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "transform.anchor_y_bp.identity",
+      "family": "transform",
+      "leaf": "anchor_y_bp.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.anchor_y_bp.interior",
+      "family": "transform",
+      "leaf": "anchor_y_bp.interior",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.anchor_y_bp.lower",
+      "family": "transform",
+      "leaf": "anchor_y_bp.lower",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.anchor_y_bp.upper",
+      "family": "transform",
+      "leaf": "anchor_y_bp.upper",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.anchor_y_bp.underflow",
+      "family": "transform",
+      "leaf": "anchor_y_bp.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "transform.anchor_y_bp.overflow",
+      "family": "transform",
+      "leaf": "anchor_y_bp.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "transform.position_x_bp.identity",
+      "family": "transform",
+      "leaf": "position_x_bp.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.position_x_bp.interior",
+      "family": "transform",
+      "leaf": "position_x_bp.interior",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.position_x_bp.lower",
+      "family": "transform",
+      "leaf": "position_x_bp.lower",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.position_x_bp.upper",
+      "family": "transform",
+      "leaf": "position_x_bp.upper",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.position_x_bp.underflow",
+      "family": "transform",
+      "leaf": "position_x_bp.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "transform.position_x_bp.overflow",
+      "family": "transform",
+      "leaf": "position_x_bp.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "transform.position_y_bp.identity",
+      "family": "transform",
+      "leaf": "position_y_bp.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.position_y_bp.interior",
+      "family": "transform",
+      "leaf": "position_y_bp.interior",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.position_y_bp.lower",
+      "family": "transform",
+      "leaf": "position_y_bp.lower",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.position_y_bp.upper",
+      "family": "transform",
+      "leaf": "position_y_bp.upper",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.position_y_bp.underflow",
+      "family": "transform",
+      "leaf": "position_y_bp.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "transform.position_y_bp.overflow",
+      "family": "transform",
+      "leaf": "position_y_bp.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "transform.scale_x_bp.identity",
+      "family": "transform",
+      "leaf": "scale_x_bp.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.scale_x_bp.interior",
+      "family": "transform",
+      "leaf": "scale_x_bp.interior",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.scale_x_bp.lower",
+      "family": "transform",
+      "leaf": "scale_x_bp.lower",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.scale_x_bp.upper",
+      "family": "transform",
+      "leaf": "scale_x_bp.upper",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.scale_x_bp.underflow",
+      "family": "transform",
+      "leaf": "scale_x_bp.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "transform.scale_x_bp.overflow",
+      "family": "transform",
+      "leaf": "scale_x_bp.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "transform.scale_y_bp.identity",
+      "family": "transform",
+      "leaf": "scale_y_bp.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.scale_y_bp.interior",
+      "family": "transform",
+      "leaf": "scale_y_bp.interior",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.scale_y_bp.lower",
+      "family": "transform",
+      "leaf": "scale_y_bp.lower",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.scale_y_bp.upper",
+      "family": "transform",
+      "leaf": "scale_y_bp.upper",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.scale_y_bp.underflow",
+      "family": "transform",
+      "leaf": "scale_y_bp.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "transform.scale_y_bp.overflow",
+      "family": "transform",
+      "leaf": "scale_y_bp.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "transform.rotation_mdeg.identity",
+      "family": "transform",
+      "leaf": "rotation_mdeg.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.rotation_mdeg.interior",
+      "family": "transform",
+      "leaf": "rotation_mdeg.interior",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.rotation_mdeg.lower",
+      "family": "transform",
+      "leaf": "rotation_mdeg.lower",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.rotation_mdeg.upper",
+      "family": "transform",
+      "leaf": "rotation_mdeg.upper",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transform.rotation_mdeg.underflow",
+      "family": "transform",
+      "leaf": "rotation_mdeg.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "transform.rotation_mdeg.overflow",
+      "family": "transform",
+      "leaf": "rotation_mdeg.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "crop.left_bp.absent",
+      "family": "crop",
+      "leaf": "left_bp.absent",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "crop.left_bp.legal_nonzero",
+      "family": "crop",
+      "leaf": "left_bp.legal_nonzero",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "crop.left_bp.source_edge_observed",
+      "family": "crop",
+      "leaf": "left_bp.source_edge_observed",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "crop.left_bp.full_removal_refused",
+      "family": "crop",
+      "leaf": "left_bp.full_removal_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "crop.top_bp.absent",
+      "family": "crop",
+      "leaf": "top_bp.absent",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "crop.top_bp.legal_nonzero",
+      "family": "crop",
+      "leaf": "top_bp.legal_nonzero",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "crop.top_bp.source_edge_observed",
+      "family": "crop",
+      "leaf": "top_bp.source_edge_observed",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "crop.top_bp.full_removal_refused",
+      "family": "crop",
+      "leaf": "top_bp.full_removal_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "crop.right_bp.absent",
+      "family": "crop",
+      "leaf": "right_bp.absent",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "crop.right_bp.legal_nonzero",
+      "family": "crop",
+      "leaf": "right_bp.legal_nonzero",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "crop.right_bp.source_edge_observed",
+      "family": "crop",
+      "leaf": "right_bp.source_edge_observed",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "crop.right_bp.full_removal_refused",
+      "family": "crop",
+      "leaf": "right_bp.full_removal_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "crop.bottom_bp.absent",
+      "family": "crop",
+      "leaf": "bottom_bp.absent",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "crop.bottom_bp.legal_nonzero",
+      "family": "crop",
+      "leaf": "bottom_bp.legal_nonzero",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "crop.bottom_bp.source_edge_observed",
+      "family": "crop",
+      "leaf": "bottom_bp.source_edge_observed",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "crop.bottom_bp.full_removal_refused",
+      "family": "crop",
+      "leaf": "bottom_bp.full_removal_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "crop.sum_horizontal_refused",
+      "family": "crop",
+      "leaf": "sum_horizontal_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "crop.sum_vertical_refused",
+      "family": "crop",
+      "leaf": "sum_vertical_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "opacity_blend.opacity.transparent",
+      "family": "opacity_blend",
+      "leaf": "opacity.transparent",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "opacity_blend.opacity.half",
+      "family": "opacity_blend",
+      "leaf": "opacity.half",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "opacity_blend.opacity.opaque",
+      "family": "opacity_blend",
+      "leaf": "opacity.opaque",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "opacity_blend.opacity.underflow",
+      "family": "opacity_blend",
+      "leaf": "opacity.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "opacity_blend.opacity.overflow",
+      "family": "opacity_blend",
+      "leaf": "opacity.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "opacity_blend.blend.normal",
+      "family": "opacity_blend",
+      "leaf": "blend.normal",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "opacity_blend.blend.multiply",
+      "family": "opacity_blend",
+      "leaf": "blend.multiply",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "opacity_blend.blend.screen",
+      "family": "opacity_blend",
+      "leaf": "blend.screen",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "opacity_blend.blend.invalid_refused",
+      "family": "opacity_blend",
+      "leaf": "blend.invalid_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "text.content.identity",
+      "family": "text",
+      "leaf": "content.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.content.nfc_composed",
+      "family": "text",
+      "leaf": "content.nfc_composed",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.content.newline",
+      "family": "text",
+      "leaf": "content.newline",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.content.tab_expansion",
+      "family": "text",
+      "leaf": "content.tab_expansion",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.content.underflow",
+      "family": "text",
+      "leaf": "content.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "text.content.overflow",
+      "family": "text",
+      "leaf": "content.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "text.content.control_refused",
+      "family": "text",
+      "leaf": "content.control_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "text.content.non_nfc_refused",
+      "family": "text",
+      "leaf": "content.non_nfc_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "text.content.line_count_overflow",
+      "family": "text",
+      "leaf": "content.line_count_overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "text.font.qualified",
+      "family": "text",
+      "leaf": "font.qualified",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.font.fallback",
+      "family": "text",
+      "leaf": "font.fallback",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.font.unsupported_glyph",
+      "family": "text",
+      "leaf": "font.unsupported_glyph",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "text.size_px.identity",
+      "family": "text",
+      "leaf": "size_px.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.size_px.interior",
+      "family": "text",
+      "leaf": "size_px.interior",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.size_px.lower",
+      "family": "text",
+      "leaf": "size_px.lower",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.size_px.upper",
+      "family": "text",
+      "leaf": "size_px.upper",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.size_px.underflow",
+      "family": "text",
+      "leaf": "size_px.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "text.size_px.overflow",
+      "family": "text",
+      "leaf": "size_px.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "text.line_height_bp.identity",
+      "family": "text",
+      "leaf": "line_height_bp.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.line_height_bp.interior",
+      "family": "text",
+      "leaf": "line_height_bp.interior",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.line_height_bp.lower",
+      "family": "text",
+      "leaf": "line_height_bp.lower",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.line_height_bp.upper",
+      "family": "text",
+      "leaf": "line_height_bp.upper",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.line_height_bp.underflow",
+      "family": "text",
+      "leaf": "line_height_bp.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "text.line_height_bp.overflow",
+      "family": "text",
+      "leaf": "line_height_bp.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "text.weight.400",
+      "family": "text",
+      "leaf": "weight.400",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.weight.700",
+      "family": "text",
+      "leaf": "weight.700",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.weight.unsupported_refused",
+      "family": "text",
+      "leaf": "weight.unsupported_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "text.style.normal",
+      "family": "text",
+      "leaf": "style.normal",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.style.italic",
+      "family": "text",
+      "leaf": "style.italic",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.align.left",
+      "family": "text",
+      "leaf": "align.left",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.align.center",
+      "family": "text",
+      "leaf": "align.center",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.align.right",
+      "family": "text",
+      "leaf": "align.right",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.fill_rgba.identity",
+      "family": "text",
+      "leaf": "fill_rgba.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.fill_rgba.interior",
+      "family": "text",
+      "leaf": "fill_rgba.interior",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.fill_rgba.channel_overflow_refused",
+      "family": "text",
+      "leaf": "fill_rgba.channel_overflow_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "text.background_rgba.absent",
+      "family": "text",
+      "leaf": "background_rgba.absent",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.background_rgba.present",
+      "family": "text",
+      "leaf": "background_rgba.present",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "text.background_rgba.channel_overflow_refused",
+      "family": "text",
+      "leaf": "background_rgba.channel_overflow_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "transition.none_identity",
+      "family": "transition",
+      "leaf": "none_identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transition.cross_dissolve_legal",
+      "family": "transition",
+      "leaf": "cross_dissolve_legal",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transition.first_included_frame",
+      "family": "transition",
+      "leaf": "first_included_frame",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transition.interior_frame",
+      "family": "transition",
+      "leaf": "interior_frame",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transition.last_included_frame",
+      "family": "transition",
+      "leaf": "last_included_frame",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transition.exclusive_end",
+      "family": "transition",
+      "leaf": "exclusive_end",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transition.alpha_progression",
+      "family": "transition",
+      "leaf": "alpha_progression",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transition.duration_lower",
+      "family": "transition",
+      "leaf": "duration_lower",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transition.duration_upper",
+      "family": "transition",
+      "leaf": "duration_upper",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "transition.duration_underflow",
+      "family": "transition",
+      "leaf": "duration_underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "transition.duration_overflow",
+      "family": "transition",
+      "leaf": "duration_overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "transition.participant_invalid",
+      "family": "transition",
+      "leaf": "participant_invalid",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "effect.kind.none",
+      "family": "effect",
+      "leaf": "kind.none",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "effect.kind.color_adjust_v1",
+      "family": "effect",
+      "leaf": "kind.color_adjust_v1",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "effect.kind.none_identity_refused",
+      "family": "effect",
+      "leaf": "kind.none_identity_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "effect.brightness_permille.identity",
+      "family": "effect",
+      "leaf": "brightness_permille.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "effect.brightness_permille.interior",
+      "family": "effect",
+      "leaf": "brightness_permille.interior",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "effect.brightness_permille.lower",
+      "family": "effect",
+      "leaf": "brightness_permille.lower",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "effect.brightness_permille.upper",
+      "family": "effect",
+      "leaf": "brightness_permille.upper",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "effect.brightness_permille.underflow",
+      "family": "effect",
+      "leaf": "brightness_permille.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "effect.brightness_permille.overflow",
+      "family": "effect",
+      "leaf": "brightness_permille.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "effect.contrast_permille.identity",
+      "family": "effect",
+      "leaf": "contrast_permille.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "effect.contrast_permille.interior",
+      "family": "effect",
+      "leaf": "contrast_permille.interior",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "effect.contrast_permille.lower",
+      "family": "effect",
+      "leaf": "contrast_permille.lower",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "effect.contrast_permille.upper",
+      "family": "effect",
+      "leaf": "contrast_permille.upper",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "effect.contrast_permille.underflow",
+      "family": "effect",
+      "leaf": "contrast_permille.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "effect.contrast_permille.overflow",
+      "family": "effect",
+      "leaf": "contrast_permille.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "effect.saturation_permille.identity",
+      "family": "effect",
+      "leaf": "saturation_permille.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "effect.saturation_permille.interior",
+      "family": "effect",
+      "leaf": "saturation_permille.interior",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "effect.saturation_permille.lower",
+      "family": "effect",
+      "leaf": "saturation_permille.lower",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "effect.saturation_permille.upper",
+      "family": "effect",
+      "leaf": "saturation_permille.upper",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "effect.saturation_permille.underflow",
+      "family": "effect",
+      "leaf": "saturation_permille.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "effect.saturation_permille.overflow",
+      "family": "effect",
+      "leaf": "saturation_permille.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "timing.cfr_24",
+      "family": "timing",
+      "leaf": "cfr_24",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "timing.source_rate_different",
+      "family": "timing",
+      "leaf": "source_rate_different",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "timing.vfr_unequal_intervals",
+      "family": "timing",
+      "leaf": "vfr_unequal_intervals",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "timing.source_in",
+      "family": "timing",
+      "leaf": "source_in",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "timing.source_out",
+      "family": "timing",
+      "leaf": "source_out",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "timing.gap",
+      "family": "timing",
+      "leaf": "gap",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "timing.cut",
+      "family": "timing",
+      "leaf": "cut",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "timing.last_included_frame",
+      "family": "timing",
+      "leaf": "last_included_frame",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "timing.exclusive_end",
+      "family": "timing",
+      "leaf": "exclusive_end",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "timing.negative_pts",
+      "family": "timing",
+      "leaf": "negative_pts",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "timing.missing_landmark",
+      "family": "timing",
+      "leaf": "missing_landmark",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "timing.duplicate_landmark",
+      "family": "timing",
+      "leaf": "duplicate_landmark",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "timing.nonmonotonic_landmark",
+      "family": "timing",
+      "leaf": "nonmonotonic_landmark",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "timing.source_range_unavailable",
+      "family": "timing",
+      "leaf": "source_range_unavailable",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "output.dimensions_square",
+      "family": "output",
+      "leaf": "dimensions_square",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "output.dimensions_nonsquare",
+      "family": "output",
+      "leaf": "dimensions_nonsquare",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "output.dimensions_minimum",
+      "family": "output",
+      "leaf": "dimensions_minimum",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "output.dimensions_maximum",
+      "family": "output",
+      "leaf": "dimensions_maximum",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "output.dimensions_odd_refused",
+      "family": "output",
+      "leaf": "dimensions_odd_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "output.dimensions_underflow_refused",
+      "family": "output",
+      "leaf": "dimensions_underflow_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "output.dimensions_overflow_refused",
+      "family": "output",
+      "leaf": "dimensions_overflow_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "output.dimensions_area_overflow_refused",
+      "family": "output",
+      "leaf": "dimensions_area_overflow_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "output.color_policy_bt709_sdr_limited",
+      "family": "output",
+      "leaf": "color_policy_bt709_sdr_limited",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "output.color_policy_refused",
+      "family": "output",
+      "leaf": "color_policy_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "output.frame_grid_exact_24",
+      "family": "output",
+      "leaf": "frame_grid_exact_24",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "output.container_mp4",
+      "family": "output",
+      "leaf": "container_mp4",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "output.container_refused",
+      "family": "output",
+      "leaf": "container_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "output.video_codec_h264",
+      "family": "output",
+      "leaf": "video_codec_h264",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "output.video_codec_refused",
+      "family": "output",
+      "leaf": "video_codec_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "output.pixel_format_yuv420p",
+      "family": "output",
+      "leaf": "pixel_format_yuv420p",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "output.pixel_aspect_identity",
+      "family": "output",
+      "leaf": "pixel_aspect_identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "output.pixel_aspect_refused",
+      "family": "output",
+      "leaf": "pixel_aspect_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "embedded_audio.primary_audible",
+      "family": "embedded_audio",
+      "leaf": "primary_audible",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "embedded_audio.primary_without_audio",
+      "family": "embedded_audio",
+      "leaf": "primary_without_audio",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "embedded_audio.hard_cut",
+      "family": "embedded_audio",
+      "leaf": "hard_cut",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "embedded_audio.silence_gap",
+      "family": "embedded_audio",
+      "leaf": "silence_gap",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "embedded_audio.primary_disabled",
+      "family": "embedded_audio",
+      "leaf": "primary_disabled",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "embedded_audio.overlay_excluded",
+      "family": "embedded_audio",
+      "leaf": "overlay_excluded",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "embedded_audio.overlay_same_source_no_doubling",
+      "family": "embedded_audio",
+      "leaf": "overlay_same_source_no_doubling",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "embedded_audio.trim_owner_range",
+      "family": "embedded_audio",
+      "leaf": "trim_owner_range",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "embedded_audio.slip_owner_range",
+      "family": "embedded_audio",
+      "leaf": "slip_owner_range",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "embedded_audio.ripple_owner_range",
+      "family": "embedded_audio",
+      "leaf": "ripple_owner_range",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "embedded_audio.roll_owner_range",
+      "family": "embedded_audio",
+      "leaf": "roll_owner_range",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "embedded_audio.undo_owner_range",
+      "family": "embedded_audio",
+      "leaf": "undo_owner_range",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "embedded_audio.redo_owner_range",
+      "family": "embedded_audio",
+      "leaf": "redo_owner_range",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "embedded_audio.visual_only_mapping_preserved",
+      "family": "embedded_audio",
+      "leaf": "visual_only_mapping_preserved",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "edge_trim.edge_trim_start_in",
+      "family": "edge_trim",
+      "leaf": "edge_trim_start_in",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "edge_trim.edge_trim_start_out",
+      "family": "edge_trim",
+      "leaf": "edge_trim_start_out",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "edge_trim.edge_trim_end_in",
+      "family": "edge_trim",
+      "leaf": "edge_trim_end_in",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "edge_trim.edge_trim_end_out",
+      "family": "edge_trim",
+      "leaf": "edge_trim_end_out",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "edge_trim.edge_trim_bounds_timing",
+      "family": "edge_trim",
+      "leaf": "edge_trim_bounds_timing",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "edge_trim.edge_trim_transition_audio",
+      "family": "edge_trim",
+      "leaf": "edge_trim_transition_audio",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "edge_trim.opposite_edge_invariant",
+      "family": "edge_trim",
+      "leaf": "opposite_edge_invariant",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "edge_trim.non_target_clip_invariant",
+      "family": "edge_trim",
+      "leaf": "non_target_clip_invariant",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "edge_trim.source_pts_boundary",
+      "family": "edge_trim",
+      "leaf": "source_pts_boundary",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "edge_trim.incoming_transition_removed",
+      "family": "edge_trim",
+      "leaf": "incoming_transition_removed",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "edge_trim.invalid_transition_refused",
+      "family": "edge_trim",
+      "leaf": "invalid_transition_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "edge_trim.embedded_audio_follow",
+      "family": "edge_trim",
+      "leaf": "embedded_audio_follow",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "edge_trim.draft_cancelled",
+      "family": "edge_trim",
+      "leaf": "draft_cancelled",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "edge_trim.draft_no_op",
+      "family": "edge_trim",
+      "leaf": "draft_no_op",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "edge_trim.draft_refused",
+      "family": "edge_trim",
+      "leaf": "draft_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "edge_trim.undo",
+      "family": "edge_trim",
+      "leaf": "undo",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "edge_trim.redo",
+      "family": "edge_trim",
+      "leaf": "redo",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "history_currentness.selection_invariant",
+      "family": "history_currentness",
+      "leaf": "selection_invariant",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "history_currentness.lock_invariant",
+      "family": "history_currentness",
+      "leaf": "lock_invariant",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "history_currentness.inverse",
+      "family": "history_currentness",
+      "leaf": "inverse",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "history_currentness.replay",
+      "family": "history_currentness",
+      "leaf": "replay",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "history_currentness.explicit_rebase",
+      "family": "history_currentness",
+      "leaf": "explicit_rebase",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "history_currentness.stale_snapshot_refused",
+      "family": "history_currentness",
+      "leaf": "stale_snapshot_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "history_currentness.source_replaced_refused",
+      "family": "history_currentness",
+      "leaf": "source_replaced_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "history_currentness.output_replaced_refused",
+      "family": "history_currentness",
+      "leaf": "output_replaced_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "history_currentness.old_output_accepted_label",
+      "family": "history_currentness",
+      "leaf": "old_output_accepted_label",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "history_currentness.unknown_outcome_pending",
+      "family": "history_currentness",
+      "leaf": "unknown_outcome_pending",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "history_currentness.unknown_outcome_failed",
+      "family": "history_currentness",
+      "leaf": "unknown_outcome_failed",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "high_resolution.layer.primary_video",
+      "family": "high_resolution",
+      "leaf": "layer.primary_video",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "high_resolution.layer.video_overlay",
+      "family": "high_resolution",
+      "leaf": "layer.video_overlay",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "high_resolution.layer.image_overlay",
+      "family": "high_resolution",
+      "leaf": "layer.image_overlay",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "high_resolution.layer.text_overlay",
+      "family": "high_resolution",
+      "leaf": "layer.text_overlay",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "clip_audio.gain_mb.identity",
+      "family": "clip_audio",
+      "leaf": "gain_mb.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "clip_audio.gain_mb.interior",
+      "family": "clip_audio",
+      "leaf": "gain_mb.interior",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "clip_audio.gain_mb.lower",
+      "family": "clip_audio",
+      "leaf": "gain_mb.lower",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "clip_audio.gain_mb.upper",
+      "family": "clip_audio",
+      "leaf": "gain_mb.upper",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "clip_audio.gain_mb.underflow",
+      "family": "clip_audio",
+      "leaf": "gain_mb.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "clip_audio.gain_mb.overflow",
+      "family": "clip_audio",
+      "leaf": "gain_mb.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "clip_audio.fade_in_frames.identity",
+      "family": "clip_audio",
+      "leaf": "fade_in_frames.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "clip_audio.fade_in_frames.interior",
+      "family": "clip_audio",
+      "leaf": "fade_in_frames.interior",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "clip_audio.fade_in_frames.upper",
+      "family": "clip_audio",
+      "leaf": "fade_in_frames.upper",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "clip_audio.fade_in_frames.underflow",
+      "family": "clip_audio",
+      "leaf": "fade_in_frames.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "clip_audio.fade_in_frames.overflow",
+      "family": "clip_audio",
+      "leaf": "fade_in_frames.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "clip_audio.fade_out_frames.identity",
+      "family": "clip_audio",
+      "leaf": "fade_out_frames.identity",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "clip_audio.fade_out_frames.interior",
+      "family": "clip_audio",
+      "leaf": "fade_out_frames.interior",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "clip_audio.fade_out_frames.upper",
+      "family": "clip_audio",
+      "leaf": "fade_out_frames.upper",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "clip_audio.fade_out_frames.underflow",
+      "family": "clip_audio",
+      "leaf": "fade_out_frames.underflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "clip_audio.fade_out_frames.overflow",
+      "family": "clip_audio",
+      "leaf": "fade_out_frames.overflow",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "clip_audio.muted",
+      "family": "clip_audio",
+      "leaf": "muted",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "clip_audio.combination",
+      "family": "clip_audio",
+      "leaf": "combination",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "clip_audio.handoff_inside_fade_out",
+      "family": "clip_audio",
+      "leaf": "handoff_inside_fade_out",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "clip_audio.handback_inside_fade_out",
+      "family": "clip_audio",
+      "leaf": "handback_inside_fade_out",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "clip_audio.fade_sum_overflow_refused",
+      "family": "clip_audio",
+      "leaf": "fade_sum_overflow_refused",
+      "supported": true,
+      "refusal_expected": true
+    },
+    {
+      "case_id": "clip_audio.unbound_audio_refused",
+      "family": "clip_audio",
+      "leaf": "unbound_audio_refused",
+      "supported": true,
+      "refusal_expected": true
+    }
+  ],
+  "ui_invariant_rows": [
+    {
+      "case_id": "ui_invariant.global_shell_identity",
+      "family": "ui_invariant",
+      "leaf": "global_shell_identity",
+      "supported": true,
+      "refusal_expected": false,
+      "evidence": "e2e/journeys/nleSemanticConformance.spec.ts::the accepted runtime presents an edited composition that can be observed semantically"
+    },
+    {
+      "case_id": "ui_invariant.function_switch",
+      "family": "ui_invariant",
+      "leaf": "function_switch",
+      "supported": true,
+      "refusal_expected": false,
+      "evidence": "e2e/journeys/nleSemanticConformance.spec.ts::the accepted runtime presents an edited composition that can be observed semantically"
+    },
+    {
+      "case_id": "ui_invariant.overlay_open",
+      "family": "ui_invariant",
+      "leaf": "overlay_open",
+      "supported": true,
+      "refusal_expected": false,
+      "evidence": "nleWorkspaceLifecycle.test.tsx::M25-16 NLE workspace session lifecycle > opens with a fresh generation, default bounds and the assets pane, then expands on mount"
+    },
+    {
+      "case_id": "ui_invariant.duplicate_open",
+      "family": "ui_invariant",
+      "leaf": "duplicate_open",
+      "supported": true,
+      "refusal_expected": false,
+      "evidence": "e2e/journeys/nleSemanticConformance.spec.ts::the accepted runtime presents an edited composition that can be observed semantically"
+    },
+    {
+      "case_id": "ui_invariant.overlay_close_return_focus.explicit_close",
+      "family": "ui_invariant",
+      "leaf": "overlay_close_return_focus.explicit_close",
+      "supported": true,
+      "refusal_expected": false,
+      "evidence": "nleWorkspaceLifecycle.test.tsx::M25-20 overlay close return-focus destinations > returns focus to the launcher after explicit_close"
+    },
+    {
+      "case_id": "ui_invariant.overlay_close_return_focus.escape",
+      "family": "ui_invariant",
+      "leaf": "overlay_close_return_focus.escape",
+      "supported": true,
+      "refusal_expected": false,
+      "evidence": "nleWorkspaceLifecycle.test.tsx::M25-20 overlay close return-focus destinations > returns focus to the launcher after escape"
+    },
+    {
+      "case_id": "ui_invariant.overlay_close_return_focus.function_switch",
+      "family": "ui_invariant",
+      "leaf": "overlay_close_return_focus.function_switch",
+      "supported": true,
+      "refusal_expected": false,
+      "evidence": "nleWorkspaceLifecycle.test.tsx::M25-20 overlay close return-focus destinations > leaves focus where the new surface put it after function_switch"
+    },
+    {
+      "case_id": "ui_invariant.overlay_close_return_focus.top_level_navigation",
+      "family": "ui_invariant",
+      "leaf": "overlay_close_return_focus.top_level_navigation",
+      "supported": true,
+      "refusal_expected": false,
+      "evidence": "nleWorkspaceLifecycle.test.tsx::M25-20 overlay close return-focus destinations > leaves focus where the new surface put it after top_level_navigation"
+    },
+    {
+      "case_id": "ui_invariant.overlay_close_return_focus.capability_or_mount_failure",
+      "family": "ui_invariant",
+      "leaf": "overlay_close_return_focus.capability_or_mount_failure",
+      "supported": true,
+      "refusal_expected": false,
+      "evidence": "nleWorkspaceLifecycle.test.tsx::M25-20 overlay close return-focus destinations > returns focus to the launcher after capability_or_mount_failure"
+    },
+    {
+      "case_id": "ui_invariant.overlay_unavailable_status",
+      "family": "ui_invariant",
+      "leaf": "overlay_unavailable_status",
+      "supported": true,
+      "refusal_expected": false,
+      "evidence": "nleWorkspaceLifecycle.test.tsx::M25-16 NLE workspace session lifecycle > refuses to open when the media runtime is unsupported and reports the unavailable status"
+    },
+    {
+      "case_id": "ui_invariant.view_destroy_cleanup",
+      "family": "ui_invariant",
+      "leaf": "view_destroy_cleanup",
+      "supported": true,
+      "refusal_expected": false,
+      "evidence": "nleWorkspaceLifecycle.test.tsx::M25-16 NLE workspace session lifecycle > resets geometry and pane on view destroy and records view_destroy once"
+    }
+  ],
+  "import_integration_rows": [
+    {
+      "case_id": "import_integration.generated_source.explicit_import_then_insert.pointer",
+      "family": "import_integration",
+      "leaf": "generated_source.explicit_import_then_insert.pointer",
+      "supported": true,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "import_integration.generated_source.explicit_import_then_insert.keyboard",
+      "family": "import_integration",
+      "leaf": "generated_source.explicit_import_then_insert.keyboard",
+      "supported": true,
+      "refusal_expected": false
+    }
+  ],
+  "deferred_negative_rows": [
+    {
+      "case_id": "deferred_negative.independent_audio_seam",
+      "family": "deferred_negative",
+      "leaf": "independent_audio_seam",
+      "supported": false,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "deferred_negative.independent_audio_import",
+      "family": "deferred_negative",
+      "leaf": "independent_audio_import",
+      "supported": false,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "deferred_negative.independent_audio_replacement",
+      "family": "deferred_negative",
+      "leaf": "independent_audio_replacement",
+      "supported": false,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "deferred_negative.waveform",
+      "family": "deferred_negative",
+      "leaf": "waveform",
+      "supported": false,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "deferred_negative.gain",
+      "family": "deferred_negative",
+      "leaf": "gain",
+      "supported": false,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "deferred_negative.pan",
+      "family": "deferred_negative",
+      "leaf": "pan",
+      "supported": false,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "deferred_negative.mute",
+      "family": "deferred_negative",
+      "leaf": "mute",
+      "supported": false,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "deferred_negative.solo",
+      "family": "deferred_negative",
+      "leaf": "solo",
+      "supported": false,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "deferred_negative.envelope",
+      "family": "deferred_negative",
+      "leaf": "envelope",
+      "supported": false,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "deferred_negative.multi_track_mixer",
+      "family": "deferred_negative",
+      "leaf": "multi_track_mixer",
+      "supported": false,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "deferred_negative.surface_compact",
+      "family": "deferred_negative",
+      "leaf": "surface_compact",
+      "supported": false,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "deferred_negative.surface_expanded",
+      "family": "deferred_negative",
+      "leaf": "surface_expanded",
+      "supported": false,
+      "refusal_expected": false
+    },
+    {
+      "case_id": "deferred_negative.surface_fallback",
+      "family": "deferred_negative",
+      "leaf": "surface_fallback",
+      "supported": false,
+      "refusal_expected": false
+    }
+  ]
+}

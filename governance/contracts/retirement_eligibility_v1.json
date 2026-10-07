@@ -1,0 +1,2052 @@
+{
+  "fingerprint": "sha256:4021f93f7e7273dc20f83085e136525c833dfc424d071d62c75e5523070757ff",
+  "retired": [
+    {
+      "contract_id": "comfyui-h3-context://contracts/base_assistant_v1.schema.json",
+      "described_wires": [
+        "h3-context-base-assistant-migration/1",
+        "h3-context-base-assistant/1",
+        "h3-context-subgraph-fixture/1"
+      ],
+      "item": "M18-05",
+      "rollback_commit": "aea047c471e3cc87654fc67e64c6b9db6f216cfd",
+      "schema_path": "comfyui_h3_context/contracts/base_assistant_v1.schema.json",
+      "surviving_authority": "comfyui_h3_context/core/base_assistant.py",
+      "surviving_references": [],
+      "wire_boundaries": [
+        "process_local"
+      ],
+      "wire_persistence": [
+        "transient"
+      ]
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/ui_projection_v1.schema.json",
+      "described_wires": [
+        "h3.context.ui.projection.v1"
+      ],
+      "item": "M18-05",
+      "rollback_commit": "aea047c471e3cc87654fc67e64c6b9db6f216cfd",
+      "schema_path": "comfyui_h3_context/contracts/ui_projection_v1.schema.json",
+      "surviving_authority": "comfyui_h3_context/core/ui_projection.py",
+      "surviving_references": [],
+      "wire_boundaries": [
+        "process_local"
+      ],
+      "wire_persistence": [
+        "transient"
+      ]
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/validation_lifecycle_v1.schema.json",
+      "described_wires": [
+        "h3.context.validation.lifecycle.v1"
+      ],
+      "item": "M18-05",
+      "rollback_commit": "aea047c471e3cc87654fc67e64c6b9db6f216cfd",
+      "schema_path": "comfyui_h3_context/contracts/validation_lifecycle_v1.schema.json",
+      "surviving_authority": "comfyui_h3_context/core/validation_lifecycle.py",
+      "surviving_references": [],
+      "wire_boundaries": [
+        "process_local"
+      ],
+      "wire_persistence": [
+        "transient"
+      ]
+    },
+    {
+      "contract_id": "https://comfyui-h3-context.invalid/schemas/execution_coordinator_v1.schema.json",
+      "described_wires": [
+        "h3.execution.coordinator.v1"
+      ],
+      "item": "M18-05",
+      "rollback_commit": "aea047c471e3cc87654fc67e64c6b9db6f216cfd",
+      "schema_path": "comfyui_h3_context/contracts/execution_coordinator_v1.schema.json",
+      "surviving_authority": "comfyui_h3_context/core/execution_coordinator.py",
+      "surviving_references": [],
+      "wire_boundaries": [
+        "process_local"
+      ],
+      "wire_persistence": [
+        "transient"
+      ]
+    }
+  ],
+  "schema": "h3-context-retirement-eligibility/1",
+  "verdicts": [
+    {
+      "contract_id": "comfyui-h3-context://contracts/architecture_fitness_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [
+        "scripts/architecture_fitness.py",
+        "tests/test_architecture_fitness.py",
+        "tests/test_contract_inventory.py"
+      ],
+      "internal_consumers": [
+        "scripts/architecture_fitness.py",
+        "tests/test_architecture_fitness.py",
+        "tests/test_contract_inventory.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/architecture_fitness_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/architecture_inventory_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [
+        "scripts/architecture_fitness.py"
+      ],
+      "internal_consumers": [
+        "scripts/architecture_fitness.py",
+        "tests/test_architecture_inventory.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/architecture_inventory_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/asr_perception_v1.schema.json",
+      "described_wires": [
+        "h3.audio.asr.v1",
+        "h3.audio.asr_benchmark.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_asr_perception.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary untrusted_input"
+      ],
+      "schema_path": "governance/contracts/asr_perception_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/audio_acceptance_v1.schema.json",
+      "described_wires": [
+        "h3.audio.acceptance.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_audio_acceptance.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary untrusted_input"
+      ],
+      "schema_path": "governance/contracts/audio_acceptance_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/audio_analysis_v1.schema.json",
+      "described_wires": [
+        "h3.audio.analysis.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_audio_analysis.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary untrusted_input"
+      ],
+      "schema_path": "governance/contracts/audio_analysis_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/audio_event_perception_v1.schema.json",
+      "described_wires": [
+        "h3.audio.event.v1",
+        "h3.audio.event_benchmark.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_audio_event_perception.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary untrusted_input"
+      ],
+      "schema_path": "governance/contracts/audio_event_perception_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/audio_evidence_fusion_v1.schema.json",
+      "described_wires": [
+        "h3.audio.evidence_fusion.benchmark.v1",
+        "h3.audio.evidence_fusion.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_audio_evidence_fusion.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary untrusted_input"
+      ],
+      "schema_path": "governance/contracts/audio_evidence_fusion_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/audio_perception_benchmark_v1.schema.json",
+      "described_wires": [
+        "h3.audio.perception_benchmark.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_audio_perception_benchmark.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary untrusted_input"
+      ],
+      "schema_path": "governance/contracts/audio_perception_benchmark_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/authoring_output_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/authoring_output_schemas.py",
+        "scripts/derived_artifacts.py",
+        "tests/fixtures/m23_48_derived_artifact_graph_v1.json"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/authoring_output_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/authoring_render_job_request_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/authoring_render_schemas.py",
+        "scripts/derived_artifacts.py",
+        "tests/fixtures/m23_48_derived_artifact_graph_v1.json",
+        "tests/test_m25_authoring_render_jobs.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/authoring_render_job_request_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/authoring_render_receipt_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/authoring_render_schemas.py",
+        "scripts/derived_artifacts.py",
+        "tests/fixtures/m23_48_derived_artifact_graph_v1.json",
+        "tests/test_m25_authoring_render_receipts.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/authoring_render_receipt_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/av_reconstruction_receipt_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_av_reconstruction.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/av_reconstruction_receipt_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/av_sync_perception_v1.schema.json",
+      "described_wires": [
+        "h3.av.sync.v1",
+        "h3.av.sync_benchmark.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_av_sync_perception.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/av_sync_perception_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/base_evaluation_v1.schema.json",
+      "described_wires": [
+        "h3.base.evaluation.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_base_evaluation.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/base_evaluation_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/base_timeline_plan_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_base_planning.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/base_timeline_plan_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/build_provenance_v1.schema.json",
+      "described_wires": [
+        "h3-context-build-identity/1",
+        "h3-context-build-provenance/1",
+        "h3.context.build_provenance_response.v1"
+      ],
+      "external_consumers": [
+        "governance/contracts/supply_chain_v1.json"
+      ],
+      "hidden_consumers": [
+        "scripts/architecture_fitness.py",
+        "tests/test_architecture_fitness.py",
+        "tests/test_m23_48_packaged_readership.py"
+      ],
+      "internal_consumers": [
+        "scripts/architecture_fitness.py",
+        "scripts/build_provenance.py",
+        "scripts/supply_chain_manifest.py",
+        "tests/test_architecture_fitness.py",
+        "tests/test_m23_48_packaged_readership.py"
+      ],
+      "reasons": [
+        "1 reader outside tests and scripts would lose it",
+        "states a wire on the protected boundary cross_language"
+      ],
+      "schema_path": "governance/contracts/build_provenance_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/closeout_matrix_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_closeout_matrix.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/closeout_matrix_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/comparative_evaluation_v1.schema.json",
+      "described_wires": [
+        "h3.comparative.evaluation.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_comparative_evaluation.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/comparative_evaluation_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/compatibility_matrix_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_compatibility.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/compatibility_matrix_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/constrained_semantic_planning_v1.schema.json",
+      "described_wires": [
+        "h3.constrained_semantic_planning.v1",
+        "h3.constrained_semantic_planning.v2",
+        "h3.constrained_semantic_proposal.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_constrained_semantic_planning.py",
+        "tests/test_semantic_intents.py"
+      ],
+      "reasons": [
+        "2 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/constrained_semantic_planning_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/continuity_boundary_receipt_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_continuity_handoff.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/continuity_boundary_receipt_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/contract_inventory_v1.schema.json",
+      "described_wires": [
+        "h3-context-contract-inventory/1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [
+        "scripts/architecture_fitness.py",
+        "tests/test_architecture_fitness.py",
+        "tests/test_contract_inventory.py",
+        "tests/test_m23_48_packaged_readership.py"
+      ],
+      "internal_consumers": [
+        "scripts/architecture_fitness.py",
+        "scripts/retirement_eligibility.py",
+        "tests/test_architecture_fitness.py",
+        "tests/test_contract_inventory.py",
+        "tests/test_m23_48_packaged_readership.py",
+        "tests/test_retirement_eligibility.py"
+      ],
+      "reasons": [
+        "6 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/contract_inventory_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/corpus_governance_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_corpus_governance.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/corpus_governance_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/cross_language_surface_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [
+        "scripts/architecture_fitness.py",
+        "tests/test_architecture_fitness.py",
+        "tests/test_m23_48_packaged_readership.py"
+      ],
+      "internal_consumers": [
+        "scripts/architecture_fitness.py",
+        "scripts/governance/relocate_packaged_artifacts.py",
+        "tests/test_architecture_fitness.py",
+        "tests/test_cross_language_surface.py",
+        "tests/test_m23_48_packaged_readership.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/cross_language_surface_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/cross_reference_graph_v1.schema.json",
+      "described_wires": [
+        "h3.cross_reference.graph.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_cross_reference_graph.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/cross_reference_graph_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/directive_authority_engine_v1.schema.json",
+      "described_wires": [
+        "h3.directive_authority_engine.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_directive_authority_engine.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/directive_authority_engine_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/drift_process_v1.schema.json",
+      "described_wires": [
+        "h3.drift.event.v1",
+        "h3.drift.process.report.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_drift_process.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/drift_process_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/failure_containment_v1.schema.json",
+      "described_wires": [
+        "h3.failure.containment.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_failure_containment.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/failure_containment_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/feasible_av_timeline_planner_v1.schema.json",
+      "described_wires": [
+        "h3.feasible_av_timeline_planner.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_feasible_av_timeline_planner.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/feasible_av_timeline_planner_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/fingerprint_domain_v1.schema.json",
+      "described_wires": [
+        "h3-context-fingerprint-domain-assignment/1",
+        "h3-context-fingerprint-domain/1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [
+        "tests/test_contract_inventory.py"
+      ],
+      "internal_consumers": [
+        "tests/test_contract_inventory.py",
+        "tests/test_fingerprint_domain.py"
+      ],
+      "reasons": [
+        "2 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/fingerprint_domain_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/fixed_h3_generation_v1.schema.json",
+      "described_wires": [
+        "h3.fixed_generation.terminal.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/m14_05_fixed_h3_fixture.py",
+        "scripts/m16_02_reconstruction_regression.py",
+        "tests/fixtures/m16_02_reconstruction_regression.json",
+        "tests/test_fixed_h3_generation.py"
+      ],
+      "reasons": [
+        "4 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/fixed_h3_generation_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/full_reference_evaluation_v1.schema.json",
+      "described_wires": [
+        "h3.full_reference.evaluation.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_full_reference_evaluation.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/full_reference_evaluation_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/full_reference_timeline_v1.schema.json",
+      "described_wires": [
+        "h3.full_reference.timeline.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_full_reference_timeline.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/full_reference_timeline_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/h3_context_report_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/validate_comfy_registry_metadata.py",
+        "tests/test_comfy_registry_metadata.py",
+        "tests/test_context_reporting.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/h3_context_report_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/h3_context_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/validate_comfy_registry_metadata.py",
+        "tests/test_comfy_registry_metadata.py",
+        "tests/test_constraints.py",
+        "tests/test_dialogue_speakers.py",
+        "tests/test_evidence.py",
+        "tests/test_registry.py",
+        "tests/test_schema_vocabulary.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/h3_context_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/h3_prompt_profile_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/validate_comfy_registry_metadata.py",
+        "tests/test_comfy_registry_metadata.py",
+        "tests/test_profiles.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/h3_prompt_profile_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/hierarchical_evidence_reduction_v1.schema.json",
+      "described_wires": [
+        "h3.hierarchical_evidence_reduction.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_hierarchical_evidence_reduction.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/hierarchical_evidence_reduction_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/host_seam_census_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [
+        "tests/test_m23_48_packaged_readership.py"
+      ],
+      "internal_consumers": [
+        "scripts/governance/relocate_packaged_artifacts.py",
+        "tests/test_hc_09_host_seam_contract.py",
+        "tests/test_m23_48_packaged_readership.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/host_seam_census_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/host_seam_shape_fixture_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [
+        "tests/test_m23_48_packaged_readership.py"
+      ],
+      "internal_consumers": [
+        "tests/test_hc_09_host_seam_contract.py",
+        "tests/test_m23_48_packaged_readership.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/host_seam_shape_fixture_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/human_review_v1.schema.json",
+      "described_wires": [
+        "h3.human_review.protocol.v1",
+        "h3.human_review.rubric.v1",
+        "h3.human_review.terminal.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/m14_06_human_review_fixture.py",
+        "tests/test_human_review.py"
+      ],
+      "reasons": [
+        "2 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/human_review_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/image_observation_v1.schema.json",
+      "described_wires": [
+        "h3.image.observation.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_image_observation.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/image_observation_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/local_adapter_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_local_adapters.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/local_adapter_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/local_qualification_v1.schema.json",
+      "described_wires": [
+        "h3.local.qualification.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_local_qualification.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/local_qualification_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/m19_closeout_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_m19_closeout.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/m19_closeout_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/managed_run_stategraph_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/governance/relocate_packaged_artifacts.py",
+        "tests/test_managed_run_aggregate.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/managed_run_stategraph_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/media_admission_v1.schema.json",
+      "described_wires": [
+        "h3.media.admission.v1",
+        "h3.media.preprocess.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_media_admission.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary untrusted_input"
+      ],
+      "schema_path": "governance/contracts/media_admission_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/media_process_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_media_admission.py",
+        "tests/test_media_subprocess_hardening.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/media_process_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/model_manifest_v1.schema.json",
+      "described_wires": [
+        "h3.model.generation.request.v1",
+        "h3.model.generation.result.v1",
+        "h3.model.manifest.v1",
+        "h3.model.probe.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_model_adapters.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary untrusted_input"
+      ],
+      "schema_path": "governance/contracts/model_manifest_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/native_mode_matrix_v1.schema.json",
+      "described_wires": [
+        "h3.native_mode_matrix.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_host_version_tolerance.py",
+        "tests/test_native_mode_matrix.py",
+        "tests/test_prompt_model_provider.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary persisted",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/native_mode_matrix_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/nle_control_coverage_manifest_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_m25_16_control_coverage.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/nle_control_coverage_manifest_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/nle_hardening_coverage_manifest_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_m25_21_hardening_coverage.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/nle_hardening_coverage_manifest_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/nle_semantic_conformance_manifest_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_m25_render_conformance.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/nle_semantic_conformance_manifest_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/node_surface_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_node_surface.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/node_surface_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/ocr_observation_v1.schema.json",
+      "described_wires": [
+        "h3.ocr.benchmark.v1",
+        "h3.ocr.observation.output.v1",
+        "h3.ocr.observation.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_exact_ocr_observation.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary untrusted_input"
+      ],
+      "schema_path": "governance/contracts/ocr_observation_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/official_context_ir_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_retirement_eligibility.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/official_context_ir_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/package_compatibility_policy_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/package_compatibility_policy.py",
+        "tests/test_package_compatibility_policy.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/package_compatibility_policy_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/perception_tracking_v1.schema.json",
+      "described_wires": [
+        "h3.visual.perception_tracking.benchmark.v1",
+        "h3.visual.perception_tracking.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_perception_tracking.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/perception_tracking_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/perturbation_evaluation_v1.schema.json",
+      "described_wires": [
+        "h3.context.perturbation.evaluation.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_perturbation_evaluation.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/perturbation_evaluation_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/provider_protocol_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_provider_protocol.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/provider_protocol_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/provider_setup_v1.schema.json",
+      "described_wires": [
+        "h3-context-provider-consent-authority/1",
+        "h3-context-provider-preflight/1",
+        "h3-context-provider-setup/1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_provider_setup.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary untrusted_input"
+      ],
+      "schema_path": "governance/contracts/provider_setup_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/public_surface_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_public_surface.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/public_surface_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/reachability_v1.schema.json",
+      "described_wires": [
+        "h3.context.reachability.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/governance/retirement_eligibility.py",
+        "tests/test_reachability.py"
+      ],
+      "reasons": [
+        "2 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/reachability_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/reference_directives_v1.schema.json",
+      "described_wires": [
+        "h3.reference.directives.v2"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_directive_semantics.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/reference_directives_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/reference_directives_v2.schema.json",
+      "described_wires": [
+        "h3.reference.directives.v2"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_m24_05_authority_migration.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/reference_directives_v2.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/reference_role_resolution_v1.schema.json",
+      "described_wires": [
+        "h3.reference_role_resolution.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_reference_role_resolution.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/reference_role_resolution_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/resource_runtime_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_resource_scheduling.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/resource_runtime_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/retirement_eligibility_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [
+        "tests/test_contract_inventory.py"
+      ],
+      "internal_consumers": [
+        "tests/test_contract_inventory.py",
+        "tests/test_retirement_eligibility.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/retirement_eligibility_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/semantic_enrichment_v1.schema.json",
+      "described_wires": [
+        "h3.semantic.enrichment.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_semantic_enrichment.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/semantic_enrichment_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/semantic_prompt_graph_v2.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_m24_05_authority_migration.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/semantic_prompt_graph_v2.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/source_drift_checkpoint_v1.schema.json",
+      "described_wires": [
+        "h3.source_drift_checkpoint.v2"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [],
+      "reasons": [
+        "states a wire on the protected boundary persisted",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/source_drift_checkpoint_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/source_drift_checkpoint_v2.schema.json",
+      "described_wires": [
+        "h3.source_drift_checkpoint.v2"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_prompt_model_provider.py",
+        "tests/test_source_drift_checkpoint.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary persisted",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/source_drift_checkpoint_v2.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/source_ledger_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_source_ledger.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/source_ledger_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/source_profiled_prompt_v1.schema.json",
+      "described_wires": [
+        "h3-source-profiled-prompt/1",
+        "h3-source-profiled-prompt/2"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [],
+      "reasons": [],
+      "schema_path": "governance/contracts/source_profiled_prompt_v1.schema.json",
+      "verdict": "eligible"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/source_profiled_prompt_v2.schema.json",
+      "described_wires": [
+        "h3-source-profiled-prompt/1",
+        "h3-source-profiled-prompt/2"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_m24_05_authority_migration.py",
+        "tests/test_source_profiled_prompt.py"
+      ],
+      "reasons": [
+        "2 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/source_profiled_prompt_v2.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/source_requalification_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_m16_01_source_requalification.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/source_requalification_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/speaker_perception_v1.schema.json",
+      "described_wires": [
+        "h3.audio.speaker.v1",
+        "h3.audio.speaker_benchmark.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_speaker_perception.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary untrusted_input"
+      ],
+      "schema_path": "governance/contracts/speaker_perception_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/task_mode_retention_classifier_v1.schema.json",
+      "described_wires": [
+        "h3.context.intent_graph.v2",
+        "h3.task_mode_retention_classifier.v2"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_task_mode_retention_classifier.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/task_mode_retention_classifier_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/task_mode_retention_classifier_v2.schema.json",
+      "described_wires": [
+        "h3.context.intent_graph.v2",
+        "h3.task_mode_retention_classifier.v2"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_m24_05_authority_migration.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/task_mode_retention_classifier_v2.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/temporal_event_alignment_v1.schema.json",
+      "described_wires": [
+        "h3.temporal_event_alignment.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_temporal_event_alignment.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/temporal_event_alignment_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/temporal_profile_v1.schema.json",
+      "described_wires": [
+        "h3-context-temporal-profile/1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_temporal_profile.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/temporal_profile_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/temporal_visual_analysis_v1.schema.json",
+      "described_wires": [
+        "h3.visual.temporal_analysis.benchmark.v1",
+        "h3.visual.temporal_analysis.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_temporal_visual_analysis.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/temporal_visual_analysis_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/unified_evidence_graph_v1.schema.json",
+      "described_wires": [
+        "h3.unified.evidence_graph.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_unified_evidence_graph.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/unified_evidence_graph_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/video_analysis_v1.schema.json",
+      "described_wires": [
+        "h3.video.analysis.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_qualified_perception.py",
+        "tests/test_video_analysis.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary untrusted_input"
+      ],
+      "schema_path": "governance/contracts/video_analysis_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/video_decode_v1.schema.json",
+      "described_wires": [
+        "h3.video.decode.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_video_decode.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary untrusted_input"
+      ],
+      "schema_path": "governance/contracts/video_decode_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/visual_acceptance_v1.schema.json",
+      "described_wires": [
+        "h3.visual.acceptance.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_visual_acceptance.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/visual_acceptance_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/visual_benchmark_v1.schema.json",
+      "described_wires": [
+        "h3.visual.benchmark.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_visual_benchmark.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/visual_benchmark_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/visual_evidence_fusion_v1.schema.json",
+      "described_wires": [
+        "h3.visual.evidence_fusion.benchmark.v1",
+        "h3.visual.evidence_fusion.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_visual_evidence_fusion.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/visual_evidence_fusion_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "comfyui-h3-context://contracts/vlm_observation_v1.schema.json",
+      "described_wires": [
+        "h3.vlm.observation.output.v1",
+        "h3.vlm.observation.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_native_vlm_observation.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary untrusted_input"
+      ],
+      "schema_path": "governance/contracts/vlm_observation_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "governance/contracts/training_authorization_v1.schema.json",
+      "described_wires": [
+        "h3.training_authorization.terminal.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [
+        "tests/test_contract_inventory.py"
+      ],
+      "internal_consumers": [
+        "scripts/m14_07_training_authorization_fixture.py",
+        "tests/test_contract_inventory.py",
+        "tests/test_training_authorization.py"
+      ],
+      "reasons": [
+        "3 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/training_authorization_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "h3-context://contracts/capability_manifest_v1.schema.json",
+      "described_wires": [
+        "h3.context.binding.manifest.v1",
+        "h3.context.capability.registry.v1",
+        "h3.host.canary.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/m16_02_reconstruction_regression.py",
+        "scripts/validate_comfy_registry_metadata.py",
+        "tests/fixtures/m16_02_reconstruction_regression.json",
+        "tests/test_capability_manifest.py",
+        "tests/test_comfy_registry_metadata.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary persisted, untrusted_input",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/capability_manifest_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "h3-context://contracts/contracts_v2.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/validate_comfy_registry_metadata.py",
+        "tests/test_comfy_registry_metadata.py",
+        "tests/test_contracts_v2.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/contracts_v2.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "h3-context://contracts/installation_profiles_v1.schema.json",
+      "described_wires": [
+        "h3-context-installation-profiles/1"
+      ],
+      "external_consumers": [
+        "governance/contracts/supply_chain_v1.json"
+      ],
+      "hidden_consumers": [
+        "tests/test_m23_48_packaged_readership.py"
+      ],
+      "internal_consumers": [
+        "scripts/governance/relocate_packaged_artifacts.py",
+        "scripts/supply_chain_manifest.py",
+        "scripts/validate_comfy_registry_metadata.py",
+        "tests/test_installation_profiles.py",
+        "tests/test_m23_48_packaged_readership.py"
+      ],
+      "reasons": [
+        "1 reader outside tests and scripts would lose it",
+        "states a wire on the protected boundary persisted",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/installation_profiles_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "h3-context://contracts/reconstruction_regression_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_m16_02_reconstruction_regression.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/reconstruction_regression_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "h3-context://contracts/supply_chain_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [
+        "governance/contracts/supply_chain_v1.json"
+      ],
+      "hidden_consumers": [
+        "scripts/architecture_fitness.py",
+        "tests/test_architecture_fitness.py"
+      ],
+      "internal_consumers": [
+        "scripts/architecture_fitness.py",
+        "scripts/supply_chain_manifest.py",
+        "scripts/validate_comfy_registry_metadata.py",
+        "tests/test_architecture_fitness.py",
+        "tests/test_supply_chain_manifest.py"
+      ],
+      "reasons": [
+        "1 reader outside tests and scripts would lose it",
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/supply_chain_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "h3-context://contracts/workflow_surface_matrix_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_workflow_surface_matrix.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/workflow_surface_matrix_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "h3.context.assisted_authoring_compatibility.v1",
+      "described_wires": [],
+      "external_consumers": [
+        "governance/contracts/assisted_authoring_compatibility_v1.json"
+      ],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/governance/relocate_packaged_artifacts.py",
+        "tests/test_host_version_tolerance.py"
+      ],
+      "reasons": [
+        "1 reader outside tests and scripts would lose it",
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/assisted_authoring_compatibility_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "h3.context.assisted_authoring_compatibility.v2",
+      "described_wires": [],
+      "external_consumers": [
+        "governance/contracts/assisted_authoring_compatibility_v2.json"
+      ],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/m22_16_compatibility_matrix.py",
+        "tests/test_m22_16_compatibility_closeout.py"
+      ],
+      "reasons": [
+        "1 reader outside tests and scripts would lose it",
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/assisted_authoring_compatibility_v2.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "h3.context.downstream-producer.v1",
+      "described_wires": [
+        "h3.context.downstream-producer.v1"
+      ],
+      "external_consumers": [
+        "comfyui_h3_context/core/downstream_producer.py"
+      ],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_downstream_producer_nodes.py",
+        "tests/test_qualified_perception.py"
+      ],
+      "reasons": [
+        "1 reader outside tests and scripts would lose it"
+      ],
+      "schema_path": "governance/contracts/downstream_producer_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "h3.perception_producer.v1",
+      "described_wires": [
+        "h3.perception_producer.v1"
+      ],
+      "external_consumers": [
+        "comfyui_h3_context/core/perception_producer.py"
+      ],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_perception_producer_nodes.py"
+      ],
+      "reasons": [
+        "1 reader outside tests and scripts would lose it"
+      ],
+      "schema_path": "governance/contracts/perception_producer_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "https://comfyui-h3-context.invalid/contracts/performance_gate_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/validate_comfy_registry_metadata.py",
+        "tests/test_performance_gate.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/performance_gate_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "https://comfyui-h3-context.invalid/contracts/performance_profiles_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/validate_comfy_registry_metadata.py",
+        "tests/test_performance_qualification.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/performance_profiles_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "https://comfyui-h3-context.invalid/contracts/performance_qualification_v1.schema.json",
+      "described_wires": [
+        "h3.performance.profiles.v1",
+        "h3.performance.qualification.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/validate_comfy_registry_metadata.py",
+        "tests/test_performance_qualification.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary persisted"
+      ],
+      "schema_path": "governance/contracts/performance_qualification_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "https://comfyui-h3-context.invalid/contracts/product_shell_v1.schema.json",
+      "described_wires": [
+        "h3.context.product.shell.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/governance/relocate_packaged_artifacts.py",
+        "tests/test_cross_language_surface.py",
+        "tests/test_host_version_tolerance.py",
+        "tests/test_product_shell_package.py",
+        "tests/test_prompt_model_provider.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary cross_language"
+      ],
+      "schema_path": "governance/contracts/product_shell_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "https://comfyui-h3-context.invalid/contracts/semantic_graph_comparator_v1.schema.json",
+      "described_wires": [
+        "h3.official.behavior_profile.v1",
+        "h3.prompt.semantic_graph.v1",
+        "h3.prompt.semantic_graph.v2",
+        "h3.semantic_graph_comparator.evaluation.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_semantic_graph_comparator.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/semantic_graph_comparator_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "https://comfyui-h3-context.invalid/schemas/graph-binding-v1.json",
+      "described_wires": [
+        "h3.context.graph.binding.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_graph_binding.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/graph_binding_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "https://comfyui-h3-context.invalid/schemas/public-manifest-v1.json",
+      "described_wires": [
+        "h3.context.public.manifest.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_public_manifest.py",
+        "tests/test_public_manifest_v2.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary persisted",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/public_manifest_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "https://comfyui-h3-context.invalid/schemas/public-manifest-v2.json",
+      "described_wires": [
+        "h3.context.public.manifest.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_public_manifest_v2.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary persisted",
+        "the schema itself is persisted"
+      ],
+      "schema_path": "governance/contracts/public_manifest_v2.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "https://comfyui-h3-context.local/contracts/local_reconstruction_v1.schema.json",
+      "described_wires": [
+        "h3-local-reconstruction/1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_local_reconstruction.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/local_reconstruction_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "https://example.invalid/comfyui-h3-context/official-context-ir-recording-v1.schema.json",
+      "described_wires": [
+        "h3.context.ir.recording.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_official_context_ir_node.py"
+      ],
+      "reasons": [
+        "1 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/official_context_ir_recording_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "https://example.invalid/h3/fidelity_scorecard_v1.schema.json",
+      "described_wires": [
+        "h3.fidelity_scorecard.v1"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/m14_08_fidelity_scorecard_fixture.py",
+        "tests/test_fidelity_scorecard.py"
+      ],
+      "reasons": [
+        "2 repository-internal reader would lose its validation evidence"
+      ],
+      "schema_path": "governance/contracts/fidelity_scorecard_v1.schema.json",
+      "verdict": "eligible_with_consumers"
+    },
+    {
+      "contract_id": "https://rookiestar28.github.io/ComfyUI-MinimaxH3-Context/contracts/prompt_fidelity_v1.schema.json",
+      "described_wires": [
+        "h3.context.prompt_fidelity.v2"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [],
+      "reasons": [
+        "states a wire on the protected boundary cross_language"
+      ],
+      "schema_path": "governance/contracts/prompt_fidelity_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "https://rookiestar28.github.io/ComfyUI-MinimaxH3-Context/contracts/prompt_fidelity_v2.schema.json",
+      "described_wires": [
+        "h3.context.prompt_fidelity.v2"
+      ],
+      "external_consumers": [
+        "frontend/tests/support/findContextRepositoryRoot.ts"
+      ],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_m21_01_prompt_fidelity.py",
+        "tests/test_m24_05_readiness_ownership.py"
+      ],
+      "reasons": [
+        "1 reader outside tests and scripts would lose it",
+        "states a wire on the protected boundary cross_language"
+      ],
+      "schema_path": "governance/contracts/prompt_fidelity_v2.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "https://rookiestar28.github.io/ComfyUI-MinimaxH3-Context/contracts/sidebar_action_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/validate_comfy_registry_metadata.py",
+        "tests/test_comfy_registry_metadata.py",
+        "tests/test_sidebar_workspace.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/sidebar_action_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "https://rookiestar28.github.io/ComfyUI-MinimaxH3-Context/contracts/sidebar_action_v2.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_sidebar_workspace.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/sidebar_action_v2.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "https://rookiestar28.github.io/ComfyUI-MinimaxH3-Context/contracts/sidebar_transfer_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/validate_comfy_registry_metadata.py",
+        "tests/test_sidebar_workspace.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/sidebar_transfer_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
+      "contract_id": "https://rookiestar28.github.io/ComfyUI-MinimaxH3-Context/contracts/sidebar_workspace_v1.schema.json",
+      "described_wires": [
+        "h3.context.sidebar.transfer.v1",
+        "h3.context.sidebar.workspace.v2"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/governance/relocate_packaged_artifacts.py",
+        "scripts/validate_comfy_registry_metadata.py",
+        "tests/test_cross_language_surface.py",
+        "tests/test_host_version_tolerance.py",
+        "tests/test_prompt_model_provider.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary cross_language, untrusted_input"
+      ],
+      "schema_path": "governance/contracts/sidebar_workspace_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "https://rookiestar28.github.io/ComfyUI-MinimaxH3-Context/contracts/sidebar_workspace_v2.schema.json",
+      "described_wires": [
+        "h3.context.sidebar.transfer.v1",
+        "h3.context.sidebar.workspace.v2"
+      ],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_m21_03_sidebar_diagnostic_parameters.py",
+        "tests/test_sidebar_workspace.py"
+      ],
+      "reasons": [
+        "states a wire on the protected boundary cross_language, untrusted_input"
+      ],
+      "schema_path": "governance/contracts/sidebar_workspace_v2.schema.json",
+      "verdict": "blocked"
+    }
+  ]
+}

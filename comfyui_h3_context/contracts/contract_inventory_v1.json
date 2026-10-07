@@ -243,6 +243,7 @@
         "frontend/src/components/nle/useNleAssetPreparation.ts",
         "frontend/src/contracts/authoringMediaLeaseCodec.ts",
         "frontend/src/contracts/productionAuthoringImportCodec.ts",
+        "frontend/src/contracts/projectDocumentCodec.ts",
         "frontend/src/host/authoringActions.ts",
         "frontend/src/host/authoringAdjacentPreview.ts",
         "frontend/src/host/authoringAvailability.ts",
@@ -282,6 +283,7 @@
         "frontend/tests/nleWorkspaceLifecycle.test.tsx",
         "frontend/tests/nleWorkspaceMonitor.test.tsx",
         "frontend/tests/nleWorkspaceTrim.test.tsx",
+        "frontend/tests/projectPersistence.test.ts",
         "frontend/tests/support/authoringFixture.ts",
         "frontend/tests/support/nleAssetPreparationFixture.ts",
         "frontend/tests/support/nleWorkspaceFixture.ts",
@@ -861,6 +863,7 @@
       "consumers": [
         "frontend/src/components/nle/NlePlanningSection.tsx",
         "frontend/src/components/nle/nleWorkspaceBinding.ts",
+        "frontend/src/contracts/projectDocumentCodec.ts",
         "frontend/src/entry.tsx",
         "frontend/src/host/managedQualificationActions.ts",
         "frontend/src/host/productionPlanningActions.ts",
@@ -895,7 +898,9 @@
       "compatibility": "migration_required",
       "consumers": [
         "frontend/src/components/ProductionWorkbench.tsx",
+        "frontend/src/components/RetainedAssetsSection.tsx",
         "frontend/src/contracts/productionAccumulationCodec.ts",
+        "frontend/src/contracts/projectDocumentCodec.ts",
         "frontend/src/host/managedProductionContext.ts",
         "frontend/src/host/productionActions.ts",
         "frontend/src/host/productionDestination.ts",
@@ -908,6 +913,7 @@
         "frontend/src/lifecycle/shellSession.ts",
         "frontend/tests/e2e/host/productionRuntimeProducer.ts",
         "frontend/tests/e2e/host/productionRuntimeRow.ts",
+        "frontend/tests/e2e/journeys/host/managedArtifactPrivateRoot.spec.ts",
         "frontend/tests/e2e/journeys/host/nleCausalJourney.spec.ts",
         "frontend/tests/e2e/journeys/host/planningIconToolbarHost.spec.ts",
         "frontend/tests/e2e/journeys/host/productionAuthoringImportHost.spec.ts",
@@ -945,6 +951,65 @@
       "persistence": "transient",
       "producers": [
         "frontend/src/contracts/productionWorkbenchCodec.ts"
+      ],
+      "publication": "repository_only",
+      "reachability": "reachable",
+      "reachability_source": "host_input"
+    },
+    {
+      "authority_paths": [
+        "frontend/src/contracts/projectDocumentCodec.ts"
+      ],
+      "blockers": [],
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
+      "consumers": [
+        "frontend/src/contracts/projectRecoveryCodec.ts",
+        "frontend/src/host/projectDocumentClient.ts",
+        "frontend/src/host/projectRecoveryClient.ts",
+        "frontend/src/lifecycle/projectFileSession.ts",
+        "frontend/src/lifecycle/projectPersistenceSession.ts",
+        "frontend/src/lifecycle/projectRecoverySession.ts",
+        "frontend/tests/projectPersistence.test.ts",
+        "frontend/tests/projectRecovery.test.tsx",
+        "governance/contracts/supply_chain_v1.json"
+      ],
+      "contract_id": "frontend/projectDocumentCodec",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "none",
+      "kind": "frontend_codec",
+      "persistence": "transient",
+      "producers": [
+        "frontend/src/contracts/projectDocumentCodec.ts"
+      ],
+      "publication": "repository_only",
+      "reachability": "reachable",
+      "reachability_source": "host_input"
+    },
+    {
+      "authority_paths": [
+        "frontend/src/contracts/projectRecoveryCodec.ts"
+      ],
+      "blockers": [],
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
+      "consumers": [
+        "frontend/src/host/projectRecoveryClient.ts",
+        "frontend/src/lifecycle/projectRecoverySession.ts",
+        "frontend/tests/projectRecovery.test.tsx",
+        "governance/contracts/supply_chain_v1.json"
+      ],
+      "contract_id": "frontend/projectRecoveryCodec",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "none",
+      "kind": "frontend_codec",
+      "persistence": "transient",
+      "producers": [
+        "frontend/src/contracts/projectRecoveryCodec.ts"
       ],
       "publication": "repository_only",
       "reachability": "reachable",
@@ -1032,6 +1097,36 @@
       "persistence": "transient",
       "producers": [
         "frontend/src/contracts/providerSettingsCodec.ts"
+      ],
+      "publication": "repository_only",
+      "reachability": "reachable",
+      "reachability_source": "host_input"
+    },
+    {
+      "authority_paths": [
+        "frontend/src/contracts/retainedAssetsCodec.ts"
+      ],
+      "blockers": [],
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
+      "consumers": [
+        "frontend/src/components/RetainedAssetsSection.tsx",
+        "frontend/src/host/retainedAssetsClient.ts",
+        "frontend/src/lifecycle/retainedAssetsSession.ts",
+        "frontend/tests/retainedAssetCodecClient.test.ts",
+        "frontend/tests/retainedAssetSession.test.ts",
+        "frontend/tests/retainedAssetsUi.test.tsx",
+        "governance/contracts/supply_chain_v1.json"
+      ],
+      "contract_id": "frontend/retainedAssetsCodec",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "none",
+      "kind": "frontend_codec",
+      "persistence": "transient",
+      "producers": [
+        "frontend/src/contracts/retainedAssetsCodec.ts"
       ],
       "publication": "repository_only",
       "reachability": "reachable",
@@ -1193,6 +1288,35 @@
       "persistence": "transient",
       "producers": [
         "frontend/src/contracts/transactionTransparencyCodec.ts"
+      ],
+      "publication": "repository_only",
+      "reachability": "reachable",
+      "reachability_source": "host_input"
+    },
+    {
+      "authority_paths": [
+        "frontend/src/contracts/workspaceStateCodec.ts"
+      ],
+      "blockers": [],
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
+      "consumers": [
+        "frontend/src/components/WorkspaceStateSection.tsx",
+        "frontend/src/contracts/retainedAssetsCodec.ts",
+        "frontend/src/host/workspaceStateClient.ts",
+        "frontend/src/lifecycle/workspaceStateSession.ts",
+        "frontend/tests/workspaceStateCodecClient.test.ts",
+        "governance/contracts/supply_chain_v1.json"
+      ],
+      "contract_id": "frontend/workspaceStateCodec",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "none",
+      "kind": "frontend_codec",
+      "persistence": "transient",
+      "producers": [
+        "frontend/src/contracts/workspaceStateCodec.ts"
       ],
       "publication": "repository_only",
       "reachability": "reachable",
@@ -1773,7 +1897,8 @@
         "scripts/fingerprint_domain.py",
         "scripts/m16_02_reconstruction_regression.py",
         "tests/fixtures/m16_02_reconstruction_regression.json",
-        "tests/test_compatibility.py"
+        "tests/test_compatibility.py",
+        "tests/test_public_release_controller.py"
       ],
       "contract_id": "h3.compatibility.matrix.v1",
       "dialect": "not_applicable",
@@ -2315,6 +2440,78 @@
     },
     {
       "authority_paths": [
+        "governance/contracts/host_seam_census_transition_project_persistence_v1.json"
+      ],
+      "blockers": [],
+      "boundary": "untrusted_input",
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
+        "frontend/tests/e2e/journeys/hostSeams/hc10HostSeamDrift.spec.ts",
+        "frontend/tests/hostSeamDrift.test.ts",
+        "frontend/tests/support/hostSeamDrift.ts"
+      ],
+      "contract_id": "h3.context.host_seam_census_transition_project_persistence.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "none",
+      "kind": "json_data",
+      "persistence": "persisted",
+      "producers": [
+        "governance/contracts/host_seam_census_transition_project_persistence_v1.json"
+      ],
+      "publication": "repository_only"
+    },
+    {
+      "authority_paths": [
+        "governance/contracts/host_seam_census_transition_retained_media_v1.json"
+      ],
+      "blockers": [],
+      "boundary": "untrusted_input",
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
+        "frontend/tests/e2e/journeys/hostSeams/hc10HostSeamDrift.spec.ts",
+        "frontend/tests/hostSeamDrift.test.ts",
+        "frontend/tests/support/hostSeamDrift.ts"
+      ],
+      "contract_id": "h3.context.host_seam_census_transition_retained_media.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "none",
+      "kind": "json_data",
+      "persistence": "persisted",
+      "producers": [
+        "governance/contracts/host_seam_census_transition_retained_media_v1.json"
+      ],
+      "publication": "repository_only"
+    },
+    {
+      "authority_paths": [
+        "governance/contracts/host_seam_census_transition_workspace_state_v1.json"
+      ],
+      "blockers": [],
+      "boundary": "untrusted_input",
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
+        "frontend/tests/e2e/journeys/hostSeams/hc10HostSeamDrift.spec.ts",
+        "frontend/tests/hostSeamDrift.test.ts",
+        "frontend/tests/support/hostSeamDrift.ts"
+      ],
+      "contract_id": "h3.context.host_seam_census_transition_workspace_state.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "none",
+      "kind": "json_data",
+      "persistence": "persisted",
+      "producers": [
+        "governance/contracts/host_seam_census_transition_workspace_state_v1.json"
+      ],
+      "publication": "repository_only"
+    },
+    {
+      "authority_paths": [
         "governance/contracts/host_seam_drift_baseline_v1.json"
       ],
       "blockers": [],
@@ -2707,7 +2904,8 @@
       "compatibility": "migration_required",
       "consumers": [
         "comfyui_h3_context/core/prompt_model_provider.py",
-        "frontend/tests/e2e/journeys/host/optionalAuthoring.spec.ts"
+        "frontend/tests/e2e/journeys/host/optionalAuthoring.spec.ts",
+        "tests/test_product_completeness.py"
       ],
       "contract_id": "h3.prompt_model.profiles.v6",
       "dialect": "not_applicable",
@@ -5466,7 +5664,8 @@
         "governance/contracts/supply_chain_v1.json",
         "scripts/contract_inventory.py",
         "scripts/m16_03_release_audit.py",
-        "scripts/public_projection.py",
+        "scripts/public_source_policy.py",
+        "scripts/registry_payload.py",
         "scripts/security_audit.py",
         "scripts/supply_chain_manifest.py",
         "scripts/validate_comfy_registry_metadata.py",
@@ -5494,9 +5693,11 @@
       "compatibility": "old_readers_unaffected",
       "consumers": [
         "governance/contracts/supply_chain_v1.json",
+        "pyproject.toml",
         "scripts/contract_inventory.py",
         "scripts/m16_03_release_audit.py",
-        "scripts/public_projection.py",
+        "scripts/public_build_backend.py",
+        "scripts/public_source_policy.py",
         "scripts/retirement_eligibility.py",
         "scripts/security_audit.py",
         "scripts/supply_chain_manifest.py",
@@ -5504,7 +5705,8 @@
         "tests/test_comfy_registry_metadata.py",
         "tests/test_product_shell_package.py",
         "tests/test_public_release_controller.py",
-        "tests/test_retirement_eligibility.py"
+        "tests/test_retirement_eligibility.py",
+        "tests/test_sdist_distribution.py"
       ],
       "contract_id": "package/MANIFEST.in",
       "dialect": "not_applicable",
@@ -5537,12 +5739,16 @@
         "scripts/m3_08_host_e2e.py",
         "scripts/m7_06_compatibility.py",
         "scripts/nle_hardening_dependency_audit.py",
+        "scripts/product_completeness.py",
+        "scripts/public_build_backend.py",
         "scripts/public_projection.py",
+        "scripts/public_source_policy.py",
         "scripts/registration_smoke.py",
         "scripts/registry_publish_guard.py",
         "scripts/registry_release_controller.py",
         "scripts/release_matrix.py",
         "scripts/retirement_eligibility.py",
+        "scripts/sdist_payload.py",
         "scripts/security_audit.py",
         "scripts/supply_chain_manifest.py",
         "scripts/validate_comfy_registry_metadata.py",
@@ -5553,10 +5759,14 @@
         "tests/test_m16_03_release_audit.py",
         "tests/test_m25_45_loopback_media_runner.py",
         "tests/test_package_boundary.py",
+        "tests/test_product_completeness.py",
         "tests/test_product_shell_package.py",
         "tests/test_public_release_controller.py",
+        "tests/test_public_test_distribution.py",
+        "tests/test_registry_payload.py",
         "tests/test_registry_publish_guard.py",
         "tests/test_release_matrix.py",
+        "tests/test_sdist_distribution.py",
         "tests/test_supply_chain_manifest.py",
         "tests/test_supported_host_e2e.py",
         "tests/test_tooling_contract.py"
@@ -6624,6 +6834,7 @@
       "compatibility": "old_readers_unaffected",
       "consumers": [
         "comfyui_h3_context/core/nle_authoring_contract.py",
+        "comfyui_h3_context/core/project_document.py",
         "comfyui_h3_context/core/render_planner.py",
         "frontend/src/contracts/compositionCodec.ts",
         "frontend/tests/authoringWorkbenchCodec.test.ts",
@@ -6635,7 +6846,8 @@
         "tests/fixtures/m25_20_semantic_corpus_base_v1.json",
         "tests/fixtures/m25_45_semantic_highres_base_v1.json",
         "tests/fixtures/m25_77_semantic_clip_audio_base_v1.json",
-        "tests/test_m25_composition_contract.py"
+        "tests/test_m25_composition_contract.py",
+        "tests/test_project_document.py"
       ],
       "contract_id": "h3.authoring.independent_audio_extension.v1",
       "dialect": "not_applicable",
@@ -6657,9 +6869,11 @@
       "boundary": "untrusted_input",
       "compatibility": "old_readers_unaffected",
       "consumers": [
+        "comfyui_h3_context/core/retained_assets.py",
         "tests/test_m25_75_generation_profile.py",
         "tests/test_m25_authoring_video_facts.py",
-        "tests/test_m25_media_derivative_generator.py"
+        "tests/test_m25_media_derivative_generator.py",
+        "tests/test_retained_assets.py"
       ],
       "contract_id": "h3.authoring.video_source_facts.v2",
       "dialect": "not_applicable",
@@ -7353,6 +7567,7 @@
         "frontend/tests/authoringWorkbenchCodec.test.ts",
         "scripts/nle_semantic_import_scenario.py",
         "tests/test_authoring_workspace.py",
+        "tests/test_editor_recovery_service.py",
         "tests/test_m25_29_production_authoring_import.py",
         "tests/test_m25_40_import_preparation.py",
         "tests/test_m25_authoring_initialization.py",
@@ -9673,16 +9888,20 @@
       "authority_paths": [
         "comfyui_h3_context/adapters/media_runtime_discovery_worker.py"
       ],
-      "blockers": [
-        "unknown_consumer"
-      ],
+      "blockers": [],
       "boundary": "untrusted_input",
-      "compatibility": "unknown",
-      "consumers": [],
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
+        "comfyui_h3_context/adapters/comfyui_retained_assets.py",
+        "comfyui_h3_context/adapters/comfyui_workspace_state.py",
+        "comfyui_h3_context/adapters/editor_recovery_service.py",
+        "comfyui_h3_context/adapters/retained_asset_service.py",
+        "comfyui_h3_context/adapters/workspace_state_service.py"
+      ],
       "contract_id": "h3.context.media_runtime_discovery_response.v1",
       "dialect": "not_applicable",
-      "disposition": "NEED_EVIDENCE",
-      "evidence": "no reader resolved by the five discovery rules; absence is not disuse",
+      "disposition": "KEEP",
+      "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
       "fingerprint_domain": "h3.context.media_runtime_discovery_response.v1",
       "kind": "python_wire",
       "persistence": "transient",
@@ -9792,6 +10011,10 @@
       "boundary": "untrusted_input",
       "compatibility": "old_readers_unaffected",
       "consumers": [
+        "comfyui_h3_context/adapters/comfyui_retained_assets.py",
+        "comfyui_h3_context/adapters/editor_recovery_service.py",
+        "comfyui_h3_context/adapters/retained_asset_service.py",
+        "comfyui_h3_context/adapters/workspace_state_service.py",
         "frontend/src/contracts/mediaRuntimeCodec.ts",
         "frontend/tests/e2e/journeys/host/productionAuthoringImportHost.spec.ts",
         "frontend/tests/fixtures/media_runtime_wire_v3.json",
@@ -10779,7 +11002,10 @@
         "tests/test_product_shell_node.py",
         "tests/test_production_import.py",
         "tests/test_production_workbench.py",
-        "tests/test_production_workbench_static.py"
+        "tests/test_production_workbench_static.py",
+        "tests/test_project_document_service.py",
+        "tests/test_retained_asset_restore.py",
+        "tests/test_retained_asset_source.py"
       ],
       "contract_id": "h3.context.production_workbench.action.v1",
       "dialect": "not_applicable",
@@ -10832,6 +11058,119 @@
         "comfyui_h3_context/core/production_workbench.py"
       ],
       "publication": "packaged"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/adapters/editor_recovery_service.py"
+      ],
+      "blockers": [],
+      "boundary": "process_local",
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
+        "comfyui_h3_context/adapters/comfyui_editor_recovery.py",
+        "comfyui_h3_context/adapters/comfyui_retained_assets.py",
+        "comfyui_h3_context/adapters/comfyui_workspace_state.py",
+        "comfyui_h3_context/adapters/media_runtime_discovery_worker.py",
+        "comfyui_h3_context/adapters/retained_asset_service.py",
+        "comfyui_h3_context/adapters/workspace_state_service.py"
+      ],
+      "contract_id": "h3.context.project_recovery.response.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "readers resolved inside this repository; no simplification evidence gathered",
+      "fingerprint_domain": "h3.context.project_recovery.response.v1",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/adapters/editor_recovery_service.py"
+      ],
+      "publication": "packaged",
+      "reachability": "unsupported",
+      "reachability_source": "none"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/adapters/editor_recovery_service.py"
+      ],
+      "blockers": [],
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
+      "consumers": [
+        "comfyui_h3_context/adapters/comfyui_media_runtime_setup.py",
+        "comfyui_h3_context/adapters/comfyui_retained_assets.py",
+        "comfyui_h3_context/adapters/retained_asset_service.py",
+        "comfyui_h3_context/adapters/workspace_state_service.py",
+        "frontend/src/contracts/projectRecoveryCodec.ts",
+        "frontend/tests/fixtures/entryHostModules.ts",
+        "frontend/tests/projectRecovery.test.tsx",
+        "tests/test_m25_31_media_runtime_setup.py",
+        "tests/test_m25_32_media_runtime_activation.py",
+        "tests/test_m25_33_media_setup_entry.py"
+      ],
+      "contract_id": "h3.context.project_recovery.status.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "h3.context.project_recovery.status.v1",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/adapters/editor_recovery_service.py"
+      ],
+      "publication": "packaged",
+      "reachability": "unsupported",
+      "reachability_source": "none"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/adapters/editor_recovery_store.py"
+      ],
+      "blockers": [],
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
+      "consumers": [
+        "comfyui_h3_context/adapters/durable_state_store.py",
+        "frontend/src/host/officialAssetResolution.ts",
+        "scripts/nle_hardening_manifest.py"
+      ],
+      "contract_id": "h3.context.project_recovery_manifest.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "h3.context.project_recovery_manifest.v1",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/adapters/editor_recovery_store.py"
+      ],
+      "publication": "packaged",
+      "reachability": "reachable",
+      "reachability_source": "host_input"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/core/editor_recovery.py"
+      ],
+      "blockers": [],
+      "boundary": "process_local",
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
+        "comfyui_h3_context/adapters/editor_recovery_store.py",
+        "tests/test_editor_recovery.py"
+      ],
+      "contract_id": "h3.context.project_recovery_snapshot.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "readers resolved inside this repository; no simplification evidence gathered",
+      "fingerprint_domain": "h3.context.project_recovery_snapshot.v1",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/core/editor_recovery.py"
+      ],
+      "publication": "packaged",
+      "reachability": "unsupported",
+      "reachability_source": "none"
     },
     {
       "authority_paths": [
@@ -11155,6 +11494,91 @@
     },
     {
       "authority_paths": [
+        "comfyui_h3_context/core/retained_assets.py"
+      ],
+      "blockers": [],
+      "boundary": "process_local",
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
+        "tests/test_retained_asset_store.py",
+        "tests/test_retained_assets.py"
+      ],
+      "contract_id": "h3.context.retained_asset_catalog.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "readers resolved inside this repository; no simplification evidence gathered",
+      "fingerprint_domain": "h3.context.retained_asset_catalog.v1",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/core/retained_assets.py"
+      ],
+      "publication": "packaged"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/adapters/retained_asset_service.py"
+      ],
+      "blockers": [],
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
+      "consumers": [
+        "comfyui_h3_context/adapters/comfyui_retained_assets.py",
+        "comfyui_h3_context/adapters/comfyui_workspace_state.py",
+        "comfyui_h3_context/adapters/editor_recovery_service.py",
+        "comfyui_h3_context/adapters/media_runtime_discovery_worker.py",
+        "comfyui_h3_context/adapters/workspace_state_service.py",
+        "frontend/src/contracts/retainedAssetsCodec.ts",
+        "frontend/tests/retainedAssetFixtures.ts"
+      ],
+      "contract_id": "h3.context.retained_assets_response.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "h3.context.retained_assets_response.v1",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/adapters/retained_asset_service.py"
+      ],
+      "publication": "packaged",
+      "reachability": "unsupported",
+      "reachability_source": "none"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/adapters/retained_asset_service.py"
+      ],
+      "blockers": [],
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
+      "consumers": [
+        "comfyui_h3_context/adapters/comfyui_media_runtime_setup.py",
+        "comfyui_h3_context/adapters/comfyui_retained_assets.py",
+        "comfyui_h3_context/adapters/editor_recovery_service.py",
+        "comfyui_h3_context/adapters/workspace_state_service.py",
+        "frontend/src/contracts/retainedAssetsCodec.ts",
+        "frontend/tests/retainedAssetFixtures.ts",
+        "tests/test_m25_31_media_runtime_setup.py",
+        "tests/test_m25_32_media_runtime_activation.py",
+        "tests/test_m25_33_media_setup_entry.py"
+      ],
+      "contract_id": "h3.context.retained_assets_status.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "h3.context.retained_assets_status.v1",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/adapters/retained_asset_service.py"
+      ],
+      "publication": "packaged",
+      "reachability": "unsupported",
+      "reachability_source": "none"
+    },
+    {
+      "authority_paths": [
         "comfyui_h3_context/core/segment_artifacts.py"
       ],
       "blockers": [
@@ -11216,16 +11640,16 @@
       "authority_paths": [
         "comfyui_h3_context/adapters/segment_artifact_store.py"
       ],
-      "blockers": [
-        "unknown_consumer"
-      ],
+      "blockers": [],
       "boundary": "persisted",
       "compatibility": "migration_required",
-      "consumers": [],
+      "consumers": [
+        "comfyui_h3_context/adapters/managed_artifact_scopes.py"
+      ],
       "contract_id": "h3.context.segment_artifact_store.v1",
       "dialect": "not_applicable",
-      "disposition": "NEED_EVIDENCE",
-      "evidence": "no reader resolved by the five discovery rules; absence is not disuse",
+      "disposition": "KEEP",
+      "evidence": "persisted boundary keeps a reader this repository cannot re-migrate",
       "fingerprint_domain": "h3.context.segment_artifact_store.v1",
       "kind": "python_wire",
       "persistence": "persisted",
@@ -11240,16 +11664,16 @@
       "authority_paths": [
         "comfyui_h3_context/adapters/segment_artifact_store.py"
       ],
-      "blockers": [
-        "unknown_consumer"
-      ],
+      "blockers": [],
       "boundary": "persisted",
       "compatibility": "migration_required",
-      "consumers": [],
+      "consumers": [
+        "comfyui_h3_context/adapters/managed_artifact_scopes.py"
+      ],
       "contract_id": "h3.context.segment_artifact_store_state.v1",
       "dialect": "not_applicable",
-      "disposition": "NEED_EVIDENCE",
-      "evidence": "no reader resolved by the five discovery rules; absence is not disuse",
+      "disposition": "KEEP",
+      "evidence": "persisted boundary keeps a reader this repository cannot re-migrate",
       "fingerprint_domain": "h3.context.segment_artifact_store_state.v1",
       "kind": "python_wire",
       "persistence": "persisted",
@@ -12121,6 +12545,116 @@
         "comfyui_h3_context/core/validation_lifecycle.py"
       ],
       "publication": "packaged"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/core/durable_workspace_state.py"
+      ],
+      "blockers": [],
+      "boundary": "process_local",
+      "compatibility": "old_readers_unaffected",
+      "consumers": [
+        "tests/test_durable_workspace_state.py"
+      ],
+      "contract_id": "h3.context.workspace_state.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "readers resolved inside this repository; no simplification evidence gathered",
+      "fingerprint_domain": "h3.context.workspace_state.v1",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/core/durable_workspace_state.py"
+      ],
+      "publication": "packaged"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/adapters/durable_state_store.py"
+      ],
+      "blockers": [],
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
+      "consumers": [
+        "comfyui_h3_context/adapters/editor_recovery_store.py",
+        "frontend/src/host/officialAssetResolution.ts",
+        "scripts/nle_hardening_manifest.py"
+      ],
+      "contract_id": "h3.context.workspace_state_manifest.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "h3.context.workspace_state_manifest.v1",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/adapters/durable_state_store.py"
+      ],
+      "publication": "packaged",
+      "reachability": "reachable",
+      "reachability_source": "host_input"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/adapters/workspace_state_service.py"
+      ],
+      "blockers": [],
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
+      "consumers": [
+        "comfyui_h3_context/adapters/comfyui_retained_assets.py",
+        "comfyui_h3_context/adapters/comfyui_workspace_state.py",
+        "comfyui_h3_context/adapters/editor_recovery_service.py",
+        "comfyui_h3_context/adapters/media_runtime_discovery_worker.py",
+        "comfyui_h3_context/adapters/retained_asset_service.py",
+        "frontend/src/contracts/workspaceStateCodec.ts",
+        "tests/fixtures/workspace_state_v1.json"
+      ],
+      "contract_id": "h3.context.workspace_state_response.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "h3.context.workspace_state_response.v1",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/adapters/workspace_state_service.py"
+      ],
+      "publication": "packaged",
+      "reachability": "unsupported",
+      "reachability_source": "none"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/adapters/workspace_state_service.py"
+      ],
+      "blockers": [],
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
+      "consumers": [
+        "comfyui_h3_context/adapters/comfyui_media_runtime_setup.py",
+        "comfyui_h3_context/adapters/comfyui_retained_assets.py",
+        "comfyui_h3_context/adapters/editor_recovery_service.py",
+        "comfyui_h3_context/adapters/retained_asset_service.py",
+        "frontend/src/contracts/workspaceStateCodec.ts",
+        "tests/fixtures/workspace_state_v1.json",
+        "tests/test_m25_31_media_runtime_setup.py",
+        "tests/test_m25_32_media_runtime_activation.py",
+        "tests/test_m25_33_media_setup_entry.py"
+      ],
+      "contract_id": "h3.context.workspace_state_status.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "h3.context.workspace_state_status.v1",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/adapters/workspace_state_service.py"
+      ],
+      "publication": "packaged",
+      "reachability": "unsupported",
+      "reachability_source": "none"
     },
     {
       "authority_paths": [
@@ -14370,6 +14904,7 @@
         "comfyui_h3_context/core/workflow_migration_subgraph.py",
         "frontend/tests/e2e/host/execution.ts",
         "frontend/tests/e2e/journeys/host/contextSetup.spec.ts",
+        "frontend/tests/e2e/journeys/host/managedArtifactPrivateRoot.spec.ts",
         "frontend/tests/e2e/journeys/host/managedParentQualification.spec.ts",
         "frontend/tests/e2e/journeys/host/nleCausalJourney.spec.ts",
         "frontend/tests/e2e/journeys/host/planningIconToolbarHost.spec.ts",
@@ -14510,6 +15045,7 @@
         "scripts/m10_08_runtime_fixture.py",
         "scripts/m3_08_host_e2e.py",
         "tests/test_graph_binding.py",
+        "tests/test_product_completeness.py",
         "tests/test_runtime_foundation_fixture.py",
         "tests/test_supported_host_e2e.py",
         "tests/test_workflow_fixtures.py",
@@ -14686,6 +15222,6 @@
       "reachability_source": "none"
     }
   ],
-  "fingerprint": "sha256:a2c769abf68d4bf43d27e44cf0f2ba626aebb6c4694e9b4f607b7a94e0886449",
+  "fingerprint": "sha256:4021891f631280fd8797e0c3ac13672bc1b79fd659ecc8652ca864339116f488",
   "schema": "h3-context-contract-inventory/1"
 }

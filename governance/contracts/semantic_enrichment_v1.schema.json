@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/semantic_enrichment_v1.schema.json",
+  "title": "H3 constrained semantic enrichment",
+  "description": "Provenance-aware additive proposals; protected prompt fields remain immutable.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "before_plan", "after_plan", "status", "accepted", "conflicts", "audit", "diagnostics"],
+  "properties": {
+    "schema": {"const": "h3.semantic.enrichment.v1"},
+    "before_plan": {"type": "object"},
+    "after_plan": {"type": ["object", "null"]},
+    "status": {"enum": ["noop", "applied", "partial", "rejected"]},
+    "accepted": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/proposal"}},
+    "conflicts": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/conflict"}},
+    "audit": {"$ref": "#/$defs/audit"},
+    "diagnostics": {"type": "array", "maxItems": 256, "items": {"type": "object"}}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "evidence": {"type": "object"},
+    "proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "proposal_id", "target_kind", "target_id", "text", "evidence", "untrusted"],
+      "properties": {
+        "schema": {"const": "h3.semantic.enrichment.v1"},
+        "proposal_id": {"$ref": "#/$defs/identifier"},
+        "target_kind": {"enum": ["subject", "scene", "action", "camera", "style", "audio", "dialogue", "lyrics", "visible_text", "timing", "asset"]},
+        "target_id": {"$ref": "#/$defs/identifier"},
+        "text": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "evidence": {"$ref": "#/$defs/evidence"},
+        "untrusted": {"const": true}
+      }
+    },
+    "conflict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "conflict_id", "proposal_id", "code", "message", "severity"],
+      "properties": {
+        "schema": {"const": "h3.semantic.enrichment.v1"},
+        "conflict_id": {"$ref": "#/$defs/identifier"},
+        "proposal_id": {"$ref": "#/$defs/identifier"},
+        "code": {"$ref": "#/$defs/identifier"},
+        "message": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "severity": {"enum": ["info", "warning", "error", "fatal"]}
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "audit_id", "before_plan_id", "after_plan_id", "before_fingerprint", "after_fingerprint", "accepted_proposal_ids", "rejected_proposal_ids", "status"],
+      "properties": {
+        "schema": {"const": "h3.semantic.enrichment.v1"},
+        "audit_id": {"$ref": "#/$defs/identifier"},
+        "before_plan_id": {"$ref": "#/$defs/identifier"},
+        "after_plan_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+        "before_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "after_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "accepted_proposal_ids": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "rejected_proposal_ids": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "status": {"enum": ["noop", "applied", "partial", "rejected"]}
+      }
+    }
+  }
+}

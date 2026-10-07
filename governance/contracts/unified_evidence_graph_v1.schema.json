@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/unified_evidence_graph_v1.schema.json",
+  "title": "H3 Unified Evidence, Entity, Track, and Event Graph v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "status",
+    "complete",
+    "observations",
+    "entities",
+    "tracks",
+    "events",
+    "evidence",
+    "uncertainties",
+    "alternatives",
+    "conflicts",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema": {"const": "h3.unified.evidence_graph.v1"},
+    "status": {"enum": ["complete", "partial", "ambiguous", "conflicting", "empty"]},
+    "complete": {"type": "boolean"},
+    "observations": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/observation"}},
+    "entities": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/entity"}},
+    "tracks": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/track"}},
+    "events": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/event"}},
+    "evidence": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/evidence"}},
+    "uncertainties": {"type": "array", "maxItems": 1024, "items": {"$ref": "#/$defs/uncertainty"}},
+    "alternatives": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/alternative"}},
+    "conflicts": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/conflict"}},
+    "diagnostics": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "decimal": {"type": ["string", "null"], "pattern": "^(0(\\.[0-9]+)?|1(\\.0+)?)$"},
+    "sourceSpan": {
+      "type": "object",
+      "required": ["schema", "asset_id", "source_id", "source_fingerprint", "start_ms", "end_ms"],
+      "properties": {
+        "schema": {"const": "h3.unified.evidence_graph.v1"},
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "start_ms": {"type": "integer", "minimum": 0, "maximum": 86400000},
+        "end_ms": {"type": "integer", "minimum": 0, "maximum": 86400000}
+      },
+      "additionalProperties": false
+    },
+    "uncertainty": {
+      "type": "object",
+      "required": ["schema", "uncertainty_id", "kind", "detail", "severity"],
+      "properties": {
+        "schema": {"const": "h3.unified.evidence_graph.v1"},
+        "uncertainty_id": {"$ref": "#/$defs/identifier"},
+        "kind": {"enum": ["missing_source", "low_confidence", "ambiguous", "conflicting", "unsupported", "unintelligible", "truncated", "stale"]},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "severity": {"enum": ["info", "warning", "error", "fatal"]}
+      },
+      "additionalProperties": false
+    },
+    "observation": {
+      "type": "object",
+      "required": ["schema", "observation_id", "asset_id", "modality", "kind", "label", "source_span", "evidence_ids", "support", "confidence", "uncertainty_ids", "entity_ids", "track_ids", "event_ids"],
+      "properties": {
+        "schema": {"const": "h3.unified.evidence_graph.v1"},
+        "observation_id": {"$ref": "#/$defs/identifier"},
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "modality": {"enum": ["image", "video", "audio"]},
+        "kind": {"enum": ["subject", "object", "scene", "action", "camera", "style", "text", "audio", "speech", "other"]},
+        "label": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "source_span": {"anyOf": [{"$ref": "#/$defs/sourceSpan"}, {"type": "null"}]},
+        "evidence_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+        "support": {"enum": ["supported", "uncertain", "unsupported", "missing"]},
+        "confidence": {"$ref": "#/$defs/decimal"},
+        "uncertainty_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+        "entity_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+        "track_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+        "event_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}}
+      },
+      "additionalProperties": false
+    },
+    "entity": {
+      "type": "object",
+      "required": ["schema", "entity_id", "kind", "observation_ids", "track_ids", "evidence_ids", "resolution", "candidate_ids", "label", "confidence", "uncertainty_ids"],
+      "properties": {
+        "schema": {"const": "h3.unified.evidence_graph.v1"},
+        "entity_id": {"$ref": "#/$defs/identifier"},
+        "kind": {"enum": ["subject", "object", "scene", "speaker", "other"]},
+        "observation_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+        "track_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+        "evidence_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+        "resolution": {"enum": ["resolved", "ambiguous", "unresolved", "conflicting"]},
+        "candidate_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+        "label": {"type": ["string", "null"], "maxLength": 4096},
+        "confidence": {"$ref": "#/$defs/decimal"},
+        "uncertainty_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}}
+      },
+      "additionalProperties": false
+    },
+    "track": {
+      "type": "object",
+      "required": ["schema", "track_id", "observation_ids", "entity_id", "spans", "resolution", "confidence", "uncertainty_ids"],
+      "properties": {
+        "schema": {"const": "h3.unified.evidence_graph.v1"},
+        "track_id": {"$ref": "#/$defs/identifier"},
+        "observation_ids": {"type": "array", "minItems": 1, "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+        "entity_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+        "spans": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/sourceSpan"}},
+        "resolution": {"enum": ["resolved", "ambiguous", "unresolved", "conflicting"]},
+        "confidence": {"$ref": "#/$defs/decimal"},
+        "uncertainty_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}}
+      },
+      "additionalProperties": false
+    },
+    "event": {
+      "type": "object",
+      "required": ["schema", "event_id", "kind", "observation_ids", "entity_ids", "span", "support", "resolution", "evidence_ids", "confidence", "uncertainty_ids"],
+      "properties": {
+        "schema": {"const": "h3.unified.evidence_graph.v1"},
+        "event_id": {"$ref": "#/$defs/identifier"},
+        "kind": {"enum": ["scene", "action", "speech", "edit", "audio", "text", "other"]},
+        "observation_ids": {"type": "array", "minItems": 1, "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+        "entity_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+        "span": {"anyOf": [{"$ref": "#/$defs/sourceSpan"}, {"type": "null"}]},
+        "support": {"enum": ["supported", "uncertain", "unsupported", "missing"]},
+        "resolution": {"enum": ["resolved", "ambiguous", "unresolved", "conflicting"]},
+        "evidence_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+        "confidence": {"$ref": "#/$defs/decimal"},
+        "uncertainty_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}}
+      },
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["evidence_id", "claim", "origin", "support", "provenance", "confidence", "uncertainties"],
+      "properties": {
+        "evidence_id": {"$ref": "#/$defs/identifier"},
+        "claim": {"type": "string", "minLength": 1, "maxLength": 65536},
+        "origin": {"enum": ["user_declared", "observed", "assisted_proposal", "derived"]},
+        "support": {"enum": ["supported", "uncertain", "unsupported", "rejected"]},
+        "provenance": {"type": "object"},
+        "confidence": {"$ref": "#/$defs/decimal"},
+        "uncertainties": {"type": "array", "maxItems": 256, "items": {"type": "object"}}
+      },
+      "additionalProperties": false
+    },
+    "alternative": {
+      "type": "object",
+      "required": ["schema", "alternative_id", "target_kind", "target_id", "candidate_ids", "reason", "evidence_ids", "uncertainty_ids"],
+      "properties": {
+        "schema": {"const": "h3.unified.evidence_graph.v1"},
+        "alternative_id": {"$ref": "#/$defs/identifier"},
+        "target_kind": {"enum": ["observation", "entity", "track", "event"]},
+        "target_id": {"$ref": "#/$defs/identifier"},
+        "candidate_ids": {"type": "array", "minItems": 2, "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "evidence_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+        "uncertainty_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}}
+      },
+      "additionalProperties": false
+    },
+    "conflict": {
+      "type": "object",
+      "required": ["schema", "conflict_id", "target_kind", "target_ids", "reason", "severity", "evidence_ids", "uncertainty_ids"],
+      "properties": {
+        "schema": {"const": "h3.unified.evidence_graph.v1"},
+        "conflict_id": {"$ref": "#/$defs/identifier"},
+        "target_kind": {"enum": ["observation", "entity", "track", "event"]},
+        "target_ids": {"type": "array", "minItems": 2, "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "severity": {"enum": ["info", "warning", "error", "fatal"]},
+        "evidence_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}},
+        "uncertainty_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/identifier"}}
+      },
+      "additionalProperties": false
+    }
+  }
+}

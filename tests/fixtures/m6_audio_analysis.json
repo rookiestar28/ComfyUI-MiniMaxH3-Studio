@@ -1,0 +1,16 @@
+{
+  "schema": "h3.audio.analysis.v1",
+  "fixture_id": "m6-audio-contract-v1",
+  "sources": [
+    {
+      "asset_id": "audio_1",
+      "source_id": "source.audio_1",
+      "declared_duration_seconds": "8.0",
+      "declared_sample_rate": 48000,
+      "declared_channels": 2,
+      "declared_sample_count": 384000
+    }
+  ],
+  "enabled_kinds": ["transcript", "speaker", "voice", "music", "ambience", "sfx"],
+  "cases": ["transcript", "no_speech", "overlap", "noise", "multilingual", "corrupt"]
+}

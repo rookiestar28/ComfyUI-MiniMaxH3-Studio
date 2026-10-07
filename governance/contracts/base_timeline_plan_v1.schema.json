@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/base_timeline_plan_v1.schema.json",
+  "title": "H3 deterministic Base timeline plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "timeline_id", "task_mode", "effective_duration", "shots", "evidence_ids", "config"],
+  "properties": {
+    "schema": {"const": "h3.base.timeline.plan.v1"},
+    "timeline_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "task_mode": {"enum": ["t2va", "i2va", "fl2va", "l2va"]},
+    "effective_duration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["raw", "seconds"],
+      "properties": {
+        "raw": {"type": "string"},
+        "seconds": {"type": "string"}
+      }
+    },
+    "shots": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["shot_id", "start", "end", "scene_id", "subject_ids", "action_ids", "camera_id", "style_id", "audio_ids", "asset_ids", "evidence_ids"],
+        "properties": {
+          "shot_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+          "start": {"$ref": "#/$defs/time_point"},
+          "end": {"$ref": "#/$defs/time_point"},
+          "scene_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+          "subject_ids": {"type": "array", "maxItems": 9, "items": {"type": "string"}},
+          "action_ids": {"type": "array", "maxItems": 9, "items": {"type": "string"}},
+          "camera_id": {"type": ["string", "null"]},
+          "style_id": {"type": ["string", "null"]},
+          "audio_ids": {"type": "array", "maxItems": 9, "items": {"type": "string"}},
+          "asset_ids": {"type": "array", "maxItems": 9, "items": {"type": "string"}},
+          "evidence_ids": {"type": "array", "maxItems": 256, "items": {"type": "string"}}
+        }
+      }
+    },
+    "evidence_ids": {"type": "array", "maxItems": 256, "uniqueItems": true, "items": {"type": "string"}},
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["deterministic", "seed"],
+      "properties": {
+        "deterministic": {"const": true},
+        "seed": {"type": ["integer", "null"]}
+      }
+    }
+  },
+  "$defs": {
+    "time_point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["raw", "seconds"],
+      "properties": {
+        "raw": {"type": "string"},
+        "seconds": {"type": "string"}
+      }
+    }
+  }
+}

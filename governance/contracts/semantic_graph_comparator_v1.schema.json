@@ -1,0 +1,355 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://comfyui-h3-context.invalid/contracts/semantic_graph_comparator_v1.schema.json",
+  "title": "H3 semantic graph comparator evaluation v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "design",
+    "guide_goldens",
+    "p0_cases",
+    "non_p0_cases",
+    "report",
+    "official_profile",
+    "bundle_fingerprint"
+  ],
+  "properties": {
+    "schema": {"const": "h3.semantic_graph_comparator.evaluation.v1"},
+    "design": {"$ref": "#/$defs/design"},
+    "guide_goldens": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {"$ref": "#/$defs/guideGolden"}
+    },
+    "p0_cases": {
+      "type": "array",
+      "minItems": 24,
+      "maxItems": 24,
+      "items": {"$ref": "#/$defs/p0Case"}
+    },
+    "non_p0_cases": {
+      "type": "array",
+      "minItems": 40,
+      "maxItems": 40,
+      "items": {"$ref": "#/$defs/nonP0Case"}
+    },
+    "report": {"$ref": "#/$defs/report"},
+    "official_profile": {"$ref": "#/$defs/officialProfile"},
+    "bundle_fingerprint": {
+      "const": "sha256:a86a67781151dc7fb46a8739964a4efe4d6cc3ca11173377826bbd3b4056cf7d"
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.:-]{0,127}$",
+      "maxLength": 128
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "metric": {
+      "type": "string",
+      "pattern": "^(?:0|1)\\.[0-9]{8}$"
+    },
+    "safeSource": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 8192,
+      "allOf": [
+        {"not": {"pattern": "(?:[Hh][Tt][Tt][Pp][Ss]?|[Ff][Ii][Ll][Ee])://"}},
+        {"not": {"pattern": "[A-Za-z]:\\\\"}},
+        {"not": {"pattern": "(?:^|[ \\t\\r\\n\"'])(?:/[Hh][Oo][Mm][Ee]/|/[Uu][Ss][Ee][Rr][Ss]/|/[Tt][Mm][Pp]/|\\\\\\\\)"}},
+        {"not": {"pattern": "[Aa][Pp][Ii][_-]?[Kk][Ee][Yy]|[Cc][Rr][Ee][Dd][Ee][Nn][Tt][Ii][Aa][Ll]|[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]|[Ss][Ii][Gg][Nn][Ee][Dd][_-]?[Uu][Rr][Ll]"}}
+      ]
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {"enum": ["h3_base", "h3_full_reference"]},
+        "version": {"const": "1.0"}
+      }
+    },
+    "anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end", "text"],
+      "properties": {
+        "start": {"type": "integer", "minimum": 0, "maximum": 8191},
+        "end": {"type": "integer", "minimum": 1, "maximum": 8192},
+        "text": {"type": "string", "minLength": 1, "maxLength": 1024}
+      }
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["node_id", "kind", "value", "anchor", "attributes"],
+      "properties": {
+        "node_id": {"$ref": "#/$defs/identifier"},
+        "kind": {"enum": ["section", "asset", "entity", "event", "timing", "exact_text", "audio_fact", "av_fact"]},
+        "value": {"type": "string", "minLength": 1, "maxLength": 1024},
+        "anchor": {"$ref": "#/$defs/anchor"},
+        "attributes": {
+          "type": "object",
+          "maxProperties": 16,
+          "propertyNames": {"pattern": "^[a-z][a-z0-9_.:-]{0,127}$"},
+          "additionalProperties": {"type": "string", "minLength": 1, "maxLength": 256}
+        }
+      }
+    },
+    "relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relation_id", "kind", "source_id", "target_id", "value", "anchor"],
+      "properties": {
+        "relation_id": {"$ref": "#/$defs/identifier"},
+        "kind": {"enum": ["role", "ownership", "order", "copy", "retain", "temporal", "av"]},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "target_id": {"$ref": "#/$defs/identifier"},
+        "value": {"type": "string", "minLength": 1, "maxLength": 256},
+        "anchor": {"$ref": "#/$defs/anchor"}
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "node_id"],
+      "properties": {
+        "code": {"$ref": "#/$defs/identifier"},
+        "node_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_kind", "source_id", "profile", "task_mode", "source_fingerprint", "authority_revision", "authority_digest"],
+      "properties": {
+        "source_kind": {"enum": ["local", "public_guide", "official_oracle"]},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "profile": {"$ref": "#/$defs/profile"},
+        "task_mode": {"enum": ["t2va", "i2va", "fl2va", "l2va", "ref2va"]},
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "authority_revision": {"type": ["string", "null"], "pattern": "^[0-9A-Za-z._-]{1,128}$", "maxLength": 128},
+        "authority_digest": {"anyOf": [{"$ref": "#/$defs/digest"}, {"type": "null"}]}
+      }
+    },
+    "graph": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "source_text", "provenance", "nodes", "relations", "uncertainties", "observed_rules", "hypotheses", "unknowns", "graph_fingerprint"],
+      "properties": {
+        "schema": {"const": "h3.prompt.semantic_graph.v1"},
+        "source_text": {"$ref": "#/$defs/safeSource"},
+        "provenance": {"$ref": "#/$defs/provenance"},
+        "nodes": {"type": "array", "minItems": 1, "maxItems": 64, "items": {"$ref": "#/$defs/node"}},
+        "relations": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/relation"}},
+        "uncertainties": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/uncertainty"}},
+        "observed_rules": {"type": "array", "maxItems": 32, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "hypotheses": {"type": "array", "maxItems": 32, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "unknowns": {"type": "array", "maxItems": 32, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+        "graph_fingerprint": {"$ref": "#/$defs/fingerprint"}
+      }
+    },
+    "localGraph": {
+      "allOf": [
+        {"$ref": "#/$defs/graph"},
+        {
+          "properties": {
+            "provenance": {
+              "properties": {
+                "source_kind": {"const": "local"},
+                "authority_revision": {"type": "null"},
+                "authority_digest": {"type": "null"}
+              }
+            }
+          }
+        }
+      ]
+    },
+    "guideGraph": {
+      "allOf": [
+        {"$ref": "#/$defs/graph"},
+        {
+          "properties": {
+            "provenance": {
+              "properties": {
+                "source_kind": {"const": "public_guide"},
+                "authority_revision": {"const": "fa9c8ab1\u0065aa21c8a\u006525e7e40\u006283b2e60\u00302f340af"}
+              },
+              "oneOf": [
+                {
+                  "properties": {
+                    "profile": {"properties": {"name": {"const": "h3_base"}}},
+                    "authority_digest": {"const": "2cfebc09\u0036a6e0837\u0030f288d46\u0038d90b60f\u0037f9bcb93\u0038f94bf09\u0030816e910\u006548e75fc"}
+                  }
+                },
+                {
+                  "properties": {
+                    "profile": {"properties": {"name": {"const": "h3_full_reference"}}},
+                    "authority_digest": {"const": "1e574f35\u0036716ad55\u003612247ff\u00627bbccbc\u0064b484ad9\u0036599d63c\u0037dca1af1\u00386b1fab7"}
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["finding_id", "outcome", "semantic_key", "local_value", "reference_value"],
+      "properties": {
+        "finding_id": {"$ref": "#/$defs/identifier"},
+        "outcome": {"enum": ["exact", "compatible", "local_only", "official_only", "contradiction", "role", "ownership", "order", "temporal", "hard_mutation", "unscorable"]},
+        "semantic_key": {"type": "string", "minLength": 1, "maxLength": 256},
+        "local_value": {"type": ["string", "null"], "maxLength": 4096},
+        "reference_value": {"type": ["string", "null"], "maxLength": 4096}
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["comparator_version", "primary_outcome", "material_difference", "findings", "local_graph_fingerprint", "reference_graph_fingerprint"],
+      "properties": {
+        "comparator_version": {"const": "1.0.0"},
+        "primary_outcome": {"enum": ["exact", "compatible", "local_only", "official_only", "contradiction", "role", "ownership", "order", "temporal", "hard_mutation", "unscorable"]},
+        "material_difference": {"type": "boolean"},
+        "findings": {"type": "array", "minItems": 1, "maxItems": 64, "items": {"$ref": "#/$defs/finding"}},
+        "local_graph_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "reference_graph_fingerprint": {"$ref": "#/$defs/fingerprint"}
+      }
+    },
+    "guideGolden": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["case_id", "source_cluster", "graph", "round_trip"],
+      "properties": {
+        "case_id": {"$ref": "#/$defs/identifier"},
+        "source_cluster": {"$ref": "#/$defs/identifier"},
+        "graph": {"$ref": "#/$defs/guideGraph"},
+        "round_trip": {"const": true}
+      }
+    },
+    "evaluationCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["case_id", "source_cluster", "seed", "partition", "expected_outcome", "expected_material_difference", "local_graph", "reference_graph", "comparison"],
+      "properties": {
+        "case_id": {"$ref": "#/$defs/identifier"},
+        "source_cluster": {"$ref": "#/$defs/identifier"},
+        "seed": {"type": "integer", "minimum": 0, "maximum": 2147483647},
+        "partition": {"enum": ["p0", "non_p0"]},
+        "expected_outcome": {"enum": ["exact", "compatible", "local_only", "official_only", "contradiction", "role", "ownership", "order", "temporal", "hard_mutation"]},
+        "expected_material_difference": {"type": "boolean"},
+        "local_graph": {"$ref": "#/$defs/localGraph"},
+        "reference_graph": {"$ref": "#/$defs/localGraph"},
+        "comparison": {"$ref": "#/$defs/comparison"}
+      }
+    },
+    "p0Case": {
+      "allOf": [
+        {"$ref": "#/$defs/evaluationCase"},
+        {
+          "properties": {
+            "partition": {"const": "p0"},
+            "expected_outcome": {"enum": ["contradiction", "hard_mutation", "order", "ownership", "role", "temporal"]},
+            "expected_material_difference": {"const": true}
+          }
+        }
+      ]
+    },
+    "nonP0Case": {
+      "allOf": [
+        {"$ref": "#/$defs/evaluationCase"},
+        {
+          "properties": {
+            "partition": {"const": "non_p0"},
+            "expected_outcome": {"enum": ["exact", "compatible", "local_only", "official_only", "contradiction"]}
+          }
+        }
+      ]
+    },
+    "design": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["guide_cluster_count", "guide_support", "p0_cluster_count", "p0_support", "non_p0_cluster_count", "non_p0_support", "non_p0_positive_support", "non_p0_negative_support", "interval_method", "interval_z", "point_target"],
+      "properties": {
+        "guide_cluster_count": {"const": 2},
+        "guide_support": {"const": 6},
+        "p0_cluster_count": {"const": 8},
+        "p0_support": {"const": 24},
+        "non_p0_cluster_count": {"const": 10},
+        "non_p0_support": {"const": 40},
+        "non_p0_positive_support": {"const": 20},
+        "non_p0_negative_support": {"const": 20},
+        "interval_method": {"const": "wilson_two_sided_95"},
+        "interval_z": {"const": "1.959963984540054"},
+        "point_target": {"const": "0.95000000"}
+      }
+    },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["guide_passed", "guide_total", "p0_detected", "p0_total", "p0_outcome_counts", "true_positive", "false_positive", "false_negative", "true_negative", "precision", "recall", "precision_interval", "recall_interval", "qualified"],
+      "properties": {
+        "guide_passed": {"const": 6},
+        "guide_total": {"const": 6},
+        "p0_detected": {"const": 24},
+        "p0_total": {"const": 24},
+        "p0_outcome_counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["contradiction", "hard_mutation", "order", "ownership", "role", "temporal"],
+          "properties": {
+            "contradiction": {"const": 2},
+            "hard_mutation": {"const": 6},
+            "order": {"const": 4},
+            "ownership": {"const": 4},
+            "role": {"const": 4},
+            "temporal": {"const": 4}
+          }
+        },
+        "true_positive": {"const": 20},
+        "false_positive": {"const": 0},
+        "false_negative": {"const": 0},
+        "true_negative": {"const": 20},
+        "precision": {"const": "1.00000000"},
+        "recall": {"const": "1.00000000"},
+        "precision_interval": {"type": "array", "prefixItems": [{"const": "0.83887484"}, {"const": "1.00000000"}], "items": false, "minItems": 2, "maxItems": 2},
+        "recall_interval": {"type": "array", "prefixItems": [{"const": "0.83887484"}, {"const": "1.00000000"}], "items": false, "minItems": 2, "maxItems": 2},
+        "qualified": {"const": true}
+      }
+    },
+    "officialProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "disposition", "terminal_disposition_sha256", "local_qualification_fingerprint", "oracle_corpus_fingerprint", "oracle_comparison_count", "oracle_agreement", "oracle_variability", "oracle_latency", "oracle_provider_failures", "observed_official_rules", "hypotheses", "unknowns", "limitations"],
+      "properties": {
+        "schema": {"const": "h3.official.behavior_profile.v1"},
+        "disposition": {"const": "UNAVAILABLE"},
+        "terminal_disposition_sha256": {"const": "4a21488a\u0032d7f607e\u0034a25ff6d\u0063aac829f\u0064347d4e2\u0035c9a619f\u00357aeb0c4\u00343674122"},
+        "local_qualification_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "oracle_corpus_fingerprint": {"type": "null"},
+        "oracle_comparison_count": {"type": "null"},
+        "oracle_agreement": {"type": "null"},
+        "oracle_variability": {"type": "null"},
+        "oracle_latency": {"type": "null"},
+        "oracle_provider_failures": {"type": "null"},
+        "observed_official_rules": {"const": []},
+        "hypotheses": {"const": []},
+        "unknowns": {"const": ["official.agreement_missing", "official.capture_missing", "official.relations_missing", "official.variability_missing"]},
+        "limitations": {"const": ["no_official_agreement_claim", "structural_and_local_only"]}
+      }
+    }
+  }
+}

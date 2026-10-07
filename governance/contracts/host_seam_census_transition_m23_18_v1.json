@@ -1,0 +1,68 @@
+{
+  "schema": "h3.context.host_seam_census_transition_m23_18.v1",
+  "item": "M23-18",
+  "source": {
+    "commit_parts": [
+      "150d30a9",
+      "3df1504b",
+      "2b2344b1",
+      "51843bbb",
+      "1ec44416"
+    ],
+    "tree_parts": ["ae5fe11e", "f0eb89df", "9edaf315", "537a370a", "d18b983a"]
+  },
+  "artifacts": {
+    "from_census_sha256_parts": [
+      "189911ab",
+      "0df36a7c",
+      "d1aad71c",
+      "241c4594",
+      "9359af6b",
+      "a5b7bb6c",
+      "1f320403",
+      "ba165e09"
+    ],
+    "to_census_sha256_parts": [
+      "c6fee1aa",
+      "eed908a4",
+      "ca14c5c6",
+      "a214d3e9",
+      "f71ba7ac",
+      "a7b32d46",
+      "f59e67ed",
+      "881436fa"
+    ],
+    "fixture_sha256_parts": [
+      "a64e1521",
+      "5a8483a5",
+      "de3eef64",
+      "7ed380aa",
+      "b1cb268b",
+      "87be5a8b",
+      "4d0e60d1",
+      "b9836f97"
+    ],
+    "seam_contract_sha256_parts": [
+      "64a5512d",
+      "ee9bcc57",
+      "4630c770",
+      "753e8816",
+      "05bc6f1f",
+      "06fda8bb",
+      "42c5d361",
+      "fad65895"
+    ]
+  },
+  "changes": [
+    {
+      "seam_id": "backend.prompt_server.routes",
+      "added_source_paths": [
+        "comfyui_h3_context/adapters/comfyui_input_geometry.py"
+      ]
+    },
+    {
+      "seam_id": "frontend.api.fetch_api",
+      "added_source_paths": ["frontend/src/host/inputGeometry.ts"]
+    }
+  ]
+}

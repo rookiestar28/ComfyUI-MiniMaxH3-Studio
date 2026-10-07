@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/temporal_event_alignment_v1.schema.json",
+  "title": "H3 Cross-Modal Temporal Event Alignment v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "complete",
+    "source_graph_fingerprint",
+    "role_graph_fingerprint",
+    "time_model",
+    "events",
+    "relations",
+    "metrics",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema": { "const": "h3.temporal_event_alignment.v1" },
+    "status": { "enum": ["complete", "partial", "ambiguous", "conflicting", "empty"] },
+    "complete": { "type": "boolean" },
+    "source_graph_fingerprint": { "$ref": "#/$defs/fingerprint" },
+    "role_graph_fingerprint": { "$ref": "#/$defs/fingerprint" },
+    "time_model": { "$ref": "#/$defs/timeModel" },
+    "events": { "type": "array", "maxItems": 512, "items": { "$ref": "#/$defs/event" } },
+    "relations": { "type": "array", "maxItems": 1024, "items": { "$ref": "#/$defs/relation" } },
+    "metrics": { "$ref": "#/$defs/metrics" },
+    "diagnostics": { "type": "array", "maxItems": 256, "items": { "$ref": "#/$defs/id" } }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$" },
+    "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "decimal": { "type": ["string", "null"], "pattern": "^(0(\\.[0-9]+)?|1(\\.0+)?)$" },
+    "timeModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model_id", "source_time_base_num", "source_time_base_den", "target_time_base_num", "target_time_base_den", "source_duration_ms", "target_duration_ms", "scale_num", "scale_den", "offset_ms"],
+      "properties": {
+        "model_id": { "$ref": "#/$defs/id" },
+        "source_time_base_num": { "type": "integer", "minimum": 1, "maximum": 1000000 },
+        "source_time_base_den": { "type": "integer", "minimum": 1, "maximum": 1000000 },
+        "target_time_base_num": { "type": "integer", "minimum": 1, "maximum": 1000000 },
+        "target_time_base_den": { "type": "integer", "minimum": 1, "maximum": 1000000 },
+        "source_duration_ms": { "type": "integer", "minimum": 1, "maximum": 86400000 },
+        "target_duration_ms": { "type": "integer", "minimum": 1, "maximum": 86400000 },
+        "scale_num": { "type": "integer", "minimum": 1, "maximum": 10000 },
+        "scale_den": { "type": "integer", "minimum": 1, "maximum": 10000 },
+        "offset_ms": { "type": "integer", "minimum": -86400000, "maximum": 86400000 }
+      }
+    },
+    "interval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["interval_id", "domain", "start_ms", "end_ms"],
+      "properties": {
+        "interval_id": { "$ref": "#/$defs/id" },
+        "domain": { "enum": ["source", "target"] },
+        "start_ms": { "type": "integer", "minimum": 0, "maximum": 86400000 },
+        "end_ms": { "type": "integer", "minimum": 1, "maximum": 86400000 }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "event_id", "kind", "label", "observation_ids", "source_asset_ids", "source_fingerprints", "source_ids", "source_interval", "target_interval", "shot_ids", "role_candidate_ids", "entity_ids", "candidate_ids", "support", "resolution", "confidence", "evidence_ids", "uncertainty_ids"],
+      "properties": {
+        "schema": { "const": "h3.temporal_event_alignment.v1" },
+        "event_id": { "$ref": "#/$defs/id" },
+        "kind": { "enum": ["shot", "action", "state_change", "dialogue", "visible_text", "audio_event", "transition", "reference"] },
+        "label": { "type": "string", "minLength": 1, "maxLength": 4096 },
+        "observation_ids": { "type": "array", "maxItems": 256, "items": { "$ref": "#/$defs/id" } },
+        "source_asset_ids": { "type": "array", "maxItems": 256, "items": { "$ref": "#/$defs/id" } },
+        "source_fingerprints": { "type": "array", "maxItems": 256, "items": { "$ref": "#/$defs/fingerprint" } },
+        "source_ids": { "type": "array", "maxItems": 256, "items": { "$ref": "#/$defs/id" } },
+        "source_interval": { "$ref": "#/$defs/interval" },
+        "target_interval": { "$ref": "#/$defs/interval" },
+        "shot_ids": { "type": "array", "maxItems": 256, "items": { "$ref": "#/$defs/id" } },
+        "role_candidate_ids": { "type": "array", "maxItems": 256, "items": { "$ref": "#/$defs/id" } },
+        "entity_ids": { "type": "array", "maxItems": 256, "items": { "$ref": "#/$defs/id" } },
+        "candidate_ids": { "type": "array", "maxItems": 256, "items": { "$ref": "#/$defs/id" } },
+        "support": { "enum": ["supported", "uncertain", "unsupported", "missing"] },
+        "resolution": { "enum": ["resolved", "ambiguous", "unresolved", "conflicting"] },
+        "confidence": { "$ref": "#/$defs/decimal" },
+        "evidence_ids": { "type": "array", "maxItems": 256, "items": { "$ref": "#/$defs/id" } },
+        "uncertainty_ids": { "type": "array", "maxItems": 256, "items": { "$ref": "#/$defs/id" } }
+      }
+    },
+    "relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "relation_id", "kind", "source_event_ids", "target_event_ids", "resolution", "confidence", "evidence_ids", "uncertainty_ids", "detail"],
+      "properties": {
+        "schema": { "const": "h3.temporal_event_alignment.v1" },
+        "relation_id": { "$ref": "#/$defs/id" },
+        "kind": { "enum": ["overlap", "gap", "cut", "cross_shot_audio", "continuation", "copy_event", "before", "after", "causes", "caused_by", "uncertain_causality"] },
+        "source_event_ids": { "type": "array", "minItems": 1, "maxItems": 256, "items": { "$ref": "#/$defs/id" } },
+        "target_event_ids": { "type": "array", "minItems": 1, "maxItems": 256, "items": { "$ref": "#/$defs/id" } },
+        "resolution": { "enum": ["explicit", "inferred", "uncertain", "unresolved", "conflicting"] },
+        "confidence": { "$ref": "#/$defs/decimal" },
+        "evidence_ids": { "type": "array", "maxItems": 256, "items": { "$ref": "#/$defs/id" } },
+        "uncertainty_ids": { "type": "array", "maxItems": 256, "items": { "$ref": "#/$defs/id" } },
+        "detail": { "type": ["string", "null"], "maxLength": 4096 }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_count", "relation_count", "interval_error_count", "gap_count", "overlap_count", "cut_count", "cross_shot_audio_count", "continuation_count", "copy_event_count", "uncertain_causality_count", "interval_metric_pass"],
+      "properties": {
+        "event_count": { "type": "integer", "minimum": 0 },
+        "relation_count": { "type": "integer", "minimum": 0 },
+        "interval_error_count": { "type": "integer", "minimum": 0 },
+        "gap_count": { "type": "integer", "minimum": 0 },
+        "overlap_count": { "type": "integer", "minimum": 0 },
+        "cut_count": { "type": "integer", "minimum": 0 },
+        "cross_shot_audio_count": { "type": "integer", "minimum": 0 },
+        "continuation_count": { "type": "integer", "minimum": 0 },
+        "copy_event_count": { "type": "integer", "minimum": 0 },
+        "uncertain_causality_count": { "type": "integer", "minimum": 0 },
+        "interval_metric_pass": { "type": "boolean" }
+      }
+    }
+  }
+}

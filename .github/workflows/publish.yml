@@ -155,6 +155,7 @@ jobs:
           test "$(git rev-parse HEAD)" = "$CANDIDATE_COMMIT"
           .publish-venv/bin/python scripts/validate_comfy_registry_metadata.py \
             --require-finalized --source-root . --public-projection
+          .publish-venv/bin/python scripts/product_completeness.py --source-root .
           .publish-venv/bin/comfy node pack
           .publish-venv/bin/python scripts/registry_payload.py \
             --archive node.zip \

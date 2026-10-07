@@ -1,0 +1,26 @@
+{
+  "schema": "h3.full_reference.evaluation.v1",
+  "corpus_id": "m6.full_reference.fixture",
+  "cases": [
+    {
+      "case_id": "representative",
+      "kind": "representative",
+      "profile": "h3_full_reference",
+      "task_mode": "ref2va",
+      "media": ["image", "image", "video", "audio"],
+      "lanes": ["structural", "hard_constraint", "security", "privacy", "resource", "cancellation", "oracle", "fixed_h3"]
+    },
+    {
+      "case_id": "hostile_limits",
+      "kind": "hostile",
+      "attack_vectors": ["ocr_instruction", "filename_traversal", "malformed_fragment", "output_budget"],
+      "expected_terminal_resource_status": "budget_exceeded"
+    },
+    {
+      "case_id": "hostile_cancel",
+      "kind": "hostile",
+      "attack_vectors": ["provider_instruction", "cancel_before_start"],
+      "expected_terminal_resource_status": "cancelled"
+    }
+  ]
+}

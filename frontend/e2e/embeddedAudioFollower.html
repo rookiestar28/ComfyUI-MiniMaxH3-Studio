@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Embedded VIDEO audio follower</title>
+  </head>
+  <body>
+    <main>
+      <h1>Embedded VIDEO audio follower</h1>
+      <p>
+        Synthetic transport controls. Real encoded-media audio is qualified
+        separately.
+      </p>
+      <button id="open">Open</button><button id="play">Play</button
+      ><button id="pause">Pause</button>
+      <label
+        >Seek frame <input id="seek" type="range" min="0" max="23" value="0"
+      /></label>
+      <button id="suspend">Suspend</button><button id="resume">Recover</button
+      ><button id="close">Close</button>
+      <output id="status" role="status">Closed</output>
+    </main>
+    <script type="module" src="./embeddedAudioFollower.ts"></script>
+  </body>
+</html>

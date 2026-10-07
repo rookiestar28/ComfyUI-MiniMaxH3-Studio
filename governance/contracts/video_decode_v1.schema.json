@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/video_decode_v1.schema.json",
+  "title": "H3 source-PTS video decode",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "document_id", "status", "complete", "selected_asset_ids", "timestamp_policy", "frames", "batches", "boundaries", "shots", "receipt", "diagnostics"],
+  "properties": {
+    "schema": {"const": "h3.video.decode.v1"},
+    "document_id": {"type": "string"},
+    "status": {"enum": ["complete", "partial", "empty", "corrupt", "unsupported"]},
+    "complete": {"type": "boolean"},
+    "selected_asset_ids": {"type": "array", "minItems": 1, "maxItems": 3, "uniqueItems": true, "items": {"type": "string"}},
+    "timestamp_policy": {"const": "source_pts_only"},
+    "frames": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/frame"}},
+    "batches": {"type": "array", "maxItems": 4, "items": {"$ref": "#/$defs/batch"}},
+    "boundaries": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/boundary"}},
+    "shots": {"type": "array", "maxItems": 32, "items": {"$ref": "#/$defs/shot"}},
+    "receipt": {"anyOf": [{"$ref": "#/$defs/receipt"}, {"type": "null"}]},
+    "diagnostics": {"type": "array", "maxItems": 16, "items": {"type": "string", "minLength": 1}}
+  },
+  "$defs": {
+    "time": {"type": "object", "additionalProperties": false, "required": ["raw", "seconds"], "properties": {"raw": {"type": "string"}, "seconds": {"type": "string"}}},
+    "source_pts": {"type": "object", "additionalProperties": false, "required": ["pts", "time_base_num", "time_base_den", "timestamp", "source_authoritative"], "properties": {"pts": {"type": "integer", "minimum": 0}, "time_base_num": {"type": "integer", "exclusiveMinimum": 0}, "time_base_den": {"type": "integer", "exclusiveMinimum": 0}, "timestamp": {"$ref": "#/$defs/time"}, "source_authoritative": {"const": true}}},
+    "frame": {"type": "object", "additionalProperties": false, "required": ["frame_id", "asset_id", "source_id", "source_pts", "width", "height", "content_fingerprint", "keyframe", "frame_index", "orientation"], "properties": {"frame_id": {"type": "string"}, "asset_id": {"type": "string"}, "source_id": {"type": "string"}, "source_pts": {"$ref": "#/$defs/source_pts"}, "width": {"type": "integer", "exclusiveMinimum": 0}, "height": {"type": "integer", "exclusiveMinimum": 0}, "content_fingerprint": {"type": "string"}, "keyframe": {"type": "boolean"}, "frame_index": {"anyOf": [{"type": "integer", "minimum": 0}, {"type": "null"}]}, "orientation": {"type": "string"}}},
+    "frame_ref": {"type": "object", "additionalProperties": false, "required": ["frame_id", "source_pts"], "properties": {"frame_id": {"type": "string"}, "source_pts": {"$ref": "#/$defs/source_pts"}}},
+    "batch": {"type": "object", "additionalProperties": false, "required": ["batch_id", "asset_id", "source_id", "route", "adapter_id", "frames", "source_authoritative"], "properties": {"batch_id": {"type": "string"}, "asset_id": {"type": "string"}, "source_id": {"type": "string"}, "route": {"enum": ["comfyui_native_vlm", "ollama_vlm", "specialist"]}, "adapter_id": {"type": "string"}, "frames": {"type": "array", "minItems": 1, "maxItems": 512, "items": {"$ref": "#/$defs/frame_ref"}}, "source_authoritative": {"const": true}}},
+    "uncertainty": {"type": "object", "additionalProperties": false, "required": ["kind", "detail", "severity"], "properties": {"kind": {"type": "string"}, "detail": {"type": "string"}, "severity": {"enum": ["info", "warning", "error"]}}},
+    "boundary": {"type": "object", "additionalProperties": false, "required": ["boundary_id", "asset_id", "source_id", "source_pts", "left_frame_id", "right_frame_id", "kind", "confidence", "uncertainties"], "properties": {"boundary_id": {"type": "string"}, "asset_id": {"type": "string"}, "source_id": {"type": "string"}, "source_pts": {"$ref": "#/$defs/source_pts"}, "left_frame_id": {"type": "string"}, "right_frame_id": {"type": "string"}, "kind": {"enum": ["hard_cut", "fade", "dissolve", "static", "unknown"]}, "confidence": {"type": "string"}, "uncertainties": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/uncertainty"}}}},
+    "shot": {"type": "object", "additionalProperties": false, "required": ["shot_id", "asset_id", "source_id", "start", "end", "frame_ids", "keyframe_ids", "boundary_ids", "uncertainties"], "properties": {"shot_id": {"type": "string"}, "asset_id": {"type": "string"}, "source_id": {"type": "string"}, "start": {"$ref": "#/$defs/source_pts"}, "end": {"$ref": "#/$defs/source_pts"}, "frame_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}}, "keyframe_ids": {"type": "array", "items": {"type": "string"}}, "boundary_ids": {"type": "array", "items": {"type": "string"}}, "uncertainties": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/uncertainty"}}}},
+    "receipt": {"type": "object", "additionalProperties": false, "required": ["decoder_id", "decoder_version", "decode_profile", "source_fingerprint", "output_fingerprint", "timestamp_policy"], "properties": {"decoder_id": {"type": "string"}, "decoder_version": {"type": "string"}, "decode_profile": {"type": "string"}, "source_fingerprint": {"type": "string"}, "output_fingerprint": {"type": "string"}, "timestamp_policy": {"const": "source_pts_only"}}}
+  }
+}

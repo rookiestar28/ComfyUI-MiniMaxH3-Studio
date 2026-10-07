@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/m19_closeout_v1.schema.json",
+  "title": "ComfyUI H3 context M19 modularity closeout matrix",
+  "description": "Deterministic, content-free record of what the M19 modularity chain moved and what it held. Every reading is re-derived from the artifact the named checkpoint actually committed, never copied from a record's prose. A row carries an expectation so the matrix is a check rather than a table: a constant row that moved is reported as broken, an informational row is reported without a verdict, and absent is a real value meaning the artifact did not exist yet at that checkpoint rather than that it measured zero.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "checkpoints", "rows", "fingerprint"],
+  "properties": {
+    "schema": { "const": "h3-context-m19-closeout/1" },
+    "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "checkpoints": {
+      "description": "The chain in order, each at the commit that accepted it.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": { "$ref": "#/$defs/checkpoint" }
+    },
+    "rows": {
+      "description": "One metric across every checkpoint, in checkpoint order.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/row" }
+    }
+  },
+  "$defs": {
+    "item": {
+      "type": "string",
+      "pattern": "^M[0-9]{2}-[0-9]{2}$"
+    },
+    "reading": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["item", "value"],
+      "properties": {
+        "item": { "$ref": "#/$defs/item" },
+        "value": {
+          "description": "A count, a digest, a boolean, or the absent literal. Never free text, never a path, never a value read out of repository content.",
+          "type": "string",
+          "pattern": "^(?:[0-9]{1,12}|sha256:[0-9a-f]{64}|true|false|absent)$"
+        }
+      }
+    },
+    "checkpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["item", "commit", "summary"],
+      "properties": {
+        "item": { "$ref": "#/$defs/item" },
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "summary": { "type": "string", "minLength": 1, "maxLength": 200 }
+      }
+    },
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain", "metric", "source", "introduced_by", "expectation", "readings", "verdict"],
+      "properties": {
+        "domain": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "metric": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "source": {
+          "description": "The repository-relative artifact or tree the readings come from.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "introduced_by": { "$ref": "#/$defs/item" },
+        "expectation": { "enum": ["constant", "informational"] },
+        "verdict": { "enum": ["held", "broken", "reported"] },
+        "readings": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": { "$ref": "#/$defs/reading" }
+        }
+      }
+    }
+  }
+}

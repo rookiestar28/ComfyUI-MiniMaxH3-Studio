@@ -1,0 +1,350 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/semantic_prompt_graph_v2.schema.json",
+  "$ref": "#/$defs/graph",
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.:-]{0,127}$",
+      "maxLength": 128
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "safeSource": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 8192,
+      "allOf": [
+        {
+          "not": {
+            "pattern": "(?:[Hh][Tt][Tt][Pp][Ss]?|[Ff][Ii][Ll][Ee])://"
+          }
+        },
+        {
+          "not": {
+            "pattern": "[A-Za-z]:\\\\"
+          }
+        },
+        {
+          "not": {
+            "pattern": "(?:^|[ \\t\\r\\n\"'])(?:/[Hh][Oo][Mm][Ee]/|/[Uu][Ss][Ee][Rr][Ss]/|/[Tt][Mm][Pp]/|\\\\\\\\)"
+          }
+        },
+        {
+          "not": {
+            "pattern": "[Aa][Pp][Ii][_-]?[Kk][Ee][Yy]|[Cc][Rr][Ee][Dd][Ee][Nn][Tt][Ii][Aa][Ll]|[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]|[Ss][Ii][Gg][Nn][Ee][Dd][_-]?[Uu][Rr][Ll]"
+          }
+        }
+      ]
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "enum": [
+            "h3_base",
+            "h3_full_reference"
+          ]
+        },
+        "version": {
+          "const": "1.0"
+        }
+      }
+    },
+    "anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "start",
+        "end",
+        "text"
+      ],
+      "properties": {
+        "start": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8191
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8192
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "node_id",
+        "kind",
+        "value",
+        "anchor",
+        "attributes"
+      ],
+      "properties": {
+        "node_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "kind": {
+          "enum": [
+            "section",
+            "asset",
+            "entity",
+            "event",
+            "timing",
+            "exact_text",
+            "audio_fact",
+            "av_fact"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "anchor": {
+          "$ref": "#/$defs/anchor"
+        },
+        "attributes": {
+          "type": "object",
+          "maxProperties": 16,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9_.:-]{0,127}$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        }
+      }
+    },
+    "relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "relation_id",
+        "kind",
+        "source_id",
+        "target_id",
+        "value",
+        "anchor",
+        "retention_scope"
+      ],
+      "properties": {
+        "relation_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "kind": {
+          "enum": [
+            "role",
+            "ownership",
+            "order",
+            "copy",
+            "retain",
+            "temporal",
+            "av"
+          ]
+        },
+        "source_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "target_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "anchor": {
+          "$ref": "#/$defs/anchor"
+        },
+        "retention_scope": {
+          "enum": [
+            null,
+            "subject",
+            "picture",
+            "video_structure",
+            "audio_layer",
+            "complete_final_audio_track"
+          ]
+        }
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "node_id"
+      ],
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/identifier"
+        },
+        "node_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_kind",
+        "source_id",
+        "profile",
+        "task_mode",
+        "source_fingerprint",
+        "authority_revision",
+        "authority_digest"
+      ],
+      "properties": {
+        "source_kind": {
+          "enum": [
+            "local",
+            "public_guide",
+            "official_oracle"
+          ]
+        },
+        "source_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "profile": {
+          "$ref": "#/$defs/profile"
+        },
+        "task_mode": {
+          "enum": [
+            "t2va",
+            "i2va",
+            "fl2va",
+            "l2va",
+            "ref2va"
+          ]
+        },
+        "source_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "authority_revision": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9A-Za-z._-]{1,128}$",
+          "maxLength": 128
+        },
+        "authority_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "graph": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "source_text",
+        "provenance",
+        "nodes",
+        "relations",
+        "uncertainties",
+        "observed_rules",
+        "hypotheses",
+        "unknowns",
+        "graph_fingerprint"
+      ],
+      "properties": {
+        "schema": {
+          "const": "h3.prompt.semantic_graph.v2"
+        },
+        "source_text": {
+          "$ref": "#/$defs/safeSource"
+        },
+        "provenance": {
+          "$ref": "#/$defs/provenance"
+        },
+        "nodes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/node"
+          }
+        },
+        "relations": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/relation"
+          }
+        },
+        "uncertainties": {
+          "type": "array",
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/uncertainty"
+          }
+        },
+        "observed_rules": {
+          "type": "array",
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "hypotheses": {
+          "type": "array",
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "unknowns": {
+          "type": "array",
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "graph_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        }
+      }
+    }
+  }
+}

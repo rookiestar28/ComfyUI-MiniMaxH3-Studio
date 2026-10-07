@@ -1,0 +1,376 @@
+{
+  "schema": "h3.source_drift_checkpoint.v2",
+  "version": "2.0.0",
+  "retrieved_at": "2026-08-10T00:39:00+08:00",
+  "disposition": "PASS_WITH_BLOCKED_DRIFT",
+  "product_scope": "MANUAL_ONLY_SCOPED",
+  "non_equivalence_preserved": true,
+  "assisted_defaults_authorized": false,
+  "assisted_profiles": [
+    "ollama.local",
+    "openai.remote",
+    "gemini.remote",
+    "anthropic.remote"
+  ],
+  "assisted_authoring": {
+    "available": true,
+    "selected": false,
+    "ready": false,
+    "authorized_for_this_action": false,
+    "defaulted": false
+  },
+  "supported_host_qualified": true,
+  "latest_host_qualified": false,
+  "native_prompt_boundary": "STRING",
+  "autogrow_path_basis": "fully_qualified_zero_based",
+  "presentation_label_basis": "one_based",
+  "fidelity_scorecard_fingerprint": "sha256:613dbb6e9459508d04241c1f6359fea24bf4264a74da41193405035d5b995e80",
+  "surfaces": [
+    {
+      "surface_id": "minimax.repository",
+      "group": "minimax_repository",
+      "official_url": "https://github.com/MiniMax-AI/MiniMax-H3/tree/b7227fa6a6206e9fb30562383d39e53cf3866a48",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "git:b7227fa6a6206e9fb30562383d39e53cf3866a48",
+      "observed_identity": "git:b7227fa6a6206e9fb30562383d39e53cf3866a48",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "minimax.readme",
+      "group": "minimax_repository",
+      "official_url": "https://github.com/MiniMax-AI/MiniMax-H3/tree/b7227fa6a6206e9fb30562383d39e53cf3866a48",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "sha256:6e4cfcfd85a796cf3c965a2dcc0cc328b59dd680d9718d1e0fef0add7aca8ada",
+      "observed_identity": "sha256:6e4cfcfd85a796cf3c965a2dcc0cc328b59dd680d9718d1e0fef0add7aca8ada",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "minimax.guide.base",
+      "group": "minimax_guides",
+      "official_url": "https://github.com/MiniMax-AI/MiniMax-H3/tree/b7227fa6a6206e9fb30562383d39e53cf3866a48",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "sha256:2cfebc096a6e08370f288d468d90b60f7f9bcb938f94bf090816e910e48e75fc",
+      "observed_identity": "sha256:2cfebc096a6e08370f288d468d90b60f7f9bcb938f94bf090816e910e48e75fc",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "minimax.guide.reference",
+      "group": "minimax_guides",
+      "official_url": "https://github.com/MiniMax-AI/MiniMax-H3/tree/b7227fa6a6206e9fb30562383d39e53cf3866a48",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "sha256:1e574f356716ad55612247ffb7bbccbcdb484ad96599d63c7dca1af186b1fab7",
+      "observed_identity": "sha256:1e574f356716ad55612247ffb7bbccbcdb484ad96599d63c7dca1af186b1fab7",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "minimax.model.revision",
+      "group": "minimax_model",
+      "official_url": "https://huggingface.co/MiniMaxAI/MiniMax-H3/tree/6818f6c32d12b210915e44ad56a4228c2608f160",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "git:6818f6c32d12b210915e44ad56a4228c2608f160",
+      "observed_identity": "git:6818f6c32d12b210915e44ad56a4228c2608f160",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "minimax.model.license",
+      "group": "minimax_model",
+      "official_url": "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/6818f6c32d12b210915e44ad56a4228c2608f160/LICENSE",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "sha256:59b99642b95ea21630e311198ddbfffbfe05aadba0c2f5d884cbdf4efcc90f44",
+      "observed_identity": "sha256:59b99642b95ea21630e311198ddbfffbfe05aadba0c2f5d884cbdf4efcc90f44",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "minimax.context_ir.examples",
+      "group": "minimax_api",
+      "official_url": "https://github.com/MiniMax-AI/MiniMax-H3/tree/b7227fa6a6206e9fb30562383d39e53cf3866a48",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "git:b7227fa6a6206e9fb30562383d39e53cf3866a48",
+      "observed_identity": "git:b7227fa6a6206e9fb30562383d39e53cf3866a48",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "comfyui.supported.core",
+      "group": "comfyui_core",
+      "official_url": "https://github.com/Comfy-Org/ComfyUI/tree/c44dea18809e3ca0e12e25cbe6938c2c45a29c9d",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "git:c44dea18809e3ca0e12e25cbe6938c2c45a29c9d",
+      "observed_identity": "git:c44dea18809e3ca0e12e25cbe6938c2c45a29c9d",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "comfyui.supported.text_generate",
+      "group": "comfyui_core",
+      "official_url": "https://github.com/Comfy-Org/ComfyUI/tree/c44dea18809e3ca0e12e25cbe6938c2c45a29c9d",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "gitblob:5a947d5c57b32e7e8d2ed1ef364064959d841cc4",
+      "observed_identity": "gitblob:5a947d5c57b32e7e8d2ed1ef364064959d841cc4",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "comfyui.supported.clip_loader",
+      "group": "comfyui_core",
+      "official_url": "https://github.com/Comfy-Org/ComfyUI/tree/c44dea18809e3ca0e12e25cbe6938c2c45a29c9d",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "gitblob:08529d8dc414138e56d0cc6e68367f95da70f038",
+      "observed_identity": "gitblob:08529d8dc414138e56d0cc6e68367f95da70f038",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "comfyui.supported.native_h3",
+      "group": "comfyui_native_h3",
+      "official_url": "https://github.com/Comfy-Org/ComfyUI/tree/c44dea18809e3ca0e12e25cbe6938c2c45a29c9d",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "gitblob:22bc91cd4570a071c664ec4848a5be748909e1e7",
+      "observed_identity": "gitblob:22bc91cd4570a071c664ec4848a5be748909e1e7",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "comfyui.supported.frontend",
+      "group": "comfyui_frontend",
+      "official_url": "https://github.com/Comfy-Org/ComfyUI_frontend/tree/f339c6b2ec0cc90e1c4fa717d9f7d6d565a8f6da",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "git:f339c6b2ec0cc90e1c4fa717d9f7d6d565a8f6da",
+      "observed_identity": "git:f339c6b2ec0cc90e1c4fa717d9f7d6d565a8f6da",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "comfyui.docs.v3",
+      "group": "comfyui_core",
+      "official_url": "https://docs.comfy.org/custom-nodes/v3_migration",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "sha256:bc6c4a7bdafba5e0fcad23186ea0478a841b708451c924e0337302f8b5e677a5",
+      "observed_identity": "sha256:bc6c4a7bdafba5e0fcad23186ea0478a841b708451c924e0337302f8b5e677a5",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "comfyui.docs.sidebar",
+      "group": "comfyui_frontend",
+      "official_url": "https://docs.comfy.org/custom-nodes/js/javascript_sidebar_tabs",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "sha256:da8f294db0ef5ccfd278e615495f7b2202b9a8d7e9067b22a9ba1b0c37c184f1",
+      "observed_identity": "sha256:da8f294db0ef5ccfd278e615495f7b2202b9a8d7e9067b22a9ba1b0c37c184f1",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "comfyui.latest.core",
+      "group": "comfyui_core",
+      "official_url": "https://github.com/Comfy-Org/ComfyUI/tree/cbbc9dab1f03d0d9a6caa8a8be7d77a7e37e1e44",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "git:c44dea18809e3ca0e12e25cbe6938c2c45a29c9d",
+      "observed_identity": "git:cbbc9dab1f03d0d9a6caa8a8be7d77a7e37e1e44",
+      "material": false,
+      "disposition": "ADDITIVE_NON_SUBSTITUTING",
+      "affected_seams": [
+        "latest_host_compatibility"
+      ],
+      "requalification_owners": [
+        "M16-01"
+      ]
+    },
+    {
+      "surface_id": "comfyui.latest.native_h3",
+      "group": "comfyui_native_h3",
+      "official_url": "https://github.com/Comfy-Org/ComfyUI/blob/cbbc9dab1f03d0d9a6caa8a8be7d77a7e37e1e44/comfy_extras/nodes_minimax_h3.py",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "gitblob:22bc91cd4570a071c664ec4848a5be748909e1e7",
+      "observed_identity": "gitblob:0b1840e851c248f89e9920159c3c8237fa2e7186",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "native_sigma_sampler",
+        "latest_native_workflow"
+      ],
+      "requalification_owners": [
+        "M15-05",
+        "M16-01"
+      ]
+    },
+    {
+      "surface_id": "comfyui.latest.frontend",
+      "group": "comfyui_frontend",
+      "official_url": "https://github.com/Comfy-Org/ComfyUI_frontend/tree/a8f73de1f78396562503fa96a282f23f6e6a7e6b",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "git:f339c6b2ec0cc90e1c4fa717d9f7d6d565a8f6da",
+      "observed_identity": "git:a8f73de1f78396562503fa96a282f23f6e6a7e6b",
+      "material": false,
+      "disposition": "ADDITIVE_NON_SUBSTITUTING",
+      "affected_seams": [
+        "latest_frontend_compatibility"
+      ],
+      "requalification_owners": [
+        "M16-01"
+      ]
+    },
+    {
+      "surface_id": "ollama.docs.introduction",
+      "group": "ollama_docs",
+      "official_url": "https://docs.ollama.com/api/introduction",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "sha256:a4f4f1d59067ebff92da446d1c92c80a2a4b6066e566d9c9dc0cba96ba877394",
+      "observed_identity": "sha256:a4f4f1d59067ebff92da446d1c92c80a2a4b6066e566d9c9dc0cba96ba877394",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "ollama.docs.chat",
+      "group": "ollama_docs",
+      "official_url": "https://docs.ollama.com/api/chat",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "sha256:309ef5fbdc781525eb04e091478c51e4e17be3f6baafb7bd4b6e3b23e726cb49",
+      "observed_identity": "sha256:309ef5fbdc781525eb04e091478c51e4e17be3f6baafb7bd4b6e3b23e726cb49",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "ollama.docs.structured_outputs",
+      "group": "ollama_docs",
+      "official_url": "https://docs.ollama.com/capabilities/structured-outputs",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "sha256:4e21cd3eca241db09adb7775c98ca8b2e1878d76fde1684ef34531345df7aa6f",
+      "observed_identity": "sha256:4e21cd3eca241db09adb7775c98ca8b2e1878d76fde1684ef34531345df7aa6f",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "ollama.docs.tags",
+      "group": "ollama_docs",
+      "official_url": "https://docs.ollama.com/api/tags",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "sha256:70b873546ce4cb19113f8de8ce3cd8fb22e36d130c80d2a753254f2a45e1b20f",
+      "observed_identity": "sha256:70b873546ce4cb19113f8de8ce3cd8fb22e36d130c80d2a753254f2a45e1b20f",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "ollama.docs.show",
+      "group": "ollama_docs",
+      "official_url": "https://docs.ollama.com/api-reference/show-model-details",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "sha256:75e200fa9ec92986579c8fcc7319c38fd85dc1310e853ee20eeba1d1fb02d2ad",
+      "observed_identity": "sha256:75e200fa9ec92986579c8fcc7319c38fd85dc1310e853ee20eeba1d1fb02d2ad",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "ollama.docs.ps",
+      "group": "ollama_docs",
+      "official_url": "https://docs.ollama.com/api/ps",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "sha256:c7d9eb1ee9ecae4a275aa5b6a5ff209e4a303b32b3fc994d60aec853ef5fd8ee",
+      "observed_identity": "sha256:c7d9eb1ee9ecae4a275aa5b6a5ff209e4a303b32b3fc994d60aec853ef5fd8ee",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "ollama.latest.server",
+      "group": "ollama_server",
+      "official_url": "https://github.com/ollama/ollama/tree/5a173edb63dbe5d1f555ae258a7930135d7c9336",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "git:144893850fa778c8c81ff931f26614d62e6689c1",
+      "observed_identity": "git:5a173edb63dbe5d1f555ae258a7930135d7c9336",
+      "material": true,
+      "disposition": "BLOCKED_PENDING_REQUALIFICATION",
+      "affected_seams": [
+        "ollama_server_api",
+        "ollama_runtime_qualification"
+      ],
+      "requalification_owners": [
+        "M15-05",
+        "M15-06"
+      ]
+    },
+    {
+      "surface_id": "ollama.python_client",
+      "group": "ollama_python_client",
+      "official_url": "https://github.com/ollama/ollama-python/tree/25b93290d8cd07b0d00732641f812ee34fd4c989",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "git:25b93290d8cd07b0d00732641f812ee34fd4c989",
+      "observed_identity": "git:25b93290d8cd07b0d00732641f812ee34fd4c989",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    },
+    {
+      "surface_id": "m14.fidelity_scorecard",
+      "group": "m14_evidence",
+      "official_url": "https://github.com/MiniMax-AI/MiniMax-H3/tree/b7227fa6a6206e9fb30562383d39e53cf3866a48",
+      "retrieved_at": "2026-08-10T00:39:00+08:00",
+      "expected_identity": "sha256:613dbb6e9459508d04241c1f6359fea24bf4264a74da41193405035d5b995e80",
+      "observed_identity": "sha256:613dbb6e9459508d04241c1f6359fea24bf4264a74da41193405035d5b995e80",
+      "material": false,
+      "disposition": "EXACT_MATCH",
+      "affected_seams": [],
+      "requalification_owners": []
+    }
+  ],
+  "paid_calls": [],
+  "model_executions": [],
+  "media_executions": [],
+  "provider_executions": [],
+  "spend_microusd": 0,
+  "limitations": [
+    "latest_comfyui_native_sigma_sampler_requires_requalification",
+    "latest_comfyui_frontend_is_non_substituting",
+    "latest_ollama_server_requires_requalification",
+    "no_weight_backed_h3_execution",
+    "no_official_oracle_execution",
+    "no_assisted_profile_qualification",
+    "not_legal_advice"
+  ]
+}

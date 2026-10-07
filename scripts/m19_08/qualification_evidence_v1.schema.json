@@ -1,0 +1,315 @@
+{
+ "$defs": {
+  "row": {
+   "additionalProperties": false,
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "status": {
+        "const": "supported"
+       }
+      },
+      "required": [
+       "status"
+      ]
+     },
+     "then": {
+      "anyOf": [
+       {
+        "required": [
+         "live_evidence"
+        ]
+       },
+       {
+        "required": [
+         "live_applicability"
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "status": {
+        "const": "unsupported"
+       }
+      },
+      "required": [
+       "status"
+      ]
+     },
+     "then": {
+      "required": [
+       "exhaustiveness"
+      ]
+     }
+    }
+   ],
+   "properties": {
+    "consumer": {
+     "pattern": "^M[0-9]{2}-[0-9]{2}$",
+     "type": "string"
+    },
+    "exhaustiveness": {
+     "additionalProperties": false,
+     "description": "Required when status is unsupported: what turns an absence into affirmative evidence.",
+     "properties": {
+      "candidate_mechanisms": {
+       "items": {
+        "maxLength": 128,
+        "type": "string"
+       },
+       "minItems": 1,
+       "type": "array"
+      },
+      "inventory_source": {
+       "maxLength": 256,
+       "minLength": 1,
+       "type": "string"
+      },
+      "live_node_inventory": {
+       "items": {
+        "maxLength": 128,
+        "type": "string"
+       },
+       "minItems": 1,
+       "type": "array"
+      },
+      "source_identity": {
+       "maxLength": 128,
+       "minLength": 1,
+       "type": "string"
+      }
+     },
+     "required": [
+      "source_identity",
+      "candidate_mechanisms",
+      "live_node_inventory",
+      "inventory_source"
+     ],
+     "type": "object"
+    },
+    "findings": {
+     "items": {
+      "maxLength": 2048,
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "live_applicability": {
+     "description": "Required when status is supported and no live_evidence is present: why a weight-backed run could not change the result.",
+     "maxLength": 2048,
+     "minLength": 1,
+     "type": "string"
+    },
+    "live_evidence": {
+     "type": "object"
+    },
+    "reason_code": {
+     "pattern": "^[a-z][a-z0-9_]{0,63}$",
+     "type": "string"
+    },
+    "row": {
+     "enum": [
+      "temporal_profile",
+      "joint_av_latent_descriptor",
+      "completed_boundary_resume",
+      "dual_domain_av_mask",
+      "two_ended_av_bridge"
+     ]
+    },
+    "source_evidence": {
+     "type": "object"
+    },
+    "status": {
+     "enum": [
+      "supported",
+      "unsupported",
+      "unqualified",
+      "retired"
+     ]
+    }
+   },
+   "required": [
+    "row",
+    "status",
+    "reason_code",
+    "consumer",
+    "source_evidence",
+    "findings"
+   ],
+   "type": "object"
+  },
+  "subject": {
+   "additionalProperties": false,
+   "properties": {
+    "frozen_host_revision": {
+     "pattern": "^[0-9a-f]{40}$",
+     "type": "string"
+    },
+    "frozen_host_version": {
+     "maxLength": 32,
+     "type": "string"
+    },
+    "host": {
+     "oneOf": [
+      {
+       "type": "null"
+      },
+      {
+       "additionalProperties": false,
+       "properties": {
+        "argv": {
+         "items": {
+          "maxLength": 128,
+          "type": "string"
+         },
+         "type": "array"
+        },
+        "comfyui_version": {
+         "maxLength": 32,
+         "type": "string"
+        },
+        "device_class": {
+         "maxLength": 32,
+         "type": "string"
+        },
+        "frontend_version": {
+         "maxLength": 32,
+         "type": "string"
+        },
+        "python_version": {
+         "maxLength": 32,
+         "type": "string"
+        },
+        "templates_version": {
+         "maxLength": 32,
+         "type": "string"
+        },
+        "torch_version": {
+         "maxLength": 32,
+         "type": "string"
+        }
+       },
+       "required": [
+        "comfyui_version",
+        "frontend_version",
+        "templates_version",
+        "python_version",
+        "torch_version",
+        "device_class",
+        "argv"
+       ],
+       "type": "object"
+      }
+     ]
+    },
+    "host_state": {
+     "enum": [
+      "probed_read_only",
+      "not_probed",
+      "probed_read_only_plus_authorized_weight_backed_runs"
+     ]
+    },
+    "item": {
+     "const": "M19-08"
+    },
+    "model_subject": {
+     "description": "Bounded opaque identities. A model locator never appears in full.",
+     "items": {
+      "pattern": "^weight:[0-9a-f]{16}$",
+      "type": "string"
+     },
+     "type": "array"
+    },
+    "native_source": {
+     "additionalProperties": false,
+     "properties": {
+      "blob": {
+       "pattern": "^gitblob:[0-9a-f]{40}$",
+       "type": "string"
+      },
+      "byte_length": {
+       "minimum": 1,
+       "type": "integer"
+      },
+      "label": {
+       "description": "Repository-relative source name. Never an absolute or private path.",
+       "maxLength": 256,
+       "pattern": "^[A-Za-z0-9_./-]+$",
+       "type": "string"
+      },
+      "sha256": {
+       "pattern": "^sha256:[0-9a-f]{64}$",
+       "type": "string"
+      }
+     },
+     "required": [
+      "label",
+      "blob",
+      "sha256",
+      "byte_length"
+     ],
+     "type": "object"
+    },
+    "project_commit": {
+     "maxLength": 64,
+     "type": "string"
+    }
+   },
+   "required": [
+    "item",
+    "project_commit",
+    "native_source",
+    "frozen_host_version",
+    "frozen_host_revision",
+    "model_subject",
+    "host",
+    "host_state"
+   ],
+   "type": "object"
+  }
+ },
+ "$id": "comfyui-h3-context://qualification/m19_08/qualification_evidence_v1.schema.json",
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "additionalProperties": false,
+ "description": "Internal, qualification-only evidence record. Deliberately not part of the product contract surface: it is not a runtime authority and not a portable workflow contract, and no product code may import or depend on it.",
+ "properties": {
+  "limitations": {
+   "items": {
+    "maxLength": 1024,
+    "type": "string"
+   },
+   "type": "array"
+  },
+  "rows": {
+   "items": {
+    "$ref": "#/$defs/row"
+   },
+   "maxItems": 5,
+   "minItems": 5,
+   "type": "array"
+  },
+  "schema": {
+   "const": "h3.m19_08_qualification_evidence.v1"
+  },
+  "subject": {
+   "$ref": "#/$defs/subject"
+  },
+  "version": {
+   "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+   "type": "string"
+  }
+ },
+ "required": [
+  "schema",
+  "version",
+  "subject",
+  "rows",
+  "limitations"
+ ],
+ "title": "M19-08 pre-M20 capability qualification matrix v1",
+ "type": "object"
+}

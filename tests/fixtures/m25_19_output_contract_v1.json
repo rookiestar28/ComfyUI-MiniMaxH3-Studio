@@ -1,0 +1,27 @@
+{
+  "capability": {
+    "schema": "h3.authoring.output_capability.v1",
+    "supported": false,
+    "output_profile_id": "h3.authoring.output.h264_aac_24fps.v1",
+    "preview_profile_id": "authoring.final_preview.h264_aac_640x360_24fps.v1",
+    "job_path": "/h3-context/v1/authoring/render",
+    "output_path": "/h3-context/v1/authoring/output",
+    "max_output_bytes": 536870912,
+    "max_preview_bytes": 16777216,
+    "max_duration_frames": 3600,
+    "frame_rate_num": 24,
+    "frame_rate_den": 1,
+    "job_ttl_seconds": 3600,
+    "max_jobs": 32,
+    "max_outputs": 16,
+    "max_byte_responses": 1,
+    "max_http_requests": 4,
+    "max_response_seconds": 120,
+    "max_write_seconds": 10,
+    "preview_threads": 2,
+    "preview_memory_bytes": 268435456,
+    "preview_seconds": 60
+  },
+  "phases": ["queued", "probing", "preparing", "rendering", "encoding", "muxing", "validating", "succeeded", "failed", "cancelled"],
+  "failures": ["cancelled", "workspace_released", "source_replaced", "source_expired", "source_unavailable", "font_changed", "deadline", "resource_limit", "process_failed", "output_invalid", "receipt_invalid", "store_unavailable", "service_closed", "runtime_unavailable"]
+}

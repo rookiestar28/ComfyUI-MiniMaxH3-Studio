@@ -1,0 +1,12 @@
+{
+  "schema": "h3.directive_authority_engine.v1",
+  "status": "conflicting",
+  "description": "Static contract fixture: equal-precedence conflict remains blocked and has no hidden winner.",
+  "expected": {
+    "accepted_count": 0,
+    "blocking_clarification": true,
+    "mutation_guard_pass": true,
+    "prompt_injection_guard_pass": true,
+    "precedence_order_errors": 0
+  }
+}

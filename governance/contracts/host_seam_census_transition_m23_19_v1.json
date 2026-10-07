@@ -1,0 +1,98 @@
+{
+  "schema": "h3.context.host_seam_census_transition_m23_19.v1",
+  "item": "M23-19",
+  "source": {
+    "commit_parts": [
+      "38510d53",
+      "a89a33df",
+      "0387e98c",
+      "f8e88931",
+      "a9ada556"
+    ],
+    "tree_parts": ["af4e6ca2", "418d304f", "ed638abc", "7a5f7792", "47c05cff"]
+  },
+  "artifacts": {
+    "from_census_sha256_parts": [
+      "c6fee1aa",
+      "eed908a4",
+      "ca14c5c6",
+      "a214d3e9",
+      "f71ba7ac",
+      "a7b32d46",
+      "f59e67ed",
+      "881436fa"
+    ],
+    "to_census_sha256_parts": [
+      "b14387c9",
+      "1938eae5",
+      "5cce67b0",
+      "b32f0af3",
+      "12968364",
+      "590ce06c",
+      "64aebc98",
+      "2a453562"
+    ],
+    "fixture_sha256_parts": [
+      "6c5b39b2",
+      "d8681074",
+      "e5742cef",
+      "b81a574e",
+      "5087834f",
+      "df89fdb5",
+      "aea23c70",
+      "2cf2a023"
+    ],
+    "seam_contract_sha256_parts": [
+      "54a5b364",
+      "eb46aa92",
+      "57cf477b",
+      "6e3bf487",
+      "9bf4ab18",
+      "2624f5e7",
+      "6ed865b4",
+      "db2a65de"
+    ]
+  },
+  "changes": [
+    {
+      "seam_id": "frontend.app.extension_manager.workflow.active_workflow",
+      "added_source_paths": [
+        "frontend/src/entry.tsx",
+        "frontend/src/host-modules.d.ts",
+        "frontend/src/host/appMode.ts"
+      ]
+    },
+    {
+      "seam_id": "frontend.app.extension_manager.workflow.open_workflows",
+      "added_source_paths": [
+        "frontend/src/host-modules.d.ts",
+        "frontend/src/host/appMode.ts"
+      ]
+    },
+    {
+      "seam_id": "frontend.app.graph.change",
+      "added_source_paths": [
+        "frontend/src/host-modules.d.ts",
+        "frontend/src/host/appMode.ts"
+      ]
+    },
+    {
+      "seam_id": "frontend.app.graph.get_node_by_id",
+      "added_source_paths": [
+        "frontend/src/host-modules.d.ts",
+        "frontend/src/host/appMode.ts"
+      ]
+    },
+    {
+      "seam_id": "frontend.app.graph.set_dirty_canvas",
+      "added_source_paths": [
+        "frontend/src/host-modules.d.ts",
+        "frontend/src/host/appMode.ts"
+      ]
+    },
+    {
+      "seam_id": "frontend.app.load_graph_data",
+      "added_source_paths": ["frontend/src/host-modules.d.ts"]
+    }
+  ]
+}

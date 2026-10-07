@@ -1,0 +1,72 @@
+{
+  "schema": "h3.context.host_seam_census_transition.v1",
+  "item": "M23-15",
+  "source": {
+    "commit_parts": [
+      "d65771cf",
+      "baa1640c",
+      "cd5e29ec",
+      "9e82be44",
+      "73814919"
+    ],
+    "tree_parts": ["73c0a8a4", "282ec306", "23f3e5ec", "99c6bdb1", "71ba729b"]
+  },
+  "artifacts": {
+    "from_census_sha256_parts": [
+      "93a03abb",
+      "e78646dc",
+      "bf79df3a",
+      "ffca55a9",
+      "6894e97a",
+      "ebc4e30d",
+      "30bc710d",
+      "90d07a06"
+    ],
+    "to_census_sha256_parts": [
+      "189911ab",
+      "0df36a7c",
+      "d1aad71c",
+      "241c4594",
+      "9359af6b",
+      "a5b7bb6c",
+      "1f320403",
+      "ba165e09"
+    ],
+    "fixture_sha256_parts": [
+      "a64e1521",
+      "5a8483a5",
+      "de3eef64",
+      "7ed380aa",
+      "b1cb268b",
+      "87be5a8b",
+      "4d0e60d1",
+      "b9836f97"
+    ],
+    "seam_contract_sha256_parts": [
+      "64a5512d",
+      "ee9bcc57",
+      "4630c770",
+      "753e8816",
+      "05bc6f1f",
+      "06fda8bb",
+      "42c5d361",
+      "fad65895"
+    ]
+  },
+  "changes": [
+    {
+      "seam_id": "backend.prompt_server.routes",
+      "added_source_paths": [
+        "comfyui_h3_context/adapters/comfyui_sequence_coordinator.py"
+      ]
+    },
+    {
+      "seam_id": "frontend.api.fetch_api",
+      "added_source_paths": ["frontend/src/host/sequenceCoordinator.ts"]
+    },
+    {
+      "seam_id": "frontend.api.queue_prompt",
+      "added_source_paths": ["frontend/src/entry.tsx"]
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/comparative_evaluation_v1.schema.json",
+  "title": "H3 Base and Reference comparative evaluation protocol",
+  "description": "Separate structural, preservation, measurement, reviewer, oracle, and fixed-H3 evidence.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "corpus_id", "thresholds", "reviewer_rubric", "cases"],
+  "properties": {
+    "schema": {"const": "h3.comparative.evaluation.v1"},
+    "corpus_id": {"$ref": "#/$defs/identifier"},
+    "thresholds": {"$ref": "#/$defs/thresholds"},
+    "reviewer_rubric": {"$ref": "#/$defs/rubric"},
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {"$ref": "#/$defs/case"}
+    }
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "code": {"$ref": "#/$defs/identifier"},
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "latency_seconds", "peak_memory_bytes", "output_bytes"],
+      "properties": {
+        "schema": {"const": "h3.base.evaluation.v1"},
+        "latency_seconds": {"type": "number", "minimum": 0},
+        "peak_memory_bytes": {"type": ["integer", "null"], "minimum": 0},
+        "output_bytes": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "thresholds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema", "policy_id", "version", "max_latency_seconds", "max_peak_memory_bytes",
+        "max_output_bytes", "min_structural_pass_ratio", "min_hard_constraint_pass_ratio",
+        "min_reviewer_score"
+      ],
+      "properties": {
+        "schema": {"const": "h3.comparative.evaluation.v1"},
+        "policy_id": {"$ref": "#/$defs/identifier"},
+        "version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "max_latency_seconds": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "max_peak_memory_bytes": {"type": ["integer", "null"], "minimum": 0},
+        "max_output_bytes": {"type": ["integer", "null"], "minimum": 0},
+        "min_structural_pass_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+        "min_hard_constraint_pass_ratio": {"type": "number", "minimum": 0, "maximum": 1},
+        "min_reviewer_score": {"type": ["number", "null"], "minimum": 0}
+      }
+    },
+    "rubric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "rubric_id", "version", "dimensions", "scale_min", "scale_max"],
+      "properties": {
+        "schema": {"const": "h3.comparative.evaluation.v1"},
+        "rubric_id": {"$ref": "#/$defs/identifier"},
+        "version": {"type": "string", "minLength": 1, "maxLength": 64},
+        "dimensions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        },
+        "scale_min": {"type": "number"},
+        "scale_max": {"type": "number"}
+      }
+    },
+    "reviewer_score": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "dimension", "score"],
+      "properties": {
+        "schema": {"const": "h3.comparative.evaluation.v1"},
+        "dimension": {"$ref": "#/$defs/identifier"},
+        "score": {"type": "number", "minimum": 0}
+      }
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema", "route", "status", "structural_valid", "hard_constraints_preserved",
+        "prompt_fingerprint", "measurement", "reviewer_scores", "oracle", "fixed_h3",
+        "diagnostic_codes", "limitation_codes"
+      ],
+      "properties": {
+        "schema": {"const": "h3.comparative.evaluation.v1"},
+        "route": {
+          "enum": ["manual_deterministic", "local_assisted", "remote_custom", "official_oracle"]
+        },
+        "status": {"enum": ["recorded", "not_requested", "blocked", "failed", "stale"]},
+        "structural_valid": {"type": ["boolean", "null"]},
+        "hard_constraints_preserved": {"type": ["boolean", "null"]},
+        "prompt_fingerprint": {"anyOf": [{"$ref": "#/$defs/fingerprint"}, {"type": "null"}]},
+        "measurement": {"anyOf": [{"$ref": "#/$defs/measurement"}, {"type": "null"}]},
+        "reviewer_scores": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {"$ref": "#/$defs/reviewer_score"}
+        },
+        "oracle": {"type": ["object", "null"]},
+        "fixed_h3": {"type": ["object", "null"]},
+        "diagnostic_codes": {"type": "array", "maxItems": 128, "items": {"$ref": "#/$defs/code"}},
+        "limitation_codes": {"type": "array", "maxItems": 128, "items": {"$ref": "#/$defs/code"}}
+      }
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "case_id", "profile", "source_fingerprints", "routes"],
+      "properties": {
+        "schema": {"const": "h3.comparative.evaluation.v1"},
+        "case_id": {"$ref": "#/$defs/identifier"},
+        "profile": {"enum": ["base", "reference"]},
+        "source_fingerprints": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/fingerprint"}
+        },
+        "routes": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {"$ref": "#/$defs/route"}
+        }
+      }
+    }
+  }
+}

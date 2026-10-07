@@ -20,6 +20,13 @@ from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 
 from ..core.canonical import binary64_token, canonical_fingerprint
+from ..core.durable_workspace_state import (
+    MAX_OWNER_RECORDS,
+    DurableStateError,
+    RecordIdentityMap,
+    StateRecord,
+    decode_record,
+)
 from ..core.managed_run import (
     MAX_LIVE_MANAGED_RUNS,
     ManagedRun,
@@ -133,6 +140,54 @@ class ManagedRunRegistry:
         self._slot_reservations: dict[str, _SlotReservationState] = {}
         self._run_reservations: dict[str, str] = {}
         self._dropped_events = 0
+        self._recovery_ids = RecordIdentityMap()
+
+    def recovery_metadata(self) -> tuple[StateRecord, ...]:
+        """Table-then-run snapshot of closed facts, without renewal, pruning or IO."""
+        with self._table_lock:
+            if len(self._runs) > MAX_OWNER_RECORDS:
+                raise DurableStateError("record_bound")
+            identities = self._recovery_ids.reconcile(tuple(self._runs))
+            rows = []
+            for handle, entry in self._runs.items():
+                with entry.lock:
+                    run = entry.run
+                    identifier, created = identities[handle]
+                    event = run.events[-1] if run.events else None
+                    fact = (
+                        None
+                        if event is None
+                        else {
+                            "sequence": event.sequence,
+                            "trigger": event.trigger,
+                            "source": event.source,
+                            "target": event.target,
+                            "guard": event.guard,
+                        }
+                    )
+                    # CRITICAL: run.to_wire() includes prompt/sequence/source authority. Persist
+                    # only this independent metadata ID and the machine's closed last fact.
+                    rows.append(
+                        decode_record(
+                            {
+                                "record_id": identifier,
+                                "kind": "managed_run",
+                                "created_at_ms": created,
+                                "closed_at_ms": None,
+                                "segment_count": run.segment_count,
+                                "state": run.state.value,
+                                "last_transition": fact,
+                                "revisions": {
+                                    "workspace": None,
+                                    "reference": None,
+                                    "timeline": None,
+                                    "context": run.context_revision,
+                                    "transition": 0 if event is None else event.sequence,
+                                },
+                            }
+                        )
+                    )
+            return tuple(rows)
 
     # -- registry level -------------------------------------------------------------------
 

@@ -1,0 +1,56 @@
+{
+  "schema": "h3.drift.process.report.v1",
+  "event_fingerprint": "sha256:afa7126bfd6994bf28764ab06442dd6c6b4d38025ae14fd85f94689cc7b3ce5e",
+  "source_id": "comfyui.supported.native_h3",
+  "baseline_identity": "gitblob:22bc91cd4570a071c664ec4848a5be748909e1e7",
+  "observed_identity": "gitblob:22bc91cd4570a071c664ec4848a5be748909e1e7",
+  "baseline_semantic_fingerprint": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "observed_semantic_fingerprint": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "availability": "AVAILABLE",
+  "change_signal": "NONE",
+  "observed_on": "2026-08-14",
+  "drift_kind": "NO_DRIFT",
+  "materiality": "NONE",
+  "affected_routes": [
+    {
+      "route_id": "supported.native.compatibility",
+      "task_mode": "MANUAL",
+      "product_surface": "NATIVE_HOST",
+      "host_profile": "SUPPORTED",
+      "provider_profile": "NONE",
+      "evaluation_layer": "COMPATIBILITY"
+    }
+  ],
+  "claim_ceiling": "EXISTING_CLAIMS_ONLY",
+  "required_check_ids": ["host.native_h3_schema"],
+  "disposition": "PASS",
+  "review_state": "NOT_REQUIRED",
+  "closure_state": "CLOSED",
+  "publication_state": "APPROVED_UNPUBLISHED",
+  "published_artifact_hash": null,
+  "publication_monitoring_state": "INACTIVE_NO_PUBLISHED_HASH",
+  "issue_template": {
+    "template_kind": "ISSUE",
+    "source_id": "comfyui.supported.native_h3",
+    "baseline_identity": "gitblob:22bc91cd4570a071c664ec4848a5be748909e1e7",
+    "observed_identity": "gitblob:22bc91cd4570a071c664ec4848a5be748909e1e7",
+    "drift_kind": "NO_DRIFT",
+    "disposition": "PASS",
+    "route_ids": ["supported.native.compatibility"],
+    "check_ids": ["host.native_h3_schema"],
+    "owner_roles": ["HOST_INTEGRATION_REVIEWER"],
+    "publication_state": "APPROVED_UNPUBLISHED"
+  },
+  "advisory_template": {
+    "template_kind": "ADVISORY",
+    "source_id": "comfyui.supported.native_h3",
+    "baseline_identity": "gitblob:22bc91cd4570a071c664ec4848a5be748909e1e7",
+    "observed_identity": "gitblob:22bc91cd4570a071c664ec4848a5be748909e1e7",
+    "drift_kind": "NO_DRIFT",
+    "disposition": "PASS",
+    "route_ids": ["supported.native.compatibility"],
+    "check_ids": ["host.native_h3_schema"],
+    "owner_roles": ["HOST_INTEGRATION_REVIEWER"],
+    "publication_state": "APPROVED_UNPUBLISHED"
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/compatibility_matrix_v1.schema.json",
+  "title": "H3 Context compatibility and co-installation matrix v1",
+  "description": "Declarative, secret-free runtime and ComfyUI host compatibility profiles.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "profiles"],
+  "properties": {
+    "schema": {"const": "h3.compatibility.matrix.v1"},
+    "profiles": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/profile"}
+    }
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "package": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "python": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum", "maximum"],
+      "properties": {
+        "minimum": {"$ref": "#/$defs/version"},
+        "maximum": {"anyOf": [{"$ref": "#/$defs/version"}, {"type": "null"}]}
+      }
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "revision_parts"],
+      "properties": {
+        "version": {"anyOf": [{"$ref": "#/$defs/version"}, {"type": "null"}]},
+        "revision_parts": {
+          "anyOf": [
+            {"type": "null"},
+            {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 16,
+              "items": {"type": "string", "pattern": "^[0-9a-f]{1,5}$"}
+            }
+          ]
+        }
+      }
+    },
+    "dependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "minimum", "maximum", "exact", "optional"],
+      "properties": {
+        "name": {"$ref": "#/$defs/package"},
+        "minimum": {"anyOf": [{"$ref": "#/$defs/version"}, {"type": "null"}]},
+        "maximum": {"anyOf": [{"$ref": "#/$defs/version"}, {"type": "null"}]},
+        "exact": {"anyOf": [{"$ref": "#/$defs/version"}, {"type": "null"}]},
+        "optional": {"type": "boolean"}
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "platform",
+        "python",
+        "host",
+        "dependencies",
+        "required_native_node_ids",
+        "forbidden_optional_imports",
+        "status",
+        "evidence_level",
+        "description"
+      ],
+      "properties": {
+        "profile_id": {"$ref": "#/$defs/identifier"},
+        "platform": {"enum": ["any", "windows", "linux", "linux_wsl", "macos"]},
+        "python": {"$ref": "#/$defs/python"},
+        "host": {"$ref": "#/$defs/host"},
+        "dependencies": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {"$ref": "#/$defs/dependency"}
+        },
+        "required_native_node_ids": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        },
+        "forbidden_optional_imports": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/package"}
+        },
+        "status": {"enum": ["supported", "validated_drifted", "unsupported", "blocked"]},
+        "evidence_level": {"$ref": "#/$defs/identifier"},
+        "description": {"type": "string", "minLength": 1, "maxLength": 512}
+      }
+    }
+  }
+}

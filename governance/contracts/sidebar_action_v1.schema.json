@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rookiestar28.github.io/ComfyUI-MinimaxH3-Context/contracts/sidebar_action_v1.schema.json",
+  "title": "H3 Context Sidebar Action V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "workspace_id", "expected_revision", "expected_report_fingerprint", "action", "payload"],
+  "properties": {
+    "schema": {"const": "h3.context.sidebar.action.v1"},
+    "workspace_id": {"type": "string", "pattern": "^ws_[A-Za-z0-9_-]{32,128}$"},
+    "expected_revision": {"type": "integer", "minimum": 0, "maximum": 1000000},
+    "expected_report_fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "action": {"enum": ["stage_prompt", "import_prompt", "validate", "export"]},
+    "payload": {"type": "object"}
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "action": {"const": "stage_prompt"},
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["reason", "prompt_text"],
+          "properties": {
+            "reason": {"type": "string", "minLength": 1, "maxLength": 1024},
+            "prompt_text": {"type": "string", "minLength": 1, "maxLength": 65536}
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "action": {"const": "import_prompt"},
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["transfer_json"],
+          "properties": {"transfer_json": {"type": "string", "minLength": 1, "maxLength": 70000}}
+        }
+      }
+    },
+    {
+      "properties": {
+        "action": {"enum": ["validate", "export"]},
+        "payload": {"type": "object", "additionalProperties": false, "maxProperties": 0}
+      }
+    }
+  ],
+  "$defs": {
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+  }
+}

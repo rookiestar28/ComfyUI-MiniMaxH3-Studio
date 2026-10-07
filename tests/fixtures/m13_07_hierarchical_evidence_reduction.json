@@ -1,0 +1,22 @@
+{
+  "fixture_status": "static_hierarchical_reduction_contract",
+  "claim_ceiling": "no media, model, provider, oracle, or host qualification",
+  "reduction": {
+    "schema": "h3.hierarchical_evidence_reduction.v1",
+    "status": "complete",
+    "target_id": "target.opening",
+    "retained_item_ids": ["asset.summary", "relation.cross", "shot.summary"],
+    "dropped_item_ids": [],
+    "receipt": {
+      "input_item_count": 3,
+      "output_item_count": 3,
+      "input_token_estimate": 12,
+      "output_token_estimate": 12,
+      "source_coverage": "1",
+      "target_coverage": "1",
+      "fidelity_score": "1"
+    },
+    "plan_fingerprint": "sha256:6279635743f914260f7b20671af0b58a5d48e5e6dbfbce7bb0e6157a40d71cf7"
+  },
+  "plan_fingerprint": "sha256:6279635743f914260f7b20671af0b58a5d48e5e6dbfbce7bb0e6157a40d71cf7"
+}

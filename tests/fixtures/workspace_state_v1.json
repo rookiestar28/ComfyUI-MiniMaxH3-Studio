@@ -1,0 +1,32 @@
+{
+  "schema": "h3.context.workspace_state_response.v1",
+  "projection": {
+    "schema": "h3.context.workspace_state_status.v1",
+    "supported": true,
+    "enabled": true,
+    "revision": 2,
+    "count": 1,
+    "saved_at_ms": 2000,
+    "current": true,
+    "save_state": "saved",
+    "sampler_active": true,
+    "records": [{
+      "record_id": "record_00000000000000000000000000000001",
+      "kind": "production",
+      "created_at_ms": 1000,
+      "closed_at_ms": null,
+      "segment_count": 1,
+      "state": "workspace_active",
+      "revisions": {
+        "workspace": 1,
+        "reference": null,
+        "timeline": null,
+        "context": null,
+        "transition": 0
+      },
+      "last_transition": null
+    }]
+  },
+  "error": null,
+  "recovered": null
+}

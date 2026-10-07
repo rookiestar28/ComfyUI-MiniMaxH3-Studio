@@ -1,0 +1,630 @@
+{
+  "criteria": [
+    {
+      "id": "reference.native-window-parity",
+      "path": "tests/test_reference_window.py",
+      "runner": "pytest",
+      "selector": "test_every_admitted_reference_against_every_output_lattice"
+    },
+    {
+      "id": "reference.discarded-tail-exclusion",
+      "path": "tests/test_qualified_perception.py",
+      "runner": "pytest",
+      "selector": "test_reference_conditioning_discards_the_blue_tail"
+    },
+    {
+      "id": "reference.unbound-window-enforcement",
+      "path": "tests/test_qualified_perception.py",
+      "runner": "pytest",
+      "selector": "test_unbound_reference_is_filtered_by_timeline_and_tail_mutation_stays_revocable"
+    },
+    {
+      "id": "dialogue.speaker-id-isolation",
+      "path": "tests/test_dialogue_speakers.py",
+      "runner": "pytest",
+      "selector": "test_unbound_lines_never_share_an_id_or_alias_an_explicit_key"
+    },
+    {
+      "id": "dialogue.full-span-preservation",
+      "path": "tests/test_dialogue_speakers.py",
+      "runner": "pytest",
+      "selector": "test_full_span_guarantee_refuses_dropped_or_detached_metadata"
+    },
+    {
+      "id": "dialogue.production-binding-preservation",
+      "path": "tests/test_m26_03_context_materializer.py",
+      "runner": "pytest",
+      "selector": "test_materializer_preserves_source_speaker_ids_and_rebases_owned_bindings"
+    },
+    {
+      "id": "dialogue.language-tag-integrity",
+      "path": "tests/test_dialogue_language.py",
+      "runner": "pytest",
+      "selector": "test_every_generated_language_tag_is_usable"
+    },
+    {
+      "id": "provider.credential.no-fragment-receipt",
+      "path": "tests/test_remote_prompt_model.py",
+      "runner": "pytest",
+      "selector": "test_no_credential_reaches_the_receipt_or_the_wire"
+    },
+    {
+      "id": "provider.session.cross-browser-isolation",
+      "path": "tests/test_provider_session_authority.py",
+      "runner": "pytest",
+      "selector": "test_selection_consent_and_credential_are_isolated"
+    },
+    {
+      "id": "provider.session.release-invalidates-readiness",
+      "path": "tests/test_provider_session_authority.py",
+      "runner": "pytest",
+      "selector": "test_release_invalidates_an_inflight_readiness_task"
+    },
+    {
+      "id": "production.capacity.single-announcement",
+      "path": "frontend/tests/productionWorkbench.test.tsx",
+      "runner": "vitest",
+      "selector": "announces controller capacity once for the whole page"
+    },
+    {
+      "id": "production.generation.pending-remount",
+      "path": "frontend/tests/entryWorkspaceLifecycle.test.tsx",
+      "runner": "vitest",
+      "selector": "derives pending and submitted dispositions across real tab remounts"
+    },
+    {
+      "id": "production.generation.reject-quarantine",
+      "path": "frontend/tests/entryWorkspaceLifecycle.test.tsx",
+      "runner": "vitest",
+      "selector": "quarantines rejection after authority release, navigation, and unmount"
+    },
+    {
+      "id": "production.generation.resolve-quarantine",
+      "path": "frontend/tests/entryWorkspaceLifecycle.test.tsx",
+      "runner": "vitest",
+      "selector": "quarantines a resolved old key across navigation, unmount, and a fresh publication"
+    },
+    {
+      "id": "production.sequence.positional-compatibility",
+      "path": "tests/test_generation_sequence.py",
+      "runner": "pytest",
+      "selector": "test_plan_preserves_the_pre_authority_positional_constructor_order"
+    },
+    {
+      "id": "production.proposal.dispatcher-lifecycle",
+      "path": "frontend/tests/productionProposalDispatcher.test.ts",
+      "runner": "vitest",
+      "selector": "expires sensitive rows, disposes timers and quarantines late settlement"
+    },
+    {
+      "id": "production.proposal.absolute-source-expiry",
+      "path": "frontend/tests/productionProposalDispatcher.test.ts",
+      "runner": "vitest",
+      "selector": "rejects settlement after the absolute source deadline before its timer runs"
+    },
+    {
+      "id": "production.proposal.batch-cancellation",
+      "path": "frontend/tests/productionProposalDispatcher.test.ts",
+      "runner": "vitest",
+      "selector": "cancels the dispatcher-owned batch before queued rows can issue"
+    },
+    {
+      "id": "production.proposal.batch-timeout-stop",
+      "path": "frontend/tests/productionProposalDispatcher.test.ts",
+      "runner": "vitest",
+      "selector": "stops the whole selected batch before a timed-out worker can issue another row"
+    },
+    {
+      "id": "production.proposal.batch-timeout-preserves-completed",
+      "path": "frontend/tests/productionProposalDispatcher.test.ts",
+      "runner": "vitest",
+      "selector": "preserves a completed row when another worker times out"
+    },
+    {
+      "id": "production.proposal.identity-no-retarget",
+      "path": "frontend/tests/productionProposalDispatcher.test.ts",
+      "runner": "vitest",
+      "selector": "quarantines a response after the Production identity drifts"
+    },
+    {
+      "id": "production.proposal.entry-quarantine",
+      "path": "frontend/tests/entryWorkspaceLifecycle.test.tsx",
+      "runner": "vitest",
+      "selector": "quarantines a late proposal response across navigation and unmount"
+    },
+    {
+      "id": "production.proposal.entry-mutation-lifecycle",
+      "path": "frontend/tests/entryWorkspaceLifecycle.test.tsx",
+      "runner": "vitest",
+      "selector": "drives Resolve and Reject through the mounted Production row"
+    },
+    {
+      "id": "production.proposal.identity-release",
+      "path": "frontend/tests/productionProposalDispatcher.test.ts",
+      "runner": "vitest",
+      "selector": "clears all source identity when the Production workspace is replaced"
+    },
+    {
+      "id": "production.proposal.row-state-cap",
+      "path": "frontend/tests/productionProposalDispatcher.test.ts",
+      "runner": "vitest",
+      "selector": "evicts identity-free tombstones before retained row state exceeds 64"
+    },
+    {
+      "id": "production.proposal.unbound-action-disabled",
+      "path": "frontend/tests/productionWorkbench.test.tsx",
+      "runner": "vitest",
+      "selector": "disables proposal reads when a stale row no longer has an exact binding"
+    },
+    {
+      "id": "tooling.acceptance-baseline.self-validation",
+      "path": "tests/test_acceptance_baseline.py",
+      "runner": "pytest",
+      "selector": "test_repository_baseline_is_valid_and_registered_selectors_are_unique"
+    },
+    {
+      "id": "tooling.frontend-bundle.offline-parity",
+      "path": "tests/test_frontend_build_report.py",
+      "runner": "pytest",
+      "selector": "test_offline_frozen_rebuild_matches_the_only_runtime_entry"
+    },
+    {
+      "id": "locale.tables.discovery-enforced",
+      "path": "frontend/tests/localeCopyTables.test.ts",
+      "runner": "vitest",
+      "selector": "registers every locale table that exists in source"
+    },
+    {
+      "id": "locale.sweep.no-new-untranslated-string",
+      "path": "frontend/tests/localeCoverageSweep.test.tsx",
+      "runner": "vitest",
+      "selector": "never admits a new untranslated string"
+    },
+    {
+      "id": "locale.sweep.no-new-coverage-gap",
+      "path": "frontend/tests/localeCoverageSweep.test.tsx",
+      "runner": "vitest",
+      "selector": "never admits a new coverage gap"
+    },
+    {
+      "id": "locale.sweep.no-stale-exception",
+      "path": "frontend/tests/localeCoverageSweep.test.tsx",
+      "runner": "vitest",
+      "selector": "still detects every declared temporary violation"
+    },
+    {
+      "id": "locale.sweep.identifier-classification",
+      "path": "frontend/tests/localeCoverageSweep.test.tsx",
+      "runner": "vitest",
+      "selector": "rejects prose disguised as a permanent identifier"
+    },
+    {
+      "id": "sidebar.connect-guidance.authoritative-lifecycle",
+      "path": "frontend/tests/e2e/journeys/connect.spec.ts",
+      "runner": "playwright",
+      "selector": "guidance follows the authoritative connect lifecycle"
+    },
+    {
+      "id": "sidebar.existing-route.no-materialize-notice",
+      "path": "frontend/tests/e2e/journeys/managedLifecycle.spec.ts",
+      "runner": "playwright",
+      "selector": "existing managed generation never inherits a relocated materialize notice"
+    },
+    {
+      "id": "duration.maximum.actual-route-queue-authority",
+      "path": "frontend/tests/e2e/journeys/managedLifecycle.spec.ts",
+      "runner": "playwright",
+      "selector": "canonical 15-second route resolution carries 362 frames through one actual queue"
+    },
+    {
+      "id": "production.selection.retains-completed-authority",
+      "path": "frontend/tests/e2e/journeys/productionCore.spec.ts",
+      "runner": "playwright",
+      "selector": "selection keeps a completed run authority and preview"
+    }
+  ],
+  "policies": [],
+  "public_python_abi": [
+    {
+      "export": "ContextPlan",
+      "parameters": [
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "plan_id"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "schema_version"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "request"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "intent_graph"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "hard_constraints"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "evidence"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "steps"
+        },
+        {
+          "has_default": true,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "limitations"
+        },
+        {
+          "has_default": true,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "diagnostics"
+        }
+      ]
+    },
+    {
+      "export": "GenerationSequencePlan",
+      "parameters": [
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "sequence_id"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "workspace_id"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "workspace_revision"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "workspace_fingerprint"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "recompute_plan_fingerprint"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "manifest_fingerprints"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "jobs"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "clean_segment_ids"
+        },
+        {
+          "has_default": true,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "max_concurrency"
+        },
+        {
+          "has_default": true,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "sequence_fingerprint"
+        },
+        {
+          "has_default": true,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "schema"
+        },
+        {
+          "has_default": true,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "source_workspace_authority"
+        }
+      ]
+    },
+    {
+      "export": "RawContextRequest",
+      "parameters": [
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "mode"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "user_intent"
+        },
+        {
+          "has_default": true,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "duration_seconds"
+        },
+        {
+          "has_default": true,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "assets"
+        },
+        {
+          "has_default": true,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "hard_constraints"
+        },
+        {
+          "has_default": true,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "reference_registry"
+        },
+        {
+          "has_default": true,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "evidence"
+        }
+      ]
+    },
+    {
+      "export": "normalize_request",
+      "parameters": [
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "raw"
+        }
+      ]
+    },
+    {
+      "export": "build_reference_registry",
+      "parameters": [
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "values"
+        }
+      ]
+    },
+    {
+      "export": "build_intent_graph",
+      "parameters": [
+        {
+          "has_default": false,
+          "kind": "KEYWORD_ONLY",
+          "name": "effective_duration"
+        },
+        {
+          "has_default": false,
+          "kind": "KEYWORD_ONLY",
+          "name": "registry"
+        },
+        {
+          "has_default": true,
+          "kind": "KEYWORD_ONLY",
+          "name": "subjects"
+        },
+        {
+          "has_default": true,
+          "kind": "KEYWORD_ONLY",
+          "name": "scenes"
+        },
+        {
+          "has_default": true,
+          "kind": "KEYWORD_ONLY",
+          "name": "actions"
+        },
+        {
+          "has_default": true,
+          "kind": "KEYWORD_ONLY",
+          "name": "cameras"
+        },
+        {
+          "has_default": true,
+          "kind": "KEYWORD_ONLY",
+          "name": "styles"
+        },
+        {
+          "has_default": true,
+          "kind": "KEYWORD_ONLY",
+          "name": "audios"
+        },
+        {
+          "has_default": true,
+          "kind": "KEYWORD_ONLY",
+          "name": "events"
+        },
+        {
+          "has_default": true,
+          "kind": "KEYWORD_ONLY",
+          "name": "retention"
+        },
+        {
+          "has_default": true,
+          "kind": "KEYWORD_ONLY",
+          "name": "segments"
+        },
+        {
+          "has_default": true,
+          "kind": "KEYWORD_ONLY",
+          "name": "allow_gaps"
+        },
+        {
+          "has_default": true,
+          "kind": "KEYWORD_ONLY",
+          "name": "soundscape"
+        }
+      ]
+    },
+    {
+      "export": "build_context_preview",
+      "parameters": [
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "report"
+        }
+      ]
+    },
+    {
+      "export": "render_base_prompt",
+      "parameters": [
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "plan"
+        },
+        {
+          "has_default": true,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "registry"
+        }
+      ]
+    },
+    {
+      "export": "render_full_reference_prompt",
+      "parameters": [
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "plan"
+        },
+        {
+          "has_default": true,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "registry"
+        }
+      ]
+    },
+    {
+      "export": "lint_prompt",
+      "parameters": [
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "plan"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "document"
+        },
+        {
+          "has_default": true,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "registry"
+        }
+      ]
+    },
+    {
+      "export": "parse_prompt",
+      "parameters": [
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "text"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "profile"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "task_mode"
+        },
+        {
+          "has_default": true,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "registry"
+        }
+      ]
+    },
+    {
+      "export": "render_parsed_prompt",
+      "parameters": [
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "result"
+        }
+      ]
+    },
+    {
+      "export": "build_native_h3_wiring",
+      "parameters": [
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "report"
+        },
+        {
+          "has_default": true,
+          "kind": "KEYWORD_ONLY",
+          "name": "expected_revision"
+        },
+        {
+          "has_default": true,
+          "kind": "KEYWORD_ONLY",
+          "name": "expected_report_fingerprint"
+        }
+      ]
+    },
+    {
+      "export": "build_generation_sequence_plan",
+      "parameters": [
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "workspace"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "manifests"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "recompute_plan"
+        },
+        {
+          "has_default": false,
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "name": "job_specs"
+        },
+        {
+          "has_default": true,
+          "kind": "KEYWORD_ONLY",
+          "name": "reusable_receipts"
+        },
+        {
+          "has_default": true,
+          "kind": "KEYWORD_ONLY",
+          "name": "max_concurrency"
+        },
+        {
+          "has_default": true,
+          "kind": "KEYWORD_ONLY",
+          "name": "sequence_id"
+        }
+      ]
+    }
+  ],
+  "schema": "h3-context-acceptance-baseline/1"
+}

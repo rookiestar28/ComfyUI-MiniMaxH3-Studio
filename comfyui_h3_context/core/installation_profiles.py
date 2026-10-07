@@ -116,7 +116,7 @@ def build_default_installation_profiles() -> InstallationProfileManifest:
                 profile_id="core_manual",
                 owner="package",
                 # IMPORTANT: match package and manifest versions; strict decoding rejects drift.
-                distribution="minimax-h3-studio==1.0.2",
+                distribution="minimax-h3-studio==1.1.0",
                 compatibility=("python>=3.10",),
                 required=True,
                 install_mode="artifact",

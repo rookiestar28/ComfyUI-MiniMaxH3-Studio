@@ -79,8 +79,15 @@ export function NlePlanningSection({
   contextPromptText?: string;
 }) {
   const text = nleCopy(locale);
-  // The script is working text for this panel only: it is never sent, only the rows it yields.
-  const [script, setScript] = useState("");
+  const [localScript, setLocalScript] = useState("");
+  const script =
+    actions.setPlanningScript === undefined
+      ? localScript
+      : (planning.script ?? "");
+  const setScript = (value: string) =>
+    actions.setPlanningScript === undefined
+      ? setLocalScript(value)
+      : actions.setPlanningScript(value);
   const [scriptOutcome, setScriptOutcome] = useState<ScriptOutcome | null>(
     null,
   );

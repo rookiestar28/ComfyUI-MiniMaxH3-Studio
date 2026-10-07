@@ -1,0 +1,371 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/reference_directives_v2.schema.json",
+  "title": "H3 Full-Reference directive semantics v2",
+  "type": "object",
+  "required": [
+    "schema",
+    "status",
+    "request",
+    "accepted",
+    "decision_records",
+    "conflicts",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema": {
+      "const": "h3.reference.directives.v2"
+    },
+    "status": {
+      "enum": [
+        "empty",
+        "complete",
+        "partial",
+        "conflicting"
+      ]
+    },
+    "request": {
+      "$ref": "#/$defs/request"
+    },
+    "accepted": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+        "$ref": "#/$defs/directive"
+      }
+    },
+    "decision_records": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+        "$ref": "#/$defs/decision_record"
+      }
+    },
+    "conflicts": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+        "$ref": "#/$defs/conflict"
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "directive_action": {
+      "enum": [
+        "copy_event",
+        "retain",
+        "adapt",
+        "exclude"
+      ]
+    },
+    "target_kind": {
+      "enum": [
+        "event",
+        "subject",
+        "voice",
+        "object",
+        "scene",
+        "action",
+        "style",
+        "camera",
+        "audio",
+        "dialogue",
+        "lyrics",
+        "visible_text",
+        "timeline",
+        "asset"
+      ]
+    },
+    "retention_aspect": {
+      "enum": [
+        "identity",
+        "style",
+        "camera",
+        "audio",
+        "voice",
+        "scene",
+        "action",
+        "object"
+      ]
+    },
+    "authority": {
+      "enum": [
+        "user_hard",
+        "user_preference",
+        "reference_only",
+        "assisted_proposal"
+      ]
+    },
+    "decision": {
+      "enum": [
+        "accepted",
+        "shadowed",
+        "rejected",
+        "conflicting"
+      ]
+    },
+    "directive": {
+      "type": "object",
+      "required": [
+        "schema",
+        "directive_id",
+        "action",
+        "target_kind",
+        "target_id",
+        "source_asset_ids",
+        "source_observation_ids",
+        "source_event_id",
+        "target_segment_id",
+        "retention_aspects",
+        "adaptation",
+        "reason",
+        "authority",
+        "priority",
+        "evidence_ids",
+        "hard_constraint_ids",
+        "retention_scope"
+      ],
+      "properties": {
+        "schema": {
+          "const": "h3.reference.directives.v2"
+        },
+        "directive_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "action": {
+          "$ref": "#/$defs/directive_action"
+        },
+        "target_kind": {
+          "$ref": "#/$defs/target_kind"
+        },
+        "target_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "source_asset_ids": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "source_observation_ids": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "source_event_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "target_segment_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identifier"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retention_aspects": {
+          "type": "array",
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/retention_aspect"
+          }
+        },
+        "adaptation": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 4096
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 4096
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "authority": {
+          "$ref": "#/$defs/authority"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "evidence_ids": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "hard_constraint_ids": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "retention_scope": {
+          "enum": [
+            "unspecified",
+            "subject",
+            "picture",
+            "video_structure",
+            "audio_layer",
+            "complete_final_audio_track"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "request": {
+      "type": "object",
+      "required": [
+        "schema",
+        "task_mode",
+        "reference_registry",
+        "directives",
+        "hard_constraints"
+      ],
+      "properties": {
+        "schema": {
+          "const": "h3.reference.directives.v2"
+        },
+        "task_mode": {
+          "const": "ref2va"
+        },
+        "reference_registry": {
+          "type": "object"
+        },
+        "directives": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/directive"
+          }
+        },
+        "hard_constraints": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    "decision_record": {
+      "type": "object",
+      "required": [
+        "schema",
+        "directive_id",
+        "decision",
+        "conflict_ids",
+        "reason"
+      ],
+      "properties": {
+        "schema": {
+          "const": "h3.reference.directives.v2"
+        },
+        "directive_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "decision": {
+          "$ref": "#/$defs/decision"
+        },
+        "conflict_ids": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string",
+              "maxLength": 4096
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "conflict": {
+      "type": "object",
+      "required": [
+        "schema",
+        "conflict_id",
+        "code",
+        "directive_ids",
+        "message",
+        "severity"
+      ],
+      "properties": {
+        "schema": {
+          "const": "h3.reference.directives.v2"
+        },
+        "conflict_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "code": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]{0,63}$"
+        },
+        "directive_ids": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "error",
+            "fatal"
+          ]
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

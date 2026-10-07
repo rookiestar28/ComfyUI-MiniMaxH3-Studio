@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/contract_inventory_v1.schema.json",
+  "title": "ComfyUI H3 context contract surface inventory",
+  "description": "Deterministic, content-free inventory of every contract authority in this repository, with its boundary, its discovered readers and an evidence-backed disposition. Records only; it never changes a wire value, a fingerprint or a schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "entries", "fingerprint"],
+  "properties": {
+    "schema": { "const": "h3-context-contract-inventory/1" },
+    "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1024,
+      "items": { "$ref": "#/$defs/entry" }
+    }
+  },
+  "$defs": {
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 260,
+      "pattern": "^[A-Za-z0-9._-](?:[A-Za-z0-9._ -]*[A-Za-z0-9._-])?(?:/[A-Za-z0-9._-](?:[A-Za-z0-9._ -]*[A-Za-z0-9._-])?)*$"
+    },
+    "pathList": {
+      "type": "array",
+      "maxItems": 256,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/path" }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_id",
+        "kind",
+        "authority_paths",
+        "dialect",
+        "producers",
+        "consumers",
+        "boundary",
+        "persistence",
+        "publication",
+        "fingerprint_domain",
+        "disposition",
+        "compatibility",
+        "evidence",
+        "blockers"
+      ],
+      "properties": {
+        "contract_id": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "kind": {
+          "enum": [
+            "json_schema",
+            "json_data",
+            "python_wire",
+            "frontend_codec",
+            "workflow_fixture",
+            "host_node",
+            "package_metadata"
+          ]
+        },
+        "authority_paths": {
+          "allOf": [{ "$ref": "#/$defs/pathList" }, { "minItems": 1, "maxItems": 32 }]
+        },
+        "dialect": {
+          "enum": [
+            "not_applicable",
+            "unstated",
+            "https://json-schema.org/draft/2020-12/schema",
+            "https://json-schema.org/draft/2019-09/schema",
+            "http://json-schema.org/draft-07/schema#"
+          ]
+        },
+        "producers": { "$ref": "#/$defs/pathList" },
+        "consumers": { "$ref": "#/$defs/pathList" },
+        "boundary": {
+          "enum": [
+            "public",
+            "persisted",
+            "cross_language",
+            "untrusted_input",
+            "process_local",
+            "test_only",
+            "host_core"
+          ]
+        },
+        "persistence": { "enum": ["persisted", "transient", "unknown"] },
+        "publication": { "enum": ["packaged", "repository_only", "unknown"] },
+        "reachability": {
+          "description": "Recorded only where the question applies -- a route, a node-facing contract or a fixture-only surface. Absent means no claim, not an unsupported contract.",
+          "enum": ["reachable", "injected_only", "explicit_unavailable", "unsupported"]
+        },
+        "reachability_source": {
+          "enum": ["public_node", "host_input", "injected_fixture", "none"]
+        },
+        "fingerprint_domain": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "disposition": {
+          "enum": [
+            "KEEP",
+            "SIMPLIFY",
+            "DEPRECATE",
+            "RETIRE_CANDIDATE",
+            "NEED_EVIDENCE",
+            "BLOCKED_CORRECTION_REQUIRED"
+          ]
+        },
+        "compatibility": {
+          "enum": [
+            "no_readers",
+            "old_readers_unaffected",
+            "migration_required",
+            "unknown"
+          ]
+        },
+        "evidence": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "blockers": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "duplicate_schema_identity",
+              "unresolved_owner",
+              "unknown_consumer",
+              "incomplete_position_binding"
+            ]
+          }
+        },
+        "deferred_consumer_note": { "type": "string", "minLength": 1, "maxLength": 240 }
+      },
+      "allOf": [
+        {
+          "description": "A boundary this repository does not control is never a direct retirement candidate.",
+          "if": {
+            "properties": {
+              "boundary": {
+                "enum": [
+                  "public",
+                  "persisted",
+                  "cross_language",
+                  "untrusted_input",
+                  "host_core"
+                ]
+              }
+            },
+            "required": ["boundary"]
+          },
+          "then": {
+            "properties": { "disposition": { "not": { "const": "RETIRE_CANDIDATE" } } }
+          }
+        },
+        {
+          "description": "A recorded blocker cannot coexist with a claim the evidence does not support.",
+          "if": {
+            "properties": { "blockers": { "minItems": 1 } },
+            "required": ["blockers"]
+          },
+          "then": {
+            "properties": {
+              "disposition": { "enum": ["NEED_EVIDENCE", "BLOCKED_CORRECTION_REQUIRED"] }
+            }
+          }
+        },
+        {
+          "description": "A reachability claim and the source that backs it are recorded together or not at all.",
+          "if": { "required": ["reachability"] },
+          "then": { "required": ["reachability_source"] },
+          "else": { "not": { "required": ["reachability_source"] } }
+        },
+        {
+          "description": "An injected fixture is evidence about a test, never about a runtime.",
+          "if": {
+            "properties": { "reachability_source": { "const": "injected_fixture" } },
+            "required": ["reachability_source"]
+          },
+          "then": {
+            "properties": { "reachability": { "not": { "const": "reachable" } } }
+          }
+        }
+      ]
+    }
+  }
+}

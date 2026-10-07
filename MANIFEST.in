@@ -1,28 +1,37 @@
-# Public source-distribution allowlist. Internal governance and development trees are intentionally
-# excluded even when they happen to be present in a local checkout.
+# Public source distribution includes developer tests and their tracked support inputs.
+# Private planning/evidence and generated dependency/cache material remain excluded.
 include README.md
+# IMPORTANT: root public files need explicit selectors; grafts cover only directory inputs.
+include RELEASE_NOTES.md
 include LICENSE
 include NOTICE
 include MANIFEST.in
 include .comfyignore
+include .gitignore
+include public-source-inventory.json
 include pyproject.toml
 include __init__.py
+include .pre-commit-config.yaml
+include .github/workflows/ci.yml
+include .github/workflows/publish.yml
 
-recursive-include comfyui_h3_context *.py *.json *.js py.typed
-recursive-include comfyui_h3_context/fonts *.ttf *.txt
-recursive-include docs *.md
-recursive-include examples *.py
-recursive-include workflows *.json
-recursive-include subgraphs *.json
-recursive-include assets *.svg *.png *.jpg *.jpeg *.gif
+# The backend supplies a fresh public-only snapshot. Include every tracked input,
+# regardless of suffix; the independent archive audit still verifies required coverage.
+graft comfyui_h3_context
+graft docs
+graft examples
+graft workflows
+graft subgraphs
+graft assets
+graft tests
+graft frontend
+graft scripts
+graft governance
+graft compatibility
+graft requirements
 
 prune .planning
-prune governance
 prune reference
-prune tests
-prune scripts
-prune compatibility
-prune .github
 prune build
 prune dist
 prune .venv
@@ -37,3 +46,7 @@ global-exclude .mypy_cache/*
 global-exclude .ruff_cache/*
 global-exclude comfyui_h3_context.egg-info/*
 global-exclude *.log
+global-exclude .secrets.baseline
+prune frontend/node_modules
+prune frontend/test-results
+prune frontend/playwright-report

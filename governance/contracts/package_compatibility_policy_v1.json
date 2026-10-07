@@ -1,0 +1,74 @@
+{
+  "schema": "h3.context.package_compatibility_policy.v1",
+  "version": "1.0.0",
+  "consumer_authority": {
+    "authority_id": "package",
+    "path": "comfyui_h3_context/public_api.py",
+    "selector": "__all__",
+    "relation": "supported_python_consumer_surface",
+    "names": [
+      "DEFAULT_WORKFLOW_FIXTURES",
+      "NodeObjectInfo",
+      "PUBLIC_MANIFEST_SCHEMA",
+      "PUBLIC_MANIFEST_V2_SCHEMA",
+      "PublicManifest",
+      "PublicManifestV2",
+      "RuntimeNodeFacts",
+      "WorkflowFixtureRef",
+      "build_runtime_public_manifest",
+      "build_runtime_public_manifest_v2",
+      "collect_node_object_info",
+      "get_node_mappings",
+      "get_public_manifest",
+      "get_public_manifest_v2",
+      "project_public_manifest_v1"
+    ]
+  },
+  "supporting_authorities": [
+    {
+      "authority_id": "acceptance_abi",
+      "path": "tests/acceptance_baseline.json",
+      "selector": "public_python_abi[*].export",
+      "relation": "gate_enforced_pure_core_subset"
+    },
+    {
+      "authority_id": "pure_core",
+      "path": "comfyui_h3_context/core/__init__.py",
+      "selector": "__all__",
+      "relation": "implementation_export_census"
+    }
+  ],
+  "change_classification": {
+    "contract_schema": {
+      "breaking": "major",
+      "backward_compatible_addition": "minor",
+      "compatible_fix": "patch"
+    },
+    "emitted_prompt_shape": {
+      "breaking": "major",
+      "backward_compatible_addition": "minor",
+      "compatible_fix": "patch"
+    },
+    "emitted_report_shape": {
+      "breaking": "major",
+      "backward_compatible_addition": "minor",
+      "compatible_fix": "patch"
+    },
+    "node_identifier_and_socket": {
+      "breaking": "major",
+      "backward_compatible_addition": "minor",
+      "compatible_fix": "patch"
+    },
+    "python_consumer_api": {
+      "breaking": "major",
+      "backward_compatible_addition": "minor",
+      "compatible_fix": "patch"
+    }
+  },
+  "deprecation_policy": {
+    "minimum_successor_releases": 2,
+    "removal_requires_major": true,
+    "announcement_channels": ["in_product", "release_notes"],
+    "deprecations": []
+  }
+}

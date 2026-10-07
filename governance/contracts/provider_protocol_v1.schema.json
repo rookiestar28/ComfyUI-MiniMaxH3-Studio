@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/provider_protocol_v1.schema.json",
+  "title": "ComfyUI H3 Provider Protocol v1",
+  "description": "Provider capability metadata; not an official MiniMax Context-IR schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol_version",
+    "identity",
+    "provider_version",
+    "capabilities",
+    "output_contract"
+  ],
+  "properties": {
+    "protocol_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "identity": {
+      "type": "string",
+      "enum": ["manual", "local", "remote_custom", "official_minimax"]
+    },
+    "provider_version": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "capabilities": {
+      "$ref": "#/$defs/ProviderCapabilities"
+    },
+    "output_contract": {
+      "$ref": "#/$defs/ProviderOutputContract"
+    }
+  },
+  "$defs": {
+    "ProviderCapabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "supported_task_modes",
+        "supported_media",
+        "privacy_location",
+        "network_requirement",
+        "credential_requirement",
+        "limits",
+        "supports_determinism",
+        "supports_seed",
+        "supports_cancellation"
+      ],
+      "properties": {
+        "supported_task_modes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["t2va", "i2va", "fl2va", "l2va", "ref2va"]
+          }
+        },
+        "supported_media": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["image", "video", "audio"]
+          }
+        },
+        "privacy_location": {
+          "type": "string",
+          "enum": ["local", "remote", "mixed"]
+        },
+        "network_requirement": {
+          "type": "string",
+          "enum": ["none", "loopback", "internet"]
+        },
+        "credential_requirement": {
+          "type": "string",
+          "enum": ["none", "optional", "required"]
+        },
+        "limits": {
+          "$ref": "#/$defs/ResourceLimits"
+        },
+        "supports_determinism": {
+          "type": "boolean"
+        },
+        "supports_seed": {
+          "type": "boolean"
+        },
+        "supports_cancellation": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ResourceLimits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_bytes",
+        "max_duration_seconds",
+        "max_width",
+        "max_height",
+        "max_frames",
+        "max_sample_rate",
+        "max_references",
+        "max_concurrency",
+        "max_memory_bytes",
+        "max_wall_time_seconds",
+        "max_retries",
+        "max_cache_ttl_seconds"
+      ],
+      "properties": {
+        "max_bytes": {"type": "integer", "minimum": 1},
+        "max_duration_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "max_width": {"type": "integer", "minimum": 1},
+        "max_height": {"type": "integer", "minimum": 1},
+        "max_frames": {"type": "integer", "minimum": 1},
+        "max_sample_rate": {"type": "integer", "minimum": 1},
+        "max_references": {"type": "integer", "minimum": 1},
+        "max_concurrency": {"type": "integer", "minimum": 1},
+        "max_memory_bytes": {"type": "integer", "minimum": 1},
+        "max_wall_time_seconds": {"type": "number", "exclusiveMinimum": 0},
+        "max_retries": {"type": "integer", "minimum": 0},
+        "max_cache_ttl_seconds": {"type": "number", "minimum": 0}
+      }
+    },
+    "ProviderOutputContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "output_schema", "required_fields"],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "1.0"
+        },
+        "output_schema": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "required_fields": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_.-]{0,63}$"
+          }
+        }
+      }
+    }
+  }
+}

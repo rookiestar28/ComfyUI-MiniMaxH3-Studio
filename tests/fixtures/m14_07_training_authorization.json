@@ -1,0 +1,143 @@
+{
+  "schema": "h3.training_authorization.terminal.v1",
+  "record_date": "2026-08-09",
+  "disposition": "DO_NOT_IMPLEMENT",
+  "claim_cap": "NO_TRAINING_AUTHORIZATION_OR_EVIDENCE",
+  "decision_reason": "authority_and_necessity_not_established",
+  "human_review_terminal_fingerprint": "sha256:d1a13b37fc07fb17c1af363256134f2fd182554f3c1b297025dcca6c63dadf16",
+  "human_review_disposition": "HUMAN_REVIEW_UNAVAILABLE",
+  "human_review_claim_cap": "NO_HUMAN_QUALITY_CLAIM",
+  "official_oracle_terms_status": "do_not_implement",
+  "official_oracle_training_distillation": "deny",
+  "official_oracle_training_lane": "unavailable_prohibited",
+  "method_reviews": [
+    {
+      "method": "oracle_output_training",
+      "status": "blocked",
+      "permitted": false,
+      "necessary": false,
+      "reason": "official_oracle_output_authority_denied",
+      "authority_receipts": []
+    },
+    {
+      "method": "synthetic_augmentation",
+      "status": "blocked",
+      "permitted": false,
+      "necessary": false,
+      "reason": "synthetic_data_authority_and_marginal_value_not_established",
+      "authority_receipts": []
+    },
+    {
+      "method": "preference_optimization",
+      "status": "blocked",
+      "permitted": false,
+      "necessary": false,
+      "reason": "preference_data_and_human_evidence_unavailable",
+      "authority_receipts": []
+    },
+    {
+      "method": "distillation",
+      "status": "blocked",
+      "permitted": false,
+      "necessary": false,
+      "reason": "source_output_and_model_authority_not_admitted",
+      "authority_receipts": []
+    },
+    {
+      "method": "local_fine_tuning",
+      "status": "blocked",
+      "permitted": false,
+      "necessary": false,
+      "reason": "model_data_compute_and_marginal_value_authority_not_admitted",
+      "authority_receipts": []
+    }
+  ],
+  "domain_reviews": [
+    {
+      "domain": "legal",
+      "status": "unresolved",
+      "blocking": true,
+      "reason": "legal_authority_unresolved",
+      "authority_receipts": []
+    },
+    {
+      "domain": "terms",
+      "status": "denied_by_current_decision",
+      "blocking": true,
+      "reason": "current_terms_decision_denies_training_distillation",
+      "authority_receipts": []
+    },
+    {
+      "domain": "privacy",
+      "status": "not_admitted",
+      "blocking": true,
+      "reason": "training_data_privacy_authority_not_admitted",
+      "authority_receipts": []
+    },
+    {
+      "domain": "license",
+      "status": "not_admitted",
+      "blocking": true,
+      "reason": "model_output_and_data_license_not_admitted",
+      "authority_receipts": []
+    },
+    {
+      "domain": "compute",
+      "status": "not_authorized",
+      "blocking": true,
+      "reason": "compute_and_spend_envelope_not_authorized",
+      "authority_receipts": []
+    },
+    {
+      "domain": "marginal_value",
+      "status": "insufficient_evidence",
+      "blocking": true,
+      "reason": "marginal_value_not_established",
+      "authority_receipts": []
+    }
+  ],
+  "training_authorized": false,
+  "implementation_authorized": false,
+  "data_collection_authorized": false,
+  "provider_output_use_authorized": false,
+  "model_weight_use_authorized": false,
+  "compute_spend_authorized": false,
+  "publication_authorized": false,
+  "requires_separate_user_authorization": true,
+  "requires_new_roadmap_item": true,
+  "bounded_objective": null,
+  "data_authority": null,
+  "compute_envelope": null,
+  "expected_gain": null,
+  "rollback_plan": null,
+  "required_new_roadmap_item": null,
+  "source_datasets": [],
+  "training_examples": [],
+  "oracle_outputs": [],
+  "synthetic_outputs": [],
+  "preference_records": [],
+  "compute_receipts": [],
+  "training_runs": [],
+  "model_artifacts": [],
+  "retained_artifacts": [],
+  "publications": [],
+  "future_approval_requirements": [
+    "fresh_legal_terms_privacy_license_review",
+    "admitted_data_authority",
+    "bounded_objective",
+    "bounded_compute_envelope",
+    "measured_expected_gain",
+    "rollback_plan",
+    "separate_explicit_user_authorization",
+    "dated_separate_roadmap_item_and_plan"
+  ],
+  "limitations": [
+    "no_training_authorization",
+    "no_training_or_quality_evidence",
+    "no_data_or_model_authority",
+    "no_compute_or_spend_authorization",
+    "no_marginal_value_evidence",
+    "affirmative_work_requires_separate_item_and_user_authorization",
+    "not_legal_advice"
+  ]
+}

@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import NoReturn
 
 from ..core.canonical import binary64_token, canonical_bytes, canonical_fingerprint
+from ..core.durable_workspace_state import StateRecord
 from ..core.generation_sequence import (
     FingerprintDomain,
     GenerationJobRuntime,
@@ -213,7 +214,13 @@ _ARTIFACT_AUTHORITY_CODES = frozenset(
         "transaction_manifest_authority_mismatch",
     }
 )
-_ARTIFACT_STORE_CODES = frozenset({"artifact_store_unavailable", "artifact_store_failed"})
+# IMPORTANT: the wire carries only the category, so an uncategorized storage code reaches the user
+# as `unsupported_failure`, whose copy blames the media tools. `host_storage_unavailable` (the
+# private root was refused) is a storage failure, but it stays out of `_TRANSIENT_ARTIFACT_CODES`:
+# retrying cannot heal a refused root, so its disposition remains `use_native`.
+_ARTIFACT_STORE_CODES = frozenset(
+    {"artifact_store_unavailable", "artifact_store_failed", "host_storage_unavailable"}
+)
 _RUN_AUTHORITY_CODES = frozenset(
     {
         "conflicting_terminal",
@@ -1110,6 +1117,9 @@ class SequenceCoordinatorRegistry:
         production_registry: ProductionWorkspaceRegistry,
         output_root_factory: Callable[[], Path],
         private_root_factory: Callable[[], Path],
+        artifact_store_factory: Callable[
+            ..., PrivateSegmentArtifactStore
+        ] = PrivateSegmentArtifactStore,
         artifact_inspector: ArtifactInspector = _default_artifact_inspector,
         geometry_receipt_claimant: GeometryReceiptClaimant = claim_input_geometry_receipt,
         clock: Callable[[], float] = time.monotonic,
@@ -1122,6 +1132,7 @@ class SequenceCoordinatorRegistry:
             type(production_registry) is not ProductionWorkspaceRegistry
             or not callable(output_root_factory)
             or not callable(private_root_factory)
+            or not callable(artifact_store_factory)
             or not callable(artifact_inspector)
             or not callable(geometry_receipt_claimant)
             or not callable(clock)
@@ -1136,6 +1147,7 @@ class SequenceCoordinatorRegistry:
         self._production = production_registry
         self._output_root_factory = output_root_factory
         self._private_root_factory = private_root_factory
+        self._artifact_store_factory = artifact_store_factory
         self._artifact_inspector = artifact_inspector
         self._geometry_receipt_claimant = geometry_receipt_claimant
         self._clock = clock
@@ -1159,6 +1171,11 @@ class SequenceCoordinatorRegistry:
             self._workspace_has_live_run,
             run_probe=self._run_holds_live_sequence,
         )
+
+    def recovery_metadata(self) -> tuple[StateRecord, ...]:
+        # CRITICAL: do not take the coordinator lock here. The managed owner already enforces
+        # table-then-run ordering; sampling must not invert Production's existing lock order.
+        return self._managed.recovery_metadata()
 
     def bind_managed_sequence_lease_transition(
         self,
@@ -2794,7 +2811,7 @@ class SequenceCoordinatorRegistry:
                         max_recovery_entries=128,
                     )
                     try:
-                        self._artifact_store = PrivateSegmentArtifactStore(
+                        self._artifact_store = self._artifact_store_factory(
                             root,
                             policy=policy,
                             clock_ms=self._clock_ms,
@@ -3922,7 +3939,22 @@ def _host_output_root() -> Path:
 
 
 def _host_private_root() -> Path:
-    return _host_root("get_temp_directory") / "h3-context" / "managed-artifacts" / _PROCESS_SCOPE
+    from .managed_artifact_scopes import resolve_managed_artifact_root
+    from .media_runtime_resolution import ComfyHostRootPort
+
+    try:
+        # CRITICAL: served temp is not private storage and is cleared by the host.
+        return resolve_managed_artifact_root(ComfyHostRootPort(), _PROCESS_SCOPE)
+    except ArtifactStoreError as exc:
+        raise SequenceCoordinatorError("host_storage_unavailable", 503) from exc
+
+
+def _host_artifact_store(
+    root: Path, *, policy: ArtifactStorePolicy, clock_ms: Callable[[], int]
+) -> PrivateSegmentArtifactStore:
+    from .managed_artifact_scopes import open_managed_artifact_store
+
+    return open_managed_artifact_store(root, policy=policy, clock_ms=clock_ms)
 
 
 def build_coordinator(
@@ -3943,6 +3975,7 @@ def build_coordinator(
         production_registry=production_registry,
         output_root_factory=_host_output_root,
         private_root_factory=_host_private_root,
+        artifact_store_factory=_host_artifact_store,
     )
 
 

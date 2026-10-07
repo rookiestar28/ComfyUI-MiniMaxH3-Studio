@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "h3-context://contracts/installation_profiles_v1.schema.json",
+  "title": "ComfyUI-MiniMaxH3-Context Installation Profiles",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "version", "profiles"],
+  "properties": {
+    "schema": {"const": "h3-context-installation-profiles/1"},
+    "version": {"const": 1},
+    "profiles": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {"$ref": "#/$defs/profile"}
+    }
+  },
+  "$defs": {
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "owner",
+        "distribution",
+        "compatibility",
+        "required",
+        "install_mode",
+        "download_policy",
+        "storage_owner",
+        "model_management",
+        "runtime_entries",
+        "removal",
+        "rollback",
+        "fallback",
+        "end_user_node_lifecycle"
+      ],
+      "properties": {
+        "profile_id": {"enum": ["core_manual", "comfyui_native", "external_ollama", "frontend_extension"]},
+        "owner": {"enum": ["package", "host", "user"]},
+        "distribution": {"type": "string", "minLength": 1, "maxLength": 128},
+        "compatibility": {
+          "type": "array",
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 128}
+        },
+        "required": {"type": "boolean"},
+        "install_mode": {"enum": ["artifact", "host_reuse", "external_runtime", "bundled_asset"]},
+        "download_policy": {"enum": ["artifact_only", "forbidden"]},
+        "storage_owner": {"enum": ["package", "host", "user"]},
+        "model_management": {"enum": ["none", "host_only", "external_only"]},
+        "runtime_entries": {
+          "type": "array",
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1, "maxLength": 128}
+        },
+        "removal": {"type": "string", "minLength": 1, "maxLength": 128},
+        "rollback": {"type": "string", "minLength": 1, "maxLength": 128},
+        "fallback": {"const": "none"},
+        "end_user_node_lifecycle": {"const": "forbidden"}
+      }
+    }
+  }
+}

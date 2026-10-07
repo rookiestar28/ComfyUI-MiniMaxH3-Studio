@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/visual_benchmark_v1.schema.json",
+  "title": "H3 visual benchmark and adapter selection v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "plan_id",
+    "plan_version",
+    "fixtures",
+    "metrics",
+    "candidates",
+    "limits",
+    "stop_rules",
+    "capability_policy",
+    "routing",
+    "source_refs"
+  ],
+  "properties": {
+    "schema": { "const": "h3.visual.benchmark.v1" },
+    "plan_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "plan_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "fixtures": { "type": "array", "minItems": 1, "maxItems": 64, "items": { "$ref": "#/$defs/fixture" } },
+    "metrics": { "type": "array", "minItems": 1, "maxItems": 512, "items": { "$ref": "#/$defs/metric" } },
+    "candidates": { "type": "array", "minItems": 1, "maxItems": 32, "items": { "$ref": "#/$defs/candidate" } },
+    "limits": { "$ref": "#/$defs/limits" },
+    "stop_rules": { "$ref": "#/$defs/stop_rules" },
+    "capability_policy": { "$ref": "#/$defs/capability_policy" },
+    "routing": { "$ref": "#/$defs/routing" },
+    "source_refs": { "type": "array", "maxItems": 32, "items": { "type": "string" } }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "capability": { "type": "string", "enum": ["global_description", "ocr", "subjects_objects", "identity", "shots", "actions", "camera", "motion", "style", "edits", "timestamps", "confidence", "corruption", "adversarial_text"] },
+    "fixture": {
+      "type": "object",
+      "required": ["schema", "fixture_id", "modality", "capabilities", "source_fingerprint", "annotation_fingerprint", "privacy_class", "timestamp_mode", "tags", "adversarial_text", "corrupt_media", "rotation_degrees"],
+      "properties": {
+        "schema": { "const": "h3.visual.benchmark.v1" },
+        "fixture_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "modality": { "enum": ["image", "video"] },
+        "capabilities": { "type": "array", "minItems": 1, "maxItems": 32, "items": { "$ref": "#/$defs/capability" } },
+        "source_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "annotation_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "privacy_class": { "enum": ["synthetic", "public"] },
+        "timestamp_mode": { "enum": ["not_applicable", "cfr", "vfr"] },
+        "tags": { "type": "array", "maxItems": 32, "items": { "type": "string" } },
+        "adversarial_text": { "type": "boolean" },
+        "corrupt_media": { "type": "boolean" },
+        "rotation_degrees": { "type": "integer", "enum": [0, 90, 180, 270] }
+      },
+      "additionalProperties": false
+    },
+    "metric": {
+      "type": "object",
+      "required": ["schema", "metric_id", "metric", "unit", "capability", "required", "minimum", "maximum", "evaluation_set", "description"],
+      "properties": {
+        "schema": { "const": "h3.visual.benchmark.v1" },
+        "metric_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "metric": { "enum": ["accuracy", "calibration", "latency", "vram", "ram", "determinism", "platform_support"] },
+        "unit": { "enum": ["basis_points", "milliseconds", "mebibytes", "boolean"] },
+        "capability": { "anyOf": [{ "$ref": "#/$defs/capability" }, { "type": "null" }] },
+        "required": { "type": "boolean" },
+        "minimum": { "type": ["integer", "null"], "minimum": 0 },
+        "maximum": { "type": ["integer", "null"], "minimum": 0 },
+        "evaluation_set": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "description": { "type": "string", "minLength": 1, "maxLength": 512 }
+      },
+      "additionalProperties": false
+    },
+    "device": {
+      "type": "object",
+      "required": ["schema", "profile_id", "platform", "device", "dtype", "timeout_seconds", "max_media_items", "max_output_bytes", "peak_vram_mb_limit", "peak_ram_mb_limit", "supports_determinism", "supports_cancellation_cleanup"],
+      "properties": {
+        "schema": { "const": "h3.visual.benchmark.v1" },
+        "profile_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "platform": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "device": { "enum": ["cpu", "cuda", "mps", "auto"] },
+        "dtype": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "timeout_seconds": { "type": "integer", "minimum": 1 },
+        "max_media_items": { "type": "integer", "minimum": 1 },
+        "max_output_bytes": { "type": "integer", "minimum": 1 },
+        "peak_vram_mb_limit": { "type": "integer", "minimum": 1 },
+        "peak_ram_mb_limit": { "type": "integer", "minimum": 1 },
+        "supports_determinism": { "type": "boolean" },
+        "supports_cancellation_cleanup": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "measurement": {
+      "type": "object",
+      "required": ["schema", "capability", "accuracy_basis_points", "calibration_ece_basis_points", "latency_ms", "peak_vram_mb", "peak_ram_mb", "deterministic", "platform_supported"],
+      "properties": {
+        "schema": { "const": "h3.visual.benchmark.v1" },
+        "capability": { "$ref": "#/$defs/capability" },
+        "accuracy_basis_points": { "type": ["integer", "null"], "minimum": 0, "maximum": 10000 },
+        "calibration_ece_basis_points": { "type": ["integer", "null"], "minimum": 0, "maximum": 10000 },
+        "latency_ms": { "type": ["integer", "null"], "minimum": 0 },
+        "peak_vram_mb": { "type": ["integer", "null"], "minimum": 0 },
+        "peak_ram_mb": { "type": ["integer", "null"], "minimum": 0 },
+        "deterministic": { "type": ["boolean", "null"] },
+        "platform_supported": { "type": ["boolean", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "candidate": {
+      "type": "object",
+      "required": ["schema", "candidate_id", "family", "adapter_id", "adapter_version", "model_id", "license", "capabilities", "device_profiles", "privacy_mode", "requires_network", "supports_determinism", "supports_cancellation_cleanup", "disposition", "disposition_reason", "evidence_level", "source_refs", "measurements"],
+      "properties": {
+        "schema": { "const": "h3.visual.benchmark.v1" },
+        "candidate_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "family": { "enum": ["comfyui_native", "ollama", "specialist"] },
+        "adapter_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "adapter_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "model_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "license": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "capabilities": { "type": "array", "minItems": 1, "maxItems": 32, "items": { "$ref": "#/$defs/capability" } },
+        "device_profiles": { "type": "array", "minItems": 1, "maxItems": 16, "items": { "$ref": "#/$defs/device" } },
+        "privacy_mode": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "requires_network": { "type": "boolean" },
+        "supports_determinism": { "type": "boolean" },
+        "supports_cancellation_cleanup": { "type": "boolean" },
+        "disposition": { "enum": ["qualified", "rejected", "unavailable", "unsupported"] },
+        "disposition_reason": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "evidence_level": { "enum": ["official", "framework_reference", "community_recommended", "experimental", "modified"] },
+        "source_refs": { "type": "array", "maxItems": 32, "items": { "type": "string" } },
+        "measurements": { "type": "array", "maxItems": 32, "items": { "$ref": "#/$defs/measurement" } }
+      },
+      "additionalProperties": false
+    },
+    "limits": {
+      "type": "object",
+      "required": ["schema", "max_candidates", "max_fixtures", "max_wall_time_seconds", "max_total_compute_seconds", "max_peak_vram_mb", "max_peak_ram_mb", "max_media_items_per_case", "max_output_bytes", "max_concurrency", "network_allowed", "media_upload_allowed"],
+      "properties": {
+        "schema": { "const": "h3.visual.benchmark.v1" },
+        "max_candidates": { "type": "integer", "minimum": 1 },
+        "max_fixtures": { "type": "integer", "minimum": 1 },
+        "max_wall_time_seconds": { "type": "integer", "minimum": 1 },
+        "max_total_compute_seconds": { "type": "integer", "minimum": 1 },
+        "max_peak_vram_mb": { "type": "integer", "minimum": 1 },
+        "max_peak_ram_mb": { "type": "integer", "minimum": 1 },
+        "max_media_items_per_case": { "type": "integer", "minimum": 1 },
+        "max_output_bytes": { "type": "integer", "minimum": 1 },
+        "max_concurrency": { "type": "integer", "minimum": 1 },
+        "network_allowed": { "const": false },
+        "media_upload_allowed": { "const": false }
+      },
+      "additionalProperties": false
+    },
+    "stop_rules": {
+      "type": "object",
+      "required": ["schema", "max_schema_failures", "max_timeout_failures", "max_resource_failures", "max_adversarial_unsafe_outputs", "abort_on_privacy_violation", "abort_on_hidden_fallback", "reject_on_missing_required_metric", "reject_on_unsupported_media"],
+      "properties": {
+        "schema": { "const": "h3.visual.benchmark.v1" },
+        "max_schema_failures": { "type": "integer", "minimum": 0 },
+        "max_timeout_failures": { "type": "integer", "minimum": 0 },
+        "max_resource_failures": { "type": "integer", "minimum": 0 },
+        "max_adversarial_unsafe_outputs": { "type": "integer", "minimum": 0 },
+        "abort_on_privacy_violation": { "type": "boolean" },
+        "abort_on_hidden_fallback": { "const": true },
+        "reject_on_missing_required_metric": { "const": true },
+        "reject_on_unsupported_media": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "capability_policy": {
+      "type": "object",
+      "required": ["schema", "mandatory", "optional", "consequence"],
+      "properties": {
+        "schema": { "const": "h3.visual.benchmark.v1" },
+        "mandatory": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/capability" } },
+        "optional": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/capability" } },
+        "consequence": { "type": "string", "minLength": 1, "maxLength": 1024 }
+      },
+      "additionalProperties": false
+    },
+    "routing": {
+      "type": "object",
+      "required": ["schema", "preference_order", "automatic_fallback", "explicit_selection_required", "fidelity_winner_preselected", "disclosure"],
+      "properties": {
+        "schema": { "const": "h3.visual.benchmark.v1" },
+        "preference_order": { "const": ["comfyui_native", "ollama", "specialist"] },
+        "automatic_fallback": { "const": false },
+        "explicit_selection_required": { "const": true },
+        "fidelity_winner_preselected": { "const": false },
+        "disclosure": { "type": "string", "minLength": 1, "maxLength": 1024 }
+      },
+      "additionalProperties": false
+    },
+    "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+  }
+}

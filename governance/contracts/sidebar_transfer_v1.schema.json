@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rookiestar28.github.io/ComfyUI-MinimaxH3-Context/contracts/sidebar_transfer_v1.schema.json",
+  "title": "H3 Context Sidebar Prompt Transfer V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "report_id", "report_revision", "report_fingerprint", "prompt_fingerprint", "task_mode", "profile", "prompt_text"],
+  "properties": {
+    "schema": {"const": "h3.context.sidebar.transfer.v1"},
+    "report_id": {"type": "string", "minLength": 1, "maxLength": 192},
+    "report_revision": {"type": "integer", "minimum": 0, "maximum": 1000000},
+    "report_fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "prompt_fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "task_mode": {"enum": ["t2va", "i2va", "fl2va", "l2va", "ref2va"]},
+    "profile": {"enum": ["h3_base", "h3_full_reference"]},
+    "prompt_text": {"type": "string", "minLength": 1, "maxLength": 65536}
+  },
+  "$defs": {
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+  }
+}

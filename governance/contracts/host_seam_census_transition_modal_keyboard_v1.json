@@ -1,0 +1,78 @@
+{
+  "schema": "h3.context.host_seam_census_transition_modal_keyboard.v1",
+  "item": "MODAL-KEYBOARD",
+  "source": {
+    "commit_parts": [
+      "e0651ce8",
+      "d5df797a",
+      "bfc34d6f",
+      "3a3f3948",
+      "1da3649c"
+    ],
+    "tree_parts": [
+      "ef30d062",
+      "28de09e2",
+      "a955c225",
+      "ac5452a1",
+      "188ff509"
+    ]
+  },
+  "artifacts": {
+    "from_census_sha256_parts": [
+      "7dedcf4e",
+      "52d930ef",
+      "2076fee4",
+      "b3569ab2",
+      "ab7102d3",
+      "a59ad473",
+      "f4b9e667",
+      "2c55b1c2"
+    ],
+    "to_census_sha256_parts": [
+      "add5957b",
+      "1a3ebc77",
+      "741fd1e3",
+      "c17954cb",
+      "c2de3bf8",
+      "b8082c9f",
+      "92d5550f",
+      "7fa12f31"
+    ],
+    "fixture_sha256_parts": [
+      "ff152fbb",
+      "78ca29b4",
+      "4a0c439e",
+      "9281a0ef",
+      "5bafc89c",
+      "943a3965",
+      "41f8478e",
+      "763e6ad7"
+    ],
+    "seam_contract_sha256_parts": [
+      "40132e41",
+      "d71efd79",
+      "5a853ecc",
+      "1d6e0eef",
+      "572a207c",
+      "8460dfe8",
+      "d4b0edff",
+      "01336a12"
+    ]
+  },
+  "changes": [
+    {
+      "seam_id": "frontend.app.canvas.keyboard_capture",
+      "added_source_paths": [
+        "frontend/src/host/canvasKeyboardGuard.ts",
+        "frontend/src/lifecycle/presentationBinding.tsx"
+      ]
+    },
+    {
+      "seam_id": "frontend.app.modal_keyboard_guard",
+      "added_source_paths": [
+        "frontend/src/host/modalKeyboardGuard.ts",
+        "frontend/src/lifecycle/presentationBinding.tsx"
+      ]
+    }
+  ]
+}

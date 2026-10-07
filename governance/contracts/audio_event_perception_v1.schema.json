@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/audio_event_perception_v1.schema.json",
+  "title": "H3 source-owned audio-event perception",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "document_id", "status", "request", "events", "receipt", "diagnostics"],
+  "properties": {
+    "schema": {"const": "h3.audio.event.v1"},
+    "document_id": {"$ref": "#/$defs/identifier"},
+    "status": {"enum": ["complete", "partial", "empty", "corrupt", "unsupported", "cancelled"]},
+    "request": {"$ref": "#/$defs/request"},
+    "events": {"type": "array", "maxItems": 96, "items": {"$ref": "#/$defs/event"}},
+    "receipt": {"anyOf": [{"$ref": "#/$defs/receipt"}, {"type": "null"}]},
+    "diagnostics": {"type": "array", "maxItems": 32, "items": {"$ref": "#/$defs/text"}}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "code": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$"},
+    "version": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+){1,2}$"},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "text": {"type": "string", "minLength": 1, "maxLength": 512},
+    "confidence": {
+      "type": ["string", "null"],
+      "pattern": "^(?:0|1|0\\.[0-9]+|1\\.0+)$"
+    },
+    "timestamp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ticks", "time_base", "seconds"],
+      "properties": {
+        "ticks": {"type": "integer", "minimum": 0},
+        "time_base": {
+          "type": "array",
+          "prefixItems": [
+            {"type": "integer", "minimum": 1},
+            {"type": "integer", "minimum": 1}
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "seconds": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+)?$"}
+      }
+    },
+    "span": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "asset_id", "source_id", "source_fingerprint", "start", "end"],
+      "properties": {
+        "schema": {"const": "h3.audio.perception_benchmark.v1"},
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "start": {"$ref": "#/$defs/timestamp"},
+        "end": {"$ref": "#/$defs/timestamp"}
+      }
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "asset_id", "source_id", "source_fingerprint", "semantic"],
+      "properties": {
+        "schema": {"const": "h3.audio.event.v1"},
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "semantic": {"enum": ["copied_audio", "reperformed_audio", "timbre_reference", "ambient_reference"]}
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "kind", "detail"],
+      "properties": {
+        "schema": {"const": "h3.audio.event.v1"},
+        "kind": {"enum": ["low_confidence", "boundary_uncertain", "unknown", "absent", "masked", "overlap", "calibration", "corrupt", "adversarial"]},
+        "detail": {"$ref": "#/$defs/text"}
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "event_id", "span", "kind", "presence", "label", "confidence", "boundary_confidence", "uncertainties", "overlap_group", "reference_semantic", "reference_asset_id"],
+      "properties": {
+        "schema": {"const": "h3.audio.event.v1"},
+        "event_id": {"$ref": "#/$defs/identifier"},
+        "span": {"$ref": "#/$defs/span"},
+        "kind": {"enum": ["speech", "music", "ambience", "physical_effect", "rhythm", "tempo", "unknown"]},
+        "presence": {"enum": ["present", "absent", "unknown"]},
+        "label": {"type": ["string", "null"], "minLength": 1, "maxLength": 256},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "boundary_confidence": {"$ref": "#/$defs/confidence"},
+        "uncertainties": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/uncertainty"}},
+        "overlap_group": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+        "reference_semantic": {
+          "anyOf": [
+            {"enum": ["copied_audio", "reperformed_audio", "timbre_reference", "ambient_reference"]},
+            {"type": "null"}
+          ]
+        },
+        "reference_asset_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]
+        }
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "asset_id", "source_id", "source_fingerprint", "preprocessing_fingerprint", "duration_end", "references", "route", "max_events"],
+      "properties": {
+        "schema": {"const": "h3.audio.event.v1"},
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "preprocessing_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "duration_end": {"$ref": "#/$defs/timestamp"},
+        "references": {"type": "array", "maxItems": 16, "items": {"$ref": "#/$defs/reference"}},
+        "route": {"enum": ["static_injected", "comfyui_native", "ollama", "specialist"]},
+        "max_events": {"type": "integer", "minimum": 1, "maximum": 96}
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "route", "adapter_id", "adapter_version", "model_id", "model_fingerprint", "source_fingerprint", "preprocessing_fingerprint", "network_contacted", "decoder_started"],
+      "properties": {
+        "schema": {"const": "h3.audio.event.v1"},
+        "route": {"enum": ["static_injected", "comfyui_native", "ollama", "specialist"]},
+        "adapter_id": {"$ref": "#/$defs/code"},
+        "adapter_version": {"$ref": "#/$defs/version"},
+        "model_id": {"$ref": "#/$defs/identifier"},
+        "model_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "preprocessing_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "network_contacted": {"type": "boolean"},
+        "decoder_started": {"type": "boolean"}
+      }
+    }
+  }
+}

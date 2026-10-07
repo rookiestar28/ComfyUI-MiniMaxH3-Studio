@@ -269,11 +269,25 @@ function availableWidthFor(
   viewportWidth: number,
 ): number {
   if (hostOwner === undefined) return viewportWidth;
+  const host = horizontalBounds(hostOwner) ?? { left: 0, right: viewportWidth };
+  let canvas = horizontalBounds(siblingCanvas(hostOwner));
+  // IMPORTANT: a fixed owner's inline anchor excludes toolbar space when no canvas is visible.
+  // Computed insets resolve `auto` to lengths; using measured width alone prevents desktop growth.
+  if (
+    canvas === undefined &&
+    getComputedStyle(hostOwner).position === "fixed"
+  ) {
+    const { left, right } = hostOwner.style;
+    if (left !== "" && left !== "auto" && right === "auto")
+      canvas = { left: Math.max(0, host.left), right: viewportWidth };
+    else if (right !== "" && right !== "auto" && left === "auto")
+      canvas = { left: 0, right: Math.min(viewportWidth, host.right) };
+  }
   return availableSidebarWidth({
     viewportWidth,
-    host: horizontalBounds(hostOwner) ?? { left: 0, right: viewportWidth },
+    host,
     opposite: horizontalBounds(siblingPanel(hostOwner)),
-    canvas: horizontalBounds(siblingCanvas(hostOwner)),
+    canvas,
   });
 }
 
@@ -306,6 +320,7 @@ export function createSidebarWidthController(
   let active = true;
   let scheduledHandle: ScheduledHandle | undefined;
   let observer: ResizeObserver | undefined;
+  let resizeListenerActive = false;
 
   const observeOwners = (): void => {
     if (observer === undefined) return;
@@ -385,6 +400,10 @@ export function createSidebarWidthController(
   const dispose = (): void => {
     if (!active) return;
     active = false;
+    if (resizeListenerActive) {
+      resizeListenerActive = false;
+      window.removeEventListener("resize", scheduleApply);
+    }
     observer?.disconnect();
     observer = undefined;
     if (scheduledHandle !== undefined) {
@@ -405,6 +424,10 @@ export function createSidebarWidthController(
       });
       observeOwners();
     }
+    // IMPORTANT: viewport-only resizing need not change a fixed owner's box. ResizeObserver
+    // alone leaves narrow views clipped; use the same coalesced scheduler and owned disposer.
+    resizeListenerActive = true;
+    window.addEventListener("resize", scheduleApply);
   } catch (error) {
     try {
       dispose();

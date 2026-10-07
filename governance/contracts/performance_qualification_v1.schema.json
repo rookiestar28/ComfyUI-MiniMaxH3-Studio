@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://comfyui-h3-context.invalid/contracts/performance_qualification_v1.schema.json",
+  "title": "ComfyUI-MiniMaxH3-Context Performance Qualification V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "profile_id", "status", "candidate_commit", "workload_fingerprint",
+    "config_fingerprint", "observed_sources", "sample_count", "median_latency_ms",
+    "p95_latency_ms", "worst_latency_ms", "throughput_per_second", "peak_python_bytes",
+    "peak_process_rss_bytes", "peak_vram_bytes", "peak_output_bytes", "peak_output_items",
+    "cache_misses", "cache_hits", "cache_gain_percent", "quality_preserved",
+    "cancelled_samples", "cleanup_verified", "diagnostic_codes"
+  ],
+  "properties": {
+    "schema": { "const": "h3.performance.qualification.v1" },
+    "profile_id": { "enum": ["cpu", "low_resource", "mainstream_gpu", "high_fidelity"] },
+    "status": { "enum": ["qualified", "unavailable", "failed"] },
+    "candidate_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "workload_fingerprint": { "$ref": "#/$defs/fingerprint" },
+    "config_fingerprint": { "$ref": "#/$defs/fingerprint" },
+    "observed_sources": {
+      "type": "array",
+      "maxItems": 6,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "package_clock", "python_traced", "process_rss", "comfyui_host",
+          "ollama_external", "browser_user_timing"
+        ]
+      }
+    },
+    "sample_count": { "type": "integer", "minimum": 0, "maximum": 64 },
+    "median_latency_ms": { "$ref": "#/$defs/nullableNumber" },
+    "p95_latency_ms": { "$ref": "#/$defs/nullableNumber" },
+    "worst_latency_ms": { "$ref": "#/$defs/nullableNumber" },
+    "throughput_per_second": { "$ref": "#/$defs/nullableNumber" },
+    "peak_python_bytes": { "$ref": "#/$defs/nullableInteger" },
+    "peak_process_rss_bytes": { "$ref": "#/$defs/nullableInteger" },
+    "peak_vram_bytes": { "$ref": "#/$defs/nullableInteger" },
+    "peak_output_bytes": { "$ref": "#/$defs/nullableInteger" },
+    "peak_output_items": { "$ref": "#/$defs/nullableInteger" },
+    "cache_misses": { "type": "integer", "minimum": 0, "maximum": 64 },
+    "cache_hits": { "type": "integer", "minimum": 0, "maximum": 64 },
+    "cache_gain_percent": { "type": ["number", "null"] },
+    "quality_preserved": { "type": "boolean" },
+    "cancelled_samples": { "type": "integer", "minimum": 0, "maximum": 64 },
+    "cleanup_verified": { "type": "boolean" },
+    "diagnostic_codes": {
+      "type": "array",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9_.:-]{0,127}$" }
+    }
+  },
+  "$defs": {
+    "nullableNumber": { "type": ["number", "null"], "minimum": 0 },
+    "nullableInteger": { "type": ["integer", "null"], "minimum": 0 },
+    "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+  }
+}

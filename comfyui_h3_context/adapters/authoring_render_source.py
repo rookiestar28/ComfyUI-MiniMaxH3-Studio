@@ -9,7 +9,7 @@ import time
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from enum import Enum
-from typing import TYPE_CHECKING, NoReturn, SupportsIndex
+from typing import TYPE_CHECKING, NoReturn, SupportsIndex, cast
 
 from ..core.canonical import canonical_fingerprint
 from ..core.composition_contract import (
@@ -56,7 +56,9 @@ from .authoring_source_binding import (
 )
 
 if TYPE_CHECKING:
+    from .authoring_generated_source import GeneratedAuthoringVideoSource
     from .authoring_video_facts import AuthoringVideoFacts
+    from .retained_asset_use import RetainedVideoSource
 
 
 class SourceOrigin(str, Enum):
@@ -122,14 +124,21 @@ def _read_path_source_fingerprint(
             body.clear()
 
 
-def _read_generated_source_fingerprint(source: object, deadline: float) -> str:
+def _read_generated_source_fingerprint(
+    source: GeneratedAuthoringVideoSource | RetainedVideoSource, deadline: float
+) -> str:
     from .authoring_generated_source import GeneratedAuthoringVideoSource
     from .av_reconstruction_media import AVMediaAdapterError, _read_regular_media_body
 
     _require_verification_deadline(deadline)
     # A confirmation proves the stored artifact's content here, exactly once; every other
     # currentness question about this source is answered from the identity this records.
-    if type(source) is not GeneratedAuthoringVideoSource or not source.verify_artifact():
+    from .retained_asset_use import RetainedVideoSource
+
+    if (
+        type(source) not in {GeneratedAuthoringVideoSource, RetainedVideoSource}
+        or not source.verify_artifact()
+    ):
         raise AuthoringSourceBindingError("source_stale")
     body: bytearray | None = None
     try:
@@ -193,12 +202,14 @@ def _mint_source_verification(
             lambda deadline: _read_path_source_fingerprint(source, deadline),
         )
     from .authoring_generated_source import GeneratedAuthoringVideoSource
+    from .retained_asset_use import RetainedVideoSource
 
-    if type(source) is GeneratedAuthoringVideoSource:
+    if type(source) in {GeneratedAuthoringVideoSource, RetainedVideoSource}:
+        owned = cast("GeneratedAuthoringVideoSource | RetainedVideoSource", source)
         return _AuthoringSourceVerification(
             expected_fingerprint,
-            source.current,
-            lambda deadline: _read_generated_source_fingerprint(source, deadline),
+            owned.current,
+            lambda deadline: _read_generated_source_fingerprint(owned, deadline),
         )
     raise AuthoringSourceBindingError("source_origin_unregistered")
 
@@ -376,16 +387,18 @@ def claim_render_source(
         )
     else:
         from .authoring_generated_source import GeneratedAuthoringVideoSource
+        from .retained_asset_use import RetainedVideoSource
 
-        if type(source) is not GeneratedAuthoringVideoSource:
-            # CRITICAL: a path-shaped object or VIDEO wrapper cannot acquire generated-media
-            # authority through this exact-type origin discrimination.
+        if type(source) not in {GeneratedAuthoringVideoSource, RetainedVideoSource}:
+            # CRITICAL: only registered generated/retained factories can claim managed video.
+            # A file's PublicAsset or a path-shaped wrapper is never a source authority.
             raise AuthoringSourceBindingError("source_origin_unregistered")
-        facts_value = source.facts
-        asset = source.public_asset(source_id)
-        duration_ms = source.duration_milliseconds
-        profile_fp = source.source_profile_fingerprint(source_id)
-        color_fp = source.color_facts_fingerprint()
+        owned = cast("GeneratedAuthoringVideoSource | RetainedVideoSource", source)
+        facts_value = owned.facts
+        asset = owned.public_asset(source_id)
+        duration_ms = owned.duration_milliseconds
+        profile_fp = owned.source_profile_fingerprint(source_id)
+        color_fp = owned.color_facts_fingerprint()
         facts = source_facts_fingerprint(
             asset_id=source_id,
             source_id=source_id,

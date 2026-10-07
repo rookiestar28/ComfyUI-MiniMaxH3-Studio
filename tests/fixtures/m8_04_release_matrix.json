@@ -1,0 +1,88 @@
+{
+  "schema": "h3-context-release-matrix/1",
+  "package": {
+    "name": "minimax-h3-studio",
+    "version": "1.1.0",
+    "author": "rookiestar28",
+    "dependencies": []
+  },
+  "artifact": {
+    "required": ["wheel", "sdist"],
+    "prefix": "minimax_h3_studio-1.1.0",
+    "forbidden_path_markers": [
+      "AGENTS.md",
+      "ROADMAP.md",
+      ".planning/",
+      "reference/",
+      "tests/",
+      "scripts/",
+      "compatibility/",
+      ".github/",
+      ".venv",
+      ".git/",
+      "__pycache__/"
+    ],
+    "forbidden_suffixes": [
+      ".safetensors",
+      ".ckpt",
+      ".pth",
+      ".pt",
+      ".bin",
+      ".onnx",
+      ".mp4",
+      ".mov",
+      ".avi",
+      ".webm",
+      ".wav",
+      ".mp3",
+      ".flac",
+      ".log"
+    ],
+    "forbidden_content_markers": [
+      ".planning/",
+      ".sessions/",
+      "reference/docs/",
+      "reference/ui/",
+      "AGENTS.md",
+      "ROADMAP.md",
+      "INDEPENDENT_REVIEW_ATTEMPT",
+      "REVIEW_ATTESTATION_ATTEMPT"
+    ]
+  },
+  "offline": {
+    "optional_import_roots": [
+      "aiohttp",
+      "comfy_api",
+      "cv2",
+      "diffusers",
+      "httpx",
+      "moviepy",
+      "requests",
+      "torch",
+      "transformers"
+    ],
+    "probe_repetitions": 2,
+    "pip_flags": ["--no-index", "--no-deps", "--no-build-isolation"]
+  },
+  "contracts": {
+    "base_migration_schema": "h3-context-base-assistant-migration/1",
+    "reference_migration_schema": "h3-context-reference-assistant-migration/1",
+    "cancellation_stage": "planning",
+    "coinstall_foreign_id": "Foreign.ReleaseMatrixNode"
+  },
+  "host": {
+    "required": true,
+    "version": "0.32.0",
+    "revision_parts": [
+      "b323a",
+      "345bb",
+      "bfb2f",
+      "3a95b",
+      "5b73b",
+      "68eb7",
+      "919a2",
+      "6515e"
+    ],
+    "fixture_ids": ["m3-07-h3-context-base", "m3-07-h3-context-reference"]
+  }
+}

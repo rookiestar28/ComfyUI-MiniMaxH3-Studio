@@ -16,6 +16,8 @@ import { plainReason } from "../plainReasons";
 import type { Locale } from "../../i18n/catalog";
 import { NleIconButton, NleIconGroup } from "./NleIconActions";
 import { fill, nleCopy } from "./nleCopy";
+import { ProjectFileControls } from "../ProjectFileControls";
+import type { ProjectFileBinding } from "../../lifecycle/projectFileSession";
 
 export function NleProjectSummary({
   locale,
@@ -24,6 +26,7 @@ export function NleProjectSummary({
   overlayOpen,
   onStart,
   onIntent,
+  projectFile,
 }: {
   locale: Locale;
   authoring: AuthoringViewState;
@@ -31,6 +34,7 @@ export function NleProjectSummary({
   overlayOpen: boolean;
   onStart(): void;
   onIntent(intent: AuthoringIntent): void;
+  projectFile?: ProjectFileBinding;
 }) {
   const text = nleCopy(locale).summary;
   const [confirming, setConfirming] = useState(false);
@@ -89,6 +93,7 @@ export function NleProjectSummary({
       data-h3-nle-summary={authoring.status}
     >
       <h3>{text.title}</h3>
+      <ProjectFileControls binding={projectFile} locale={locale} />
       <p role="status" aria-live="polite">
         {sentence}
       </p>

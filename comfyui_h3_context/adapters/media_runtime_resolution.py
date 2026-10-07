@@ -21,6 +21,7 @@ import json
 import ntpath
 import os
 import platform
+import posixpath
 import secrets
 import stat
 import struct
@@ -53,6 +54,7 @@ from .media_runtime_discovery_worker import (
     lexical_local_directory,
     locator_identity,
 )
+from .posix_host_paths import lexical_posix_directory
 from .segment_artifact_store import (
     ArtifactStoreError,
     _identity,
@@ -533,8 +535,17 @@ class HostRootPort(Protocol):
     def served_roots(self) -> tuple[Path, ...]: ...
 
 
-def _host_locator(value: object) -> Path:
-    locator = lexical_local_directory(value)
+def _host_locator(value: object, *, os_name: str) -> Path:
+    # CRITICAL: this port is not media-runtime-only. The coordinator's App Mode closure stores every
+    # verified copy under `private_root()` on every platform, so POSIX hosts must be judged by the
+    # POSIX grammar. Sending them through the Windows drive-path grammar is what refused every
+    # Linux root and failed the closure with `host_storage_unavailable` (M23-67, defect D1).
+    if os_name == "nt":
+        locator: object = lexical_local_directory(value)
+    elif os_name == "posix":
+        locator = lexical_posix_directory(value)
+    else:
+        raise HostRootError(ResolutionReason.UNSUPPORTED_HOST)
     if locator is None:
         raise HostRootError(ResolutionReason.PRIVATE_ROOT_INVALID)
     return Path(str(locator))
@@ -545,10 +556,20 @@ def _loaded_folder_paths() -> object | None:
 
 
 class ComfyHostRootPort:
-    """Reads ComfyUI's `folder_paths` lazily; importing this module touches no host."""
+    """Reads ComfyUI's `folder_paths` lazily; importing this module touches no host.
 
-    def __init__(self, *, module_provider: Callable[[], object | None] = _loaded_folder_paths):
+    `os_name` selects the locator grammar once (`os.name` by default) and exists so tests can
+    exercise both grammars on any runner.
+    """
+
+    def __init__(
+        self,
+        *,
+        module_provider: Callable[[], object | None] = _loaded_folder_paths,
+        os_name: str = os.name,
+    ):
         self._module_provider = module_provider
+        self._os_name = os_name
 
     def __repr__(self) -> str:
         return "<ComfyHostRootPort>"
@@ -567,7 +588,7 @@ class ComfyHostRootPort:
             value = factory(PRIVATE_ROOT_NAME)
         except Exception as exc:
             raise HostRootError(ResolutionReason.UNSUPPORTED_HOST) from exc
-        return _host_locator(value)
+        return _host_locator(value, os_name=self._os_name)
 
     def served_roots(self) -> tuple[Path, ...]:
         module = self._folder_paths()
@@ -582,7 +603,8 @@ class ComfyHostRootPort:
                 raise HostRootError(ResolutionReason.PRIVATE_ROOT_INVALID) from exc
             if type(value) is not str:
                 raise HostRootError(ResolutionReason.PRIVATE_ROOT_INVALID)
-            roots.append(_host_locator(ntpath.normpath(value)))
+            normalize = ntpath.normpath if self._os_name == "nt" else posixpath.normpath
+            roots.append(_host_locator(normalize(value), os_name=self._os_name))
         return tuple(roots)
 
 

@@ -1,8 +1,8 @@
-// M25-16: the pure, content-free state the NLE workspace projects.
+// Pure session state projected by the NLE workspace.
 //
 // Everything here is mount memory. It holds opaque identifiers, revisions, fingerprints,
-// enumerated statuses and view geometry -- never prompts, media, paths, URLs, credentials or
-// provider payloads -- and it resets on full view destroy.
+// enumerated statuses, view geometry and explicit user script/storyboard drafts. No media bytes,
+// paths, URLs, credentials or provider payloads. Draft persistence requires explicit consent.
 
 import type { NleSurfaceCapability } from "../contracts/nleSurfaceCapability";
 import type { ManagedReadiness } from "../contracts/managedQualificationCodec";
@@ -104,6 +104,8 @@ export type StoryboardShotDraft = Readonly<{
 }>;
 
 export type NlePlanningState = Readonly<{
+  /** User draft; session memory unless explicitly exported or recovery is enabled. */
+  script?: string;
   targetSeconds: number;
   policy: SegmentationPolicy;
   status: NlePlanningStatus;
@@ -201,6 +203,7 @@ export const initialNleImportState: NleImportState = Object.freeze({
 });
 
 export const initialNlePlanningState: NlePlanningState = Object.freeze({
+  script: "",
   targetSeconds: NLE_DEFAULT_TARGET_SECONDS,
   policy: "auto_storyboard",
   status: "idle",

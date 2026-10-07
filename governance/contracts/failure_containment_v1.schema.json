@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/failure_containment_v1.schema.json",
+  "title": "H3 prompt-injection and failure containment",
+  "description": "Quarantined untrusted fragments and redacted terminal output/failure metadata.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "policy", "status", "fragments", "output", "failure", "diagnostics"],
+  "properties": {
+    "schema": {"const": "h3.failure.containment.v1"},
+    "policy": {"$ref": "#/$defs/policy"},
+    "status": {"enum": ["accepted", "degraded", "rejected"]},
+    "fragments": {"type": "array", "maxItems": 128, "items": {"$ref": "#/$defs/fragment"}},
+    "output": {"anyOf": [{"$ref": "#/$defs/output"}, {"type": "null"}]},
+    "failure": {"anyOf": [{"$ref": "#/$defs/failure"}, {"type": "null"}]},
+    "diagnostics": {"type": "array", "maxItems": 256, "items": {"type": "object"}}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "system_policy_id", "provider_policy", "output_contract", "invalid_action", "max_fragments", "max_text_length", "max_output_fields"],
+      "properties": {
+        "schema": {"const": "h3.failure.containment.v1"},
+        "system_policy_id": {"$ref": "#/$defs/identifier"},
+        "provider_policy": {"type": "object"},
+        "output_contract": {"type": "object"},
+        "invalid_action": {"enum": ["reject", "degrade"]},
+        "max_fragments": {"type": "integer", "minimum": 1, "maximum": 128},
+        "max_text_length": {"type": "integer", "minimum": 1, "maximum": 8192},
+        "max_output_fields": {"type": "integer", "minimum": 1, "maximum": 64}
+      }
+    },
+    "fragment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "fragment_id", "source_kind", "source_id", "text", "trusted"],
+      "properties": {
+        "schema": {"const": "h3.failure.containment.v1"},
+        "fragment_id": {"$ref": "#/$defs/identifier"},
+        "source_kind": {"enum": ["pixels", "ocr", "metadata", "filename", "provider_text"]},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "text": {"type": "string", "minLength": 1, "maxLength": 8192},
+        "trusted": {"const": false}
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "output_id", "provider", "output_schema", "outcome", "received_fields", "output_fingerprint", "complete"],
+      "properties": {
+        "schema": {"const": "h3.failure.containment.v1"},
+        "output_id": {"$ref": "#/$defs/identifier"},
+        "provider": {"enum": ["manual", "local", "remote_custom", "official_minimax"]},
+        "output_schema": {"$ref": "#/$defs/identifier"},
+        "outcome": {"enum": ["not_requested", "succeeded", "failed", "retryable_transport", "moderated", "unsupported_media", "quota", "authentication", "timeout", "cancelled"]},
+        "received_fields": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"type": "string"}},
+        "output_fingerprint": {"anyOf": [{"$ref": "#/$defs/fingerprint"}, {"type": "null"}]},
+        "complete": {"type": "boolean"}
+      }
+    },
+    "failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "failure_id", "kind", "code", "message"],
+      "properties": {
+        "schema": {"const": "h3.failure.containment.v1"},
+        "failure_id": {"$ref": "#/$defs/identifier"},
+        "kind": {"enum": ["invalid_input", "invalid_output", "timeout", "out_of_memory", "cancelled", "provider_failure", "adapter_failure"]},
+        "code": {"$ref": "#/$defs/identifier"},
+        "message": {"type": "string", "minLength": 1, "maxLength": 1024}
+      }
+    }
+  }
+}

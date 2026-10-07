@@ -155,9 +155,13 @@
         "frontend/src/host/productionManagedChildResolver.ts",
         "frontend/src/host/productionMediaPreview.ts",
         "frontend/src/host/productionPlanningActions.ts",
+        "frontend/src/host/projectDocumentClient.ts",
+        "frontend/src/host/projectRecoveryClient.ts",
         "frontend/src/host/providerSettingsActions.ts",
+        "frontend/src/host/retainedAssetsClient.ts",
         "frontend/src/host/sequenceCoordinator.ts",
         "frontend/src/host/sidebarActions.ts",
+        "frontend/src/host/workspaceStateClient.ts",
         "frontend/src/lifecycle/nleWorkspaceSession.ts"
       ],
       "readiness_states": [

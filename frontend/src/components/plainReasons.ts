@@ -165,7 +165,7 @@ const en: Tables = {
       artifact_locator_rejected:
         "The generated video file was missing or changed. Retry the segment.",
       artifact_store_unavailable:
-        "The output store is unavailable. Check free disk space, then retry.",
+        "The output store in ComfyUI's user folder is unavailable. Check that the folder is writable, has free space and is separate from the input, output and temp folders, then retry.",
       run_authority_mismatch:
         "The run changed state unexpectedly. Refresh, then retry.",
       history_unavailable:
@@ -530,7 +530,7 @@ const zhTW: Tables = {
       artifact_content_invalid: "生成的影片未通過驗證。請重試該片段。",
       artifact_locator_rejected: "生成的影片檔案遺失或已變更。請重試該片段。",
       artifact_store_unavailable:
-        "輸出儲存區無法使用。請檢查可用磁碟空間後重試。",
+        "ComfyUI 使用者資料夾中的輸出儲存區無法使用。請確認該資料夾可寫入、有可用空間，並與 input、output、temp 資料夾分開，然後重試。",
       run_authority_mismatch: "執行狀態意外變更。請重新整理後重試。",
       history_unavailable: "無法讀取 ComfyUI 的歷史紀錄。請再次嘗試重新連線。",
       history_route_rejected:
@@ -842,7 +842,8 @@ const zhCN: Tables = {
         "此片段无法在此生成：序列生成支持不含参考媒体、提示词不超过 4,096 个字符的文本生成视频片段。",
       artifact_content_invalid: "生成的视频未通过验证。请重试该片段。",
       artifact_locator_rejected: "生成的视频文件丢失或已变更。请重试该片段。",
-      artifact_store_unavailable: "输出存储不可用。请检查可用磁盘空间后重试。",
+      artifact_store_unavailable:
+        "ComfyUI 用户文件夹中的输出存储不可用。请确认该文件夹可写入、有可用空间，并与 input、output、temp 文件夹分开，然后重试。",
       run_authority_mismatch: "运行状态意外变更。请刷新后重试。",
       history_unavailable: "无法读取 ComfyUI 的历史记录。请再次尝试重新连接。",
       history_route_rejected:

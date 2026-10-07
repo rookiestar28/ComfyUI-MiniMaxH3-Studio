@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/full_reference_timeline_v1.schema.json",
+  "title": "H3 Full-Reference multimodal timeline plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "timeline_id", "status", "request", "segments", "source_spans", "intent_graph", "directives", "diagnostics", "limitations"],
+  "properties": {
+    "schema": {"const": "h3.full_reference.timeline.v1"},
+    "timeline_id": {"$ref": "#/$defs/identifier"},
+    "status": {"enum": ["complete", "partial", "conflicting", "empty"]},
+    "request": {"type": "object"},
+    "segments": {"type": "array", "minItems": 1, "maxItems": 256, "items": {"$ref": "#/$defs/segment"}},
+    "source_spans": {"type": "array", "maxItems": 4096, "items": {"$ref": "#/$defs/source_span"}},
+    "intent_graph": {"type": "object"},
+    "directives": {"type": "object"},
+    "diagnostics": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/diagnostic"}},
+    "limitations": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/limitation"}}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "time": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["raw", "seconds"],
+      "properties": {
+        "raw": {"type": "string", "minLength": 1, "maxLength": 64},
+        "seconds": {"type": "string", "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"}
+      }
+    },
+    "source_span": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["span_id", "modality", "asset_id", "source_id", "source_start", "source_end", "target_start", "target_end", "observation_id", "shot_id", "overlap_group_id"],
+      "properties": {
+        "span_id": {"$ref": "#/$defs/identifier"},
+        "modality": {"enum": ["image", "video", "audio"]},
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "source_start": {"$ref": "#/$defs/time"},
+        "source_end": {"$ref": "#/$defs/time"},
+        "target_start": {"$ref": "#/$defs/time"},
+        "target_end": {"$ref": "#/$defs/time"},
+        "observation_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+        "shot_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+        "overlap_group_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]}
+      }
+    },
+    "id_array": {"type": "array", "maxItems": 512, "uniqueItems": true, "items": {"$ref": "#/$defs/identifier"}},
+    "segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["segment_id", "start", "end", "transition", "source_span_ids", "source_asset_ids", "source_shot_ids", "video_observation_ids", "audio_observation_ids", "entity_ids", "directive_ids", "missing_source"],
+      "properties": {
+        "segment_id": {"$ref": "#/$defs/identifier"},
+        "start": {"$ref": "#/$defs/time"},
+        "end": {"$ref": "#/$defs/time"},
+        "transition": {"enum": ["opening", "cut", "continuous", "gap_fill"]},
+        "source_span_ids": {"$ref": "#/$defs/id_array"},
+        "source_asset_ids": {"$ref": "#/$defs/id_array"},
+        "source_shot_ids": {"$ref": "#/$defs/id_array"},
+        "video_observation_ids": {"$ref": "#/$defs/id_array"},
+        "audio_observation_ids": {"$ref": "#/$defs/id_array"},
+        "entity_ids": {"$ref": "#/$defs/id_array"},
+        "directive_ids": {"$ref": "#/$defs/id_array"},
+        "missing_source": {"type": "boolean"}
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "code", "message", "location"],
+      "properties": {
+        "severity": {"enum": ["info", "warning", "error", "fatal"]},
+        "code": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+        "message": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "location": {"type": ["string", "null"], "maxLength": 256}
+      }
+    },
+    "limitation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["limitation_id", "code", "message", "severity", "evidence_ids"],
+      "properties": {
+        "limitation_id": {"$ref": "#/$defs/identifier"},
+        "code": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+        "message": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "severity": {"enum": ["info", "warning", "error", "fatal"]},
+        "evidence_ids": {"$ref": "#/$defs/id_array"}
+      }
+    }
+  }
+}

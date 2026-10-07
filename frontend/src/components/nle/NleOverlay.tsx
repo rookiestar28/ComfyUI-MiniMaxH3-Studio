@@ -22,6 +22,7 @@ import { createPortal } from "react-dom";
 import type { NleCloseReason } from "../../state/nleWorkspaceState";
 import { saveIndicatorModel } from "../../runtime/nleSaveIndicator";
 import { NleExportMenu } from "./NleExportMenu";
+import { ProjectFileControls } from "../ProjectFileControls";
 import { NleActionIcon } from "./NleIconActions";
 import { NleMonitorChips } from "./NleMonitorChips";
 import { createMonitorStatusChannel } from "./nleMonitorChannel";
@@ -612,6 +613,11 @@ export function NleOverlay({ binding }: { binding: NleWorkspaceBinding }) {
             {surfaceStatus}
           </span>
           <span className="h3-nle-header-space" />
+          <ProjectFileControls
+            binding={binding.project}
+            locale={locale}
+            compact
+          />
           {status === "closing" ? null : (
             <div data-h3-nle-diagnostics="" aria-hidden="true" hidden>
               <NleMonitorChips locale={locale} channel={monitorStatus} />

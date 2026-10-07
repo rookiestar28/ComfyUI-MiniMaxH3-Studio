@@ -31,6 +31,7 @@ from typing import Any, TypeVar
 #: The closed set of process-owned registries. A name that is not here cannot be built, installed or
 #: reset, so a new long-lived component has to be declared rather than appearing by assignment.
 AUTHORING_WORKSPACE = "authoring_workspace"
+EDITOR_RECOVERY = "editor_recovery"
 AUTHORING_OUTPUT = "authoring_output"
 INPUT_GEOMETRY = "input_geometry"
 MANAGED_MODE_QUALIFICATION = "managed_mode_qualification"
@@ -41,13 +42,17 @@ MEDIA_RUNTIME_SETUP = "media_runtime_setup"
 PRODUCTION_WORKSPACE = "production_workspace"
 PRODUCTION_AUTHORING_IMPORT = "production_authoring_import"
 PRODUCTION_PLANNING = "production_planning"
+PROJECT_DOCUMENT = "project_document"
 PROVIDER_SETTINGS = "provider_settings"
+RETAINED_ASSETS = "retained_assets"
 SEQUENCE_COORDINATOR = "sequence_coordinator"
 SIDEBAR_WORKSPACE = "sidebar_workspace"
+WORKSPACE_STATE = "workspace_state"
 
 COMPONENTS = (
     AUTHORING_OUTPUT,
     AUTHORING_WORKSPACE,
+    EDITOR_RECOVERY,
     INPUT_GEOMETRY,
     MANAGED_MODE_QUALIFICATION,
     MANAGED_SEQUENCE,
@@ -57,9 +62,12 @@ COMPONENTS = (
     PRODUCTION_AUTHORING_IMPORT,
     PRODUCTION_WORKSPACE,
     PRODUCTION_PLANNING,
+    PROJECT_DOCUMENT,
     PROVIDER_SETTINGS,
+    RETAINED_ASSETS,
     SEQUENCE_COORDINATOR,
     SIDEBAR_WORKSPACE,
+    WORKSPACE_STATE,
 )
 
 
@@ -101,6 +109,10 @@ def _build(name: str) -> Any:
         from .comfyui_authoring_workspace import build_registry as build_authoring_workspace
 
         return build_authoring_workspace()
+    if name == EDITOR_RECOVERY:
+        from .editor_recovery_service import build_editor_recovery_service
+
+        return build_editor_recovery_service(projects=get(PROJECT_DOCUMENT))
     if name == INPUT_GEOMETRY:
         from .comfyui_input_geometry import build_registry as build_input_geometry
 
@@ -153,6 +165,14 @@ def _build(name: str) -> Any:
             sidebar_registry=get(SIDEBAR_WORKSPACE),
             production_registry=get(PRODUCTION_WORKSPACE),
         )
+    if name == PROJECT_DOCUMENT:
+        from .project_document_service import build_project_document_service
+
+        return build_project_document_service(
+            production=get(PRODUCTION_WORKSPACE),
+            authoring=get(AUTHORING_WORKSPACE),
+            retained=get(RETAINED_ASSETS),
+        )
     if name == PROVIDER_SETTINGS:
         from .comfyui_provider_settings import build_registry as build_provider_settings
 
@@ -165,6 +185,14 @@ def _build(name: str) -> Any:
         from .comfyui_sidebar_workspace import build_registry as build_sidebar_workspace
 
         return build_sidebar_workspace()
+    if name == WORKSPACE_STATE:
+        from .workspace_state_service import build_workspace_state_service
+
+        return build_workspace_state_service()
+    if name == RETAINED_ASSETS:
+        from .retained_asset_service import build_retained_asset_service
+
+        return build_retained_asset_service()
     raise CompositionError(f"unknown component: {name}")
 
 
@@ -200,9 +228,8 @@ def install(name: str, instance: object) -> None:
 def installed(name: str) -> object | None:
     """What is currently installed for `name`, or `None`, without constructing anything.
 
-    CRITICAL: this must not fall through to `get`. Its only caller is code that wants to put back
-    what it found, and forcing construction here would make the act of saving state the thing that
-    creates it -- a teardown that allocates a process secret and two locks it then throws away.
+    CRITICAL: this must not fall through to `get`. Teardown and metadata sampling need only
+    existing owners; forcing construction would allocate new live authority during observation.
     """
 
     if name not in COMPONENTS:
@@ -262,6 +289,7 @@ __all__ = [
     "AUTHORING_OUTPUT",
     "AUTHORING_WORKSPACE",
     "COMPONENTS",
+    "EDITOR_RECOVERY",
     "INPUT_GEOMETRY",
     "MANAGED_MODE_QUALIFICATION",
     "MANAGED_SEQUENCE",
@@ -271,8 +299,10 @@ __all__ = [
     "PRODUCTION_AUTHORING_IMPORT",
     "PRODUCTION_WORKSPACE",
     "PROVIDER_SETTINGS",
+    "RETAINED_ASSETS",
     "SEQUENCE_COORDINATOR",
     "SIDEBAR_WORKSPACE",
+    "WORKSPACE_STATE",
     "CompositionError",
     "component",
     "get",

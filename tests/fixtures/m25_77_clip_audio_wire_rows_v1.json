@@ -1,0 +1,210 @@
+{
+  "schema": "h3.test.clip_audio_wire_rows.v1",
+  "description": "One table for both clip decoders: the audio member of a clip wire, the clip's duration, and what the decoder must return. `audio` is the member's value; the row `absent` leaves the key out. `result` is the decoded member, or the refusal code.",
+  "rows": [
+    {
+      "name": "absent",
+      "duration_frames": 48,
+      "absent": true,
+      "result": {"gain_mb": 0, "muted": false, "fade_in_frames": 0, "fade_out_frames": 0}
+    },
+    {
+      "name": "explicit_identity",
+      "duration_frames": 48,
+      "audio": {"gain_mb": 0, "muted": false, "fade_in_frames": 0, "fade_out_frames": 0},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "null",
+      "duration_frames": 48,
+      "audio": null,
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "array",
+      "duration_frames": 48,
+      "audio": [],
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "gain_lower_bound",
+      "duration_frames": 48,
+      "audio": {"gain_mb": -6000, "muted": false, "fade_in_frames": 0, "fade_out_frames": 0},
+      "result": {"gain_mb": -6000, "muted": false, "fade_in_frames": 0, "fade_out_frames": 0}
+    },
+    {
+      "name": "gain_upper_bound",
+      "duration_frames": 48,
+      "audio": {"gain_mb": 1200, "muted": false, "fade_in_frames": 0, "fade_out_frames": 0},
+      "result": {"gain_mb": 1200, "muted": false, "fade_in_frames": 0, "fade_out_frames": 0}
+    },
+    {
+      "name": "gain_interior",
+      "duration_frames": 48,
+      "audio": {"gain_mb": -600, "muted": false, "fade_in_frames": 0, "fade_out_frames": 0},
+      "result": {"gain_mb": -600, "muted": false, "fade_in_frames": 0, "fade_out_frames": 0}
+    },
+    {
+      "name": "gain_below_lower_bound",
+      "duration_frames": 48,
+      "audio": {"gain_mb": -6001, "muted": false, "fade_in_frames": 0, "fade_out_frames": 0},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "gain_above_upper_bound",
+      "duration_frames": 48,
+      "audio": {"gain_mb": 1201, "muted": false, "fade_in_frames": 0, "fade_out_frames": 0},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "gain_fraction",
+      "duration_frames": 48,
+      "audio": {"gain_mb": -600.5, "muted": false, "fade_in_frames": 0, "fade_out_frames": 0},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "gain_boolean",
+      "duration_frames": 48,
+      "audio": {"gain_mb": true, "muted": false, "fade_in_frames": 0, "fade_out_frames": 0},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "gain_text",
+      "duration_frames": 48,
+      "audio": {"gain_mb": "-600", "muted": false, "fade_in_frames": 0, "fade_out_frames": 0},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "muted",
+      "duration_frames": 48,
+      "audio": {"gain_mb": 0, "muted": true, "fade_in_frames": 0, "fade_out_frames": 0},
+      "result": {"gain_mb": 0, "muted": true, "fade_in_frames": 0, "fade_out_frames": 0}
+    },
+    {
+      "name": "muted_keeps_its_gain",
+      "duration_frames": 48,
+      "audio": {"gain_mb": -1200, "muted": true, "fade_in_frames": 0, "fade_out_frames": 0},
+      "result": {"gain_mb": -1200, "muted": true, "fade_in_frames": 0, "fade_out_frames": 0}
+    },
+    {
+      "name": "muted_integer",
+      "duration_frames": 48,
+      "audio": {"gain_mb": 0, "muted": 1, "fade_in_frames": 0, "fade_out_frames": 0},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "muted_null",
+      "duration_frames": 48,
+      "audio": {"gain_mb": 0, "muted": null, "fade_in_frames": 0, "fade_out_frames": 0},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "fade_in_interior",
+      "duration_frames": 48,
+      "audio": {"gain_mb": 0, "muted": false, "fade_in_frames": 12, "fade_out_frames": 0},
+      "result": {"gain_mb": 0, "muted": false, "fade_in_frames": 12, "fade_out_frames": 0}
+    },
+    {
+      "name": "fade_out_interior",
+      "duration_frames": 48,
+      "audio": {"gain_mb": 0, "muted": false, "fade_in_frames": 0, "fade_out_frames": 12},
+      "result": {"gain_mb": 0, "muted": false, "fade_in_frames": 0, "fade_out_frames": 12}
+    },
+    {
+      "name": "fade_in_upper_bound",
+      "duration_frames": 300,
+      "audio": {"gain_mb": 0, "muted": false, "fade_in_frames": 240, "fade_out_frames": 0},
+      "result": {"gain_mb": 0, "muted": false, "fade_in_frames": 240, "fade_out_frames": 0}
+    },
+    {
+      "name": "fade_out_upper_bound",
+      "duration_frames": 300,
+      "audio": {"gain_mb": 0, "muted": false, "fade_in_frames": 0, "fade_out_frames": 240},
+      "result": {"gain_mb": 0, "muted": false, "fade_in_frames": 0, "fade_out_frames": 240}
+    },
+    {
+      "name": "fade_in_above_upper_bound",
+      "duration_frames": 300,
+      "audio": {"gain_mb": 0, "muted": false, "fade_in_frames": 241, "fade_out_frames": 0},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "fade_out_above_upper_bound",
+      "duration_frames": 300,
+      "audio": {"gain_mb": 0, "muted": false, "fade_in_frames": 0, "fade_out_frames": 241},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "fade_in_negative",
+      "duration_frames": 48,
+      "audio": {"gain_mb": 0, "muted": false, "fade_in_frames": -1, "fade_out_frames": 0},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "fade_out_negative",
+      "duration_frames": 48,
+      "audio": {"gain_mb": 0, "muted": false, "fade_in_frames": 0, "fade_out_frames": -1},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "fade_in_fraction",
+      "duration_frames": 48,
+      "audio": {"gain_mb": 0, "muted": false, "fade_in_frames": 1.5, "fade_out_frames": 0},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "fade_out_boolean",
+      "duration_frames": 48,
+      "audio": {"gain_mb": 0, "muted": false, "fade_in_frames": 0, "fade_out_frames": true},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "fades_fill_the_clip",
+      "duration_frames": 48,
+      "audio": {"gain_mb": 0, "muted": false, "fade_in_frames": 24, "fade_out_frames": 24},
+      "result": {"gain_mb": 0, "muted": false, "fade_in_frames": 24, "fade_out_frames": 24}
+    },
+    {
+      "name": "fades_exceed_the_clip",
+      "duration_frames": 48,
+      "audio": {"gain_mb": 0, "muted": false, "fade_in_frames": 25, "fade_out_frames": 24},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "fade_in_fills_a_one_frame_clip",
+      "duration_frames": 1,
+      "audio": {"gain_mb": 0, "muted": false, "fade_in_frames": 1, "fade_out_frames": 0},
+      "result": {"gain_mb": 0, "muted": false, "fade_in_frames": 1, "fade_out_frames": 0}
+    },
+    {
+      "name": "fade_out_exceeds_a_one_frame_clip",
+      "duration_frames": 1,
+      "audio": {"gain_mb": 0, "muted": false, "fade_in_frames": 0, "fade_out_frames": 2},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "every_value_at_once",
+      "duration_frames": 300,
+      "audio": {"gain_mb": -600, "muted": true, "fade_in_frames": 12, "fade_out_frames": 240},
+      "result": {"gain_mb": -600, "muted": true, "fade_in_frames": 12, "fade_out_frames": 240}
+    },
+    {
+      "name": "missing_member",
+      "duration_frames": 48,
+      "audio": {"gain_mb": -600, "muted": false, "fade_in_frames": 0},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "extra_member",
+      "duration_frames": 48,
+      "audio": {"gain_mb": -600, "muted": false, "fade_in_frames": 0, "fade_out_frames": 0, "pan": 0},
+      "refusal": "invalid_contract"
+    },
+    {
+      "name": "private_member",
+      "duration_frames": 48,
+      "audio": {"gain_mb": -600, "muted": false, "fade_in_frames": 0, "fade_out_frames": 0, "lease": "x"},
+      "refusal": "private_field"
+    }
+  ]
+}

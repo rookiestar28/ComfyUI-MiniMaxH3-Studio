@@ -18,6 +18,22 @@ implementation.
 
 <details>
 
+<summary><strong>1.1.0 — Project files, recovery and editor improvements</strong></summary>
+
+- Save and open editable `.h3proj` projects, with explicit relinking when media is missing.
+- Optionally retain verified generated videos and recover acknowledged drafts with data-only
+  undo/redo after a restart. Each storage option is off by default.
+- Adjust clip volume, mute and fades in the Inspector, preview and final render; enjoy steadier
+  playback across edits and cuts, reliable timeline shortcuts and clearer title-insertion feedback.
+- Generated-video closure now accepts Linux host paths. Editor media and durable recovery still
+  require their supported Windows setup.
+- Source and Registry distributions include complete public developer inputs and exclude private
+  records, dependency installations and caches.
+
+</details>
+
+<details>
+
 <summary><strong>1.0.2 — Assisted prompt writing and model setup</strong></summary>
 
 - Set up Ollama or a remote provider, reload available models and choose an exact model; readiness
@@ -88,8 +104,9 @@ implementation.
 - **Five task modes.** Text to video, opening image, first and last frames, ending image, or a
   reference set of image, video and audio with explicit roles.
 - **One-click official workflows.** App Mode writes the official MiniMax H3 workflow for your mode
-  onto the canvas using the H3 weights you have installed, or connects your prompt to an H3 graph
-  you already have.
+  into the active workflow tab using the H3 weights you have installed, or connects your prompt to
+  an H3 graph you already have. Use a separate empty tab to try the official template while keeping
+  your current workflow.
 - **Production workbench.** Collect generated clips as segments of a project; reorder, replace or
   regenerate them, preview them and pick which ones to edit.
 - **Longer videos.** Plan a 4 to 60 second video as a storyboard, generate its segments one after
@@ -100,7 +117,13 @@ implementation.
 - **Optional assisted authoring.** Ask Ollama or Gemini to suggest prompt improvements; you accept
   or reject every suggestion. OpenAI and Anthropic connections support model discovery and
   readiness checks.
+- **Project files and optional recovery.** Save accepted editable work to `.h3proj` files. On a
+  qualified local host, separately opt in to metadata, verified-video retention or draft recovery.
+  Exported projects do not embed media or execution permissions.
 - **Three languages.** English, Traditional Chinese and Simplified Chinese.
+
+Public source and Registry packages include the test suites and their support files. See
+[development and testing](docs/DEVELOPMENT.md) for environment setup and validation commands.
 
 ## Before you start
 
@@ -139,7 +162,7 @@ see [opening ComfyUI from another address](docs/SECURITY_AND_PROVIDERS.md#openin
 
 To install manually:
 
-1. Stop ComfyUI.
+1. Save any open ComfyUI workflows and download the videos you want to keep, then stop ComfyUI.
 2. Clone or copy the complete repository into `ComfyUI/custom_nodes/ComfyUI-MiniMaxH3-Studio`:
 
    ```bash
@@ -168,8 +191,10 @@ comfy node install minimax-h3-studio
 3. Restart ComfyUI and refresh the browser. If the old interface still shows, hard-refresh after
    checking that the host loaded the intended version. The sidebar header shows the loaded version.
 
-Keep the previous version for rollback. An update does not turn editor work into saved projects;
-saved workflows and downloaded videos are the copies you keep.
+Keep the previous version for rollback. Save accepted Production/editor work as a `.h3proj` file
+and preserve its media separately before updating. A workflow save or downloaded video does not
+back up the editable project. Optional recovery covers only acknowledged server saves, not edits
+still waiting in the browser.
 
 ### Media tools
 
@@ -203,14 +228,20 @@ FFmpeg is licensed separately under GPL-3.0-or-later and is not shipped with thi
 
 ## Quick start
 
-1. Open **MiniMax H3 Studio** in the ComfyUI sidebar.
-2. On the **Context** page, choose a task mode, describe the video and set a duration of 4 to 15
+1. Save your current ComfyUI workflow. To try the official H3 template separately, open a new empty
+   workflow tab and make it active.
+2. Open **MiniMax H3 Studio** in the ComfyUI sidebar.
+3. On the **Context** page, choose a task mode, describe the video and set a duration of 4 to 15
    seconds.
-3. Select the images, video or audio that mode needs.
-4. Press **Start H3 App Mode**. The official workflow appears on the canvas; check its settings and
-   queue it.
-5. When the video is ready it appears on the **Production** page. Each new run from the same
+4. Select the images, video or audio that mode needs.
+5. Press **Start H3 App Mode**. The official workflow appears in the active tab; check its settings
+   and queue it.
+6. When the video is ready it appears on the **Production** page. Each new run from the same
    workflow adds a segment to the same project.
+
+To use your own H3 workflow, keep its tab active and follow
+[Connect and queue current canvas](#start-h3-app-mode). If you want to leave the current canvas
+untouched, choose **Keep canvas and exit H3 App Mode** when offered.
 
 ## The sidebar at a glance
 
@@ -296,7 +327,11 @@ the prompt is valid. Neither judges visual quality.
 ### Start H3 App Mode
 
 **Start H3 App Mode** writes the official ComfyUI MiniMax H3 workflow for your task mode onto the
-current workflow tab, without queueing it:
+active workflow tab, without queueing it. Save any unsaved workflow before starting. To try the
+official template separately, open a new empty workflow tab and make it active first. To connect
+your own H3 workflow instead, keep its tab active and use the Connect option below.
+
+App Mode uses these official templates:
 
 | Task mode         | Official template                 |
 | ----------------- | --------------------------------- |
@@ -311,11 +346,17 @@ with **Apply and queue current H3 graph** or ComfyUI's own Queue button.
 
 If the canvas already has nodes, App Mode asks first:
 
-- **Replace canvas and start H3 App Mode** replaces the graph with the official workflow;
+- **Replace canvas and start H3 App Mode** replaces the graph in the active tab with the official
+  workflow. Save the current workflow before choosing it;
 - **Connect and queue current canvas** keeps your graph, connects the prompt to the H3 generation
   node you choose and queues it once. Your models, LoRAs, sampler and other settings stay as they
   are;
-- **Keep canvas and exit H3 App Mode** leaves everything untouched.
+- **Keep canvas and exit H3 App Mode** leaves the current canvas untouched and exits App Mode,
+  without queueing a run.
+
+Connect adds the prompt connection and queues a run; Keep makes no canvas changes. Neither choice
+saves a backup of your workflow. Use ComfyUI's own workflow Save action to preserve unsaved canvas
+work. Saving a ComfyUI workflow does not back up the separate Production or editor project.
 
 Connect works with your own H3 workflows, not only the official ones. It looks for the native H3
 generation nodes on the canvas and one subgraph level inside it; when there are several, choose
@@ -323,6 +364,10 @@ one under **H3 generation node to connect**. The task mode must match how that n
 connected first frame means I2VA, a last frame L2VA, both FL2VA, and neither T2VA. Connect is not
 offered when the canvas already contains H3 Context nodes; use **Apply and queue current H3 graph**
 instead.
+
+If an existing canvas is replaced without a choice being shown, report the loaded sidebar version
+and the actions you took. Include **Copy diagnostics** when available so the unexpected change
+can be investigated.
 
 **Cancel App Mode** stops while App Mode is working, and **Continue with native nodes** leaves App
 Mode so you can work on the canvas yourself.
@@ -425,6 +470,9 @@ has three tabs: **Media**, **Text** and **Sequence** (for [longer videos](#longe
 - The top bar shows the edit status: **Saving…**, **Saved**, **Edit refused**, **Save status
   unknown** and similar. **Saved** means ComfyUI accepted the edit; it is not a project file. If the
   status is unknown, let the editor re-read the host and follow its message before editing again.
+- Use **Project file** in Production, the Editor summary or the editor's Project menu to save or
+  open an editable `.h3proj` document. See [Project files](docs/PROJECT_FILES.md) for media relinking
+  and the difference between a written file and a prepared download.
 
 ### Media bin
 
@@ -561,10 +609,14 @@ Rendered files are kept for about an hour, at most 16 at a time. Download the on
   open, the editor also remembers its layout, selected tab, playhead and zoom.
 - Unapplied Inspector changes stay with their clip; if the clip or timeline changes, the old draft
   is cleared with a notice instead of being applied elsewhere.
-- None of this is a saved project. A page reload can reconnect while the current editor workspace
-  is still available; restarting ComfyUI ends it. The active, visible editor renews its workspace,
-  but hidden or disconnected workspaces can expire after about 15 minutes without workspace
-  activity. Save workflows and download videos you want to keep; these do not back up the timeline.
+- A page reload can reconnect while the current editor workspace is still available; restarting
+  ComfyUI ends that live workspace. Active, visible work renews its lease; hidden or disconnected
+  work can expire after about 15 minutes without activity. Opt-in recovery protects tracked unsaved
+  server drafts, but does not prove that browser-only edits reached the host.
+- Use **Project file** to save or open accepted editable data. With **Save draft recovery** enabled,
+  **Recovery saved** confirms an exact server revision; restore it explicitly as a new project
+  after a restart. Neither recovery nor opening a file starts generation or rendering. See
+  [Project files](docs/PROJECT_FILES.md) for limits, save acknowledgements and media relinking.
 - Imported clips depend on their Production project. Releasing that project or replacing a source
   makes the clip unavailable; select a current output and import it again.
 
@@ -759,13 +811,32 @@ credentials are never saved into workflows, reports or diagnostics.
 
 | What                                 | Where and for how long                                                                |
 | ------------------------------------ | ------------------------------------------------------------------------------------- |
-| Copies of verified generated videos  | ComfyUI's temporary folder; cleared when ComfyUI starts or stops (seven days at most) |
+| Copies of verified generated videos  | ComfyUI's private user data; volatile process-scoped storage, not saved projects |
 | Rendered final videos                | The media tools' temporary folder; about one hour, at most 16                         |
 | App Mode diagnostics                 | Browser storage, 32 KiB across the four latest runs; codes only, no prompts or media  |
 | Sequence reconnect pointer           | Browser storage until it expires                                                      |
 | Production and editor workspace contents | Host memory; cleared on restart or after about 15 minutes without workspace activity |
 | Project and provider session pointers | Tab session storage, cleared when the tab closes; these are not saved projects        |
 | Provider credentials and permission  | Host memory only; 30 minutes idle or eight hours, cleared on restart                  |
+| Optional workspace metadata          | Private host storage; enabled separately, no prompts or media                        |
+| Optional retained videos             | Verified copies in private host storage, enabled separately                          |
+| Optional draft recovery              | Private host snapshots of acknowledged editable data and bounded undo/redo           |
+| Exported `.h3proj` files              | The file you save or download; includes editable text, not media bytes                |
+
+Verified generated-video copies use a random process folder under private user data, outside
+ComfyUI's served input, output and temporary directories. The original output stays unchanged.
+The live store allows at most 64 copies and 1 GiB, with a seven-day expiry. After a restart, the
+next generated-copy operation performs bounded cleanup of recognizable folders whose owner has
+exited; busy or unknown folders are retained. This storage is not durable recovery, and old
+preview handles do not survive a restart. Download originals you need to keep, or explicitly
+retain a verified copy through **Settings** on a qualified recovery host.
+
+Metadata, video retention and draft recovery are three separate, default-off choices. Durable
+storage requires a trusted single-user Windows host on loopback, fixed local NTFS storage, no
+permissive CORS and no configured public-origin override. It is not available through a shared
+or proxied host. Recovery can contain private prompts and titles; restoring it is always explicit.
+Only a saved acknowledgement covers the named revision. It is not a zero-loss, power-loss or
+cloud-backup guarantee. See [Project files](docs/PROJECT_FILES.md).
 
 Thumbnails, filmstrips and waveforms are made from your media and can reveal private content.
 Review workflows and screenshots before sharing them. More detail is in
@@ -780,8 +851,9 @@ Review workflows and screenshots before sharing them. More detail is in
 - **Audio in the editor** comes from the main track's video only, with each clip's volume, mute and
   fades. Overlay videos are silent and there are no separate audio tracks.
 - **Frame rates**: assembly produces 30 fps; the editor's final render is 24 fps, up to 2.5 minutes.
-- **No saved projects**: a host restart or workspace expiry ends editor work. Download finished
-  videos; rendered files are kept for about an hour.
+- **Project media and recovery**: `.h3proj` files do not embed media. Durable metadata, retained
+  videos and draft recovery are opt-in and require the qualified local Windows setup; unacknowledged
+  edits can be lost. Rendered files remain temporary and are kept for about an hour.
 - **Previews** in the monitor are approximate; check the rendered file.
 - **Quality**: validation and guide readiness check the prompt, not the visual result, and do not
   make this equivalent to MiniMax's own implementation.
@@ -799,6 +871,8 @@ Review workflows and screenshots before sharing them. More detail is in
 | H3 Context nodes are missing                                     | The complete repository must be directly under `custom_nodes`. Restart ComfyUI once.                                                                                                  |
 | The sidebar is missing                                           | The host must provide the native H3 nodes and a frontend that supports sidebar extensions. The canvas nodes still work.                                                               |
 | An old interface remains after updating                          | Make sure only one complete version is installed, restart ComfyUI and hard-refresh the browser.                                                                                       |
+| I want to try App Mode without replacing my workflow             | Save the workflow, then make a new empty workflow tab active. To leave the existing canvas untouched, choose **Keep canvas and exit H3 App Mode**.                                    |
+| I want to use the prompt with my existing H3 workflow             | Keep its tab active and choose **Connect and queue current canvas** when offered. This connects the prompt and queues once; your models, LoRAs and sampler settings remain.             |
 | **Start H3 App Mode** stays disabled                             | The duration has not resolved yet, or a required image or reference is not selected.                                                                                                  |
 | A model role is reported missing                                 | Install an official MiniMax H3 weight for that role (any subfolder works) and pick it on the canvas loader.                                                                           |
 | App Mode refuses a run                                           | Follow the reason shown. **Copy diagnostics** gives a report for support with private details left out.                                                                               |
@@ -814,7 +888,7 @@ Review workflows and screenshots before sharing them. More detail is in
 | A media feature says it is unavailable                    | Open **Settings → Media tools** and follow the card: **Install**, **Check again**, or the reason shown.                                                    |
 | **Import** is missing or does nothing                     | Select up to three finished segments in Production first.                                                                                                  |
 | An imported clip is in the bin but not on the timeline    | Import only adds sources; press **+** on its card.                                                                                                         |
-| An imported clip became unavailable                       | Keep its Production project available. A released or replaced source must be selected and imported again.                                                  |
+| An imported clip became unavailable                       | Keep its Production project available, or open a saved project and explicitly relink compatible retained media. A released source is never silently replaced. |
 | **Add title** is unavailable                              | Read the reason beside the button. Choose an available font, shorten the text, or free a text track at the playhead when all eight track slots are in use. |
 | A number changed but the picture did not                  | Number fields apply on **Enter** or the group's apply button.                                                                                              |
 | On-picture handles are missing                            | Select one clip, put the playhead inside it, and make sure the clip and track are enabled and unlocked.                                                    |
@@ -836,6 +910,8 @@ screenshots.
 
 ## More documentation
 
+- [Project files](docs/PROJECT_FILES.md): Save/Open, media relinking and optional draft recovery.
+- [Development and testing](docs/DEVELOPMENT.md): public source, tests and distribution verification.
 - [Security and providers](docs/SECURITY_AND_PROVIDERS.md): what is sent, stored and checked.
 - [Host integration](docs/HOST_INTEGRATION.md): optional services for host operators and developers.
 

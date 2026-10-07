@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/architecture_fitness_v1.schema.json",
+  "title": "ComfyUI H3 Context cross-stack architecture fitness",
+  "description": "Deterministic Python and TypeScript dependency, route-responsibility, boundary-rule and change-impact ownership baseline.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "fingerprint",
+    "modules",
+    "entrypoints",
+    "routes",
+    "boundary_rules",
+    "known_violations",
+    "ownership_edges"
+  ],
+  "properties": {
+    "schema": { "const": "h3-context-architecture-fitness/1" },
+    "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "modules": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 640,
+      "items": { "$ref": "#/$defs/module" }
+    },
+    "entrypoints": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": { "$ref": "#/$defs/entrypoint" }
+    },
+    "routes": {
+      "type": "array",
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/route" }
+    },
+    "boundary_rules": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": { "$ref": "#/$defs/boundary_rule" }
+    },
+    "known_violations": {
+      "type": "array",
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/known_violation" }
+    },
+    "ownership_edges": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/ownership_edge" }
+    }
+  },
+  "$defs": {
+    "relative_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
+      "pattern": "^[A-Za-z0-9._*-]+(?:/[A-Za-z0-9._*-]+)*$"
+    },
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+    },
+    "python_identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "check": {
+      "oneOf": [
+        { "$ref": "#/$defs/relative_path" },
+        { "$ref": "#/$defs/identifier" }
+      ]
+    },
+    "module": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["language", "path", "lines", "imports", "source_reachability"],
+      "properties": {
+        "language": { "enum": ["python", "typescript"] },
+        "path": { "$ref": "#/$defs/relative_path" },
+        "lines": { "type": "integer", "minimum": 1, "maximum": 20000 },
+        "imports": {
+          "type": "array",
+          "maxItems": 512,
+          "items": { "$ref": "#/$defs/relative_path" }
+        },
+        "source_reachability": { "$ref": "#/$defs/source_reachability" }
+      }
+    },
+    "source_reachability": {
+      "description": "Static module-import reachability of the shipped source: which repository path keeps this module in the tree. This is not the runtime question core/reachability.py answers about whether a public workflow can reach a field or task mode through a named producer; a 'product' class asserts that a shipped path imports the module, never that a capability is supported.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["class", "evidence", "owners", "retained_reason"],
+      "properties": {
+        "class": { "enum": ["product", "planned_consumer", "qualification", "evidence_only", "unresolved"] },
+        "evidence": { "enum": ["product_closure", "ambient_declaration", "finalized_plan", "script_import", "test_import", "none"] },
+        "owners": {
+          "description": "The concrete consumers that keep this module alive: product roots, script or test paths, a compiler configuration, or the roadmap items of a finalized plan. Bounded and sorted; an unresolved row carries none.",
+          "type": "array",
+          "maxItems": 8,
+          "items": { "type": "string", "minLength": 1, "maxLength": 300 }
+        },
+        "retained_reason": { "type": "string", "minLength": 1, "maxLength": 200 }
+      }
+    },
+    "entrypoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/identifier" },
+        "path": { "$ref": "#/$defs/relative_path" }
+      }
+    },
+    "route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["module", "method", "path_symbol", "handler", "responsibilities"],
+      "properties": {
+        "module": { "$ref": "#/$defs/relative_path" },
+        "method": { "enum": ["DELETE", "GET", "PATCH", "POST", "PUT"] },
+        "path_symbol": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^(?:/(?:[A-Za-z0-9._~!$&'()*+,;=:@%/-]+|\\{[A-Za-z_][A-Za-z0-9_]*\\})+|[A-Z][A-Z0-9_]*)$"
+        },
+        "handler": { "$ref": "#/$defs/python_identifier" },
+        "responsibilities": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": { "enum": ["application", "decode", "domain", "response", "store"] }
+        }
+      }
+    },
+    "boundary_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule_id", "description", "status", "finding_count"],
+      "properties": {
+        "rule_id": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]+$" },
+        "description": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "status": { "enum": ["pass", "known_debt"] },
+        "finding_count": { "type": "integer", "minimum": 0, "maximum": 1024 }
+      }
+    },
+    "known_violation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule_id", "subject", "count", "owner", "reason"],
+      "properties": {
+        "rule_id": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]+$" },
+        "subject": { "$ref": "#/$defs/relative_path" },
+        "count": { "type": "integer", "minimum": 1, "maximum": 1024 },
+        "owner": { "$ref": "#/$defs/identifier" },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 240 }
+      }
+    },
+    "ownership_edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner_id", "source_patterns", "artifacts", "checks"],
+      "properties": {
+        "owner_id": { "$ref": "#/$defs/identifier" },
+        "source_patterns": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": { "$ref": "#/$defs/relative_path" }
+        },
+        "artifacts": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": { "$ref": "#/$defs/relative_path" }
+        },
+        "checks": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": { "$ref": "#/$defs/check" }
+        }
+      }
+    }
+  }
+}

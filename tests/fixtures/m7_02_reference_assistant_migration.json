@@ -1,0 +1,19 @@
+{
+  "schema": "h3-context-reference-assistant-migration/1",
+  "legacy": {
+    "schema": "h3-context-subgraph-fixture/1",
+    "version": 1,
+    "widgets_values": [
+      "ref2va",
+      "Preserve the two supplied reference pictures while the subject walks forward.",
+      120
+    ]
+  },
+  "expected": {
+    "controls": {
+      "task_mode": "ref2va",
+      "user_intent": "Preserve the two supplied reference pictures while the subject walks forward.",
+      "duration_seconds": 5.0
+    }
+  }
+}

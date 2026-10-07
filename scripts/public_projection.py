@@ -9,73 +9,49 @@ import os
 import re
 import stat
 import subprocess
+import sys
 import tempfile
 from pathlib import Path, PurePosixPath
 
+# Direct invocation and public checkouts must resolve the sibling helper from this tree.
+if str(Path(__file__).resolve().parents[1]) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from scripts.product_completeness import (
+    CompletenessError,
+    require_present,
+    required_paths,
+)
+
+# Compatibility exports preserve existing projection/Registry consumers.
+from scripts.public_source_policy import (  # noqa: F401
+    DIRECTORIES,
+    FILES,
+    MAINTAINER_DOCUMENTS,
+    PRIVATE_FILES,
+    PRIVATE_PARTS,
+    PUBLICATION_FILES,
+    allowed,
+)
+
+__all__ = [
+    "DIRECTORIES",
+    "FILES",
+    "MAINTAINER_DOCUMENTS",
+    "PRIVATE_FILES",
+    "PRIVATE_PARTS",
+    "PUBLICATION_FILES",
+    "allowed",
+    "ProjectionError",
+    "entries",
+    "exact_commit",
+    "git",
+    "project",
+    "snapshot",
+]
+
 ROOT = Path(__file__).resolve().parents[1]
 FULL_SHA = re.compile(r"[0-9a-f]{40}")
-PUBLICATION_FILES = frozenset(
-    {
-        ".github/workflows/publish.yml",
-        "scripts/registry_publish_guard.py",
-        "scripts/registry_payload.py",
-        "scripts/validate_comfy_registry_metadata.py",
-        "scripts/public_projection.py",
-    }
-)
-FILES = frozenset(
-    {
-        ".comfyignore",
-        ".gitignore",
-        "LICENSE",
-        "MANIFEST.in",
-        "NOTICE",
-        "README.md",
-        "RELEASE_NOTES.md",
-        "__init__.py",
-        "pyproject.toml",
-    }
-)
-DIRECTORIES = (
-    "assets/",
-    "comfyui_h3_context/",
-    "docs/",
-    "examples/",
-    "frontend/",
-    "requirements/",
-    "subgraphs/",
-    "workflows/",
-)
-PRIVATE_PARTS = frozenset(
-    {
-        ".git",
-        ".planning",
-        "reference",
-        ".reference",
-        ".sessions",
-        "governance",
-        ".github",
-        "tests",
-        "__tests__",
-        "scripts",
-        "e2e",
-        "red-tests",
-        "node_modules",
-        "__pycache__",
-        ".venv",
-        ".tmp",
-        ".cache",
-    }
-)
-PRIVATE_FILES = frozenset(
-    {
-        "agents.md",
-        "roadmap.md",
-        ".secrets.baseline",
-        ".pre-commit-config.yaml",
-        "vite.e2e.config.ts",
-    }
-)
 
 
 class ProjectionError(ValueError):
@@ -106,29 +82,6 @@ def exact_commit(root: Path, value: str) -> str:
     return value
 
 
-def allowed(path: str) -> bool:
-    parts = PurePosixPath(path).parts
-    if (
-        not parts
-        or path.startswith("/")
-        or "\\" in path
-        or ":" in path
-        or ".." in parts
-        or any(ord(character) < 32 or ord(character) == 127 for character in path)
-    ):
-        return False
-    lowered = tuple(part.casefold() for part in parts)
-    # CRITICAL: the public default branch must carry the workflow and its exact dependencies.
-    # Keep this exception file-specific; allowing either directory leaks unrelated tooling.
-    if path in PUBLICATION_FILES:
-        return True
-    if any(part in PRIVATE_PARTS or part.startswith(".venv-") for part in lowered):
-        return False
-    if lowered[-1] in PRIVATE_FILES or lowered[-1].startswith(("playwright.", "vitest.")):
-        return False
-    return path in FILES or path.startswith(DIRECTORIES)
-
-
 def entries(root: Path, revision: str) -> dict[str, tuple[str, str, str]]:
     result: dict[str, tuple[str, str, str]] = {}
     for row in git(root, "ls-tree", "-r", "-z", "--full-tree", revision).decode().split("\0"):
@@ -141,6 +94,28 @@ def entries(root: Path, revision: str) -> dict[str, tuple[str, str, str]]:
 
 def snapshot(root: Path) -> tuple[bytes, bytes]:
     return git(root, "rev-parse", "HEAD"), git(root, "ls-files", "-s", "-z")
+
+
+def _blobs(root: Path, bindings: dict[str, tuple[str, str, str]]) -> dict[str, bytes]:
+    """Batch exact blobs: one Git process, without checkout or path interpretation."""
+    oids = sorted({value[2] for value in bindings.values()})
+    if not oids:
+        return {}
+    raw = git(root, "cat-file", "--batch", data=("\n".join(oids) + "\n").encode())
+    values: dict[str, bytes] = {}
+    cursor = 0
+    for expected in oids:
+        boundary = raw.index(b"\n", cursor)
+        oid, kind, size = raw[cursor:boundary].split()
+        if oid.decode() != expected or kind != b"blob":
+            raise ProjectionError("source blob batch identity does not match")
+        cursor = boundary + 1
+        length = int(size)
+        values[expected] = raw[cursor : cursor + length]
+        cursor += length + 1
+    if cursor != len(raw):
+        raise ProjectionError("source blob batch is malformed")
+    return {path: values[value[2]] for path, value in bindings.items()}
 
 
 def project(
@@ -162,6 +137,23 @@ def project(
     if any(not allowed(path) for path in parent_entries):
         raise ProjectionError("public predecessor contains an excluded path")
     selected = {path: entry for path, entry in source_entries.items() if allowed(path)}
+    source_payloads = _blobs(
+        root,
+        {
+            path: value
+            for path, value in source_entries.items()
+            if path.endswith(".py") or path in {"pyproject.toml", ".github/workflows/publish.yml"}
+        },
+    )
+    try:
+        required = required_paths(
+            source_entries,
+            source_payloads.__getitem__,
+            publication=True,
+        )
+        require_present(required, selected, phase="public projection")
+    except CompletenessError as exc:
+        raise ProjectionError(str(exc)) from exc
     if not selected or any(
         mode not in {"100644", "100755"} or kind != "blob" for mode, kind, _ in selected.values()
     ):
@@ -240,6 +232,7 @@ def project(
     parents = git(root, "rev-list", "--parents", "-n", "1", commit).decode().split()[1:]
     if parents != [parent]:
         raise ProjectionError("projection predecessor does not match")
+    selected_payloads = _blobs(root, selected)
     receipt: dict[str, object] = {
         "schema": "h3-context-public-projection/1",
         "status": "PASS",
@@ -252,7 +245,7 @@ def project(
             path: {
                 "mode": mode,
                 "blob": oid,
-                "sha256": hashlib.sha256(git(root, "cat-file", "blob", oid)).hexdigest(),
+                "sha256": hashlib.sha256(selected_payloads[path]).hexdigest(),
             }
             for path, (mode, _, oid) in sorted(selected.items())
         },

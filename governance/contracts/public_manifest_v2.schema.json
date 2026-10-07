@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://comfyui-h3-context.invalid/schemas/public-manifest-v2.json",
+  "title": "H3 Context compact public manifest",
+  "description": "The declared public surface only. Bindings, reachability, object-info and the fixture node inventory are absent by design: each is a pure function of these members, and `project_public_manifest_v1` recomputes them to produce the byte-identical v1 aggregate. A v1 document is not a v2 document -- the schema constants and $ids differ, and each reader refuses the other's schema value before reading any field.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "contracts",
+    "capabilities",
+    "runtime_nodes",
+    "workflow_fixtures",
+    "host_core_node_types",
+    "fingerprint"
+  ],
+  "properties": {
+    "schema": { "const": "h3.context.public.manifest.v2" },
+    "contracts": {
+      "description": "The one canonical identity record for a public node. Everything derived comes from here.",
+      "type": "object"
+    },
+    "capabilities": {
+      "description": "Reviewed maturity, milestone and evidence level. Not derivable from the contracts, so it is declared.",
+      "type": "object"
+    },
+    "runtime_nodes": {
+      "description": "The two object-info fields the registered class decides rather than the contract. Ordered to match the contract registry.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["node_id", "function", "output_node"],
+        "properties": {
+          "node_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "function": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "output_node": { "type": "boolean" }
+        }
+      }
+    },
+    "workflow_fixtures": {
+      "description": "Fixture identity without a node list. A fixture's node inventory is a property of the file, extracted from it at verification time rather than restated here.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["fixture_id", "path", "kind", "task_modes", "schema"],
+        "properties": {
+          "fixture_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "path": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "kind": { "enum": ["workflow", "subgraph"] },
+          "task_modes": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "schema": { "type": "string", "minLength": 1, "maxLength": 128 }
+        }
+      }
+    },
+    "host_core_node_types": {
+      "description": "Node types a packaged fixture may contain that this repository does not own. Closed: a fixture node type in neither this set nor the contract registry is unknown, and unknown fails.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+      }
+    },
+    "fingerprint": {
+      "description": "Release-integrity domain, matching the accepted M18-02 assignment for the v1 aggregate. It is not a semantic identity and no runtime consumes it as one.",
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  }
+}

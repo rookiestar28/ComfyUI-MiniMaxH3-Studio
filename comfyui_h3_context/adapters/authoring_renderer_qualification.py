@@ -26,7 +26,7 @@ from .authoring_render_service import RenderExecutionIdentity, RenderServiceErro
 
 # Exact executed corpus evidence; item acceptance still requires the native gate and review.
 _ACCEPTED_EVIDENCE: Final[str | None] = (
-    "sha256:9d3d9f482dd5bd90794e0b621c45c13059428a2b37903e4af253823e570863c6"
+    "sha256:ad225dec772b348e4a2235a9bcabcd54e7cc0f350161c785c4563f7f66f1ada5"
 )
 _PACKAGE = Path(__file__).resolve().parents[1]
 _EVIDENCE = _PACKAGE / "contracts" / "authoring_renderer_qualification_v1.json"
@@ -57,6 +57,9 @@ _IMPLEMENTATION_PATHS: Final = (
     # CRITICAL: generated-source currentness and borrower lifetime affect actual render reads;
     # omitting this origin would keep qualification valid after its authority checks change.
     "adapters/authoring_generated_source.py",
+    # CRITICAL: retained facts, currentness and borrower lifetime govern actual render reads;
+    # leaving this authority unbound would admit changed sources under the old qualification.
+    "adapters/retained_asset_use.py",
     "adapters/authoring_video_facts.py",
     "adapters/authoring_image_source.py",
     "adapters/authoring_fonts.py",

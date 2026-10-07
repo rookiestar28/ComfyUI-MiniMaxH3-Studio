@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>H3 Context sidebar width ownership harness</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+      /* The host's PrimeVue splitter: flex panels sized by an inline flex-basis. */
+      .p-splitter {
+        display: flex;
+        width: 100%;
+        height: 100%;
+      }
+      .p-splitterpanel {
+        flex: 0 0 auto;
+        overflow: hidden;
+      }
+      .p-splitter-gutter {
+        flex: 0 0 4px;
+      }
+      .h3-harness-canvas-panel {
+        flex: 1 1 0;
+        min-width: 0;
+      }
+      /* ComfyUI marks the sidebar content wrapper `size-full`. */
+      .size-full {
+        width: 100%;
+        height: 100%;
+      }
+      .graph-canvas-panel {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/sidebarWidth.ts"></script>
+  </body>
+</html>

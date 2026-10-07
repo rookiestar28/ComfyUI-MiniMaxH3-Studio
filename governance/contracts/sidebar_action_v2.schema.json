@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rookiestar28.github.io/ComfyUI-MinimaxH3-Context/contracts/sidebar_action_v2.schema.json",
+  "title": "H3 Context Sidebar Action V2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "workspace_id", "expected_revision", "expected_report_fingerprint", "action", "payload"],
+  "properties": {
+    "schema": {"const": "h3.context.sidebar.action.v2"},
+    "workspace_id": {"type": "string", "pattern": "^ws_[A-Za-z0-9_-]{32,128}$"},
+    "expected_revision": {"type": "integer", "minimum": 0, "maximum": 1000000},
+    "expected_report_fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "action": {
+      "enum": [
+        "stage_prompt", "import_prompt", "validate", "export",
+        "proposal_read", "proposal_resolve", "proposal_accept", "proposal_reject", "proposal_cancel",
+        "optimize_prompt", "edit_assisted_proposal", "accept_assisted_proposal",
+        "reject_assisted_proposal", "cancel_assisted_execution"
+      ]
+    },
+    "payload": {"type": "object"}
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "action": {"const": "stage_prompt"},
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["reason", "prompt_text"],
+          "properties": {
+            "reason": {"type": "string", "maxLength": 1024},
+            "prompt_text": {"type": "string", "maxLength": 65536}
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "action": {"const": "import_prompt"},
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["transfer_json"],
+          "properties": {"transfer_json": {"type": "string", "maxLength": 70000}}
+        }
+      }
+    },
+    {
+      "properties": {
+        "action": {"enum": ["validate", "export", "optimize_prompt", "cancel_assisted_execution"]},
+        "payload": {"type": "object", "additionalProperties": false, "maxProperties": 0}
+      }
+    },
+    {
+      "properties": {
+        "action": {"enum": ["proposal_read", "proposal_accept", "proposal_reject", "proposal_cancel"]},
+        "payload": {"$ref": "#/$defs/semanticProposalPayload"}
+      }
+    },
+    {
+      "properties": {
+        "action": {"const": "proposal_resolve"},
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["review_id", "expected_transaction_fingerprint", "expected_workspace_fingerprint", "resolutions"],
+          "properties": {
+            "review_id": {"$ref": "#/$defs/reviewId"},
+            "expected_transaction_fingerprint": {"$ref": "#/$defs/fingerprint"},
+            "expected_workspace_fingerprint": {"$ref": "#/$defs/fingerprint"},
+            "resolutions": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 32,
+              "items": {"type": "string", "minLength": 1, "maxLength": 4096}
+            }
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "action": {"const": "edit_assisted_proposal"},
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["proposal_id", "expected_proposal_revision", "prompt_text"],
+          "properties": {
+            "proposal_id": {"$ref": "#/$defs/proposalId"},
+            "expected_proposal_revision": {"$ref": "#/$defs/proposalRevision"},
+            "prompt_text": {"type": "string", "minLength": 1, "maxLength": 65536}
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "action": {"enum": ["accept_assisted_proposal", "reject_assisted_proposal"]},
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["proposal_id", "expected_proposal_revision"],
+          "properties": {
+            "proposal_id": {"$ref": "#/$defs/proposalId"},
+            "expected_proposal_revision": {"$ref": "#/$defs/proposalRevision"}
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "reviewId": {"type": "string", "pattern": "^review_[A-Za-z0-9_-]{32,96}$"},
+    "proposalId": {"type": "string", "pattern": "^assist_[A-Za-z0-9_-]{32,96}$"},
+    "proposalRevision": {"type": "integer", "minimum": 1, "maximum": 1000000},
+    "semanticProposalPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["review_id", "expected_transaction_fingerprint", "expected_workspace_fingerprint"],
+      "properties": {
+        "review_id": {"$ref": "#/$defs/reviewId"},
+        "expected_transaction_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "expected_workspace_fingerprint": {"$ref": "#/$defs/fingerprint"}
+      }
+    }
+  }
+}

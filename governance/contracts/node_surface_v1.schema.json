@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/node_surface_v1.schema.json",
+  "title": "ComfyUI H3 context node surface",
+  "description": "Everything a ComfyUI host can observe about this package's registered nodes, recorded so that a large adapter move can be proven not to change it. A host reads NODE_CLASS_MAPPINGS, calls INPUT_TYPES() on each class, and reads a set of class attributes; that set, and not the module a class lives in, is the compatibility contract. What counts as observable is taken from the host's own node-info route rather than from intuition: it ships input_order built from INPUT_TYPES() key order, and reads INPUT_IS_LIST, OUTPUT_IS_LIST, OUTPUT_TOOLTIPS, DEPRECATED, EXPERIMENTAL, DEV_ONLY, API_NODE, SEARCH_ALIASES and ESSENTIALS_CATEGORY. Take this record before a move and after it: byte-equality is the proof. A record that differs means the move was wrong, never that the record should be updated.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "nodes", "mapping_order", "exported_names", "fingerprint"],
+  "properties": {
+    "schema": { "const": "h3-context-node-surface/1" },
+    "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "nodes": {
+      "description": "One record per registered node, sorted by node_id so a diff is readable.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/node" }
+    },
+    "mapping_order": {
+      "description": "The order NODE_CLASS_MAPPINGS declares, which is the order a host receives. Kept separately from the sorted records because both matter and they are not the same thing.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/node_id" }
+    },
+    "exported_names": {
+      "description": "Sorted contents of nodes.__all__. A name that leaves this list breaks an importer that a decomposition promised not to break.",
+      "type": "array",
+      "maxItems": 256,
+      "items": { "$ref": "#/$defs/symbol" }
+    }
+  },
+  "$defs": {
+    "symbol": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "node_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^comfyui_h3_context\\.[A-Za-z][A-Za-z0-9_.:-]*$"
+    },
+    "float_value": {
+      "description": "A float option, recorded as its shortest round-tripping decimal. canonical_bytes refuses a raw float; repr is the shortest string that round-trips to the identical double, so this is the exact value rather than a rendering of it. The float key keeps it from being mistaken for an option that genuinely holds that string.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["float"],
+      "properties": {
+        "float": { "type": "string", "minLength": 1, "maxLength": 64 }
+      }
+    },
+    "option_value": {
+      "oneOf": [
+        { "type": "string", "maxLength": 512 },
+        { "type": "integer" },
+        { "type": "boolean" },
+        { "$ref": "#/$defs/float_value" },
+        {
+          "type": "array",
+          "maxItems": 64,
+          "items": { "$ref": "#/$defs/option_value" }
+        }
+      ]
+    },
+    "socket": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "section", "socket_type"],
+      "properties": {
+        "name": { "$ref": "#/$defs/symbol" },
+        "section": { "enum": ["required", "optional", "hidden"] },
+        "socket_type": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "options": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/option_value" }
+        },
+        "choices": {
+          "description": "Declaration order, not sorted: a reordered dropdown is a visible change.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": { "type": "string", "minLength": 1, "maxLength": 512 }
+        }
+      }
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "node_id",
+        "display_name",
+        "class_name",
+        "category",
+        "function",
+        "return_types",
+        "return_names",
+        "sockets",
+        "input_order",
+        "input_is_list",
+        "output_is_list"
+      ],
+      "properties": {
+        "node_id": { "$ref": "#/$defs/node_id" },
+        "display_name": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "class_name": { "$ref": "#/$defs/symbol" },
+        "category": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "function": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "return_types": {
+          "type": "array",
+          "maxItems": 32,
+          "items": { "type": "string", "minLength": 1, "maxLength": 200 }
+        },
+        "return_names": {
+          "type": "array",
+          "maxItems": 32,
+          "items": { "type": "string", "minLength": 1, "maxLength": 200 }
+        },
+        "sockets": {
+          "description": "Sorted by section and name so a diff is readable. The contract that ordering carries lives in input_order, not here.",
+          "type": "array",
+          "maxItems": 64,
+          "items": { "$ref": "#/$defs/socket" }
+        },
+        "input_order": {
+          "description": "Per section, the order INPUT_TYPES() declared its keys in. The host ships this verbatim and the frontend reconciles a saved workflow's positional widget values against it, so a reordering breaks old workflows.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "maxItems": 64,
+            "items": { "$ref": "#/$defs/symbol" }
+          }
+        },
+        "input_is_list": {
+          "description": "INPUT_IS_LIST. Changes the host's calling convention: every input arrives as a list.",
+          "type": "boolean"
+        },
+        "output_is_list": {
+          "type": "array",
+          "maxItems": 32,
+          "items": { "type": "boolean" }
+        },
+        "output_tooltips": {
+          "type": "array",
+          "maxItems": 32,
+          "items": { "type": "string", "minLength": 1, "maxLength": 512 }
+        },
+        "search_aliases": {
+          "type": "array",
+          "maxItems": 32,
+          "items": { "type": "string", "minLength": 1, "maxLength": 200 }
+        },
+        "essentials_category": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "api_node": { "type": "boolean" },
+        "deprecated": { "const": true },
+        "experimental": { "const": true },
+        "dev_only": { "const": true },
+        "has_intermediate_output": { "const": true },
+        "validates_inputs": {
+          "description": "VALIDATE_INPUTS exists. Never appears in node-info, but the host calls it when present.",
+          "const": true
+        },
+        "declares_is_changed": { "const": true },
+        "output_node": { "type": "boolean" },
+        "description": { "type": "string", "minLength": 1, "maxLength": 512 }
+      }
+    }
+  }
+}

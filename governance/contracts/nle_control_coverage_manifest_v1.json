@@ -1,0 +1,1353 @@
+{
+  "schema": "h3.context.nle_control_coverage_manifest.v2",
+  "version": 2,
+  "operation_profile_id": "h3.authoring.nle_operation.v1",
+  "surface": "overlay_v1",
+  "authority_classes": [
+    "canonical_edit",
+    "canonical_derived_effect",
+    "local_transport",
+    "output_action",
+    "read_only_observation",
+    "deferred_unavailable"
+  ],
+  "command_rows": [
+    {
+      "operation_id": "track.add",
+      "control_selector": "[data-h3-nle-control=\"track.add\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "menuitem",
+      "accessible_name": "Add track",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "create_track",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "transaction/revision/fingerprint + new track ID/order",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "empty layer appears at exact order; no media/audio change",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical track controls add, reorder, disable, lock and remove the accepted track",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix track.add keyboard activation issues one create_track the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix track.add stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical track controls add, reorder, disable, lock and remove the accepted track"
+      }
+    },
+    {
+      "operation_id": "track.remove",
+      "control_selector": "[data-h3-nle-control=\"track.remove\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "menuitem",
+      "accessible_name": "Remove track",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "remove_track",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "affected track + new fingerprint",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "empty layer disappears; non-empty rejection leaves scene unchanged",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical track controls add, reorder, disable, lock and remove the accepted track",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix track.remove keyboard activation issues one remove_track the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix track.remove stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical track controls add, reorder, disable, lock and remove the accepted track"
+      }
+    },
+    {
+      "operation_id": "track.reorder",
+      "control_selector": "[data-h3-nle-control=\"track.reorder\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "menuitem",
+      "accessible_name": "Reorder track",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "reorder_track",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "canonical track order",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "visual layer order changes exactly; derived audio unchanged",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical track controls add, reorder, disable, lock and remove the accepted track",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix track.reorder keyboard activation issues one reorder_track the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix track.reorder stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical track controls add, reorder, disable, lock and remove the accepted track"
+      }
+    },
+    {
+      "operation_id": "track.enabled",
+      "control_selector": "[data-h3-nle-control=\"track.enabled\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Show {track}",
+      "state_attributes": [
+        "disabled",
+        "aria-pressed"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "set_track_enabled",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "track state + fingerprint",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "visual layers appear/disappear; primary-video audio follows the accepted primary state",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical track controls add, reorder, disable, lock and remove the accepted track",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix track.enabled keyboard activation issues one set_track_enabled the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix track.enabled stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical track controls add, reorder, disable, lock and remove the accepted track"
+      }
+    },
+    {
+      "operation_id": "track.locked",
+      "control_selector": "[data-h3-nle-control=\"track.locked\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Lock {track}",
+      "state_attributes": [
+        "disabled",
+        "aria-pressed"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "set_track_locked",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "track state + fingerprint",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "edit guards change; rendered scene and embedded audio remain unchanged",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical track controls add, reorder, disable, lock and remove the accepted track",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix track.locked keyboard activation issues one set_track_locked the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix track.locked stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical track controls add, reorder, disable, lock and remove the accepted track"
+      }
+    },
+    {
+      "operation_id": "asset.insert",
+      "control_selector": "[data-h3-nle-control=\"asset.insert\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Add {asset} to the timeline",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "insert_asset_clip",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "new clip/asset/track geometry",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "new visual layer and, on primary VIDEO, matching derived audio span",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleCommandMatrix.spec.ts::matrix asset.insert stale revision is refused by the core and recovers only by an explicit fresh command",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix asset.insert keyboard activation issues one insert_asset_clip the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix asset.insert stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical asset insertion adds one clip without replacing existing clips"
+      }
+    },
+    {
+      "operation_id": "title.insert",
+      "control_selector": "[data-h3-nle-control=\"title.insert\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Add title",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "insert_title_clip",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "new text clip/style",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "exact text layer appears; embedded audio unchanged",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleCommandMatrix.spec.ts::matrix title.insert stale revision is refused by the core and recovers only by an explicit fresh command",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix title.insert keyboard activation issues one insert_title_clip the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix title.insert stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical asset insertion adds one clip without replacing existing clips"
+      }
+    },
+    {
+      "operation_id": "asset.replace",
+      "control_selector": "[data-h3-nle-control=\"asset.replace\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "menuitem",
+      "accessible_name": "Replace clip asset",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "replace_clip_asset",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "retained geometry + new source/currentness",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "source visual and primary embedded-audio span replace atomically",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical asset.replace changes only accepted clip geometry",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix asset.replace keyboard activation issues one replace_clip_asset the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix asset.replace stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical asset.replace changes only accepted clip geometry"
+      }
+    },
+    {
+      "operation_id": "clip.remove",
+      "control_selector": "[data-h3-nle-control=\"clip.remove\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Delete",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "remove_clip",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "removed ID + fingerprint",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "layer disappears; primary audio becomes next owner or silence",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical split and merge restore media geometry before explicit removal",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.remove keyboard activation issues one remove_clip the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.remove stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical split and merge restore media geometry before explicit removal"
+      }
+    },
+    {
+      "operation_id": "clip.move",
+      "control_selector": "[data-h3-nle-control=\"clip.move\"]",
+      "gesture": "clip_drag",
+      "alternate_selectors": [
+        "[data-h3-nle-alternative=\"move.open\"]"
+      ],
+      "role": "button",
+      "accessible_name": "Move clip",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "move_clip",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "exact new track/start",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "layer and any primary embedded audio move together",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::direct clip pointer drag batches selection and one accepted move transaction",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.move keyboard activation issues one move_clip the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.move stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::direct clip pointer drag batches selection and one accepted move transaction"
+      }
+    },
+    {
+      "operation_id": "clip.move_group",
+      "control_selector": "[data-h3-nle-control=\"clip.move_group\"]",
+      "gesture": "clip_drag",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Move selected group",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "move_group",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "all affected IDs/new geometry",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "all layers move atomically or none; derived primary spans match",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::click-only group move admits 32 members atomically",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.move_group keyboard activation issues one move_group the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.move_group stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::click-only group move admits 32 members atomically"
+      }
+    },
+    {
+      "operation_id": "clip.trim",
+      "control_selector": "[data-h3-nle-control=\"clip.trim\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Trim start of {clip} / Trim end of {clip}",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "trim_clip",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "exact source/timeline range; one transaction per committed edge drag",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "NLE-EDGE-TRIM-V1 start/end cases; boundary frame, transition and primary sample mapping follow accepted state",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::pointer draft issues zero intents until release, then exactly one trim",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.trim keyboard activation issues one trim_clip the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "nleWorkspaceTrim.test.tsx::M25-16 edge trim gesture at the workspace seam > keeps a lost response uncertain and reconciles it read-only without replaying",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical selection, trim and undo update the accepted geometry once"
+      }
+    },
+    {
+      "operation_id": "clip.split",
+      "control_selector": "[data-h3-nle-control=\"clip.split\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Split at playhead",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "split_clip",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "two IDs/ranges",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "two exact visual/source ranges and contiguous derived audio mapping",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical split and merge restore media geometry before explicit removal",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.split keyboard activation issues one split_clip the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.split stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical split and merge restore media geometry before explicit removal"
+      }
+    },
+    {
+      "operation_id": "clip.merge",
+      "control_selector": "[data-h3-nle-control=\"clip.merge\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "menuitem",
+      "accessible_name": "Merge clips",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "merge_clips",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "merged ID/range",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "one exact layer/range; primary audio continuity preserved",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical split and merge restore media geometry before explicit removal",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.merge keyboard activation issues one merge_clips the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.merge stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical split and merge restore media geometry before explicit removal"
+      }
+    },
+    {
+      "operation_id": "range.insert",
+      "control_selector": "[data-h3-nle-control=\"range.insert\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "menuitem",
+      "accessible_name": "Insert at playhead",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "insert_range",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "shifted IDs/ranges",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "declared scope shifts; primary audio mapping shifts identically",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical range insert preserves canonical placement and undo",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix range.insert keyboard activation issues one insert_range the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix range.insert stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical range insert preserves canonical placement and undo"
+      }
+    },
+    {
+      "operation_id": "range.overwrite",
+      "control_selector": "[data-h3-nle-control=\"range.overwrite\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "menuitem",
+      "accessible_name": "Overwrite at playhead",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "overwrite_range",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "removed/shortened/inserted IDs",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "exact overwrite scene and matching owner/silence boundaries",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical range overwrite preserves canonical placement and undo",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix range.overwrite keyboard activation issues one overwrite_range the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix range.overwrite stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical range overwrite preserves canonical placement and undo"
+      }
+    },
+    {
+      "operation_id": "range.ripple_delete",
+      "control_selector": "[data-h3-nle-control=\"range.ripple_delete\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Ripple delete",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "ripple_delete",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "deleted/trimmed/shifted IDs",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "declared scene closes gap; primary sample landmarks follow",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical selected-clip ripple delete shifts only the selected track and undoes exactly",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix range.ripple_delete keyboard activation issues one ripple_delete the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix range.ripple_delete stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical selected-clip ripple delete shifts only the selected track and undoes exactly"
+      }
+    },
+    {
+      "operation_id": "range.ripple_trim",
+      "control_selector": "[data-h3-nle-control=\"range.ripple_trim\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Trim start to playhead",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "ripple_trim",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "trimmed/shifted IDs",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "exact boundary/shift plus matching primary audio mapping",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical ripple trim shifts later clips only on its scoped track",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix range.ripple_trim keyboard activation issues one ripple_trim the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix range.ripple_trim stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical ripple trim shifts later clips only on its scoped track"
+      }
+    },
+    {
+      "operation_id": "boundary.roll",
+      "control_selector": "[data-h3-nle-control=\"boundary.roll\"]",
+      "gesture": "cut_drag",
+      "alternate_selectors": [
+        "[data-h3-nle-alternative=\"roll.open\"]"
+      ],
+      "role": "button",
+      "accessible_name": "Roll edit",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "roll_edit",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "two adjacent ranges",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "shared visual/audio cut moves; total extent stays fixed",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical slide and roll preserve total extent of three adjacent clips",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix boundary.roll keyboard activation issues one roll_edit the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix boundary.roll stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical slide and roll preserve total extent of three adjacent clips"
+      }
+    },
+    {
+      "operation_id": "clip.slip",
+      "control_selector": "[data-h3-nle-control=\"clip.slip\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "menuitem",
+      "accessible_name": "Slip clip",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "slip_clip",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "new source range, same placement",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "source frame and primary sample origin change; placement fixed",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical clip.slip changes only accepted clip geometry",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.slip keyboard activation issues one slip_clip the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.slip stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical clip.slip changes only accepted clip geometry"
+      }
+    },
+    {
+      "operation_id": "clip.slide",
+      "control_selector": "[data-h3-nle-control=\"clip.slide\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "menuitem",
+      "accessible_name": "Slide clip",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "slide_clip",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "clip/neighbour ranges",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "outer extent fixed; visual and primary audio boundaries agree",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical slide and roll preserve total extent of three adjacent clips",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.slide keyboard activation issues one slide_clip the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.slide stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical slide and roll preserve total extent of three adjacent clips"
+      }
+    },
+    {
+      "operation_id": "clip.enabled",
+      "control_selector": "[data-h3-nle-control=\"clip.enabled\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "menuitem",
+      "accessible_name": "Clip enabled",
+      "state_attributes": [
+        "disabled",
+        "aria-pressed"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "set_clip_enabled",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "clip state + fingerprint",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "layer and its possible primary soundtrack enable/disable together",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical clip.enabled adopts accepted attributes and undo/redo",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.enabled keyboard activation issues one set_clip_enabled the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix clip.enabled stale revision is refused by the core and recovers only by an explicit rebase",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical clip.enabled adopts accepted attributes and undo/redo"
+      }
+    },
+    {
+      "operation_id": "visual.transform",
+      "control_selector": "[data-h3-nle-control=\"visual.transform\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Transform",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "set_visual_transform",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "complete accepted transform",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "position/scale/rotation observation; audio mapping invariant",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical visual.transform adopts accepted attributes and undo/redo",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix visual.transform keyboard activation issues one set_visual_transform the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix visual.transform stale revision is refused by the core and recovers only by an explicit rebase",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical visual.transform adopts accepted attributes and undo/redo"
+      }
+    },
+    {
+      "operation_id": "visual.crop",
+      "control_selector": "[data-h3-nle-control=\"visual.crop\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Crop",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "set_crop",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "complete accepted crop",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "crop landmark changes; audio mapping invariant",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical visual.crop adopts accepted attributes and undo/redo",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix visual.crop keyboard activation issues one set_crop the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix visual.crop stale revision is refused by the core and recovers only by an explicit rebase",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical visual.crop adopts accepted attributes and undo/redo"
+      }
+    },
+    {
+      "operation_id": "visual.opacity_blend",
+      "control_selector": "[data-h3-nle-control=\"visual.opacity_blend\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Opacity and blend",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "set_opacity_blend",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "complete opacity/blend",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "composited pixel landmark changes; audio mapping invariant",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical visual.opacity_blend adopts accepted attributes and undo/redo",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix visual.opacity_blend keyboard activation issues one set_opacity_blend the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix visual.opacity_blend stale revision is refused by the core and recovers only by an explicit rebase",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical visual.opacity_blend adopts accepted attributes and undo/redo"
+      }
+    },
+    {
+      "operation_id": "text.content",
+      "control_selector": "[data-h3-nle-control=\"text.content\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Text content",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "set_text_content",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "exact accepted text",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "exact text observation; audio mapping invariant",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical title content and style preserve the exact user text",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix text.content keyboard activation issues one set_text_content the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix text.content stale revision is refused by the core and recovers only by an explicit rebase",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical title content and style preserve the exact user text"
+      }
+    },
+    {
+      "operation_id": "text.style",
+      "control_selector": "[data-h3-nle-control=\"text.style\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Text style",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "set_text_style",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "exact style/font identity",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "style/font/color landmark changes; audio mapping invariant",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical title content and style preserve the exact user text",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix text.style keyboard activation issues one set_text_style the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix text.style stale revision is refused by the core and recovers only by an explicit rebase",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical title content and style preserve the exact user text"
+      }
+    },
+    {
+      "operation_id": "boundary.transition",
+      "control_selector": "[data-h3-nle-control=\"boundary.transition\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Transition",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "set_transition",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "exact boundary/type/duration",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "cross-dissolve landmarks or exact cut; audio remains hard-cut policy",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical transition uses the admitted lower composition layer",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix boundary.transition keyboard activation issues one set_transition the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix boundary.transition stale revision is refused by the core and recovers only by an explicit rebase",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical transition uses the admitted lower composition layer"
+      }
+    },
+    {
+      "operation_id": "visual.effect",
+      "control_selector": "[data-h3-nle-control=\"visual.effect\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Effect",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "set_effect",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "exact effect/parameters",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "color landmark changes; audio mapping invariant",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical visual.effect adopts accepted attributes and undo/redo",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix visual.effect keyboard activation issues one set_effect the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix visual.effect stale revision is refused by the core and recovers only by an explicit rebase",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical visual.effect adopts accepted attributes and undo/redo"
+      }
+    },
+    {
+      "operation_id": "audio.clip",
+      "control_selector": "[data-h3-nle-control=\"audio.clip\"]",
+      "gesture": "activate",
+      "alternate_selectors": [
+        "[data-h3-nle-control=\"audio.clip.gain\"]",
+        "[data-h3-nle-control=\"audio.clip.mute\"]",
+        "[data-h3-nle-control=\"audio.clip.fade_in\"]",
+        "[data-h3-nle-control=\"audio.clip.fade_out\"]",
+        "[data-h3-nle-control=\"audio.clip.reset\"]"
+      ],
+      "role": "button",
+      "accessible_name": "Clip audio",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "set_clip_audio",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "exact gain/mute/fade-in/fade-out",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "final audio level windows change; picture landmarks invariant",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical audio.clip adopts accepted attributes and undo/redo",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix audio.clip keyboard activation issues one set_clip_audio the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix audio.clip stale revision is refused by the core and recovers only by an explicit rebase",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical audio.clip adopts accepted attributes and undo/redo"
+      }
+    },
+    {
+      "operation_id": "selection.set",
+      "control_selector": "[data-h3-nle-control=\"selection.set\"]",
+      "gesture": "activate",
+      "alternate_selectors": [
+        "[data-h3-nle-alternative=\"selection.additive\"]",
+        "[data-h3-nle-alternative=\"selection.range\"]",
+        "[data-h3-nle-alternative=\"selection.clear\"]",
+        "[data-h3-nle-alternative=\"selection.all\"]"
+      ],
+      "role": "button",
+      "accessible_name": "{clip label}",
+      "state_attributes": [
+        "disabled",
+        "aria-pressed"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "select_clips",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "accepted selection",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "selection/focus overlay changes; scene/audio fingerprint invariant",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::click-only additive, range, all and clear selection preserve exact accepted IDs",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix selection.set keyboard activation issues one select_clips the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix selection.set stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::background marquee commits one exact selection transaction"
+      }
+    },
+    {
+      "operation_id": "history.undo",
+      "control_selector": "[data-h3-nle-control=\"history.undo\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Undo",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "undo",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "inverse receipt/new revision/fingerprint",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "exact prior scene and derived audio mapping restored as a new revision",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical clip.enabled adopts accepted attributes and undo/redo",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix history.undo keyboard activation issues one undo the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix history.undo stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical clip.enabled adopts accepted attributes and undo/redo"
+      }
+    },
+    {
+      "operation_id": "history.redo",
+      "control_selector": "[data-h3-nle-control=\"history.redo\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Redo",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "redo",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "replay receipt/new revision/fingerprint",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "exact redone scene and derived audio mapping observed",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical clip.enabled adopts accepted attributes and undo/redo",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix history.redo keyboard activation issues one redo the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix history.redo stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical clip.enabled adopts accepted attributes and undo/redo"
+      }
+    },
+    {
+      "operation_id": "conflict.rebase",
+      "control_selector": "[data-h3-nle-control=\"conflict.rebase\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Rebase rejected edit",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "canonical_edit",
+      "command": "rebase_transaction",
+      "route": "/h3-context/v1/authoring action=apply_timeline_transaction",
+      "receipt_fields": "rebased receipt or typed conflict",
+      "accepted_projection_selector": "[data-h3-nle-status=\"timeline\"][data-h3-nle-authoring=\"ready\"]",
+      "observation": "accepted current scene only; conflict produces no preview/audio change",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::canonical attribute conflict requires explicit rebase and preserves concurrent edits",
+        "keyboard": "e2e/journeys/nleCommandMatrix.spec.ts::matrix conflict.rebase keyboard activation issues one rebase_transaction the core accepts",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "e2e/journeys/nleCommandMatrix.spec.ts::matrix conflict.rebase stale revision is refused by the core and recovers only by an explicit fresh command",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::canonical attribute conflict requires explicit rebase and preserves concurrent edits"
+      }
+    }
+  ],
+  "non_command_rows": [
+    {
+      "operation_id": "transport.play",
+      "control_selector": "[data-h3-nle-control=\"transport.play\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Play",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "local_transport",
+      "command": null,
+      "route": null,
+      "receipt_fields": "none; no M25-11 command, revision or history",
+      "accepted_projection_selector": null,
+      "observation": "M25-45: one play/pause control named for the action it performs; present while the monitor is not playing; bounded current-epoch frame/sample or view change only",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > owns one canvas, opens once and delegates every transport control to the session",
+        "keyboard": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > owns one canvas, opens once and delegates every transport control to the session",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "e2e/journeys/nleWorkspace.spec.ts::virtualized composition decodes real media and releases every owner on close",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::virtualized composition decodes real media and releases every owner on close"
+      }
+    },
+    {
+      "operation_id": "transport.pause",
+      "control_selector": "[data-h3-nle-control=\"transport.pause\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Pause",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "local_transport",
+      "command": null,
+      "route": null,
+      "receipt_fields": "none; no M25-11 command, revision or history",
+      "accepted_projection_selector": null,
+      "observation": "M25-45: the same one control while the monitor is playing; exactly one of the pair is ever in the DOM; bounded current-epoch frame/sample or view change only",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > owns one canvas, opens once and delegates every transport control to the session",
+        "keyboard": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > owns one canvas, opens once and delegates every transport control to the session",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "e2e/journeys/nleWorkspace.spec.ts::virtualized composition decodes real media and releases every owner on close",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::virtualized composition decodes real media and releases every owner on close"
+      }
+    },
+    {
+      "operation_id": "transport.step_back",
+      "control_selector": "[data-h3-nle-control=\"transport.step_back\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Previous frame",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "local_transport",
+      "command": null,
+      "route": null,
+      "receipt_fields": "none; no M25-11 command, revision or history",
+      "accepted_projection_selector": null,
+      "observation": "bounded current-epoch frame/sample or view change only",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > owns one canvas, opens once and delegates every transport control to the session",
+        "keyboard": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > owns one canvas, opens once and delegates every transport control to the session",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "e2e/journeys/nleWorkspace.spec.ts::virtualized composition decodes real media and releases every owner on close",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::virtualized composition decodes real media and releases every owner on close"
+      }
+    },
+    {
+      "operation_id": "transport.step_forward",
+      "control_selector": "[data-h3-nle-control=\"transport.step_forward\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Next frame",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "local_transport",
+      "command": null,
+      "route": null,
+      "receipt_fields": "none; no M25-11 command, revision or history",
+      "accepted_projection_selector": null,
+      "observation": "bounded current-epoch frame/sample or view change only",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > owns one canvas, opens once and delegates every transport control to the session",
+        "keyboard": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > owns one canvas, opens once and delegates every transport control to the session",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "e2e/journeys/nleWorkspace.spec.ts::virtualized composition decodes real media and releases every owner on close",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::virtualized composition decodes real media and releases every owner on close"
+      }
+    },
+    {
+      "operation_id": "transport.seek",
+      "control_selector": "[data-h3-nle-control=\"transport.seek\"]",
+      "gesture": "playhead_drag",
+      "alternate_selectors": [],
+      "role": "slider",
+      "accessible_name": "Playhead",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "local_transport",
+      "command": null,
+      "route": null,
+      "receipt_fields": "none; no M25-11 command, revision or history",
+      "accepted_projection_selector": null,
+      "observation": "timeline ruler drives the owner-bound monitor seek path; bounded current-epoch frame/sample change only",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::ruler, zoom, pan and snap stay local while the ruler drives the monitor",
+        "keyboard": "e2e/journeys/nleWorkspace.spec.ts::ruler, zoom, pan and snap stay local while the ruler drives the monitor",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > discards queued play after a newer replacement effect",
+        "effect": "e2e/journeys/nlePresentationReadiness.spec.ts::the delivered receipt names the frame and the composition that was actually painted"
+      }
+    },
+    {
+      "operation_id": "transport.recover",
+      "control_selector": "[data-h3-nle-control=\"transport.recover\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Recover monitor",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "local_transport",
+      "command": null,
+      "route": null,
+      "receipt_fields": "none; no M25-11 command, revision or history",
+      "accepted_projection_selector": null,
+      "observation": "M25-45: offered inside the picture only in the recoverable state, never as a permanently disabled control; bounded current-epoch frame/sample or view change only",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > owns one canvas, opens once and delegates every transport control to the session",
+        "keyboard": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > owns one canvas, opens once and delegates every transport control to the session",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > owns one canvas, opens once and delegates every transport control to the session",
+        "effect": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > owns one canvas, opens once and delegates every transport control to the session"
+      }
+    },
+    {
+      "operation_id": "transport.view",
+      "control_selector": "[data-h3-nle-control=\"transport.view\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Fit picture / Actual size",
+      "state_attributes": [
+        "aria-pressed"
+      ],
+      "authority_class": "local_transport",
+      "command": null,
+      "route": null,
+      "receipt_fields": "none; no M25-11 command, revision or history",
+      "accepted_projection_selector": null,
+      "observation": "M25-45: the picture is fitted or shown at one composition pixel per CSS pixel; the composition, its output and the backing-store rule are unchanged",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "e2e/journeys/nleMonitorPicture.spec.ts::fit and 100% change only the view, and issue no composition transaction",
+        "keyboard": "e2e/journeys/nleMonitorPicture.spec.ts::the monitor owns Space and the frame-step keys without disturbing the host",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "e2e/journeys/nleMonitorPicture.spec.ts::fit and 100% change only the view, and issue no composition transaction",
+        "effect": "e2e/journeys/nleMonitorPicture.spec.ts::fit and 100% change only the view, and issue no composition transaction"
+      }
+    },
+    {
+      "operation_id": "transport.fullscreen",
+      "control_selector": "[data-h3-nle-control=\"transport.fullscreen\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Full screen / Leave full screen",
+      "state_attributes": [
+        "aria-pressed"
+      ],
+      "authority_class": "local_transport",
+      "command": null,
+      "route": null,
+      "receipt_fields": "none; no M25-11 command, revision or history",
+      "accepted_projection_selector": null,
+      "observation": "M25-45: the owned monitor element fills the screen, or the request is refused with a bounded announcement; playback, the composition and the workspace are unchanged either way",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "e2e/journeys/nleMonitorPicture.spec.ts::full screen either takes the monitor or refuses boundedly, and Escape leaves it first",
+        "keyboard": "e2e/journeys/nleMonitorPicture.spec.ts::the monitor owns Space and the frame-step keys without disturbing the host",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "e2e/journeys/nleMonitorPicture.spec.ts::full screen either takes the monitor or refuses boundedly, and Escape leaves it first",
+        "effect": "e2e/journeys/nleMonitorPicture.spec.ts::full screen either takes the monitor or refuses boundedly, and Escape leaves it first"
+      }
+    },
+    {
+      "operation_id": "transport.zoom_in",
+      "control_selector": "[data-h3-nle-control=\"transport.zoom_in\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Zoom in",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "local_transport",
+      "command": null,
+      "route": null,
+      "receipt_fields": "none; no M25-11 command, revision or history",
+      "accepted_projection_selector": null,
+      "observation": "bounded current-epoch frame/sample or view change only",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::ruler, zoom, pan and snap stay local while the ruler drives the monitor",
+        "keyboard": "e2e/journeys/nleWorkspace.spec.ts::ruler, zoom, pan and snap stay local while the ruler drives the monitor",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "e2e/journeys/nleWorkspace.spec.ts::virtualized composition decodes real media and releases every owner on close",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::smoke and narrow timeline fit use the continuous formula and stop zoom-out at the bound"
+      }
+    },
+    {
+      "operation_id": "transport.zoom_out",
+      "control_selector": "[data-h3-nle-control=\"transport.zoom_out\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Zoom out",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "local_transport",
+      "command": null,
+      "route": null,
+      "receipt_fields": "none; no M25-11 command, revision or history",
+      "accepted_projection_selector": null,
+      "observation": "bounded current-epoch frame/sample or view change only",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::ruler, zoom, pan and snap stay local while the ruler drives the monitor",
+        "keyboard": "e2e/journeys/nleWorkspace.spec.ts::ruler, zoom, pan and snap stay local while the ruler drives the monitor",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "e2e/journeys/nleWorkspace.spec.ts::virtualized composition decodes real media and releases every owner on close",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::smoke and narrow timeline fit use the continuous formula and stop zoom-out at the bound"
+      }
+    },
+    {
+      "operation_id": "transport.zoom_continuous",
+      "control_selector": "[data-h3-nle-control=\"transport.zoom_continuous\"]",
+      "gesture": "slider",
+      "alternate_selectors": [],
+      "role": "slider",
+      "accessible_name": "Timeline zoom",
+      "state_attributes": ["disabled"],
+      "authority_class": "local_transport",
+      "command": null,
+      "route": null,
+      "receipt_fields": "none; local continuous view state only",
+      "accepted_projection_selector": null,
+      "observation": "continuous pixels-per-frame changes without a timeline transaction",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::ruler, zoom, pan and snap stay local while the ruler drives the monitor",
+        "keyboard": "e2e/journeys/nleWorkspace.spec.ts::ruler, zoom, pan and snap stay local while the ruler drives the monitor",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "sidebarRetention.test.ts::M25-21 Sidebar retention store > restores a slot only for the exact scope it was written under",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::smoke and narrow timeline fit use the continuous formula and stop zoom-out at the bound"
+      }
+    },
+    {
+      "operation_id": "transport.zoom_fit",
+      "control_selector": "[data-h3-nle-control=\"transport.zoom_fit\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Fit timeline",
+      "state_attributes": ["disabled"],
+      "authority_class": "local_transport",
+      "command": null,
+      "route": null,
+      "receipt_fields": "none; local continuous view state only",
+      "accepted_projection_selector": null,
+      "observation": "fits the accepted duration to the usable lane without a transaction",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::smoke and narrow timeline fit use the continuous formula and stop zoom-out at the bound",
+        "keyboard": "e2e/journeys/nleWorkspace.spec.ts::virtualized fit retains all 128 selected IDs and promotes the logical end target",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "sidebarRetention.test.ts::M25-21 Sidebar retention store > restores a slot only for the exact scope it was written under",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::virtualized fit retains all 128 selected IDs and promotes the logical end target"
+      }
+    },
+    {
+      "operation_id": "transport.zoom_selection",
+      "control_selector": "[data-h3-nle-control=\"transport.zoom_selection\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Zoom to selection",
+      "state_attributes": ["disabled"],
+      "authority_class": "local_transport",
+      "command": null,
+      "route": null,
+      "receipt_fields": "none; local continuous view state only",
+      "accepted_projection_selector": null,
+      "observation": "centres the full accepted selection at the bounded 60 percent target",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::coarse pointer > short clip click-only navigation and selection zoom keep reachable 44px trim rails",
+        "keyboard": "e2e/journeys/nleWorkspace.spec.ts::coarse pointer > short clip click-only navigation and selection zoom keep reachable 44px trim rails",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "sidebarRetention.test.ts::M25-21 Sidebar retention store > restores a slot only for the exact scope it was written under",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::coarse pointer > short clip click-only navigation and selection zoom keep reachable 44px trim rails"
+      }
+    },
+    {
+      "operation_id": "transport.snap",
+      "control_selector": "[data-h3-nle-control=\"transport.snap\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Snap",
+      "state_attributes": ["aria-pressed"],
+      "authority_class": "local_transport",
+      "command": null,
+      "route": null,
+      "receipt_fields": "none; local advisory state only",
+      "accepted_projection_selector": null,
+      "observation": "toggles deterministic snap proposals without a transaction",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "e2e/journeys/nleWorkspace.spec.ts::ruler, zoom, pan and snap stay local while the ruler drives the monitor",
+        "keyboard": "nleTimelineGesture.test.ts::NLE timeline gesture reducer > ranks snap candidates by distance, kind, frame and edge with a bounded result",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "sidebarRetention.test.ts::M25-21 Sidebar retention store > restores a slot only for the exact scope it was written under",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::ruler, zoom, pan and snap stay local while the ruler drives the monitor"
+      }
+    },
+    {
+      "operation_id": "transport.scroll",
+      "control_selector": "[data-h3-nle-control=\"transport.scroll\"]",
+      "gesture": "slider",
+      "alternate_selectors": [],
+      "role": "slider",
+      "accessible_name": "Timeline view start",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "local_transport",
+      "command": null,
+      "route": null,
+      "receipt_fields": "none; no M25-11 command, revision or history",
+      "accepted_projection_selector": null,
+      "observation": "bounded current-epoch frame/sample or view change only",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > owns one canvas, opens once and delegates every transport control to the session",
+        "keyboard": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > owns one canvas, opens once and delegates every transport control to the session",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "e2e/journeys/nleWorkspace.spec.ts::virtualized composition decodes real media and releases every owner on close",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::virtualized composition decodes real media and releases every owner on close"
+      }
+    },
+    {
+      "operation_id": "audio.embedded_primary_follow",
+      "control_selector": "[data-h3-nle-status=\"audio\"]",
+      "gesture": null,
+      "alternate_selectors": [],
+      "role": "status",
+      "accessible_name": "Embedded audio",
+      "state_attributes": [
+        "data-h3-nle-audio-state",
+        "data-h3-nle-audio-reason"
+      ],
+      "authority_class": "canonical_derived_effect",
+      "command": null,
+      "route": null,
+      "receipt_fields": "driven by the corresponding accepted primary-VIDEO receipt",
+      "accepted_projection_selector": "[data-h3-nle-status=\"audio\"]",
+      "observation": "read-only owner/status plus synchronized sample landmark",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > shows the embedded-audio follower state read-only with no audio control",
+        "keyboard": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > shows the embedded-audio follower state read-only with no audio control",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "embeddedAudioFollower.test.ts::embedded audio follows the accepted VIDEO transport > suspends actual media on document hiding and removes lifecycle listeners on close",
+        "effect": "e2e/journeys/nleWorkspace.spec.ts::virtualized composition decodes real media and releases every owner on close"
+      }
+    },
+    {
+      "operation_id": "output.render",
+      "control_selector": "[data-h3-nle-render]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "region",
+      "accessible_name": "Render",
+      "state_attributes": [
+        "data-h3-nle-render"
+      ],
+      "authority_class": "output_action",
+      "command": null,
+      "route": "/h3-context/v1/authoring/output-capability; /h3-context/v1/authoring/render",
+      "receipt_fields": "accepted/current M25-19 route and receipt only",
+      "accepted_projection_selector": "[data-h3-nle-render=\"available\"]",
+      "observation": "job/status/final output; absent capability creates zero calls",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "nleWorkspaceLifecycle.test.tsx::M25-16 NLE workspace session lifecycle > opens with a fresh generation, default bounds and the assets pane, then expands on mount",
+        "keyboard": "nleWorkspaceLifecycle.test.tsx::M25-16 NLE workspace session lifecycle > opens with a fresh generation, default bounds and the assets pane, then expands on mount",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::virtualized integrated shell discrete decoded edit stays within four NLE commits and handler budget",
+        "recovery": "nleWorkspaceLifecycle.test.tsx::M25-16 NLE workspace session lifecycle > does not adopt a capability read that lands after the overlay closed",
+        "effect": "authoringOutputLifecycle.test.tsx::output leaf polling and explicit action ordering > lets explicit render supersede a pending background read without cancelling the old job"
+      }
+    },
+    {
+      "operation_id": "audio.deferred",
+      "control_selector": null,
+      "gesture": null,
+      "alternate_selectors": [],
+      "role": null,
+      "accessible_name": null,
+      "state_attributes": [],
+      "authority_class": "deferred_unavailable",
+      "command": null,
+      "route": null,
+      "receipt_fields": "no control, shortcut, context menu, hidden focus target, local-only exception, command, route or receipt",
+      "accepted_projection_selector": null,
+      "observation": "zero resource; forged reserved audio input returns audio_editing_deferred",
+      "render_affecting": false,
+      "evidence": {
+        "pointer": "nleWorkspaceManifest.test.tsx::M25-16 control coverage manifest > renders every non-command observation without a UA media control or audio control",
+        "keyboard": "nleWorkspaceManifest.test.tsx::M25-16 control coverage manifest > renders every non-command observation without a UA media control or audio control",
+        "stress": "e2e/journeys/nleShellBudget.spec.ts::continuous-preview integrated shell five-minute decoded playback keeps the Sidebar at zero commits per tick and within heap and render budgets",
+        "recovery": "nleWorkspaceManifest.test.tsx::M25-16 control coverage manifest > renders every non-command observation without a UA media control or audio control",
+        "effect": "nleWorkspaceMonitor.test.tsx::M25-16 composition monitor > shows the embedded-audio follower state read-only with no audio control"
+      }
+    },
+    {
+      "operation_id": "asset.import_production",
+      "control_selector": "[data-h3-nle-control=\"asset.import_production\"]",
+      "gesture": "activate",
+      "alternate_selectors": [],
+      "role": "button",
+      "accessible_name": "Import selected to editor",
+      "state_attributes": [
+        "disabled"
+      ],
+      "authority_class": "output_action",
+      "command": "import_production_outputs_to_authoring",
+      "route": "/h3-context/v1/production/authoring-import",
+      "receipt_fields": "h3.context.production_authoring_import.receipt.v1 rows (segment_id, output_handle, asset_id, disposition) + authoring projection",
+      "accepted_projection_selector": "[data-h3-nle-import=\"succeeded\"]",
+      "observation": "imported asset highlighted in the asset bin; timeline revision unchanged by import; a second import of the same output is idempotent (already_imported)",
+      "render_affecting": true,
+      "evidence": {
+        "pointer": "e2e/journeys/nleProductionImport.spec.ts::AC11 causal import journeys > pointer activation creates the first Authoring target, imports once, refreshes the catalog and highlights the row",
+        "keyboard": "e2e/journeys/nleProductionImport.spec.ts::AC11 causal import journeys > keyboard activation reuses the existing Authoring target and a second import of the same output is idempotent without touching the timeline",
+        "stress": "nleWorkspaceImport.test.ts::M25-16 explicit Production import > refuses an ineligible or aggregate selection without sending",
+        "recovery": "nleWorkspaceImport.test.ts::M25-16 explicit Production import > keeps a lost response uncertain and retries the exact same request on explicit retry",
+        "effect": "e2e/journeys/nleProductionImport.spec.ts::AC11 causal import journeys > Undo/Redo traverse the pre-import edit and the insertion while the imported library row persists"
+      }
+    }
+  ]
+}

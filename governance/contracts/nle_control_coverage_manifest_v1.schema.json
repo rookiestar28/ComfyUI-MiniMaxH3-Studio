@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/nle_control_coverage_manifest_v1.schema.json",
+  "title": "ComfyUI H3 context NLE control coverage manifest",
+  "description": "M25-16: the one-to-one map from every executable control of the expanded browser NLE workspace to its exact M25-11 command, accepted receipt/projection and preview/status observation, plus the typed non-command rows (local transport, derived embedded-audio effect, output action, deferred audio, Production import). Consumed by executable control-coverage checks; a canonical edit control with no exact command, or a supported command with no executable control row, fails acceptance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "operation_profile_id",
+    "surface",
+    "authority_classes",
+    "command_rows",
+    "non_command_rows"
+  ],
+  "properties": {
+    "schema": { "const": "h3.context.nle_control_coverage_manifest.v2" },
+    "version": { "const": 2 },
+    "operation_profile_id": { "const": "h3.authoring.nle_operation.v1" },
+    "surface": { "const": "overlay_v1" },
+    "authority_classes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/authorityClass" }
+    },
+    "command_rows": {
+      "type": "array",
+      "minItems": 34,
+      "maxItems": 34,
+      "items": { "$ref": "#/$defs/commandRow" }
+    },
+    "non_command_rows": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/nonCommandRow" }
+    }
+  },
+  "$defs": {
+    "authorityClass": {
+      "enum": [
+        "canonical_edit",
+        "canonical_derived_effect",
+        "local_transport",
+        "output_action",
+        "read_only_observation",
+        "deferred_unavailable"
+      ]
+    },
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)*$"
+    },
+    "gesture": {
+      "description": "Schema v2 (M25-44): the primary gesture that issues the row's effect through `control_selector`. `activate` is a click, tap, Enter or Space on a control; `slider` adjusts a range; the drag gestures are the direct-manipulation rows of the reference NLE rebuild. Null only for a row with no control (a read-only observation or a deferred surface).",
+      "enum": [
+        "activate",
+        "slider",
+        "clip_drag",
+        "edge_drag",
+        "cut_drag",
+        "marquee_select",
+        "bin_drag",
+        "playhead_drag",
+        "wheel_zoom",
+        "monitor_handle_drag",
+        null
+      ]
+    },
+    "alternateSelectors": {
+      "description": "Schema v2 (M25-44): further owned controls that issue exactly the same effect as the canonical `control_selector` (a keyboard or click-only alternative to a drag, a menu item, a toolbar button). Never another row's canonical selector.",
+      "type": "array",
+      "uniqueItems": true,
+      "maxItems": 8,
+      "items": { "type": "string", "minLength": 3, "maxLength": 256 }
+    },
+    "evidence": {
+      "type": "object",
+      "description": "Each value combines the test file relative to frontend/tests, ::, and the fully expanded collected test title (describe ancestors separated by ' > '). The current runner must collect that concrete case without skip. Template placeholders are not evidence IDs. `effect` cites the case observing the row's visible effect or explicit invariant.",
+      "additionalProperties": false,
+      "required": ["pointer", "keyboard", "stress", "recovery", "effect"],
+      "properties": {
+        "pointer": { "type": "string", "minLength": 1 },
+        "keyboard": { "type": "string", "minLength": 1 },
+        "stress": { "type": "string", "minLength": 1 },
+        "recovery": { "type": "string", "minLength": 1 },
+        "effect": { "type": "string", "minLength": 1 }
+      }
+    },
+    "rowBase": {
+      "type": "object",
+      "required": [
+        "operation_id",
+        "control_selector",
+        "gesture",
+        "alternate_selectors",
+        "role",
+        "accessible_name",
+        "state_attributes",
+        "authority_class",
+        "command",
+        "route",
+        "receipt_fields",
+        "accepted_projection_selector",
+        "observation",
+        "render_affecting",
+        "evidence"
+      ],
+      "properties": {
+        "operation_id": { "$ref": "#/$defs/identifier" },
+        "control_selector": { "type": ["string", "null"], "minLength": 1 },
+        "gesture": { "$ref": "#/$defs/gesture" },
+        "alternate_selectors": { "$ref": "#/$defs/alternateSelectors" },
+        "role": { "type": ["string", "null"], "minLength": 1 },
+        "accessible_name": { "type": ["string", "null"], "minLength": 1 },
+        "state_attributes": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "authority_class": { "$ref": "#/$defs/authorityClass" },
+        "command": { "type": ["string", "null"], "minLength": 1 },
+        "route": { "type": ["string", "null"], "minLength": 1 },
+        "receipt_fields": { "type": "string", "minLength": 1 },
+        "accepted_projection_selector": { "type": ["string", "null"], "minLength": 1 },
+        "observation": { "type": "string", "minLength": 1 },
+        "render_affecting": { "type": "boolean" },
+        "evidence": { "$ref": "#/$defs/evidence" }
+      }
+    },
+    "commandRow": {
+      "allOf": [
+        { "$ref": "#/$defs/rowBase" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "operation_id": true,
+            "control_selector": { "type": "string", "pattern": "^\\[data-h3-nle-control=\"[a-z][a-z0-9_.]*\"\\]$" },
+            "gesture": { "type": "string" },
+            "alternate_selectors": true,
+            "role": { "enum": ["button", "menuitem"] },
+            "accessible_name": { "type": "string" },
+            "state_attributes": true,
+            "authority_class": { "const": "canonical_edit" },
+            "command": {
+              "enum": [
+                "create_track",
+                "remove_track",
+                "reorder_track",
+                "set_track_enabled",
+                "set_track_locked",
+                "insert_asset_clip",
+                "insert_title_clip",
+                "replace_clip_asset",
+                "remove_clip",
+                "move_clip",
+                "move_group",
+                "trim_clip",
+                "split_clip",
+                "merge_clips",
+                "insert_range",
+                "overwrite_range",
+                "ripple_delete",
+                "ripple_trim",
+                "roll_edit",
+                "slip_clip",
+                "slide_clip",
+                "set_clip_enabled",
+                "set_visual_transform",
+                "set_crop",
+                "set_opacity_blend",
+                "set_text_content",
+                "set_text_style",
+                "set_transition",
+                "set_effect",
+                "set_clip_audio",
+                "select_clips",
+                "undo",
+                "redo",
+                "rebase_transaction"
+              ]
+            },
+            "route": { "type": "string" },
+            "receipt_fields": true,
+            "accepted_projection_selector": { "type": "string" },
+            "observation": true,
+            "render_affecting": true,
+            "evidence": true
+          }
+        }
+      ]
+    },
+    "nonCommandRow": {
+      "allOf": [
+        { "$ref": "#/$defs/rowBase" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "operation_id": true,
+            "control_selector": true,
+            "gesture": true,
+            "alternate_selectors": true,
+            "role": true,
+            "accessible_name": true,
+            "state_attributes": true,
+            "authority_class": {
+              "enum": [
+                "canonical_derived_effect",
+                "local_transport",
+                "output_action",
+                "read_only_observation",
+                "deferred_unavailable"
+              ]
+            },
+            "command": true,
+            "route": true,
+            "receipt_fields": true,
+            "accepted_projection_selector": true,
+            "observation": true,
+            "render_affecting": true,
+            "evidence": true
+          }
+        }
+      ]
+    }
+  }
+}

@@ -140,7 +140,7 @@ async function decodeError(
   }
 }
 
-async function readExactByob(
+export async function readExactByob(
   response: Response,
   length: number,
 ): Promise<Uint8Array> {

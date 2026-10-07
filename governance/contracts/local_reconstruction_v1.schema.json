@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://comfyui-h3-context.local/contracts/local_reconstruction_v1.schema.json",
+  "title": "H3 Local Reconstruction Result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "route", "disposition", "stage_fingerprints", "prompt_fingerprint",
+    "report_fingerprint", "wiring_fingerprint", "limitations", "route_dispositions",
+    "run_fingerprint"
+  ],
+  "properties": {
+    "schema": {"const": "h3-local-reconstruction/1"},
+    "route": {"const": "deterministic_manual"},
+    "disposition": {"const": "complete"},
+    "stage_fingerprints": {
+      "type": "array",
+      "minItems": 21,
+      "maxItems": 21,
+      "prefixItems": [
+        {"$ref": "#/$defs/request"}, {"$ref": "#/$defs/reference_registry"},
+        {"$ref": "#/$defs/media_admission"}, {"$ref": "#/$defs/hard_constraints"},
+        {"$ref": "#/$defs/hard_constraints_report"}, {"$ref": "#/$defs/intent_graph"},
+        {"$ref": "#/$defs/intent_report"}, {"$ref": "#/$defs/evidence_graph"},
+        {"$ref": "#/$defs/evidence_report"}, {"$ref": "#/$defs/cross_reference_graph"},
+        {"$ref": "#/$defs/cross_reference_report"}, {"$ref": "#/$defs/directive_authority"},
+        {"$ref": "#/$defs/directive_report"},
+        {"$ref": "#/$defs/feasible_timeline"},
+        {"$ref": "#/$defs/hierarchical_reduction"},
+        {"$ref": "#/$defs/semantic_planning"},
+        {"$ref": "#/$defs/plan"}, {"$ref": "#/$defs/source_profiled_prompt"},
+        {"$ref": "#/$defs/validation"}, {"$ref": "#/$defs/context_report"},
+        {"$ref": "#/$defs/native_h3_wiring"}
+      ],
+      "items": false
+    },
+    "prompt_fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "report_fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "wiring_fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "limitations": {
+      "type": "array", "maxItems": 16, "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1, "maxLength": 256}
+    },
+    "route_dispositions": {
+      "const": [
+        {"route": "deterministic_manual", "disposition": "complete"},
+        {"route": "full_reference_perception", "disposition": "not_qualified"},
+        {"route": "comfyui_native", "disposition": "not_qualified"},
+        {"route": "ollama", "disposition": "not_qualified"},
+        {"route": "specialist", "disposition": "not_qualified"},
+        {"route": "official_oracle", "disposition": "not_authorized"},
+        {"route": "fixed_h3_generation", "disposition": "not_authorized"}
+      ]
+    },
+    "run_fingerprint": {"$ref": "#/$defs/fingerprint"}
+  },
+  "$defs": {
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "stage": {
+      "type": "object", "additionalProperties": false,
+      "required": ["stage", "fingerprint"],
+      "properties": {
+        "stage": {"type": "string"},
+        "fingerprint": {"$ref": "#/$defs/fingerprint"}
+      }
+    },
+    "request": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "request"}}}]},
+    "reference_registry": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "reference_registry"}}}]},
+    "media_admission": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "media_admission"}}}]},
+    "hard_constraints": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "hard_constraints"}}}]},
+    "hard_constraints_report": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "hard_constraints_report"}}}]},
+    "intent_graph": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "intent_graph"}}}]},
+    "intent_report": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "intent_report"}}}]},
+    "evidence_graph": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "evidence_graph"}}}]},
+    "evidence_report": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "evidence_report"}}}]},
+    "cross_reference_graph": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "cross_reference_graph"}}}]},
+    "cross_reference_report": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "cross_reference_report"}}}]},
+    "directive_authority": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "directive_authority"}}}]},
+    "directive_report": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "directive_report"}}}]},
+    "feasible_timeline": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "feasible_timeline"}}}]},
+    "hierarchical_reduction": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "hierarchical_reduction"}}}]},
+    "semantic_planning": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "semantic_planning"}}}]},
+    "plan": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "plan"}}}]},
+    "source_profiled_prompt": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "source_profiled_prompt"}}}]},
+    "validation": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "validation"}}}]},
+    "context_report": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "context_report"}}}]},
+    "native_h3_wiring": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"stage": {"const": "native_h3_wiring"}}}]}
+  }
+}

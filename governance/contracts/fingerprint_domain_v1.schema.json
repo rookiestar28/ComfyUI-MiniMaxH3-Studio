@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/fingerprint_domain_v1.schema.json",
+  "title": "ComfyUI H3 context fingerprint domain assignment",
+  "description": "Deterministic, content-free record assigning every inventoried fingerprint consumer and every declared identity site to exactly one versioned domain. It records; it recomputes no existing fingerprint and migrates no accepted identity.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "assignments", "fingerprint"],
+  "properties": {
+    "schema": { "const": "h3-context-fingerprint-domain-assignment/1" },
+    "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "assignments": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1024,
+      "items": { "$ref": "#/$defs/assignment" }
+    }
+  },
+  "$defs": {
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 260,
+      "pattern": "^[A-Za-z0-9._-](?:[A-Za-z0-9._ -]*[A-Za-z0-9._-])?(?:/[A-Za-z0-9._-](?:[A-Za-z0-9._ -]*[A-Za-z0-9._-])?)*$"
+    },
+    "assignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "consumer_id",
+        "kind",
+        "domain",
+        "domain_version",
+        "authority_paths",
+        "rule",
+        "evidence"
+      ],
+      "properties": {
+        "consumer_id": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "kind": {
+          "description": "An inventoried contract, or a named place in the code whose identity is not a property of any one contract.",
+          "enum": ["contract", "identity_site"]
+        },
+        "domain": {
+          "description": "semantic is the only domain a runtime may consume as an execution, cache or receipt identity.",
+          "enum": [
+            "semantic",
+            "wire_contract",
+            "presentation",
+            "fixture",
+            "release_integrity"
+          ]
+        },
+        "domain_version": { "type": "integer", "minimum": 1, "maximum": 99 },
+        "authority_paths": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/path" }
+        },
+        "rule": {
+          "description": "The named rule that made this assignment. Every assignment is made by a rule with a stated criterion; nothing defaults into a domain.",
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{2,63}$"
+        },
+        "evidence": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "cross_language_partner": {
+          "description": "The counterpart runtime this identity must agree with. Absent records the commoner and more important fact: there is no partner, and the identity must never be compared against one.",
+          "$ref": "#/$defs/path"
+        }
+      }
+    }
+  }
+}

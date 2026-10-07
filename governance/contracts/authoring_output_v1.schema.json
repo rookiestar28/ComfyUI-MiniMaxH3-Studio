@@ -1,0 +1,551 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/authoring_output_v1.schema.json",
+  "$defs": {
+    "create": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "h3.authoring.output_create.v1"
+        },
+        "workspace_handle": {
+          "type": "string",
+          "pattern": "^authoring-[0-9a-f]{32}(?![\\s\\S])",
+          "maxLength": 42
+        },
+        "workspace_revision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "timeline_revision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "snapshot_fingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}(?![\\s\\S])",
+          "maxLength": 71
+        },
+        "output_profile_id": {
+          "const": "h3.authoring.output.h264_aac_24fps.v1"
+        },
+        "idempotency_key": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{15,127}(?![\\s\\S])",
+          "maxLength": 128
+        }
+      },
+      "required": [
+        "schema",
+        "workspace_handle",
+        "workspace_revision",
+        "timeline_revision",
+        "snapshot_fingerprint",
+        "output_profile_id",
+        "idempotency_key"
+      ]
+    },
+    "cancel": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "h3.authoring.output_cancel.v1"
+        },
+        "workspace_handle": {
+          "type": "string",
+          "pattern": "^authoring-[0-9a-f]{32}(?![\\s\\S])",
+          "maxLength": 42
+        }
+      },
+      "required": [
+        "schema",
+        "workspace_handle"
+      ]
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "output_fingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}(?![\\s\\S])",
+          "maxLength": 71
+        },
+        "byte_length": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 536870912
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 1920,
+          "multipleOf": 2
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 1080,
+          "multipleOf": 2
+        },
+        "frame_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        },
+        "frame_rate_num": {
+          "type": "integer",
+          "const": 24
+        },
+        "frame_rate_den": {
+          "type": "integer",
+          "const": 1
+        },
+        "audio_streams": {
+          "type": "integer",
+          "enum": [
+            0,
+            1
+          ]
+        },
+        "output_profile_id": {
+          "const": "h3.authoring.output.h264_aac_24fps.v1"
+        },
+        "verified": {
+          "const": true
+        }
+      },
+      "required": [
+        "output_fingerprint",
+        "byte_length",
+        "width",
+        "height",
+        "frame_count",
+        "frame_rate_num",
+        "frame_rate_den",
+        "audio_streams",
+        "output_profile_id",
+        "verified"
+      ]
+    },
+    "status": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "h3.authoring.output_status.v1"
+        },
+        "workspace_handle": {
+          "type": "string",
+          "pattern": "^authoring-[0-9a-f]{32}(?![\\s\\S])",
+          "maxLength": 42
+        },
+        "workspace_revision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "timeline_revision": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "snapshot_fingerprint": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}(?![\\s\\S])",
+          "maxLength": 71
+        },
+        "job_handle": {
+          "type": "string",
+          "pattern": "^arj_[A-Za-z0-9_-]{22}(?![\\s\\S])",
+          "maxLength": 26
+        },
+        "output_handle": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^aro_[A-Za-z0-9_-]{22}(?![\\s\\S])",
+              "maxLength": 26
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state_version": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "phase": {
+          "enum": [
+            "queued",
+            "probing",
+            "preparing",
+            "rendering",
+            "encoding",
+            "muxing",
+            "validating",
+            "succeeded",
+            "failed",
+            "cancelled"
+          ]
+        },
+        "progress_bp": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "failure": {
+          "enum": [
+            null,
+            "cancelled",
+            "workspace_released",
+            "source_replaced",
+            "source_expired",
+            "source_unavailable",
+            "font_changed",
+            "deadline",
+            "resource_limit",
+            "process_failed",
+            "output_invalid",
+            "receipt_invalid",
+            "store_unavailable",
+            "service_closed",
+            "runtime_unavailable"
+          ]
+        },
+        "currency": {
+          "enum": [
+            "current",
+            "old_revision"
+          ]
+        },
+        "availability": {
+          "enum": [
+            "available",
+            "gone",
+            "expired"
+          ]
+        },
+        "output": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/summary"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "schema",
+        "workspace_handle",
+        "workspace_revision",
+        "timeline_revision",
+        "snapshot_fingerprint",
+        "job_handle",
+        "output_handle",
+        "state_version",
+        "phase",
+        "progress_bp",
+        "failure",
+        "currency",
+        "availability",
+        "output"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "phase": {
+                "const": "succeeded"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "failure": {
+                "type": "null"
+              },
+              "progress_bp": {
+                "const": 10000
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "output_handle": {
+                "type": "null"
+              },
+              "output": {
+                "type": "null"
+              },
+              "availability": {
+                "enum": [
+                  "gone",
+                  "expired"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "phase": {
+                "const": "failed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "failure": {
+                "enum": [
+                  "workspace_released",
+                  "source_replaced",
+                  "source_expired",
+                  "source_unavailable",
+                  "font_changed",
+                  "deadline",
+                  "resource_limit",
+                  "process_failed",
+                  "output_invalid",
+                  "receipt_invalid",
+                  "store_unavailable",
+                  "service_closed",
+                  "runtime_unavailable"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "phase": {
+                "const": "cancelled"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "failure": {
+                "const": "cancelled"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "phase": {
+                "not": {
+                  "enum": [
+                    "failed",
+                    "cancelled",
+                    "succeeded"
+                  ]
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "failure": {
+                "type": "null"
+              },
+              "progress_bp": {
+                "maximum": 9999
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "output_handle": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "output": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "output": {
+                "$ref": "#/$defs/summary"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "availability": {
+                "const": "available"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "const": "succeeded"
+              },
+              "output": {
+                "$ref": "#/$defs/summary"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "h3.authoring.output_capability.v1"
+        },
+        "supported": {
+          "type": "boolean"
+        },
+        "output_profile_id": {
+          "const": "h3.authoring.output.h264_aac_24fps.v1"
+        },
+        "preview_profile_id": {
+          "const": "authoring.final_preview.h264_aac_640x360_24fps.v1"
+        },
+        "job_path": {
+          "const": "/h3-context/v1/authoring/render"
+        },
+        "output_path": {
+          "const": "/h3-context/v1/authoring/output"
+        },
+        "max_output_bytes": {
+          "const": 536870912
+        },
+        "max_preview_bytes": {
+          "const": 16777216
+        },
+        "max_duration_frames": {
+          "const": 3600
+        },
+        "frame_rate_num": {
+          "const": 24
+        },
+        "frame_rate_den": {
+          "const": 1
+        },
+        "job_ttl_seconds": {
+          "const": 3600
+        },
+        "max_jobs": {
+          "const": 32
+        },
+        "max_outputs": {
+          "const": 16
+        },
+        "max_byte_responses": {
+          "const": 1
+        },
+        "max_http_requests": {
+          "const": 4
+        },
+        "max_response_seconds": {
+          "const": 120
+        },
+        "max_write_seconds": {
+          "const": 10
+        },
+        "preview_threads": {
+          "const": 2
+        },
+        "preview_memory_bytes": {
+          "const": 268435456
+        },
+        "preview_seconds": {
+          "const": 60
+        }
+      },
+      "required": [
+        "schema",
+        "supported",
+        "output_profile_id",
+        "preview_profile_id",
+        "job_path",
+        "output_path",
+        "max_output_bytes",
+        "max_preview_bytes",
+        "max_duration_frames",
+        "frame_rate_num",
+        "frame_rate_den",
+        "job_ttl_seconds",
+        "max_jobs",
+        "max_outputs",
+        "max_byte_responses",
+        "max_http_requests",
+        "max_response_seconds",
+        "max_write_seconds",
+        "preview_threads",
+        "preview_memory_bytes",
+        "preview_seconds"
+      ]
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "h3.authoring.output_error.v1"
+        },
+        "code": {
+          "enum": [
+            "invalid_request",
+            "forbidden",
+            "unavailable",
+            "expired",
+            "revision_conflict",
+            "idempotency_conflict",
+            "not_ready",
+            "resource_limit",
+            "runtime_unavailable",
+            "preview_unavailable",
+            "internal_error"
+          ]
+        }
+      },
+      "required": [
+        "schema",
+        "code"
+      ]
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/create"
+    },
+    {
+      "$ref": "#/$defs/cancel"
+    },
+    {
+      "$ref": "#/$defs/status"
+    },
+    {
+      "$ref": "#/$defs/capability"
+    },
+    {
+      "$ref": "#/$defs/error"
+    }
+  ]
+}

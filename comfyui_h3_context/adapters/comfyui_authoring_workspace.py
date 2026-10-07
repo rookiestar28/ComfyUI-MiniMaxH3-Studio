@@ -44,6 +44,7 @@ from ..core.authoring_preview_protocol import AuthoringPreviewRequest
 from ..core.canonical import canonical_fingerprint
 from ..core.composition_contract import PublicCompositionSnapshot
 from ..core.contracts import MediaKind
+from ..core.durable_workspace_state import RecordIdentityMap, StateRecord, decode_record
 from ..core.errors import ContractValidationError
 from ..core.nle_authoring_contract import (
     NLE_AUTHORING_PROFILE_ID,
@@ -579,6 +580,7 @@ class _AuthoringEntry:
     importing: object | None = field(default=None, repr=False)
     production_owner: tuple[str, str] | None = field(default=None, repr=False)
     project_created: bool = field(default=False, repr=False)
+    document_reference_json: str | None = field(default=None, repr=False)
 
 
 @dataclass(frozen=True, slots=True)
@@ -770,6 +772,86 @@ class AuthoringWorkspaceRegistry:
         self._import_ledger: OrderedDict[str, _ImportLedgerEntry] = OrderedDict()
         self._tombstones: OrderedDict[str, _Tombstone] = OrderedDict()
         self._lock = threading.RLock()
+        self._recovery_ids = RecordIdentityMap()
+        self._editor_recovery_changed: Callable[[str, bool, str | None], None] | None = None
+        self._editor_recovery_protected: Callable[[str], bool] | None = None
+
+    def configure_editor_recovery(
+        self,
+        changed: Callable[[str, bool, str | None], None] | None,
+        protected: Callable[[str], bool] | None,
+    ) -> None:
+        with self._lock:
+            self._editor_recovery_changed, self._editor_recovery_protected = changed, protected
+
+    def _editor_recovery_stamp(self, handle: str) -> object:
+        entry = self._entries.get(handle)
+        if entry is None:
+            return None
+        history = entry.timeline_history_v2
+        return (
+            entry.reference.revision,
+            entry.timeline.revision,
+            None
+            if history is None
+            else (
+                history.authoring.authoring_fingerprint,
+                history.selection,
+                tuple(row.cursor for row in history.undo_entries),
+                tuple(row.cursor for row in history.redo_entries),
+            ),
+        )
+
+    def _notify_editor_recovery(self, handle: str) -> None:
+        if self._editor_recovery_changed is not None:
+            entry = self._entries.get(handle)
+            production_handle = (
+                None
+                if entry is None or entry.production_owner is None
+                else entry.production_owner[0]
+            )
+            self._editor_recovery_changed(handle, entry is None, production_handle)
+
+    def recovery_metadata(self) -> tuple[StateRecord, ...]:
+        """A no-prose read: no source probe, timeline materialization, pruning or disk IO."""
+        with self._lock:
+            identities = self._recovery_ids.reconcile(tuple(self._entries))
+            rows = []
+            for handle, entry in self._entries.items():
+                identifier, created = identities[handle]
+                history = entry.timeline_history
+                if entry.timeline_history_v2 is not None:
+                    workspace_revision = entry.timeline_history_v2.authoring.workspace_revision
+                    timeline_revision = entry.timeline_history_v2.authoring.timeline_revision
+                elif history is not None:
+                    workspace_revision = history.snapshot.workspace_revision
+                    timeline_revision = history.snapshot.timeline_revision
+                else:
+                    workspace_revision = entry.reference.revision
+                    timeline_revision = entry.timeline.revision
+                # CRITICAL: edited clips, labels and source handles stay with their owner.
+                # Recovery records only revisions, never history.to_wire() or source probes.
+                rows.append(
+                    decode_record(
+                        {
+                            "record_id": identifier,
+                            "kind": "authoring",
+                            "created_at_ms": created,
+                            "closed_at_ms": None,
+                            "segment_count": 0,
+                            "state": "workspace_active",
+                            "last_transition": None,
+                            "revisions": {
+                                "workspace": workspace_revision,
+                                "reference": entry.reference.revision,
+                                "timeline": timeline_revision,
+                                "context": None,
+                                "transition": 0,
+                            },
+                        }
+                    )
+                )
+            return tuple(rows)
 
     def _record_tombstone(self, handle: str, tombstone: _Tombstone) -> None:
         self._tombstones[handle] = tombstone
@@ -782,9 +864,15 @@ class AuthoringWorkspaceRegistry:
             handle
             for handle, entry in self._entries.items()
             if now - entry.touched_at >= self._ttl_seconds
+            # CRITICAL: signal a dirty save before removal; failures retain the actual owner.
+            and not (
+                self._editor_recovery_protected is not None
+                and self._editor_recovery_protected(handle)
+            )
         ]
         for handle in expired:
             entry = self._entries.pop(handle, None)
+            self._notify_editor_recovery(handle)
             recoverable_empty = False
             if entry is not None and entry.project_created:
                 _universe, _unavailable, initial_reference = _seed_reference_state(
@@ -1606,6 +1694,7 @@ class AuthoringWorkspaceRegistry:
                     # rollback or publish a workspace without its replay receipt.
                     self._entries, self._import_ledger = candidate_entries, candidate_ledger
                     committed = True
+                    self._notify_editor_recovery(request.authoring_workspace_handle)
             if candidate_prepared is not captured_prepared:
                 captured_prepared.discard()
             return response
@@ -1777,7 +1866,10 @@ class AuthoringWorkspaceRegistry:
                 # replay so core eviction cannot be bypassed by an older cached response.
                 if name != "apply_timeline_transaction":
                     return AuthoringDispatchResult(replay.status, replay.body)
+            before = self._editor_recovery_stamp(str(payload.get("workspace_handle", "")))
             status, body, handle = self._dispatch_locked(name, payload, now)
+            if status < 300 and before != self._editor_recovery_stamp(handle):
+                self._notify_editor_recovery(handle)
             # A timeline rejection has no core idempotency receipt and carries the then-current
             # accepted projection. Caching it here would replay stale state after another request
             # advances the workspace, so only accepted timeline mutations enter the outer ledger.
@@ -1860,6 +1952,7 @@ class AuthoringWorkspaceRegistry:
                 history = TimelineHistoryStateV2.initialize(candidate.authoring_state)
                 body = self._history_projection(handle, history)
                 current.timeline_history_v2 = history
+                self._notify_editor_recovery(handle)
                 current.initialized_sources = candidate
                 current.initialization_fingerprint = fingerprint
                 current.initializing = None
@@ -2032,6 +2125,10 @@ class AuthoringWorkspaceRegistry:
             return 201, projection, handle
         handle = str(payload["workspace_handle"])
         if name == "release_workspace":
+            if self._editor_recovery_protected is not None and self._editor_recovery_protected(
+                handle
+            ):
+                raise AuthoringWorkbenchError(409, "dirty_recovery_protected")
             entry_or_none = self._entries.pop(handle, None)
             if entry_or_none is None and handle not in self._tombstones:
                 raise AuthoringWorkbenchError(404, "workspace_unavailable")
@@ -2161,6 +2258,48 @@ class AuthoringWorkspaceRegistry:
             state, _receipt = apply_reference_command(
                 state, ExcludeSoundtrack(expected, str(payload["video_id"]))
             )
+        if entry.document_reference_json is not None:
+            from ..core.project_document import project_bytes
+
+            # IMPORTANT: missing rows retain intent but are not admitted sources. Preserve them
+            # while updating only the explicitly committed Reference command in the file data.
+            portable = json.loads(entry.document_reference_json)
+            rows = portable["sources"]
+            key = str(payload.get("source_id", payload.get("video_id", "")))
+            if name == "remove_source":
+                portable["sources"] = [row for row in rows if row["source_id"] != key]
+                portable["soundtracks"] = [
+                    row
+                    for row in portable["soundtracks"]
+                    if row["video_id"] != key and row["soundtrack_source_id"] != key
+                ]
+            elif name == "add_source" and not any(row["source_id"] == key for row in rows):
+                source = entry.universe[key]
+                rows.append(
+                    {
+                        "source_id": key,
+                        "kind": source.kind.value,
+                        "duration_milliseconds": source.duration_milliseconds,
+                    }
+                )
+            elif name == "reorder_source":
+                row = next(row for row in rows if row["source_id"] == key)
+                same_kind = [
+                    index for index, value in enumerate(rows) if value["kind"] == row["kind"]
+                ]
+                ordered = [rows[index] for index in same_kind]
+                ordered.remove(row)
+                ordered.insert(int(str(payload["new_index"])), row)
+                for index, value in zip(same_kind, ordered, strict=True):
+                    rows[index] = value
+            elif name in {"include_soundtrack", "exclude_soundtrack"}:
+                relation = state.relation_for(key)
+                portable["soundtracks"] = [
+                    row for row in portable["soundtracks"] if row["video_id"] != key
+                ]
+                if relation is not None:
+                    portable["soundtracks"].append(relation.to_wire())
+            entry.document_reference_json = project_bytes(portable).decode()
         entry.reference = state
 
     def _apply_timeline(

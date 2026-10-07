@@ -1,0 +1,326 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/perturbation_evaluation_v1.schema.json",
+  "title": "H3 Context deterministic perturbation evaluation v1",
+  "description": "Closed local one-variable corpus with explicit missing official relation and agreement lanes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "corpus_id",
+    "corpus_version",
+    "source_cluster_count",
+    "case_count",
+    "dimensions",
+    "official_relation_state",
+    "local_official_agreement_state",
+    "sources",
+    "specs",
+    "cases",
+    "corpus_fingerprint"
+  ],
+  "properties": {
+    "schema": {"const": "h3.context.perturbation.evaluation.v1"},
+    "corpus_id": {"$ref": "#/$defs/identifier"},
+    "corpus_version": {"const": "1.0.0"},
+    "source_cluster_count": {"const": 9},
+    "case_count": {"const": 27},
+    "dimensions": {
+      "type": "array",
+      "minItems": 27,
+      "maxItems": 27,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/dimension"}
+    },
+    "official_relation_state": {"const": "MISSING"},
+    "local_official_agreement_state": {"const": "MISSING"},
+    "sources": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "items": {"$ref": "#/$defs/source"}
+    },
+    "specs": {
+      "type": "array",
+      "minItems": 27,
+      "maxItems": 27,
+      "items": {"$ref": "#/$defs/spec"}
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 27,
+      "maxItems": 27,
+      "items": {"$ref": "#/$defs/case"}
+    },
+    "corpus_fingerprint": {
+      "const": "sha256:96cfebbae82b1decab9cfa352f5ddd6151596576b9a094d2890c782a5c998c25"
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "partition": {
+      "enum": ["development", "frozen_test"]
+    },
+    "dimension": {
+      "enum": [
+        "wording",
+        "unicode",
+        "metadata",
+        "asset_order",
+        "asset_role",
+        "modality_duplicate",
+        "modality_removal",
+        "modality_replacement",
+        "temporal_shift",
+        "temporal_reverse",
+        "temporal_splice",
+        "subject_fusion",
+        "directive_copy",
+        "directive_retain",
+        "directive_adapt",
+        "directive_exclude",
+        "ambiguity",
+        "conflict",
+        "duration",
+        "dialogue",
+        "visible_text",
+        "style",
+        "motion",
+        "camera",
+        "video_audio",
+        "distractor",
+        "unsupported_input"
+      ]
+    },
+    "operation": {
+      "enum": [
+        "replace",
+        "remove",
+        "append",
+        "duplicate",
+        "reorder",
+        "numeric_shift",
+        "reverse",
+        "splice"
+      ]
+    },
+    "material_key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,31}$",
+      "not": {
+        "pattern": "(^|_)(api|authorization|bearer|cookie|credential|password|path|secret|signed|token|url)(_|$)"
+      }
+    },
+    "material_string": {
+      "type": "string",
+      "minLength": 1,
+      "allOf": [
+        {
+          "not": {
+            "pattern": "(?:[hH][tT][tT][pP][sS]?://|[fF][iI][lL][eE]://|^[\\\\/]|[A-Za-z]:[\\\\/]|[bB][eE][aA][rR][eE][rR] |[tT][oO][kK][eE][nN]=|[pP][aA][sS][sS][wW][oO][rR][dD]=|[aA][pP][iI]_[kK][eE][yY]=|[\\u0000-\\u001f\\u007f]|[\\ud800-\\udfff])"
+          }
+        },
+        {
+          "anyOf": [
+            {
+              "maxLength": 40,
+              "pattern": "^[\\u0020-\\u0021\\u0023-\\u005b\\u005d-\\u007e]*$"
+            },
+            {"maxLength": 20, "pattern": "^[\\u0020-\\u007e]*$"},
+            {"maxLength": 10, "not": {"pattern": "^[\\u0000-\\u007f]*$"}}
+          ]
+        }
+      ]
+    },
+    "material_scalar": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "boolean"},
+        {
+          "type": "integer",
+          "minimum": -9223372036854775808,
+          "maximum": 9223372036854775807
+        },
+        {"$ref": "#/$defs/material_string"}
+      ]
+    },
+    "material_level_2": {
+      "$ref": "#/$defs/material_scalar"
+    },
+    "material_level_1": {
+      "oneOf": [
+        {"$ref": "#/$defs/material_scalar"},
+        {
+          "type": "array",
+          "maxItems": 4,
+          "items": {"$ref": "#/$defs/material_level_2"}
+        },
+        {
+          "type": "object",
+          "maxProperties": 3,
+          "propertyNames": {"$ref": "#/$defs/material_key"},
+          "additionalProperties": {"$ref": "#/$defs/material_level_2"}
+        }
+      ]
+    },
+    "material": {
+      "oneOf": [
+        {"$ref": "#/$defs/material_scalar"},
+        {
+          "type": "array",
+          "maxItems": 4,
+          "items": {"$ref": "#/$defs/material_level_1"}
+        },
+        {
+          "type": "object",
+          "maxProperties": 3,
+          "propertyNames": {"$ref": "#/$defs/material_key"},
+          "additionalProperties": {"$ref": "#/$defs/material_level_1"}
+        }
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "source_cluster_id",
+        "partition",
+        "material",
+        "source_fingerprint"
+      ],
+      "properties": {
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "source_cluster_id": {"$ref": "#/$defs/identifier"},
+        "partition": {"$ref": "#/$defs/partition"},
+        "material": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 24,
+          "propertyNames": {"$ref": "#/$defs/material_key"},
+          "additionalProperties": {"$ref": "#/$defs/material"}
+        },
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"}
+      }
+    },
+    "expected_relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "kind", "direction", "rationale_code"],
+      "properties": {
+        "state": {"const": "EXPECTED"},
+        "kind": {"enum": ["invariant", "covariant", "monotonic", "unknown"]},
+        "direction": {"type": ["string", "null"], "enum": ["increase", "decrease", null]},
+        "rationale_code": {"$ref": "#/$defs/identifier"}
+      }
+    },
+    "missing_relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "value"],
+      "properties": {
+        "state": {"const": "MISSING"},
+        "value": {"type": "null"}
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "indices", "delta", "delete_count"],
+      "properties": {
+        "value": {"$ref": "#/$defs/material"},
+        "indices": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {"type": "integer", "minimum": 0, "maximum": 63}
+        },
+        "delta": {"type": ["integer", "null"]},
+        "delete_count": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_id",
+        "parent_id",
+        "source_cluster_id",
+        "seed",
+        "dimension",
+        "operation",
+        "target_path",
+        "parameters",
+        "expected_local_relation"
+      ],
+      "properties": {
+        "case_id": {"$ref": "#/$defs/identifier"},
+        "parent_id": {"$ref": "#/$defs/identifier"},
+        "source_cluster_id": {"$ref": "#/$defs/identifier"},
+        "seed": {"type": "integer", "minimum": 0, "maximum": 2147483647},
+        "dimension": {"$ref": "#/$defs/dimension"},
+        "operation": {"$ref": "#/$defs/operation"},
+        "target_path": {"type": "string", "pattern": "^/[a-z][a-z0-9_]{0,63}$"},
+        "parameters": {"$ref": "#/$defs/parameters"},
+        "expected_local_relation": {"$ref": "#/$defs/expected_relation"}
+      }
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_id",
+        "parent_id",
+        "source_cluster_id",
+        "partition",
+        "seed",
+        "dimension",
+        "operation",
+        "target_path",
+        "changed_paths",
+        "source_fingerprint",
+        "variant_fingerprint",
+        "variant_material",
+        "expected_local_relation",
+        "official_relation",
+        "local_official_agreement"
+      ],
+      "properties": {
+        "case_id": {"$ref": "#/$defs/identifier"},
+        "parent_id": {"$ref": "#/$defs/identifier"},
+        "source_cluster_id": {"$ref": "#/$defs/identifier"},
+        "partition": {"$ref": "#/$defs/partition"},
+        "seed": {"type": "integer", "minimum": 0, "maximum": 2147483647},
+        "dimension": {"$ref": "#/$defs/dimension"},
+        "operation": {"$ref": "#/$defs/operation"},
+        "target_path": {"type": "string", "pattern": "^/[a-z][a-z0-9_]{0,63}$"},
+        "changed_paths": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^/[a-z][a-z0-9_]{0,63}$"}
+        },
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "variant_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "variant_material": {
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 24,
+          "propertyNames": {"$ref": "#/$defs/material_key"},
+          "additionalProperties": {"$ref": "#/$defs/material"}
+        },
+        "expected_local_relation": {"$ref": "#/$defs/expected_relation"},
+        "official_relation": {"$ref": "#/$defs/missing_relation"},
+        "local_official_agreement": {"$ref": "#/$defs/missing_relation"}
+      }
+    }
+  }
+}

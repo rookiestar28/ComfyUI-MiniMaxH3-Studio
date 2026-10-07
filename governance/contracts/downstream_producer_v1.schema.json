@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "h3.context.downstream-producer.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "stage", "disposition", "reason_code", "reason",
+    "component_fingerprint", "upstream_fingerprints", "provenance"
+  ],
+  "properties": {
+    "schema": {"const": "h3.context.downstream-producer.v1"},
+    "stage": {
+      "enum": ["hard_constraint", "intent_graph", "evidence_fusion", "cross_reference", "directive_authority", "full_reference_timeline"]
+    },
+    "disposition": {
+      "enum": ["complete", "partial", "unavailable"]
+    },
+    "reason_code": {
+      "enum": ["manual_component_built", "admitted_source_projected", "perception_profile_unavailable", "qualified_timeline_built"]
+    },
+    "reason": {"type": "string", "minLength": 1, "maxLength": 512},
+    "component_fingerprint": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+      ]
+    },
+    "upstream_fingerprints": {
+      "type": "array", "maxItems": 16,
+      "items": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+    },
+    "provenance": {"enum": ["manual_user_authored", "caller_declared_unverified", "qualified_local_observation"]}
+  }
+}

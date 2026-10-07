@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "h3.context.assisted_authoring_compatibility.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "fingerprint",
+    "manual_default",
+    "proposal_review",
+    "host_subject",
+    "public_contract",
+    "locales",
+    "profiles"
+  ],
+  "properties": {
+    "schema": {"const": "h3.context.assisted_authoring_compatibility.v1"},
+    "version": {"const": 1},
+    "fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "manual_default": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile_id", "assisted_authoring", "network_observation", "canonical_owner"],
+      "properties": {
+        "profile_id": {"type": "null"},
+        "network_observation": {"const": "none"},
+        "canonical_owner": {"const": "manual_prompt"},
+        "assisted_authoring": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["available", "selected", "ready", "authorized_for_this_action", "defaulted"],
+          "properties": {
+            "available": {"const": true},
+            "selected": {"const": false},
+            "ready": {"const": false},
+            "authorized_for_this_action": {"const": false},
+            "defaulted": {"const": false}
+          }
+        }
+      }
+    },
+    "proposal_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["proposal_schema", "max_attempts", "canonical_mutations", "non_mutating_outcomes"],
+      "properties": {
+        "proposal_schema": {"const": "h3.context.assisted_prompt_proposal.v1"},
+        "max_attempts": {"const": 2},
+        "canonical_mutations": {"const": ["accept", "validated_edit"]},
+        "non_mutating_outcomes": {"const": ["reject", "cancel", "failure"]}
+      }
+    },
+    "host_subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fixture_schema", "fixture_profile", "comfyui_version", "comfyui_revision", "frontend_version", "seam_count"],
+      "properties": {
+        "fixture_schema": {"const": "h3.context.host_seam_shape_fixture.v1"},
+        "fixture_profile": {"const": "comfyui_host_seams_v1"},
+        "comfyui_version": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^(?![\\s\\S]*[\\r\\n])[0-9]+(?:\\.[0-9]+){1,3}(?:[-+][A-Za-z0-9.-]+)?$"},
+        "comfyui_revision": {"type": "string", "pattern": "^(?![\\s\\S]*[\\r\\n])[0-9a-f]{40}$"},
+        "frontend_version": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^(?![\\s\\S]*[\\r\\n])[0-9]+(?:\\.[0-9]+){1,3}(?:[-+][A-Za-z0-9.-]+)?$"},
+        "seam_count": {"const": 29}
+      }
+    },
+    "public_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["node_count", "node_ids_fingerprint", "workflow_modes", "workflow_surface_fingerprint"],
+      "properties": {
+        "node_count": {"const": 28},
+        "node_ids_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "workflow_surface_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "workflow_modes": {"const": ["t2va", "i2va", "fl2va", "l2va", "ref2va"]}
+      }
+    },
+    "locales": {"const": ["en", "zh-TW", "zh-CN"]},
+    "profiles": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {"$ref": "#/$defs/profile"}
+    }
+  },
+  "$defs": {
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "identifier": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "provider_label",
+        "family",
+        "model_id",
+        "wire_dialect",
+        "qualification_state",
+        "evidence_kind",
+        "evidence_fingerprint",
+        "executable",
+        "local_only",
+        "requires_credential",
+        "requires_consent",
+        "capability_id",
+        "capability_maturity",
+        "installation_profile_id",
+        "limitations",
+        "manual_fallback",
+        "defaulted"
+      ],
+      "properties": {
+        "profile_id": {"$ref": "#/$defs/identifier"},
+        "provider_label": {"type": "string", "minLength": 1, "maxLength": 128},
+        "family": {"enum": ["ollama", "remote_openai_compatible", "remote_anthropic"]},
+        "model_id": {"$ref": "#/$defs/identifier"},
+        "wire_dialect": {"enum": ["ollama_chat", "openai_chat_completions", "anthropic_messages"]},
+        "qualification_state": {"enum": ["qualified", "catalog_only"]},
+        "evidence_kind": {"type": ["string", "null"], "maxLength": 128},
+        "evidence_fingerprint": {"anyOf": [{"$ref": "#/$defs/fingerprint"}, {"type": "null"}]},
+        "executable": {"type": "boolean"},
+        "local_only": {"type": "boolean"},
+        "requires_credential": {"type": "boolean"},
+        "requires_consent": {"type": "boolean"},
+        "capability_id": {"$ref": "#/$defs/identifier"},
+        "capability_maturity": {"enum": ["concrete_executable", "injected_only", "optional_live"]},
+        "installation_profile_id": {"$ref": "#/$defs/identifier"},
+        "limitations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/identifier"}
+        },
+        "manual_fallback": {"const": "canonical"},
+        "defaulted": {"const": false}
+      }
+    }
+  }
+}

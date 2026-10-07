@@ -1,0 +1,242 @@
+{
+  "schema": "h3-context-workflow-surface-matrix/1",
+  "version": 1,
+  "runtime_audit_dispositions": [
+    "ACCEPTED",
+    "REJECTED"
+  ],
+  "modes": [
+    {
+      "mode": "t2va",
+      "direct_node": "qualified",
+      "sidebar": "qualified",
+      "api_headless": "qualified",
+      "saved_workflow": "qualified_base_examples",
+      "fixed_subgraph": "qualified_base"
+    },
+    {
+      "mode": "i2va",
+      "direct_node": "qualified",
+      "sidebar": "qualified",
+      "api_headless": "qualified",
+      "saved_workflow": "unavailable_no_published_fixture",
+      "fixed_subgraph": "unavailable_no_published_fixture"
+    },
+    {
+      "mode": "fl2va",
+      "direct_node": "qualified",
+      "sidebar": "qualified",
+      "api_headless": "qualified",
+      "saved_workflow": "unavailable_no_published_fixture",
+      "fixed_subgraph": "unavailable_no_published_fixture"
+    },
+    {
+      "mode": "l2va",
+      "direct_node": "qualified",
+      "sidebar": "qualified",
+      "api_headless": "qualified",
+      "saved_workflow": "unavailable_no_published_fixture",
+      "fixed_subgraph": "unavailable_no_published_fixture"
+    },
+    {
+      "mode": "ref2va",
+      "direct_node": "qualified",
+      "sidebar": "qualified",
+      "api_headless": "qualified",
+      "saved_workflow": "qualified_reference_examples",
+      "fixed_subgraph": "qualified_reference_bounded",
+      "sidebar_limits": {
+        "image": 1,
+        "video": 1,
+        "standalone_audio": 1,
+        "total_min": 1,
+        "total_max": 3
+      }
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "workflows/m13_10_local_reconstruction.json",
+      "purpose": "executable_example",
+      "qualification": "retained_compatibility",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "workflows/m15_01_perception_producers.json",
+      "purpose": "convenience",
+      "qualification": "retained_structural",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "workflows/m15_02_downstream_adversarial.json",
+      "purpose": "scenario",
+      "qualification": "retained_structural",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "workflows/m15_02_downstream_ambiguous.json",
+      "purpose": "scenario",
+      "qualification": "retained_structural",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "workflows/m15_02_downstream_complex.json",
+      "purpose": "scenario",
+      "qualification": "retained_structural",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "workflows/m15_02_downstream_minimal.json",
+      "purpose": "scenario",
+      "qualification": "retained_structural",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "workflows/m15_02_downstream_producers.json",
+      "purpose": "convenience",
+      "qualification": "retained_structural",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "workflows/m15_03_product_shell_base.json",
+      "purpose": "executable_example",
+      "qualification": "qualified",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "workflows/m15_03_product_shell_reference.json",
+      "purpose": "executable_example",
+      "qualification": "qualified",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "workflows/m15_09_assistant_base.json",
+      "purpose": "convenience",
+      "qualification": "qualified",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "workflows/m15_09_assistant_reference.json",
+      "purpose": "convenience",
+      "qualification": "qualified",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "workflows/m3_07_h3_context_base.json",
+      "purpose": "compatibility",
+      "qualification": "retained_compatibility",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "workflows/m3_07_h3_context_reference.json",
+      "purpose": "compatibility",
+      "qualification": "retained_compatibility",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "workflows/m6_07_h3_context_full_reference.json",
+      "purpose": "executable_example",
+      "qualification": "retained_compatibility",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "workflows/m7_03_h3_context_audit_override.json",
+      "purpose": "executable_example",
+      "qualification": "retained_compatibility",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "workflows/m7_04_h3_context_provider_transparency.json",
+      "purpose": "executable_example",
+      "qualification": "retained_compatibility",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "workflows/m7_05_h3_context_reliability.json",
+      "purpose": "executable_example",
+      "qualification": "retained_compatibility",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "subgraphs/H3 Context Assistant - Base.json",
+      "purpose": "convenience",
+      "qualification": "qualified",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "subgraphs/H3 Context Assistant - Reference.json",
+      "purpose": "convenience",
+      "qualification": "qualified",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "subgraphs/H3 Product Shell Boundary.json",
+      "purpose": "adapter",
+      "qualification": "qualified",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    },
+    {
+      "path": "examples/minimal_core_pipeline.py",
+      "purpose": "executable_example",
+      "qualification": "qualified",
+      "lifecycle": "RETAIN",
+      "rollback": "preserve_original_bytes"
+    }
+  ],
+  "legacy_dispositions": [
+    {
+      "source": "legacy_prompt_socket_without_product_shell",
+      "lifecycle": "MIGRATE",
+      "reason": "use the versioned ProductShell STRING boundary",
+      "safe_action": "create_a_new_versioned_workflow_and_keep_the_original",
+      "mutates_rejected_input": false
+    },
+    {
+      "source": "current_versioned_workflow_or_subgraph",
+      "lifecycle": "RETAIN",
+      "reason": "exact closed migration audit accepts the current representation",
+      "safe_action": "open_after_host_validation",
+      "mutates_rejected_input": false
+    },
+    {
+      "source": "unknown_foreign_or_malformed_graph",
+      "lifecycle": "REJECT",
+      "reason": "opaque executable semantics cannot be migrated safely",
+      "safe_action": "preserve_original_bytes_and_open_a_versioned_example",
+      "mutates_rejected_input": false
+    },
+    {
+      "source": "append_only_product_shell_migration",
+      "lifecycle": "ROLLBACK",
+      "reason": "the original prompt-native edge remains the rollback authority",
+      "safe_action": "remove_only_the_added_boundary_and_restore_the_original_edge",
+      "mutates_rejected_input": false
+    }
+  ],
+  "privacy": {
+    "browser_media_authority": false,
+    "unknown_graph_mutation": false,
+    "raw_graph_logging": false,
+    "provider_fallback": false
+  }
+}

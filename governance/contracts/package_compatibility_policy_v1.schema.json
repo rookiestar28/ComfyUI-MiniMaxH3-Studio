@@ -1,0 +1,236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/package_compatibility_policy_v1.schema.json",
+  "title": "ComfyUI H3 package compatibility and deprecation policy",
+  "description": "Closed machine authority for the supported Python facade, supporting export censuses, protected compatibility boundaries, SemVer classification, and deprecation lifecycle.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "consumer_authority",
+    "supporting_authorities",
+    "change_classification",
+    "deprecation_policy"
+  ],
+  "properties": {
+    "schema": { "const": "h3.context.package_compatibility_policy.v1" },
+    "version": { "$ref": "#/$defs/semver" },
+    "consumer_authority": { "$ref": "#/$defs/consumer_authority" },
+    "supporting_authorities": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "prefixItems": [
+        { "$ref": "#/$defs/acceptance_authority" },
+        { "$ref": "#/$defs/core_authority" }
+      ],
+      "items": false
+    },
+    "change_classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_schema",
+        "emitted_prompt_shape",
+        "emitted_report_shape",
+        "node_identifier_and_socket",
+        "python_consumer_api"
+      ],
+      "properties": {
+        "contract_schema": { "$ref": "#/$defs/semver_classification" },
+        "emitted_prompt_shape": { "$ref": "#/$defs/semver_classification" },
+        "emitted_report_shape": { "$ref": "#/$defs/semver_classification" },
+        "node_identifier_and_socket": { "$ref": "#/$defs/semver_classification" },
+        "python_consumer_api": { "$ref": "#/$defs/semver_classification" }
+      }
+    },
+    "deprecation_policy": { "$ref": "#/$defs/deprecation_policy" }
+  },
+  "$defs": {
+    "semver": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+    },
+    "relative_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 260,
+      "pattern": "^[A-Za-z0-9._-][A-Za-z0-9._ -]*(/[A-Za-z0-9._-][A-Za-z0-9._ -]*)*$"
+    },
+    "python_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "consumer_authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authority_id", "path", "selector", "relation", "names"],
+      "properties": {
+        "authority_id": { "const": "package" },
+        "path": { "const": "comfyui_h3_context/public_api.py" },
+        "selector": { "const": "__all__" },
+        "relation": { "const": "supported_python_consumer_surface" },
+        "names": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/python_name" }
+        }
+      }
+    },
+    "acceptance_authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authority_id", "path", "selector", "relation"],
+      "properties": {
+        "authority_id": { "const": "acceptance_abi" },
+        "path": { "const": "tests/acceptance_baseline.json" },
+        "selector": { "const": "public_python_abi[*].export" },
+        "relation": { "const": "gate_enforced_pure_core_subset" }
+      }
+    },
+    "core_authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authority_id", "path", "selector", "relation"],
+      "properties": {
+        "authority_id": { "const": "pure_core" },
+        "path": { "const": "comfyui_h3_context/core/__init__.py" },
+        "selector": { "const": "__all__" },
+        "relation": { "const": "implementation_export_census" }
+      }
+    },
+    "semver_classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["breaking", "backward_compatible_addition", "compatible_fix"],
+      "properties": {
+        "breaking": { "const": "major" },
+        "backward_compatible_addition": { "const": "minor" },
+        "compatible_fix": { "const": "patch" }
+      }
+    },
+    "announcement_channels": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "prefixItems": [
+        { "const": "in_product" },
+        { "const": "release_notes" }
+      ],
+      "items": false
+    },
+    "deprecation_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minimum_successor_releases",
+        "removal_requires_major",
+        "announcement_channels",
+        "deprecations"
+      ],
+      "properties": {
+        "minimum_successor_releases": { "const": 2 },
+        "removal_requires_major": { "const": true },
+        "announcement_channels": { "$ref": "#/$defs/announcement_channels" },
+        "deprecations": {
+          "type": "array",
+          "maxItems": 256,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/deprecation" }
+        }
+      }
+    },
+    "deprecation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "notice_code",
+        "boundary",
+        "identifier",
+        "state",
+        "announced_in",
+        "announcement_channels",
+        "replacement",
+        "no_replacement_reason",
+        "successor_releases",
+        "removal_version"
+      ],
+      "properties": {
+        "notice_code": {
+          "type": "string",
+          "pattern": "^H3-DEPRECATION-[0-9]{3,}$"
+        },
+        "boundary": {
+          "enum": [
+            "contract_schema",
+            "emitted_prompt_shape",
+            "emitted_report_shape",
+            "node_identifier_and_socket",
+            "python_consumer_api"
+          ]
+        },
+        "identifier": { "type": "string", "minLength": 1, "maxLength": 260 },
+        "state": { "enum": ["active", "removed"] },
+        "announced_in": { "$ref": "#/$defs/semver" },
+        "announcement_channels": { "$ref": "#/$defs/announcement_channels" },
+        "replacement": {
+          "oneOf": [
+            { "type": "string", "minLength": 1, "maxLength": 260 },
+            { "type": "null" }
+          ]
+        },
+        "no_replacement_reason": {
+          "oneOf": [
+            { "type": "string", "minLength": 1, "maxLength": 500 },
+            { "type": "null" }
+          ]
+        },
+        "successor_releases": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/semver" }
+        },
+        "removal_version": {
+          "oneOf": [{ "$ref": "#/$defs/semver" }, { "type": "null" }]
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "state": { "const": "active" } }, "required": ["state"] },
+          "then": { "properties": { "removal_version": { "type": "null" } } }
+        },
+        {
+          "if": { "properties": { "state": { "const": "removed" } }, "required": ["state"] },
+          "then": {
+            "properties": {
+              "successor_releases": { "minItems": 2 },
+              "removal_version": { "$ref": "#/$defs/semver" }
+            }
+          }
+        }
+      ],
+      "oneOf": [
+        {
+          "properties": {
+            "replacement": { "type": "string", "minLength": 1 },
+            "no_replacement_reason": { "type": "null" }
+          }
+        },
+        {
+          "properties": {
+            "replacement": { "type": "null" },
+            "no_replacement_reason": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    }
+  }
+}

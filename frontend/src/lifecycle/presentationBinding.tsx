@@ -229,6 +229,8 @@ export function createPresentationBinding(ctx: ShellRuntime) {
     // M25-16: programmatic or user navigation closes an expanded editor before the transition.
     actions.nleCloseOverlay("top_level_navigation");
     actions.mediaRuntimeLeaveContext("page");
+    actions.workspaceStateLeave?.();
+    actions.retainedAssetsLeave?.();
     if (
       current === "production" &&
       session.productionAbort !== undefined &&
@@ -339,6 +341,7 @@ export function createPresentationBinding(ctx: ShellRuntime) {
     return {
       locale,
       state: session.nleWorkspace,
+      project: actions.projectFileBinding?.(),
       retention: session.retention,
       authoring: session.authoringState,
       production: session.productionState,
@@ -396,6 +399,7 @@ export function createPresentationBinding(ctx: ShellRuntime) {
         timeline: actions.nleDispatchTimeline,
         clearImportHighlight: actions.nleClearImportHighlight,
         setTargetSeconds: actions.nleSetTargetSeconds,
+        setPlanningScript: actions.nleSetPlanningScript,
         setPolicy: actions.nleSetSegmentationPolicy,
         prepareContext: actions.nlePrepareContext,
         openStoryboardReview: actions.nleOpenStoryboardReview,
@@ -571,6 +575,9 @@ export function createPresentationBinding(ctx: ShellRuntime) {
         buildProvenance={session.buildProvenance}
         retention={session.retention}
         mediaTools={actions.mediaToolsBinding()}
+        recoveryMetadata={actions.workspaceStateBinding?.()}
+        retainedAssets={actions.retainedAssetsBinding?.()}
+        projectFile={actions.projectFileBinding?.()}
         diagnostics={{
           compose: () =>
             managedJournal.compose({
@@ -743,6 +750,7 @@ export function createPresentationBinding(ctx: ShellRuntime) {
   }
 
   function renderCurrent(): void {
+    actions.projectRecoveryObserve?.();
     recordCurrentDiagnosticState();
     beginMonitorReplacement();
     if (session.container !== undefined)

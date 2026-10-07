@@ -6,7 +6,9 @@ This page explains what the extension sends, stores and checks. For everyday use
 ## Contents
 
 - [The default path](#the-default-path)
+- [Canvas changes and keeping your work](#canvas-changes-and-keeping-your-work)
 - [What stays on your host](#what-stays-on-your-host)
+- [Optional durable storage](#optional-durable-storage)
 - [Opening ComfyUI from another address](#opening-comfyui-from-another-address)
 - [Assisted-authoring providers](#assisted-authoring-providers)
 - [Media tools (FFmpeg)](#media-tools-ffmpeg)
@@ -29,6 +31,26 @@ Two features add their own boundary, and neither starts by itself:
 - **Media tools** are found on your computer automatically, but downloading them needs you to
   choose **Install**.
 
+## Canvas changes and keeping your work
+
+Save any open ComfyUI workflows before installing or updating this pack and restarting ComfyUI.
+Before trying an official H3 template, save your current workflow, open a new empty workflow tab
+and make it active. **Start H3 App Mode** loads the template into the active tab without queueing
+it. It does not create a separate tab or save a backup of the graph it replaces.
+
+When the canvas already contains nodes, App Mode asks you to choose:
+
+- **Replace canvas and start H3 App Mode** replaces that tab's graph with the official template.
+- **Connect and queue current canvas**, when available for a compatible H3 workflow, connects the
+  sidebar prompt to the selected H3 generation node and queues once. Existing models, LoRAs and
+  sampler settings remain in place.
+- **Keep canvas and exit H3 App Mode** leaves the canvas untouched and queues nothing.
+
+Connect changes the prompt connection and submits a run; Keep exits App Mode without those
+actions. See the [App Mode instructions](../README.md#start-h3-app-mode) for node selection and
+compatibility. Save canvas work through ComfyUI's workflow Save action; this does not save the
+separate Production or editor project. Download finished videos you want to keep.
+
 ## What stays on your host
 
 "Local" here means the ComfyUI host and your browser. If ComfyUI runs on another computer or a
@@ -42,14 +64,39 @@ is not a login system and does not separate people who can reach the same host.
 - **Media** stays on its ComfyUI connections. No feature sends media to an assisted-authoring
   provider.
 - **Generated videos**: the file ComfyUI saved is left unchanged. After checking that it belongs
-  to the run, the workbench keeps a copy in a randomly named folder inside ComfyUI's temporary
-  directory and previews from that copy. The browser only receives short-lived handles, never file
-  paths. ComfyUI empties that directory when it starts and stops, so the copy lasts at most seven
-  days and never beyond the current ComfyUI session. Like ComfyUI's output folder, that directory
-  can be served to anyone who can reach the host.
+  to the run, the workbench keeps a copy in a randomly named process folder under ComfyUI's private
+  user data, outside the served input, output and temporary directories. The browser only receives
+  short-lived handles, never file paths; these copies are not exposed through ComfyUI's ordinary
+  file-view routes. The live store allows at most 64 copies and 1 GiB with a seven-day expiry.
+  Owner locks protect live folders. After a restart, the next generated-copy operation performs
+  bounded cleanup only of recognizable dead-owner folders; unknown, linked or busy folders stay
+  untouched. Copies can remain on disk until that cleanup, but old handles are invalid after
+  restart. This is volatile working storage, not durable recovery or a saved project. These limits
+  apply per live process, not as a shared quota across simultaneous hosts. The original output is
+  outside this cleanup authority.
 
 Check exported workflows and screenshots before sharing them. Visible text and media remain
 sensitive, and other custom nodes may save their own data.
+
+## Optional durable storage
+
+Metadata, retained generated videos and editable draft recovery are independent settings and are
+all off by default. They require a qualified single-user Windows host on loopback with fixed local
+NTFS storage, no permissive CORS and no configured public-origin override. Remote/shared/proxied
+hosts and Linux durable storage are not qualified. Changing the ordinary browser-origin setting
+does not grant access to private recovery routes.
+
+Metadata excludes prompts and media. Retaining a video makes an explicit verified copy; it does
+not change the original ComfyUI output. Draft recovery includes private prompt/title text,
+accepted editable data and bounded data-only undo/redo. It does not save provider credentials,
+execution grants or browser-only edits that have not reached the server. Each saved acknowledgement
+covers one exact revision; a crash can lose unacknowledged edits.
+
+Reconnect does not silently retrieve sensitive draft content. Choose a recovery and restore it as
+a new project; relink missing retained media explicitly. Restoration starts no generation,
+rendering, upload or provider request. Manual `.h3proj` files remain a separate backup workflow;
+they contain editable text but no media bytes or host access authority. See
+[Project files](PROJECT_FILES.md) for save, retention and clearing limits.
 
 ## Opening ComfyUI from another address
 
@@ -166,9 +213,11 @@ stay marked as unknown rather than being invented.
 The diagnostics never contain prompts, workflows, node titles, media, file names, URLs,
 credentials or error text from the host, and are never sent anywhere.
 
-Editor view settings and unsent drafts are kept in the page's memory only. They are not a project
-backup: a page reload or host restart does not restore them. The editor's **Saved** status means the
-host accepted the edit; it does not create a project file.
+Unsent drafts stay in the page's memory. Optional workspace metadata stores bounded status, identity
+and revision fields without prompt or media content. Neither is an editable-project backup. The
+editor's **Saved** status means
+the host accepted an edit, not that a project file was written or a durable snapshot acknowledged.
+Use **Project file** or the separate **Recovery saved** acknowledgement for those workflows.
 
 ## What checks do and do not prove
 

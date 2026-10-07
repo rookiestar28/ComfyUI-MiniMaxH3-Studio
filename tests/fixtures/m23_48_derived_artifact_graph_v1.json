@@ -1,0 +1,208 @@
+{
+  "cycle": [
+    "build_provenance",
+    "contract_inventory",
+    "supply_chain_manifest"
+  ],
+  "measured_on": "2026-09-09; nle_hardening_manifest measured 2026-09-12",
+  "method": {
+    "edges": "sys.addaudithook on the 'open' event, recording every tracked file opened for reading. A generator that merely names a path in a constant does not appear here.",
+    "locus": "build_provenance, closeout_matrix and m19_closeout cannot run in a tree without git, so their read sets were measured in the repository with --check instead of --write.",
+    "outputs": "Delete each generator's predicted outputs in a tree seeded from the tracked files, run --write, diff the whole tree. Recorded only if nothing outside the prediction was written."
+  },
+  "outputs": {
+    "architecture_fitness": [
+      "governance/contracts/architecture_fitness_v1.json"
+    ],
+    "architecture_inventory": [
+      "governance/contracts/architecture_inventory_v1.json"
+    ],
+    "authoring_output_schemas": [
+      "governance/contracts/authoring_output_v1.schema.json"
+    ],
+    "authoring_render_schemas": [
+      "governance/contracts/authoring_render_job_request_v1.schema.json",
+      "governance/contracts/authoring_render_receipt_v1.schema.json"
+    ],
+    "build_provenance": [
+      "comfyui_h3_context/contracts/build_provenance_v1.json"
+    ],
+    "canonical_cross_language_vectors": [
+      "tests/fixtures/canonical_cross_language_vectors.json"
+    ],
+    "closeout_matrix": [
+      "governance/contracts/closeout_matrix_v1.json"
+    ],
+    "contract_inventory": [
+      "comfyui_h3_context/contracts/contract_inventory_v1.json"
+    ],
+    "core_public_surface": [
+      "comfyui_h3_context/core/__init__.py"
+    ],
+    "cross_language_surface": [
+      "comfyui_h3_context/contracts/cross_language_surface_v1.json",
+      "frontend/src/contracts/generatedSurface.ts"
+    ],
+    "duration_resolution_contract": [
+      "frontend/src/contracts/generatedDurationResolution.ts"
+    ],
+    "fingerprint_domain": [
+      "governance/contracts/fingerprint_domain_v1.json"
+    ],
+    "localized_identity_registry": [
+      "frontend/src/i18n/generatedBackendIdentities.ts"
+    ],
+    "m16_01_source_requalification": [
+      "tests/fixtures/m16_01_source_requalification.json"
+    ],
+    "m16_02_reconstruction_regression": [
+      "tests/fixtures/m16_02_reconstruction_regression.json"
+    ],
+    "m19_closeout": [
+      "governance/contracts/m19_closeout_v1.json"
+    ],
+    "m25_16_scene_parity": [
+      "tests/fixtures/m25_16_scene_resolver_parity_v1.json"
+    ],
+    "managed_run_stategraph": [
+      "governance/contracts/managed_run_stategraph_v1.json"
+    ],
+    "nle_hardening_manifest": [
+      "governance/contracts/nle_hardening_coverage_manifest_v1.json"
+    ],
+    "nle_semantic_conformance_manifest": [
+      "governance/contracts/nle_semantic_conformance_manifest_v1.json"
+    ],
+    "node_surface": [
+      "governance/contracts/node_surface_v1.json"
+    ],
+    "packaged_artifact_readership": [
+      "governance/contracts/packaged_artifact_readership_v1.json"
+    ],
+    "public_surface": [
+      "governance/contracts/public_surface_v1.json"
+    ],
+    "retirement_eligibility": [
+      "governance/contracts/retirement_eligibility_v1.json"
+    ],
+    "supply_chain_manifest": [
+      "governance/contracts/sbom.spdx.json",
+      "governance/contracts/supply_chain_v1.json"
+    ]
+  },
+  "reads": {
+    "architecture_fitness": [
+      "core_public_surface",
+      "cross_language_surface",
+      "duration_resolution_contract",
+      "localized_identity_registry"
+    ],
+    "architecture_inventory": [
+      "core_public_surface"
+    ],
+    "authoring_output_schemas": [
+      "core_public_surface"
+    ],
+    "authoring_render_schemas": [
+      "core_public_surface"
+    ],
+    "build_provenance": [
+      "contract_inventory",
+      "cross_language_surface",
+      "duration_resolution_contract",
+      "localized_identity_registry",
+      "public_surface"
+    ],
+    "canonical_cross_language_vectors": [],
+    "closeout_matrix": [],
+    "contract_inventory": [
+      "architecture_inventory",
+      "authoring_output_schemas",
+      "authoring_render_schemas",
+      "build_provenance",
+      "canonical_cross_language_vectors",
+      "closeout_matrix",
+      "core_public_surface",
+      "cross_language_surface",
+      "duration_resolution_contract",
+      "localized_identity_registry",
+      "m16_01_source_requalification",
+      "m16_02_reconstruction_regression",
+      "m19_closeout",
+      "m25_16_scene_parity",
+      "managed_run_stategraph",
+      "node_surface",
+      "packaged_artifact_readership",
+      "public_surface",
+      "supply_chain_manifest"
+    ],
+    "core_public_surface": [],
+    "cross_language_surface": [
+      "core_public_surface",
+      "duration_resolution_contract"
+    ],
+    "duration_resolution_contract": [],
+    "fingerprint_domain": [
+      "contract_inventory"
+    ],
+    "localized_identity_registry": [],
+    "m16_01_source_requalification": [],
+    "m16_02_reconstruction_regression": [],
+    "m19_closeout": [],
+    "m25_16_scene_parity": [
+      "core_public_surface"
+    ],
+    "managed_run_stategraph": [],
+    "nle_hardening_manifest": [],
+    "nle_semantic_conformance_manifest": [
+      "core_public_surface"
+    ],
+    "node_surface": [],
+    "packaged_artifact_readership": [],
+    "public_surface": [
+      "core_public_surface"
+    ],
+    "retirement_eligibility": [
+      "architecture_fitness",
+      "architecture_inventory",
+      "authoring_output_schemas",
+      "authoring_render_schemas",
+      "build_provenance",
+      "canonical_cross_language_vectors",
+      "closeout_matrix",
+      "contract_inventory",
+      "core_public_surface",
+      "cross_language_surface",
+      "duration_resolution_contract",
+      "fingerprint_domain",
+      "localized_identity_registry",
+      "m16_01_source_requalification",
+      "m16_02_reconstruction_regression",
+      "m19_closeout",
+      "m25_16_scene_parity",
+      "managed_run_stategraph",
+      "nle_hardening_manifest",
+      "nle_semantic_conformance_manifest",
+      "node_surface",
+      "packaged_artifact_readership",
+      "public_surface",
+      "supply_chain_manifest"
+    ],
+    "supply_chain_manifest": [
+      "build_provenance",
+      "cross_language_surface",
+      "duration_resolution_contract",
+      "localized_identity_registry"
+    ]
+  },
+  "schema": "h3.context.derived_artifact_graph.v1",
+  "self_reading": [
+    "build_provenance",
+    "closeout_matrix",
+    "core_public_surface",
+    "m16_01_source_requalification",
+    "m16_02_reconstruction_regression",
+    "m19_closeout",
+    "supply_chain_manifest"
+  ]
+}

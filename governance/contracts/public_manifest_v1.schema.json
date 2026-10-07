@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://comfyui-h3-context.invalid/schemas/public-manifest-v1.json",
+  "title": "H3 Context public registration and contract manifest",
+  "type": "object",
+  "required": [
+    "schema",
+    "contracts",
+    "bindings",
+    "reachability",
+    "object_info",
+    "workflow_fixtures",
+    "fingerprint"
+  ],
+  "properties": {
+    "schema": { "const": "h3.context.public.manifest.v1" },
+    "contracts": { "type": "object" },
+    "bindings": { "type": "object" },
+    "reachability": { "type": "object" },
+    "object_info": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "required": [
+          "node_id",
+          "display_name",
+          "category",
+          "required_inputs",
+          "optional_inputs",
+          "output_types",
+          "function",
+          "output_node"
+        ],
+        "properties": {
+          "node_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "display_name": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "category": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "required_inputs": { "type": "array", "maxItems": 32, "items": { "type": "string" } },
+          "optional_inputs": { "type": "array", "maxItems": 32, "items": { "type": "string" } },
+          "output_types": { "type": "array", "maxItems": 32, "items": { "type": "string" } },
+          "function": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "output_node": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "workflow_fixtures": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "required": ["fixture_id", "path", "kind", "task_modes", "node_ids", "schema"],
+        "properties": {
+          "fixture_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+          "path": { "type": "string", "minLength": 1, "maxLength": 256 },
+          "kind": { "enum": ["workflow", "subgraph"] },
+          "task_modes": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "node_ids": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+          "schema": { "type": "string", "minLength": 1, "maxLength": 128 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+  },
+  "additionalProperties": false
+}

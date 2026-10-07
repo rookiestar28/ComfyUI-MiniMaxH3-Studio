@@ -1,0 +1,33 @@
+{
+  "$id": "comfyui-h3-context://contracts/temporal_visual_analysis_v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "H3 temporal visual analysis v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "document_id",
+    "status",
+    "complete",
+    "route",
+    "tracking_document_id",
+    "claims",
+    "observations",
+    "receipt",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema": {"const": "h3.visual.temporal_analysis.v1"},
+    "document_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "status": {
+      "enum": ["complete", "partial", "empty", "corrupt", "unsupported", "cancelled"]
+    },
+    "complete": {"type": "boolean"},
+    "route": {"enum": ["comfyui_native", "ollama", "specialist"]},
+    "tracking_document_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "claims": {"type": "array", "maxItems": 256},
+    "observations": {"type": "array", "maxItems": 64},
+    "receipt": {"type": ["object", "null"]},
+    "diagnostics": {"type": "array", "maxItems": 16, "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

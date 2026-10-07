@@ -1,0 +1,133 @@
+{
+  "automatic_fallback": false,
+  "claim_ceiling": "no live host, model, provider, media, network, oracle, or quality qualification",
+  "fixture_status": "injected_semantic_proposal_contract",
+  "native": {
+    "diagnostics": [],
+    "diff": {
+      "added_proposal_ids": ["proposal.subject"],
+      "after_fingerprint": "sha256:2fba5054792351b8386d461742094f7d7c0177f4ddec687ea129962040226cd7",
+      "before_fingerprint": "sha256:b24c6cc8c2a933a69ec6578239a6909fdf8f3328f3b6ae90372c2338d7e482f3",
+      "changed_fields": ["proposal_document", "preserved_exact_text"],
+      "diff_fingerprint": "sha256:60d2f6d8bd97b0ed4a55a0d5e2df418815e17da243ea728f595ca8f89225d0b5",
+      "schema": "h3.constrained_semantic_planning.v1"
+    },
+    "document": {
+      "asset_ids": ["first"],
+      "complete": true,
+      "document_id": "proposal.document",
+      "effective_duration": "4",
+      "policy": "strict",
+      "preserved_exact_text": [],
+      "proposals": [{
+        "claim": "the opening asset remains visually coherent",
+        "confidence": "0.80",
+        "evidence_label": "source",
+        "proposal_id": "proposal.subject",
+        "rationale": "source-grounded reduction evidence",
+        "schema": "h3.constrained_semantic_planning.v1",
+        "source_ids": ["first"],
+        "target_id": "first",
+        "target_kind": "asset"
+      }],
+      "reduction_fingerprint": "sha256:0c4027adbf30e3228e01d6a5aad97736fb3e77760c676021cd1a4f70580ba2c3",
+      "reference_order": ["first"],
+      "schema": "h3.constrained_semantic_planning.v1",
+      "task_mode": "i2va",
+      "timeline_fingerprint": "sha256:d0bc1280d813494f2a66a8c26b17727feed3e9f3672bcbbf97f2178e29d4af9a"
+    },
+    "receipt": {
+      "after_fingerprint": "sha256:2fba5054792351b8386d461742094f7d7c0177f4ddec687ea129962040226cd7",
+      "backend_family": "comfyui_native",
+      "before_fingerprint": "sha256:b24c6cc8c2a933a69ec6578239a6909fdf8f3328f3b6ae90372c2338d7e482f3",
+      "budget": {
+        "max_claim_chars": 1024,
+        "max_diff_fields": 16,
+        "max_output_tokens": 128,
+        "max_proposals": 4,
+        "schema": "h3.constrained_semantic_planning.v1"
+      },
+      "diagnostics": [],
+      "diff_fingerprint": "sha256:60d2f6d8bd97b0ed4a55a0d5e2df418815e17da243ea728f595ca8f89225d0b5",
+      "input_reduction_fingerprint": "sha256:0c4027adbf30e3228e01d6a5aad97736fb3e77760c676021cd1a4f70580ba2c3",
+      "input_timeline_fingerprint": "sha256:d0bc1280d813494f2a66a8c26b17727feed3e9f3672bcbbf97f2178e29d4af9a",
+      "model_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "model_id": "qwen3-vl-8b",
+      "model_output_fingerprint": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "policy": "strict",
+      "profile_id": "native.profile",
+      "raw_media_used": false,
+      "revision_id": "revision.2fba5054792351b8386d461742094f7d",
+      "schema": "h3.constrained_semantic_planning.v1",
+      "seed": 17,
+      "status": "complete"
+    },
+    "schema": "h3.constrained_semantic_planning.v1",
+    "status": "complete"
+  },
+  "native_status": "complete",
+  "ollama": {
+    "diagnostics": [],
+    "diff": {
+      "added_proposal_ids": ["proposal.subject"],
+      "after_fingerprint": "sha256:2fba5054792351b8386d461742094f7d7c0177f4ddec687ea129962040226cd7",
+      "before_fingerprint": "sha256:7efd930a3412c4a1e64fe78ce26ce785f952a208532602858a91812ffb9bcb37",
+      "changed_fields": ["proposal_document", "preserved_exact_text"],
+      "diff_fingerprint": "sha256:0a9efdbea2032bd42ace81a39ceb58e926e99a6639947f38a2650e637fa246f0",
+      "schema": "h3.constrained_semantic_planning.v1"
+    },
+    "document": {
+      "asset_ids": ["first"],
+      "complete": true,
+      "document_id": "proposal.document",
+      "effective_duration": "4",
+      "policy": "strict",
+      "preserved_exact_text": [],
+      "proposals": [{
+        "claim": "the opening asset remains visually coherent",
+        "confidence": "0.80",
+        "evidence_label": "source",
+        "proposal_id": "proposal.subject",
+        "rationale": "source-grounded reduction evidence",
+        "schema": "h3.constrained_semantic_planning.v1",
+        "source_ids": ["first"],
+        "target_id": "first",
+        "target_kind": "asset"
+      }],
+      "reduction_fingerprint": "sha256:0c4027adbf30e3228e01d6a5aad97736fb3e77760c676021cd1a4f70580ba2c3",
+      "reference_order": ["first"],
+      "schema": "h3.constrained_semantic_planning.v1",
+      "task_mode": "i2va",
+      "timeline_fingerprint": "sha256:d0bc1280d813494f2a66a8c26b17727feed3e9f3672bcbbf97f2178e29d4af9a"
+    },
+    "receipt": {
+      "after_fingerprint": "sha256:2fba5054792351b8386d461742094f7d7c0177f4ddec687ea129962040226cd7",
+      "backend_family": "ollama",
+      "before_fingerprint": "sha256:7efd930a3412c4a1e64fe78ce26ce785f952a208532602858a91812ffb9bcb37",
+      "budget": {
+        "max_claim_chars": 1024,
+        "max_diff_fields": 16,
+        "max_output_tokens": 128,
+        "max_proposals": 4,
+        "schema": "h3.constrained_semantic_planning.v1"
+      },
+      "diagnostics": [],
+      "diff_fingerprint": "sha256:0a9efdbea2032bd42ace81a39ceb58e926e99a6639947f38a2650e637fa246f0",
+      "input_reduction_fingerprint": "sha256:0c4027adbf30e3228e01d6a5aad97736fb3e77760c676021cd1a4f70580ba2c3",
+      "input_timeline_fingerprint": "sha256:d0bc1280d813494f2a66a8c26b17727feed3e9f3672bcbbf97f2178e29d4af9a",
+      "model_digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "model_id": "qwen3-vl:8b",
+      "model_output_fingerprint": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "policy": "strict",
+      "profile_id": "ollama.profile",
+      "raw_media_used": false,
+      "revision_id": "revision.2fba5054792351b8386d461742094f7d",
+      "schema": "h3.constrained_semantic_planning.v1",
+      "seed": 17,
+      "status": "complete"
+    },
+    "schema": "h3.constrained_semantic_planning.v1",
+    "status": "complete"
+  },
+  "ollama_status": "complete"
+}

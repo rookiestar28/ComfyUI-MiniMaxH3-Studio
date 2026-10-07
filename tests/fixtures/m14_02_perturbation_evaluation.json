@@ -1,0 +1,3965 @@
+{
+  "case_count": 27,
+  "cases": [
+    {
+      "case_id": "case.01.wording",
+      "changed_paths": [
+        "/wording"
+      ],
+      "dimension": "wording",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "invariant",
+        "rationale_code": "wording.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.01.language",
+      "partition": "development",
+      "seed": 1402001,
+      "source_cluster_id": "cluster.01.language",
+      "source_fingerprint": "sha256:e4be7bec235e8bb329fd2528dbc80bdc439892a42fe8314d7f381c1cd7df0eeb",
+      "target_path": "/wording",
+      "variant_fingerprint": "sha256:22a59ea599601913b7788e839e2b504bcd70a98f1b0263ea5917d1dc8459de12",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A measured opening."
+      }
+    },
+    {
+      "case_id": "case.02.unicode",
+      "changed_paths": [
+        "/visible_text"
+      ],
+      "dimension": "unicode",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "invariant",
+        "rationale_code": "unicode.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.01.language",
+      "partition": "development",
+      "seed": 1402002,
+      "source_cluster_id": "cluster.01.language",
+      "source_fingerprint": "sha256:e4be7bec235e8bb329fd2528dbc80bdc439892a42fe8314d7f381c1cd7df0eeb",
+      "target_path": "/visible_text",
+      "variant_fingerprint": "sha256:81a8d9dd41386b4fd9ff0a71fc49a3b8d7292d0d52ce749d0d881f6fe31c0aff",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "入口 Café",
+        "wording": "A quiet opening for language."
+      }
+    },
+    {
+      "case_id": "case.03.metadata",
+      "changed_paths": [
+        "/metadata"
+      ],
+      "dimension": "metadata",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "invariant",
+        "rationale_code": "metadata.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.01.language",
+      "partition": "development",
+      "seed": 1402003,
+      "source_cluster_id": "cluster.01.language",
+      "source_fingerprint": "sha256:e4be7bec235e8bb329fd2528dbc80bdc439892a42fe8314d7f381c1cd7df0eeb",
+      "target_path": "/metadata",
+      "variant_fingerprint": "sha256:62296e4c0873e6a1c6fba1f7dfa49e990e8466fbda72a21b23b57377d9cf8588",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "zh_Hant",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for language."
+      }
+    },
+    {
+      "case_id": "case.04.asset_order",
+      "changed_paths": [
+        "/assets"
+      ],
+      "dimension": "asset_order",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "asset_order.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "reorder",
+      "parent_id": "source.02.assets",
+      "partition": "development",
+      "seed": 1402004,
+      "source_cluster_id": "cluster.02.assets",
+      "source_fingerprint": "sha256:3b307687e6c53861b5d912a80eacb40f2e5871798fc0c6f6add2c91ffe8a8039",
+      "target_path": "/assets",
+      "variant_fingerprint": "sha256:54a9488de1b2bd49430b9a0857df0acbe420360e1d50521cacb7e3ae747e90d1",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          },
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for assets."
+      }
+    },
+    {
+      "case_id": "case.05.asset_role",
+      "changed_paths": [
+        "/assets"
+      ],
+      "dimension": "asset_role",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "asset_role.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.02.assets",
+      "partition": "development",
+      "seed": 1402005,
+      "source_cluster_id": "cluster.02.assets",
+      "source_fingerprint": "sha256:3b307687e6c53861b5d912a80eacb40f2e5871798fc0c6f6add2c91ffe8a8039",
+      "target_path": "/assets",
+      "variant_fingerprint": "sha256:9019134b1403033f324d27598e54820454b191838b8a038f5025da0f3e3b02f4",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "subject"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "style"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for assets."
+      }
+    },
+    {
+      "case_id": "case.06.modality_duplicate",
+      "changed_paths": [
+        "/assets"
+      ],
+      "dimension": "modality_duplicate",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "modality_duplicate.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "duplicate",
+      "parent_id": "source.02.assets",
+      "partition": "development",
+      "seed": 1402006,
+      "source_cluster_id": "cluster.02.assets",
+      "source_fingerprint": "sha256:3b307687e6c53861b5d912a80eacb40f2e5871798fc0c6f6add2c91ffe8a8039",
+      "target_path": "/assets",
+      "variant_fingerprint": "sha256:9256b51327820636f17b875f4daea59598030020aadc8f098670695d0804703d",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for assets."
+      }
+    },
+    {
+      "case_id": "case.07.modality_removal",
+      "changed_paths": [
+        "/assets"
+      ],
+      "dimension": "modality_removal",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "modality_removal.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "splice",
+      "parent_id": "source.02.assets",
+      "partition": "development",
+      "seed": 1402007,
+      "source_cluster_id": "cluster.02.assets",
+      "source_fingerprint": "sha256:3b307687e6c53861b5d912a80eacb40f2e5871798fc0c6f6add2c91ffe8a8039",
+      "target_path": "/assets",
+      "variant_fingerprint": "sha256:dede3a5d9a3c9daa1b943040ad98c1a40639227d3e430d908349679794e04ae2",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for assets."
+      }
+    },
+    {
+      "case_id": "case.08.modality_replacement",
+      "changed_paths": [
+        "/assets"
+      ],
+      "dimension": "modality_replacement",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "modality_replacement.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.02.assets",
+      "partition": "development",
+      "seed": 1402008,
+      "source_cluster_id": "cluster.02.assets",
+      "source_fingerprint": "sha256:3b307687e6c53861b5d912a80eacb40f2e5871798fc0c6f6add2c91ffe8a8039",
+      "target_path": "/assets",
+      "variant_fingerprint": "sha256:99b11a53da00455b9e2bf7a4985eb047dbdb0c681bd53840ea4269d98a6143f1",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "video_b",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_b",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for assets."
+      }
+    },
+    {
+      "case_id": "case.09.temporal_shift",
+      "changed_paths": [
+        "/timeline_offset_ms"
+      ],
+      "dimension": "temporal_shift",
+      "expected_local_relation": {
+        "direction": "increase",
+        "kind": "monotonic",
+        "rationale_code": "temporal_shift.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "numeric_shift",
+      "parent_id": "source.03.temporal",
+      "partition": "development",
+      "seed": 1402009,
+      "source_cluster_id": "cluster.03.temporal",
+      "source_fingerprint": "sha256:91427cc938c5defbb5c3c734106795d64816b281c6934c66f7bd590baafe475f",
+      "target_path": "/timeline_offset_ms",
+      "variant_fingerprint": "sha256:51859b2e6c1303911e9284d9f07abcda6e3b62716667cfce73ebed4f4056da95",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 250,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for temporal."
+      }
+    },
+    {
+      "case_id": "case.10.temporal_reverse",
+      "changed_paths": [
+        "/timeline"
+      ],
+      "dimension": "temporal_reverse",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "temporal_reverse.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "reverse",
+      "parent_id": "source.03.temporal",
+      "partition": "development",
+      "seed": 1402010,
+      "source_cluster_id": "cluster.03.temporal",
+      "source_fingerprint": "sha256:91427cc938c5defbb5c3c734106795d64816b281c6934c66f7bd590baafe475f",
+      "target_path": "/timeline",
+      "variant_fingerprint": "sha256:a4cbbadf888617323fb82b830b0d55a558cd965135cc35c8f1cf0b3068092b4c",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for temporal."
+      }
+    },
+    {
+      "case_id": "case.11.temporal_splice",
+      "changed_paths": [
+        "/timeline"
+      ],
+      "dimension": "temporal_splice",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "temporal_splice.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "splice",
+      "parent_id": "source.03.temporal",
+      "partition": "development",
+      "seed": 1402011,
+      "source_cluster_id": "cluster.03.temporal",
+      "source_fingerprint": "sha256:91427cc938c5defbb5c3c734106795d64816b281c6934c66f7bd590baafe475f",
+      "target_path": "/timeline",
+      "variant_fingerprint": "sha256:32c8c854a3640c6f88f430c4e84be553bb20379bfc782ea6ec2c576143b0e60c",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2500,
+            "event_id": "event_inserted",
+            "start_ms": 1500
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for temporal."
+      }
+    },
+    {
+      "case_id": "case.12.subject_fusion",
+      "changed_paths": [
+        "/subjects"
+      ],
+      "dimension": "subject_fusion",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "subject_fusion.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.04.directives",
+      "partition": "development",
+      "seed": 1402012,
+      "source_cluster_id": "cluster.04.directives",
+      "source_fingerprint": "sha256:665ab63eadbb5756b5c54df4a5274849f83398567749fbf07600fcb354036839",
+      "target_path": "/subjects",
+      "variant_fingerprint": "sha256:a637be0d06e8f8ab2b90d49dc0a50cddf2873045bd8072f3f18a2efb779c9fa8",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a+video_a",
+            "subject_id": "subject_fused"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for directives."
+      }
+    },
+    {
+      "case_id": "case.13.directive_copy",
+      "changed_paths": [
+        "/directives"
+      ],
+      "dimension": "directive_copy",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "directive_copy.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.04.directives",
+      "partition": "development",
+      "seed": 1402013,
+      "source_cluster_id": "cluster.04.directives",
+      "source_fingerprint": "sha256:665ab63eadbb5756b5c54df4a5274849f83398567749fbf07600fcb354036839",
+      "target_path": "/directives",
+      "variant_fingerprint": "sha256:991cdab194c2e3a94347e3662904b6bf0a667599ff5e9f70cbb6592e98a51d28",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "copy",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for directives."
+      }
+    },
+    {
+      "case_id": "case.14.directive_retain",
+      "changed_paths": [
+        "/directives"
+      ],
+      "dimension": "directive_retain",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "directive_retain.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.04.directives",
+      "partition": "development",
+      "seed": 1402014,
+      "source_cluster_id": "cluster.04.directives",
+      "source_fingerprint": "sha256:665ab63eadbb5756b5c54df4a5274849f83398567749fbf07600fcb354036839",
+      "target_path": "/directives",
+      "variant_fingerprint": "sha256:b917bda35a36d9a9f8f134f2679d762b7849a2804eb3b7a269bb25086d71b4bc",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "style"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for directives."
+      }
+    },
+    {
+      "case_id": "case.15.directive_adapt",
+      "changed_paths": [
+        "/directives"
+      ],
+      "dimension": "directive_adapt",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "directive_adapt.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.04.directives",
+      "partition": "development",
+      "seed": 1402015,
+      "source_cluster_id": "cluster.04.directives",
+      "source_fingerprint": "sha256:665ab63eadbb5756b5c54df4a5274849f83398567749fbf07600fcb354036839",
+      "target_path": "/directives",
+      "variant_fingerprint": "sha256:1a6d98901fca5706cc9671d12ee0f0d0ed00961a38a80fbfbe6ab6a660702756",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "adapt",
+            "target": "motion"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for directives."
+      }
+    },
+    {
+      "case_id": "case.16.directive_exclude",
+      "changed_paths": [
+        "/directives"
+      ],
+      "dimension": "directive_exclude",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "directive_exclude.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "remove",
+      "parent_id": "source.04.directives",
+      "partition": "development",
+      "seed": 1402016,
+      "source_cluster_id": "cluster.04.directives",
+      "source_fingerprint": "sha256:665ab63eadbb5756b5c54df4a5274849f83398567749fbf07600fcb354036839",
+      "target_path": "/directives",
+      "variant_fingerprint": "sha256:fe641f2c2758a2a15c10064921b58169f08bdb27bce49a089ec3cfdb2cc28470",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for directives."
+      }
+    },
+    {
+      "case_id": "case.17.ambiguity",
+      "changed_paths": [
+        "/ambiguity"
+      ],
+      "dimension": "ambiguity",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "unknown",
+        "rationale_code": "ambiguity.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.05.uncertainty",
+      "partition": "development",
+      "seed": 1402017,
+      "source_cluster_id": "cluster.05.uncertainty",
+      "source_fingerprint": "sha256:1e5429644b619740de23280791f960fc40af35b8657f436bb6f1cbf9103f3802",
+      "target_path": "/ambiguity",
+      "variant_fingerprint": "sha256:2d13d3dd7d954c46020c8594dc15838f805f5d73d566adf7f82a69d34b9063e5",
+      "variant_material": {
+        "ambiguity": "subject_reference_unclear",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for uncertainty."
+      }
+    },
+    {
+      "case_id": "case.18.conflict",
+      "changed_paths": [
+        "/conflicts"
+      ],
+      "dimension": "conflict",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "unknown",
+        "rationale_code": "conflict.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.05.uncertainty",
+      "partition": "development",
+      "seed": 1402018,
+      "source_cluster_id": "cluster.05.uncertainty",
+      "source_fingerprint": "sha256:1e5429644b619740de23280791f960fc40af35b8657f436bb6f1cbf9103f3802",
+      "target_path": "/conflicts",
+      "variant_fingerprint": "sha256:ff73212f5d8dd58d254be423f7d768032a84a985e8a5d9184d3f66dee47b6575",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [
+          "camera_static_vs_tracking"
+        ],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for uncertainty."
+      }
+    },
+    {
+      "case_id": "case.19.duration",
+      "changed_paths": [
+        "/duration_ms"
+      ],
+      "dimension": "duration",
+      "expected_local_relation": {
+        "direction": "increase",
+        "kind": "monotonic",
+        "rationale_code": "duration.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "numeric_shift",
+      "parent_id": "source.06.exact_text",
+      "partition": "development",
+      "seed": 1402019,
+      "source_cluster_id": "cluster.06.exact_text",
+      "source_fingerprint": "sha256:a365b5746c9378c45c4b79e4b99917d294395efbe17684cda54e05fb8786a106",
+      "target_path": "/duration_ms",
+      "variant_fingerprint": "sha256:c7f3c1419ad93a652b4561668e89254730cdbd1acc65260e6b01a311f023a286",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 5000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for exact_text."
+      }
+    },
+    {
+      "case_id": "case.20.dialogue",
+      "changed_paths": [
+        "/dialogue"
+      ],
+      "dimension": "dialogue",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "dialogue.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.06.exact_text",
+      "partition": "development",
+      "seed": 1402020,
+      "source_cluster_id": "cluster.06.exact_text",
+      "source_fingerprint": "sha256:a365b5746c9378c45c4b79e4b99917d294395efbe17684cda54e05fb8786a106",
+      "target_path": "/dialogue",
+      "variant_fingerprint": "sha256:e2eed0286581d9145c8d51f9d1a3dabfa719a05271bdf12926873970dab3f76c",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Do not turn back.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for exact_text."
+      }
+    },
+    {
+      "case_id": "case.21.visible_text",
+      "changed_paths": [
+        "/visible_text"
+      ],
+      "dimension": "visible_text",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "visible_text.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.06.exact_text",
+      "partition": "development",
+      "seed": 1402021,
+      "source_cluster_id": "cluster.06.exact_text",
+      "source_fingerprint": "sha256:a365b5746c9378c45c4b79e4b99917d294395efbe17684cda54e05fb8786a106",
+      "target_path": "/visible_text",
+      "variant_fingerprint": "sha256:a353f53f0a3a47af5f7bb94b7b01cbd2df1696db3529d0ae214ab2e888562779",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "AUTHORIZED ENTRY",
+        "wording": "A quiet opening for exact_text."
+      }
+    },
+    {
+      "case_id": "case.22.style",
+      "changed_paths": [
+        "/style"
+      ],
+      "dimension": "style",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "style.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.07.presentation",
+      "partition": "frozen_test",
+      "seed": 1402022,
+      "source_cluster_id": "cluster.07.presentation",
+      "source_fingerprint": "sha256:515d9ff817fb3fba5aa4de916150048bb82557544bfd0f7e294537c44dc21722",
+      "target_path": "/style",
+      "variant_fingerprint": "sha256:a83ab80260b24f9b8c3bb97dba75064d5beb01a85fe14710eee21836761edb2b",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "ink_wash",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for presentation."
+      }
+    },
+    {
+      "case_id": "case.23.motion",
+      "changed_paths": [
+        "/motion"
+      ],
+      "dimension": "motion",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "motion.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.07.presentation",
+      "partition": "frozen_test",
+      "seed": 1402023,
+      "source_cluster_id": "cluster.07.presentation",
+      "source_fingerprint": "sha256:515d9ff817fb3fba5aa4de916150048bb82557544bfd0f7e294537c44dc21722",
+      "target_path": "/motion",
+      "variant_fingerprint": "sha256:7500300ac84ad11a16163d8fe2d45db6fc73fde0921de25bb81d28e480fbfe31",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_runs_quickly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for presentation."
+      }
+    },
+    {
+      "case_id": "case.24.camera",
+      "changed_paths": [
+        "/camera"
+      ],
+      "dimension": "camera",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "camera.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.07.presentation",
+      "partition": "frozen_test",
+      "seed": 1402024,
+      "source_cluster_id": "cluster.07.presentation",
+      "source_fingerprint": "sha256:515d9ff817fb3fba5aa4de916150048bb82557544bfd0f7e294537c44dc21722",
+      "target_path": "/camera",
+      "variant_fingerprint": "sha256:62e4d8272df59cde68f70e48953482d2d8d7b52654813f6d6ae7d5c24b1ba12e",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "slow_dolly_in",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for presentation."
+      }
+    },
+    {
+      "case_id": "case.25.video_audio",
+      "changed_paths": [
+        "/video_audio"
+      ],
+      "dimension": "video_audio",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "video_audio.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.08.audio_distractor",
+      "partition": "frozen_test",
+      "seed": 1402025,
+      "source_cluster_id": "cluster.08.audio_distractor",
+      "source_fingerprint": "sha256:f41d60d580447cfff105d79492c5a7b3d01f8285bfa8f46b453f8fd3cf6b33a7",
+      "target_path": "/video_audio",
+      "variant_fingerprint": "sha256:f110dfb603c1ae03e9770cf81e5d51004cbf54143cbba4521ad11c7eb7e750ab",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "exclude",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for audio_distractor."
+      }
+    },
+    {
+      "case_id": "case.26.distractor",
+      "changed_paths": [
+        "/distractors"
+      ],
+      "dimension": "distractor",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "invariant",
+        "rationale_code": "distractor.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "append",
+      "parent_id": "source.08.audio_distractor",
+      "partition": "frozen_test",
+      "seed": 1402026,
+      "source_cluster_id": "cluster.08.audio_distractor",
+      "source_fingerprint": "sha256:f41d60d580447cfff105d79492c5a7b3d01f8285bfa8f46b453f8fd3cf6b33a7",
+      "target_path": "/distractors",
+      "variant_fingerprint": "sha256:91b8b7869a9a40ffae1dc8f2bfc26eb56d4808657d53893bba7a331a8832f1e8",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [
+          "decorative_cloud"
+        ],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for audio_distractor."
+      }
+    },
+    {
+      "case_id": "case.27.unsupported_input",
+      "changed_paths": [
+        "/unsupported_inputs"
+      ],
+      "dimension": "unsupported_input",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "unknown",
+        "rationale_code": "unsupported_input.local.expectation",
+        "state": "EXPECTED"
+      },
+      "local_official_agreement": {
+        "state": "MISSING",
+        "value": null
+      },
+      "official_relation": {
+        "state": "MISSING",
+        "value": null
+      },
+      "operation": "replace",
+      "parent_id": "source.09.unsupported",
+      "partition": "frozen_test",
+      "seed": 1402027,
+      "source_cluster_id": "cluster.09.unsupported",
+      "source_fingerprint": "sha256:574368d54347b25e5d236cd0abf2e75bd17d0be131bf8a86e3c765333bdd72cb",
+      "target_path": "/unsupported_inputs",
+      "variant_fingerprint": "sha256:8048ed14024dca5c98a63eda8be09076840030e408cfe0d757cd0834e568f03d",
+      "variant_material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [
+          "unknown_binary_modality"
+        ],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for unsupported."
+      }
+    }
+  ],
+  "corpus_fingerprint": "sha256:96cfebbae82b1decab9cfa352f5ddd6151596576b9a094d2890c782a5c998c25",
+  "corpus_id": "m14-02-deterministic-local",
+  "corpus_version": "1.0.0",
+  "dimensions": [
+    "wording",
+    "unicode",
+    "metadata",
+    "asset_order",
+    "asset_role",
+    "modality_duplicate",
+    "modality_removal",
+    "modality_replacement",
+    "temporal_shift",
+    "temporal_reverse",
+    "temporal_splice",
+    "subject_fusion",
+    "directive_copy",
+    "directive_retain",
+    "directive_adapt",
+    "directive_exclude",
+    "ambiguity",
+    "conflict",
+    "duration",
+    "dialogue",
+    "visible_text",
+    "style",
+    "motion",
+    "camera",
+    "video_audio",
+    "distractor",
+    "unsupported_input"
+  ],
+  "local_official_agreement_state": "MISSING",
+  "official_relation_state": "MISSING",
+  "schema": "h3.context.perturbation.evaluation.v1",
+  "source_cluster_count": 9,
+  "sources": [
+    {
+      "material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for language."
+      },
+      "partition": "development",
+      "source_cluster_id": "cluster.01.language",
+      "source_fingerprint": "sha256:e4be7bec235e8bb329fd2528dbc80bdc439892a42fe8314d7f381c1cd7df0eeb",
+      "source_id": "source.01.language"
+    },
+    {
+      "material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for assets."
+      },
+      "partition": "development",
+      "source_cluster_id": "cluster.02.assets",
+      "source_fingerprint": "sha256:3b307687e6c53861b5d912a80eacb40f2e5871798fc0c6f6add2c91ffe8a8039",
+      "source_id": "source.02.assets"
+    },
+    {
+      "material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for temporal."
+      },
+      "partition": "development",
+      "source_cluster_id": "cluster.03.temporal",
+      "source_fingerprint": "sha256:91427cc938c5defbb5c3c734106795d64816b281c6934c66f7bd590baafe475f",
+      "source_id": "source.03.temporal"
+    },
+    {
+      "material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for directives."
+      },
+      "partition": "development",
+      "source_cluster_id": "cluster.04.directives",
+      "source_fingerprint": "sha256:665ab63eadbb5756b5c54df4a5274849f83398567749fbf07600fcb354036839",
+      "source_id": "source.04.directives"
+    },
+    {
+      "material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for uncertainty."
+      },
+      "partition": "development",
+      "source_cluster_id": "cluster.05.uncertainty",
+      "source_fingerprint": "sha256:1e5429644b619740de23280791f960fc40af35b8657f436bb6f1cbf9103f3802",
+      "source_id": "source.05.uncertainty"
+    },
+    {
+      "material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for exact_text."
+      },
+      "partition": "development",
+      "source_cluster_id": "cluster.06.exact_text",
+      "source_fingerprint": "sha256:a365b5746c9378c45c4b79e4b99917d294395efbe17684cda54e05fb8786a106",
+      "source_id": "source.06.exact_text"
+    },
+    {
+      "material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for presentation."
+      },
+      "partition": "frozen_test",
+      "source_cluster_id": "cluster.07.presentation",
+      "source_fingerprint": "sha256:515d9ff817fb3fba5aa4de916150048bb82557544bfd0f7e294537c44dc21722",
+      "source_id": "source.07.presentation"
+    },
+    {
+      "material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for audio_distractor."
+      },
+      "partition": "frozen_test",
+      "source_cluster_id": "cluster.08.audio_distractor",
+      "source_fingerprint": "sha256:f41d60d580447cfff105d79492c5a7b3d01f8285bfa8f46b453f8fd3cf6b33a7",
+      "source_id": "source.08.audio_distractor"
+    },
+    {
+      "material": {
+        "ambiguity": "none",
+        "assets": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "first_frame"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ],
+        "camera": "static",
+        "conflicts": [],
+        "dialogue": "Welcome home.",
+        "directives": [
+          {
+            "action": "retain",
+            "target": "subject_a"
+          }
+        ],
+        "distractors": [],
+        "duration_ms": 4000,
+        "metadata": {
+          "language": "en",
+          "normalization": "NFC"
+        },
+        "motion": "subject_walks_slowly",
+        "style": "natural_documentary",
+        "subjects": [
+          {
+            "source": "image_a",
+            "subject_id": "subject_a"
+          }
+        ],
+        "timeline": [
+          {
+            "end_ms": 1000,
+            "event_id": "event_a",
+            "start_ms": 0
+          },
+          {
+            "end_ms": 2000,
+            "event_id": "event_b",
+            "start_ms": 1000
+          },
+          {
+            "end_ms": 3000,
+            "event_id": "event_c",
+            "start_ms": 2000
+          }
+        ],
+        "timeline_offset_ms": 0,
+        "unsupported_inputs": [],
+        "video_audio": {
+          "mode": "retain",
+          "source": "video_a"
+        },
+        "visible_text": "OPEN",
+        "wording": "A quiet opening for unsupported."
+      },
+      "partition": "frozen_test",
+      "source_cluster_id": "cluster.09.unsupported",
+      "source_fingerprint": "sha256:574368d54347b25e5d236cd0abf2e75bd17d0be131bf8a86e3c765333bdd72cb",
+      "source_id": "source.09.unsupported"
+    }
+  ],
+  "specs": [
+    {
+      "case_id": "case.01.wording",
+      "dimension": "wording",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "invariant",
+        "rationale_code": "wording.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": "A measured opening."
+      },
+      "parent_id": "source.01.language",
+      "seed": 1402001,
+      "source_cluster_id": "cluster.01.language",
+      "target_path": "/wording"
+    },
+    {
+      "case_id": "case.02.unicode",
+      "dimension": "unicode",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "invariant",
+        "rationale_code": "unicode.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": "入口 Café"
+      },
+      "parent_id": "source.01.language",
+      "seed": 1402002,
+      "source_cluster_id": "cluster.01.language",
+      "target_path": "/visible_text"
+    },
+    {
+      "case_id": "case.03.metadata",
+      "dimension": "metadata",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "invariant",
+        "rationale_code": "metadata.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": {
+          "language": "zh_Hant",
+          "normalization": "NFC"
+        }
+      },
+      "parent_id": "source.01.language",
+      "seed": 1402003,
+      "source_cluster_id": "cluster.01.language",
+      "target_path": "/metadata"
+    },
+    {
+      "case_id": "case.04.asset_order",
+      "dimension": "asset_order",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "asset_order.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "reorder",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [
+          2,
+          0,
+          1
+        ],
+        "value": null
+      },
+      "parent_id": "source.02.assets",
+      "seed": 1402004,
+      "source_cluster_id": "cluster.02.assets",
+      "target_path": "/assets"
+    },
+    {
+      "case_id": "case.05.asset_role",
+      "dimension": "asset_role",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "asset_role.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": [
+          {
+            "asset_id": "image_a",
+            "modality": "image",
+            "role": "subject"
+          },
+          {
+            "asset_id": "video_a",
+            "modality": "video",
+            "role": "style"
+          },
+          {
+            "asset_id": "audio_a",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ]
+      },
+      "parent_id": "source.02.assets",
+      "seed": 1402005,
+      "source_cluster_id": "cluster.02.assets",
+      "target_path": "/assets"
+    },
+    {
+      "case_id": "case.06.modality_duplicate",
+      "dimension": "modality_duplicate",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "modality_duplicate.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "duplicate",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [
+          1
+        ],
+        "value": null
+      },
+      "parent_id": "source.02.assets",
+      "seed": 1402006,
+      "source_cluster_id": "cluster.02.assets",
+      "target_path": "/assets"
+    },
+    {
+      "case_id": "case.07.modality_removal",
+      "dimension": "modality_removal",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "modality_removal.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "splice",
+      "parameters": {
+        "delete_count": 1,
+        "delta": null,
+        "indices": [
+          1
+        ],
+        "value": []
+      },
+      "parent_id": "source.02.assets",
+      "seed": 1402007,
+      "source_cluster_id": "cluster.02.assets",
+      "target_path": "/assets"
+    },
+    {
+      "case_id": "case.08.modality_replacement",
+      "dimension": "modality_replacement",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "modality_replacement.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": [
+          {
+            "asset_id": "video_b",
+            "modality": "video",
+            "role": "reference"
+          },
+          {
+            "asset_id": "audio_b",
+            "modality": "audio",
+            "role": "reference_audio"
+          }
+        ]
+      },
+      "parent_id": "source.02.assets",
+      "seed": 1402008,
+      "source_cluster_id": "cluster.02.assets",
+      "target_path": "/assets"
+    },
+    {
+      "case_id": "case.09.temporal_shift",
+      "dimension": "temporal_shift",
+      "expected_local_relation": {
+        "direction": "increase",
+        "kind": "monotonic",
+        "rationale_code": "temporal_shift.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "numeric_shift",
+      "parameters": {
+        "delete_count": null,
+        "delta": 250,
+        "indices": [],
+        "value": null
+      },
+      "parent_id": "source.03.temporal",
+      "seed": 1402009,
+      "source_cluster_id": "cluster.03.temporal",
+      "target_path": "/timeline_offset_ms"
+    },
+    {
+      "case_id": "case.10.temporal_reverse",
+      "dimension": "temporal_reverse",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "temporal_reverse.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "reverse",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": null
+      },
+      "parent_id": "source.03.temporal",
+      "seed": 1402010,
+      "source_cluster_id": "cluster.03.temporal",
+      "target_path": "/timeline"
+    },
+    {
+      "case_id": "case.11.temporal_splice",
+      "dimension": "temporal_splice",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "temporal_splice.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "splice",
+      "parameters": {
+        "delete_count": 1,
+        "delta": null,
+        "indices": [
+          1
+        ],
+        "value": [
+          {
+            "end_ms": 2500,
+            "event_id": "event_inserted",
+            "start_ms": 1500
+          }
+        ]
+      },
+      "parent_id": "source.03.temporal",
+      "seed": 1402011,
+      "source_cluster_id": "cluster.03.temporal",
+      "target_path": "/timeline"
+    },
+    {
+      "case_id": "case.12.subject_fusion",
+      "dimension": "subject_fusion",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "subject_fusion.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": [
+          {
+            "source": "image_a+video_a",
+            "subject_id": "subject_fused"
+          }
+        ]
+      },
+      "parent_id": "source.04.directives",
+      "seed": 1402012,
+      "source_cluster_id": "cluster.04.directives",
+      "target_path": "/subjects"
+    },
+    {
+      "case_id": "case.13.directive_copy",
+      "dimension": "directive_copy",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "directive_copy.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": [
+          {
+            "action": "copy",
+            "target": "subject_a"
+          }
+        ]
+      },
+      "parent_id": "source.04.directives",
+      "seed": 1402013,
+      "source_cluster_id": "cluster.04.directives",
+      "target_path": "/directives"
+    },
+    {
+      "case_id": "case.14.directive_retain",
+      "dimension": "directive_retain",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "directive_retain.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": [
+          {
+            "action": "retain",
+            "target": "style"
+          }
+        ]
+      },
+      "parent_id": "source.04.directives",
+      "seed": 1402014,
+      "source_cluster_id": "cluster.04.directives",
+      "target_path": "/directives"
+    },
+    {
+      "case_id": "case.15.directive_adapt",
+      "dimension": "directive_adapt",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "directive_adapt.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": [
+          {
+            "action": "adapt",
+            "target": "motion"
+          }
+        ]
+      },
+      "parent_id": "source.04.directives",
+      "seed": 1402015,
+      "source_cluster_id": "cluster.04.directives",
+      "target_path": "/directives"
+    },
+    {
+      "case_id": "case.16.directive_exclude",
+      "dimension": "directive_exclude",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "directive_exclude.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "remove",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": null
+      },
+      "parent_id": "source.04.directives",
+      "seed": 1402016,
+      "source_cluster_id": "cluster.04.directives",
+      "target_path": "/directives"
+    },
+    {
+      "case_id": "case.17.ambiguity",
+      "dimension": "ambiguity",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "unknown",
+        "rationale_code": "ambiguity.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": "subject_reference_unclear"
+      },
+      "parent_id": "source.05.uncertainty",
+      "seed": 1402017,
+      "source_cluster_id": "cluster.05.uncertainty",
+      "target_path": "/ambiguity"
+    },
+    {
+      "case_id": "case.18.conflict",
+      "dimension": "conflict",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "unknown",
+        "rationale_code": "conflict.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": [
+          "camera_static_vs_tracking"
+        ]
+      },
+      "parent_id": "source.05.uncertainty",
+      "seed": 1402018,
+      "source_cluster_id": "cluster.05.uncertainty",
+      "target_path": "/conflicts"
+    },
+    {
+      "case_id": "case.19.duration",
+      "dimension": "duration",
+      "expected_local_relation": {
+        "direction": "increase",
+        "kind": "monotonic",
+        "rationale_code": "duration.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "numeric_shift",
+      "parameters": {
+        "delete_count": null,
+        "delta": 1000,
+        "indices": [],
+        "value": null
+      },
+      "parent_id": "source.06.exact_text",
+      "seed": 1402019,
+      "source_cluster_id": "cluster.06.exact_text",
+      "target_path": "/duration_ms"
+    },
+    {
+      "case_id": "case.20.dialogue",
+      "dimension": "dialogue",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "dialogue.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": "Do not turn back."
+      },
+      "parent_id": "source.06.exact_text",
+      "seed": 1402020,
+      "source_cluster_id": "cluster.06.exact_text",
+      "target_path": "/dialogue"
+    },
+    {
+      "case_id": "case.21.visible_text",
+      "dimension": "visible_text",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "visible_text.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": "AUTHORIZED ENTRY"
+      },
+      "parent_id": "source.06.exact_text",
+      "seed": 1402021,
+      "source_cluster_id": "cluster.06.exact_text",
+      "target_path": "/visible_text"
+    },
+    {
+      "case_id": "case.22.style",
+      "dimension": "style",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "style.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": "ink_wash"
+      },
+      "parent_id": "source.07.presentation",
+      "seed": 1402022,
+      "source_cluster_id": "cluster.07.presentation",
+      "target_path": "/style"
+    },
+    {
+      "case_id": "case.23.motion",
+      "dimension": "motion",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "motion.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": "subject_runs_quickly"
+      },
+      "parent_id": "source.07.presentation",
+      "seed": 1402023,
+      "source_cluster_id": "cluster.07.presentation",
+      "target_path": "/motion"
+    },
+    {
+      "case_id": "case.24.camera",
+      "dimension": "camera",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "camera.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": "slow_dolly_in"
+      },
+      "parent_id": "source.07.presentation",
+      "seed": 1402024,
+      "source_cluster_id": "cluster.07.presentation",
+      "target_path": "/camera"
+    },
+    {
+      "case_id": "case.25.video_audio",
+      "dimension": "video_audio",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "covariant",
+        "rationale_code": "video_audio.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": {
+          "mode": "exclude",
+          "source": "video_a"
+        }
+      },
+      "parent_id": "source.08.audio_distractor",
+      "seed": 1402025,
+      "source_cluster_id": "cluster.08.audio_distractor",
+      "target_path": "/video_audio"
+    },
+    {
+      "case_id": "case.26.distractor",
+      "dimension": "distractor",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "invariant",
+        "rationale_code": "distractor.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "append",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": "decorative_cloud"
+      },
+      "parent_id": "source.08.audio_distractor",
+      "seed": 1402026,
+      "source_cluster_id": "cluster.08.audio_distractor",
+      "target_path": "/distractors"
+    },
+    {
+      "case_id": "case.27.unsupported_input",
+      "dimension": "unsupported_input",
+      "expected_local_relation": {
+        "direction": null,
+        "kind": "unknown",
+        "rationale_code": "unsupported_input.local.expectation",
+        "state": "EXPECTED"
+      },
+      "operation": "replace",
+      "parameters": {
+        "delete_count": null,
+        "delta": null,
+        "indices": [],
+        "value": [
+          "unknown_binary_modality"
+        ]
+      },
+      "parent_id": "source.09.unsupported",
+      "seed": 1402027,
+      "source_cluster_id": "cluster.09.unsupported",
+      "target_path": "/unsupported_inputs"
+    }
+  ]
+}

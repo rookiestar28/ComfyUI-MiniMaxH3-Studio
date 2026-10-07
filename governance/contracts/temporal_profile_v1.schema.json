@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/temporal_profile_v1.schema.json",
+  "title": "ComfyUI H3 temporal capability profile",
+  "description": "Content-free projection of the H3 temporal capability profile. Every member declares exactly one provenance class: an adapter fact is bound to a pinned official source and is ungated, while a model capability claim is instantiated only by an accepted M19-07 row with status supported. A claim that is not qualified is still present and reports its status, because absent and unqualified are different answers.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "video_fps",
+    "audio_latent_fps",
+    "audio_latent_ratio",
+    "exact_audio_period_frames",
+    "lattice_offset",
+    "lattice_step",
+    "context_extent_grid_frames",
+    "minimum_context_extent_frames",
+    "accepted_frame_range",
+    "trained_frame_range",
+    "adapter_facts",
+    "capability_claims",
+    "limitations",
+    "subject_identity"
+  ],
+  "properties": {
+    "schema": { "const": "h3-context-temporal-profile/1" },
+    "version": { "type": "integer", "minimum": 1, "maximum": 99 },
+    "video_fps": { "type": "integer", "minimum": 1 },
+    "audio_latent_fps": { "type": "integer", "minimum": 1 },
+    "audio_latent_ratio": {
+      "description": "The exact rational relation between the two grids, as numerator/denominator. Carried as a ratio rather than a float so no consumer compares binary approximations.",
+      "type": "string",
+      "pattern": "^[0-9]+/[0-9]+$"
+    },
+    "exact_audio_period_frames": { "type": "integer", "minimum": 1 },
+    "lattice_offset": { "type": "integer", "minimum": 1 },
+    "lattice_step": { "type": "integer", "minimum": 1 },
+    "context_extent_grid_frames": { "type": "integer", "minimum": 1 },
+    "minimum_context_extent_frames": { "type": "integer", "minimum": 1 },
+    "accepted_frame_range": { "$ref": "#/$defs/frame_range" },
+    "trained_frame_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason_code", "value"],
+      "properties": {
+        "status": { "$ref": "#/$defs/status" },
+        "reason_code": { "$ref": "#/$defs/reason_code" },
+        "value": {
+          "description": "Present exactly when the status is supported. Null is the unqualified state, which a consumer must not read as the absence of a trained bound.",
+          "oneOf": [{ "$ref": "#/$defs/frame_range" }, { "type": "null" }]
+        }
+      }
+    },
+    "adapter_facts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/adapter_fact" }
+    },
+    "capability_claims": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/capability_claim" }
+    },
+    "limitations": {
+      "type": "array",
+      "maxItems": 64,
+      "items": { "type": "string", "minLength": 1, "maxLength": 240 }
+    },
+    "subject_identity": {
+      "description": "The opaque content digest of the pinned upstream source, or null when no accepted qualification has been joined.",
+      "oneOf": [{ "$ref": "#/$defs/digest" }, { "type": "null" }]
+    }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "reason_code": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "status": {
+      "description": "The M19-07 row vocabulary, preserved exactly.",
+      "enum": ["supported", "unsupported", "unqualified", "retired"]
+    },
+    "evidence_level": {
+      "enum": [
+        "official",
+        "framework_reference",
+        "community_recommended",
+        "experimental",
+        "modified"
+      ]
+    },
+    "frame_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum", "maximum", "hedged"],
+      "properties": {
+        "minimum": { "type": "integer", "minimum": 0 },
+        "maximum": { "type": "integer", "minimum": 0 },
+        "hedged": {
+          "description": "Whether the published form of this range is approximate. The trained range is published as approximately 124-362 with longer untested; recording it as a hard limit would invent precision the source does not claim.",
+          "type": "boolean"
+        }
+      }
+    },
+    "pinned_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "revision", "retrieved_on", "digest", "byte_length"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "revision": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "retrieved_on": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+        "digest": {
+          "description": "Null where the source is pinned by upstream revision rather than by a computed content hash.",
+          "oneOf": [{ "$ref": "#/$defs/digest" }, { "type": "null" }]
+        },
+        "byte_length": {
+          "oneOf": [{ "type": "integer", "minimum": 0 }, { "type": "null" }]
+        }
+      }
+    },
+    "adapter_fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "provenance", "summary", "evidence_level", "source"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "provenance": { "const": "adapter_fact" },
+        "summary": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "evidence_level": { "$ref": "#/$defs/evidence_level" },
+        "source": { "$ref": "#/$defs/pinned_source" }
+      }
+    },
+    "capability_claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "provenance",
+        "summary",
+        "row",
+        "status",
+        "reason_code",
+        "evidence_level"
+      ],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "provenance": { "const": "model_capability" },
+        "summary": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "row": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "status": { "$ref": "#/$defs/status" },
+        "reason_code": { "$ref": "#/$defs/reason_code" },
+        "evidence_level": {
+          "description": "Null unless the claim is qualified. Every declared level describes evidence that exists, so naming one for an unqualified capability would invent it.",
+          "oneOf": [{ "$ref": "#/$defs/evidence_level" }, { "type": "null" }]
+        }
+      }
+    }
+  }
+}

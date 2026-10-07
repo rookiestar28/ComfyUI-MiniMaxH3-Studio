@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/source_requalification_v1.schema.json",
+  "title": "H3 Context M16-01 source requalification ledger v1",
+  "description": "Closed, content-free source/API/model/host drift dispositions; it never authorizes latest substitution.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "item",
+    "version",
+    "updated_at",
+    "baseline",
+    "supported_profile",
+    "surfaces",
+    "schema_diffs",
+    "claims",
+    "unknowns",
+    "attributions",
+    "guards"
+  ],
+  "properties": {
+    "schema": {"const": "h3-context-source-requalification/1"},
+    "item": {"const": "M16-01"},
+    "version": {"const": "1.0.0"},
+    "updated_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+    "baseline": {"$ref": "#/$defs/baseline"},
+    "supported_profile": {"$ref": "#/$defs/supported_profile"},
+    "surfaces": {"type": "array", "minItems": 24, "maxItems": 32, "items": {"$ref": "#/$defs/surface"}},
+    "schema_diffs": {"type": "array", "minItems": 1, "maxItems": 32, "items": {"$ref": "#/$defs/schema_diff"}},
+    "claims": {"type": "array", "minItems": 1, "maxItems": 32, "items": {"$ref": "#/$defs/record"}},
+    "unknowns": {"type": "array", "minItems": 1, "maxItems": 32, "items": {"$ref": "#/$defs/record"}},
+    "attributions": {"type": "array", "minItems": 5, "maxItems": 16, "items": {"$ref": "#/$defs/attribution"}},
+    "guards": {"$ref": "#/$defs/guards"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "revision": {"type": "string", "pattern": "^(?:(git|gitblob|sha256):[0-9a-f]{40,64}|unavailable)$"},
+    "url": {"type": "string", "pattern": "^https://[^\\s?#@\\\\]+$", "maxLength": 2048},
+    "string_list": {"type": "array", "maxItems": 32, "items": {"$ref": "#/$defs/id"}, "uniqueItems": true},
+    "baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checkpoint_id", "fixture", "fingerprint"],
+      "properties": {
+        "checkpoint_id": {"const": "m14_09"},
+        "fixture": {"type": "string", "pattern": "^[A-Za-z0-9._/-]+$", "maxLength": 512},
+        "fingerprint": {"$ref": "#/$defs/revision"}
+      }
+    },
+    "supported_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "core_version",
+        "core_revision",
+        "frontend_version",
+        "frontend_revision",
+        "node_api",
+        "native_h3_source",
+        "status",
+        "latest_substitution_authorized",
+        "manual_only_scoped",
+        "prompt_boundary",
+        "autogrow_transport",
+        "presentation_labels",
+        "h3_execution_status"
+      ],
+      "properties": {
+        "core_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+        "core_revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "frontend_version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+        "frontend_revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "node_api": {"enum": ["V1_ONLY", "V3_ONLY", "V1_V3_COMPAT"]},
+        "native_h3_source": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "status": {"enum": ["QUALIFIED_UNCHANGED", "BLOCKED_PENDING_REQUALIFICATION"]},
+        "latest_substitution_authorized": {"const": false},
+        "manual_only_scoped": {"const": true},
+        "prompt_boundary": {"const": "STRING"},
+        "autogrow_transport": {"const": "fully_qualified_zero_based"},
+        "presentation_labels": {"const": "one_based"},
+        "h3_execution_status": {"const": "NOT_IMPLEMENTED"}
+      }
+    },
+    "surface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "surface_id",
+        "group",
+        "url",
+        "baseline_revision",
+        "observed_revision",
+        "observed_fingerprint",
+        "retrieved_at",
+        "evidence_class",
+        "confidence",
+        "material",
+        "disposition",
+        "affected_seams",
+        "requalification_owner"
+      ],
+      "properties": {
+        "surface_id": {"$ref": "#/$defs/id"},
+        "group": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+        "url": {"$ref": "#/$defs/url"},
+        "baseline_revision": {"$ref": "#/$defs/revision"},
+        "observed_revision": {"$ref": "#/$defs/revision"},
+        "observed_fingerprint": {"$ref": "#/$defs/revision"},
+        "retrieved_at": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+        "evidence_class": {"enum": ["official", "framework_reference"]},
+        "confidence": {"enum": ["high", "medium", "low", "unknown"]},
+        "material": {"type": "boolean"},
+        "disposition": {"enum": ["EXACT_MATCH", "ADDITIVE_NON_SUBSTITUTING", "BLOCKED_PENDING_REQUALIFICATION"]},
+        "affected_seams": {"$ref": "#/$defs/string_list"},
+        "requalification_owner": {"$ref": "#/$defs/id"}
+      }
+    },
+    "schema_diff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["diff_id", "surface_id", "component", "baseline_fingerprint", "observed_fingerprint", "severity", "disposition", "details", "affected_profiles"],
+      "properties": {
+        "diff_id": {"$ref": "#/$defs/id"},
+        "surface_id": {"$ref": "#/$defs/id"},
+        "component": {"type": "string", "minLength": 1, "maxLength": 256},
+        "baseline_fingerprint": {"$ref": "#/$defs/revision"},
+        "observed_fingerprint": {"$ref": "#/$defs/revision"},
+        "severity": {"enum": ["unchanged", "additive", "material"]},
+        "disposition": {"enum": ["UNCHANGED_CONTRACT", "EXACT_MATCH", "ADDITIVE_NON_SUBSTITUTING", "BLOCKED_PENDING_REQUALIFICATION"]},
+        "details": {"type": "string", "minLength": 1, "maxLength": 1024},
+        "affected_profiles": {"$ref": "#/$defs/string_list"}
+      }
+    },
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_id", "statement", "status", "confidence", "source_ids", "affected_profiles"],
+      "properties": {
+        "record_id": {"$ref": "#/$defs/id"},
+        "statement": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "status": {"enum": ["accepted", "blocked", "open", "resolved"]},
+        "confidence": {"enum": ["high", "medium", "low", "unknown"]},
+        "source_ids": {"$ref": "#/$defs/string_list"},
+        "affected_profiles": {"$ref": "#/$defs/string_list"}
+      }
+    },
+    "attribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attribution_id", "subject", "license", "source_ids", "status"],
+      "properties": {
+        "attribution_id": {"$ref": "#/$defs/id"},
+        "subject": {"type": "string", "minLength": 1, "maxLength": 256},
+        "license": {"type": "string", "minLength": 1, "maxLength": 256},
+        "source_ids": {"$ref": "#/$defs/string_list"},
+        "status": {"const": "recorded"}
+      }
+    },
+    "guards": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["network_performed", "model_downloaded", "media_read", "provider_called", "credentials_used", "paid_calls", "latest_substitution_authorized"],
+      "properties": {
+        "network_performed": {"const": false},
+        "model_downloaded": {"const": false},
+        "media_read": {"const": false},
+        "provider_called": {"const": false},
+        "credentials_used": {"const": false},
+        "paid_calls": {"const": false},
+        "latest_substitution_authorized": {"const": false}
+      }
+    }
+  }
+}

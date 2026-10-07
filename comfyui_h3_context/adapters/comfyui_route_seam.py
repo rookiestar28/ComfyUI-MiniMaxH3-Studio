@@ -242,6 +242,14 @@ def host_web_and_routes() -> tuple[Any, Any] | None:
     return web, routes
 
 
+def host_recovery_facts() -> tuple[object, object]:
+    """Actual server args/user manager, without importing the optional host or constructing it."""
+    args = getattr(sys.modules.get("comfy.cli_args"), "args", None)
+    prompt_server = getattr(sys.modules.get("server"), "PromptServer", None)
+    manager = getattr(getattr(prompt_server, "instance", None), "user_manager", None)
+    return args, manager
+
+
 def route_method_available(routes: Any, policy: RoutePolicy) -> bool:
     """Whether the host router can serve this policy's method at all.
 
@@ -442,6 +450,8 @@ def register_owned_route(
 
     def refuse(status: int, reason: str) -> Any:
         body = refusal_body(status, reason)
+        if type(body) is RouteResult:
+            return serialize(body)
         if body is None:
             return web.Response(status=status)
         return web.json_response(body, status=status)
@@ -533,6 +543,7 @@ __all__ = [
     "content_length_verdict",
     "encoded_response",
     "host_web_and_routes",
+    "host_recovery_facts",
     "origin_accepted",
     "offload_route_handler",
     "public_origins",

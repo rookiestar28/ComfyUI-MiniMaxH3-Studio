@@ -1,0 +1,183 @@
+{
+  "fingerprint": "sha256:1350494c125eea95d40401181200ed4e2151d5ddeeba510966b58e8fe771ae62",
+  "metrics": [
+    {
+      "baseline": 13,
+      "baseline_commit": "add8a535bca3769a91291fb31012b7447e1682b8",
+      "evidence": "inventory rows still failing closed as NEED_EVIDENCE",
+      "final": 7,
+      "final_commit": "48c0bcb23265827f77be59b334d27effe9199844",
+      "metric_id": "contracts_with_undecided_disposition",
+      "moved": true,
+      "unit": "contracts"
+    },
+    {
+      "baseline": 282,
+      "baseline_commit": "add8a535bca3769a91291fb31012b7447e1682b8",
+      "evidence": "M18-02 assigned a domain to every identity it later records",
+      "final": 0,
+      "final_commit": "48c0bcb23265827f77be59b334d27effe9199844",
+      "metric_id": "identities_without_a_declared_domain",
+      "moved": true,
+      "unit": "identities"
+    },
+    {
+      "baseline": 250136,
+      "baseline_commit": "aea047c471e3cc87654fc67e64c6b9db6f216cfd",
+      "evidence": "the v1 bindings and reachability sections, sized on the shipped manifest",
+      "final": 0,
+      "final_commit": "aea047c471e3cc87654fc67e64c6b9db6f216cfd",
+      "metric_id": "manifest_bytes_restating_a_computable_fact",
+      "moved": true,
+      "unit": "bytes"
+    },
+    {
+      "baseline": 326123,
+      "baseline_commit": "aea047c471e3cc87654fc67e64c6b9db6f216cfd",
+      "evidence": "the shipped v1 wire against the v2 it projects from, sized here not copied",
+      "final": 78696,
+      "final_commit": "aea047c471e3cc87654fc67e64c6b9db6f216cfd",
+      "metric_id": "public_manifest_wire_bytes",
+      "moved": true,
+      "unit": "bytes"
+    },
+    {
+      "baseline": 4,
+      "baseline_commit": "48c0bcb23265827f77be59b334d27effe9199844",
+      "evidence": "M18-05's own retirement record, which carries both ends of this number",
+      "final": 0,
+      "final_commit": "48c0bcb23265827f77be59b334d27effe9199844",
+      "metric_id": "schemas_restating_a_wire_with_no_reader",
+      "moved": true,
+      "unit": "contracts"
+    },
+    {
+      "baseline": 89,
+      "baseline_commit": "add8a535bca3769a91291fb31012b7447e1682b8",
+      "evidence": "the headline number, which the chain moved by nothing",
+      "final": 89,
+      "final_commit": "48c0bcb23265827f77be59b334d27effe9199844",
+      "metric_id": "shipped_schema_files",
+      "moved": false,
+      "unit": "files"
+    }
+  ],
+  "probes": [
+    {
+      "authority": "canonical_fingerprint over workflow fixture material",
+      "depends_on": [],
+      "domain": "fixture",
+      "probe_id": "fixture_identity"
+    },
+    {
+      "authority": "core/canonical.py::canonical_fingerprint",
+      "depends_on": [],
+      "domain": "semantic",
+      "probe_id": "prompt_fingerprint"
+    },
+    {
+      "authority": "canonical_fingerprint over pinned upstream revision material",
+      "depends_on": [],
+      "domain": "release_integrity",
+      "probe_id": "release_identity"
+    },
+    {
+      "authority": "core/canonical.py::fingerprint_context_report",
+      "depends_on": [],
+      "domain": "semantic",
+      "probe_id": "report_fingerprint"
+    },
+    {
+      "authority": "core/ui_projection.py::BoundedUIProjection.to_wire",
+      "depends_on": [
+        "semantic"
+      ],
+      "domain": "presentation",
+      "probe_id": "ui_projection_identity"
+    },
+    {
+      "authority": "canonical_fingerprint over the declared contract surface",
+      "depends_on": [],
+      "domain": "wire_contract",
+      "probe_id": "wire_contract_identity"
+    }
+  ],
+  "rows": [
+    {
+      "domain": "fixture",
+      "evidence": "a workflow fixture gains a node; no execution identity may follow it",
+      "moved": [
+        "fixture_identity"
+      ],
+      "mutation_id": "fixture_node_set_changes",
+      "unmoved": [
+        "prompt_fingerprint",
+        "release_identity",
+        "report_fingerprint",
+        "ui_projection_identity",
+        "wire_contract_identity"
+      ]
+    },
+    {
+      "domain": "release_integrity",
+      "evidence": "a pinned upstream revision moves; no execution identity may follow it",
+      "moved": [
+        "release_identity"
+      ],
+      "mutation_id": "pinned_upstream_revision_changes",
+      "unmoved": [
+        "fixture_identity",
+        "prompt_fingerprint",
+        "report_fingerprint",
+        "ui_projection_identity",
+        "wire_contract_identity"
+      ]
+    },
+    {
+      "domain": "semantic",
+      "evidence": "the meaning changes, so every execution identity must move",
+      "moved": [
+        "prompt_fingerprint",
+        "report_fingerprint",
+        "ui_projection_identity"
+      ],
+      "mutation_id": "prompt_intent_changes",
+      "unmoved": [
+        "fixture_identity",
+        "release_identity",
+        "wire_contract_identity"
+      ]
+    },
+    {
+      "domain": "presentation",
+      "evidence": "a render-only label moves; no execution identity may follow it",
+      "moved": [
+        "ui_projection_identity"
+      ],
+      "mutation_id": "ui_event_state_changes",
+      "unmoved": [
+        "fixture_identity",
+        "prompt_fingerprint",
+        "release_identity",
+        "report_fingerprint",
+        "wire_contract_identity"
+      ]
+    },
+    {
+      "domain": "wire_contract",
+      "evidence": "the declared contract surface gains a field; instance values are untouched",
+      "moved": [
+        "wire_contract_identity"
+      ],
+      "mutation_id": "wire_contract_shape_changes",
+      "unmoved": [
+        "fixture_identity",
+        "prompt_fingerprint",
+        "release_identity",
+        "report_fingerprint",
+        "ui_projection_identity"
+      ]
+    }
+  ],
+  "schema": "h3-context-closeout-matrix/1"
+}

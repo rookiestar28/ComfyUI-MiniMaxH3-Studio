@@ -615,6 +615,17 @@ def _msvcrt_get_osfhandle(descriptor: int) -> int:
     return int(getattr(msvcrt, "get_osfhandle")(descriptor))  # noqa: B009
 
 
+def _windows_native_path(path: Path, *, force: bool = False) -> str:
+    value = str(path)
+    if (not force and len(value) < 248) or value.startswith("\\\\?\\"):
+        return value
+    if not path.is_absolute() or ".." in path.parts:
+        raise ArtifactStoreError("unsafe_store_entry")
+    # CRITICAL: Python's long-path support does not extend to direct CreateFileW calls.
+    # Prefix only an already admitted absolute path; never resolve across reparse components.
+    return "\\\\?\\UNC\\" + value[2:] if value.startswith("\\\\") else "\\\\?\\" + value
+
+
 def _windows_pin_directory(path: Path) -> int:
     import ctypes
 
@@ -631,7 +642,7 @@ def _windows_pin_directory(path: Path) -> int:
     )
     create_file.restype = ctypes.c_void_p
     handle = create_file(
-        str(path),
+        _windows_native_path(path),
         0x80000000,
         0x00000001 | 0x00000002,
         None,
@@ -664,7 +675,7 @@ def _windows_open_new_file(path: Path) -> int:
     )
     create_file.restype = ctypes.c_void_p
     handle = create_file(
-        str(path),
+        _windows_native_path(path),
         0x40000000,
         0x00000001 | 0x00000002,
         None,
@@ -700,7 +711,7 @@ def _windows_open_existing_file(path: Path) -> int:
     )
     create_file.restype = ctypes.c_void_p
     handle = create_file(
-        str(path),
+        _windows_native_path(path),
         0x80000000,
         0x00000001 | 0x00000002,
         None,
@@ -737,7 +748,7 @@ def _windows_move_new_file(source: Path, destination: Path) -> int:
     )
     create_file.restype = ctypes.c_void_p
     handle = create_file(
-        str(source),
+        _windows_native_path(source),
         0x80000000 | 0x00010000,
         0x00000001,
         None,
@@ -895,7 +906,7 @@ def _windows_delete_exact(path: Path, *, expected: os.stat_result) -> None:
     )
     create_file.restype = ctypes.c_void_p
     handle = create_file(
-        str(path),
+        _windows_native_path(path),
         0x00010000 | 0x00000080,
         0x00000001 | 0x00000002,
         None,
@@ -1077,6 +1088,7 @@ class PrivateSegmentArtifactStore:
         *,
         policy: ArtifactStorePolicy | None = None,
         clock_ms: Callable[[], int],
+        owner_lock: int | None = None,
     ) -> None:
         if not isinstance(root, Path):
             raise ArtifactStoreError("unsafe_store_root")
@@ -1084,6 +1096,24 @@ class PrivateSegmentArtifactStore:
         if type(self._policy) is not ArtifactStorePolicy or not callable(clock_ms):
             raise ArtifactStoreError("store_configuration")
         self._clock_ms = clock_ms
+        self._owner_lock = owner_lock
+        if owner_lock is not None:
+            try:
+                if type(owner_lock) is not int or owner_lock < 0:
+                    raise ArtifactStoreError("unsafe_store_owner")
+                owner = validate_regular_file(root / ".owner.lock", maximum_bytes=1_024).lstat()
+                opened = os.fstat(owner_lock)
+                # CRITICAL: only the production lease's exact open single-link file extends
+                # the closed root layout; merely finding an owner filename grants nothing.
+                if (
+                    not stat.S_ISREG(opened.st_mode)
+                    or opened.st_nlink != 1
+                    or owner.st_nlink != 1
+                    or _identity(opened) != _identity(owner)
+                ):
+                    raise ArtifactStoreError("unsafe_store_owner")
+            except (UnsafePathError, OSError) as exc:
+                raise ArtifactStoreError("unsafe_store_owner") from exc
         coordination_key = os.path.normcase(str(root.absolute()))
         with _COORDINATORS_GUARD:
             coordination = _COORDINATORS.get(coordination_key)
@@ -1112,7 +1142,7 @@ class PrivateSegmentArtifactStore:
                 admitted_root = validate_directory(root)
                 initial_entries = self._bounded_entries(
                     admitted_root,
-                    maximum=len(_CHILD_NAMES) + 2,
+                    maximum=len(_CHILD_NAMES) + 2 + int(self._owner_lock is not None),
                 )
         except (UnsafePathError, OSError, ArtifactStoreError) as exc:
             raise ArtifactStoreError("unsafe_store_root") from exc
@@ -1121,7 +1151,8 @@ class PrivateSegmentArtifactStore:
         self._state = self._root / _STATE_NAME
         marker_metadata = _lstat_optional(self._marker)
         if marker_metadata is None:
-            if initial_entries:
+            permitted_initial = {".owner.lock"} if self._owner_lock is not None else set()
+            if any(entry.name not in permitted_initial for entry in initial_entries):
                 raise ArtifactStoreError("foreign_store_root")
             self._atomic_publish_new(
                 self._marker,
@@ -1130,6 +1161,8 @@ class PrivateSegmentArtifactStore:
             )
         self._validate_marker()
         allowed_root_names = {_MARKER_NAME, _STATE_NAME, *_CHILD_NAMES}
+        if self._owner_lock is not None:
+            allowed_root_names.add(".owner.lock")
         try:
             if any(entry.name not in allowed_root_names for entry in self._root.iterdir()):
                 raise ArtifactStoreError("foreign_store_root")

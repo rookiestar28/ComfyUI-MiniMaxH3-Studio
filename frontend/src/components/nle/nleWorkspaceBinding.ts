@@ -36,9 +36,11 @@ import type { SegmentationPolicy } from "../../contracts/productionPlanningCodec
 import type { SidebarRetention } from "../../state/sidebarRetention";
 import type { MediaToolsBinding } from "../../state/mediaRuntimeState";
 import type { SeamResult } from "../../host/hostSeams";
+import type { ProjectFileBinding } from "../../lifecycle/projectFileSession";
 
 export type NleWorkspaceBinding = Readonly<{
   locale: Locale;
+  project?: ProjectFileBinding;
   state: NleWorkspaceState;
   /**
    * M25-21: bounded view and draft retention. A local view change only; writing it issues no
@@ -89,6 +91,7 @@ export type NleWorkspaceBinding = Readonly<{
     timeline(intent: AuthoringIntent): Promise<void>;
     clearImportHighlight(): void;
     setTargetSeconds(value: number): void;
+    setPlanningScript?(value: string): void;
     setPolicy(policy: SegmentationPolicy): void;
     prepareContext(): Promise<void>;
     openStoryboardReview(open: boolean): void;

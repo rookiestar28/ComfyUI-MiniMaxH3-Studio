@@ -1,3 +1,87 @@
+.h3c .h3-project-file {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding-block: 8px;
+}
+.h3c .h3-project-file label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.h3c .h3-project-file input,
+.h3c .h3-project-file select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.h3c .h3-project-file p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.h3c .h3-project-media-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px;
+  gap: 8px;
+  align-items: end;
+}
+.h3c .h3-project-media-row button {
+  width: 32px;
+  height: 32px;
+}
+.h3c .h3-project-menu {
+  position: relative;
+  flex: 0 0 32px;
+}
+.h3c .h3-project-recovery {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding-block-start: 8px;
+  border-block-start: 1px solid var(--h3-border);
+}
+.h3c .h3-project-file .h3-project-recovery-toggle {
+  display: flex;
+  gap: 8px;
+  align-items: start;
+}
+.h3c .h3-project-recovery-toggle input {
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+}
+.h3c .h3-project-recovery-catalog {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 32px 32px;
+  gap: 4px;
+  align-items: end;
+}
+.h3c .h3-project-recovery-catalog button {
+  width: 32px;
+  height: 32px;
+}
+.h3c .h3-project-menu summary {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  list-style: none;
+}
+.h3c .h3-project-menu > .h3-project-file {
+  position: absolute;
+  z-index: 10;
+  inset-block-start: 36px;
+  inset-inline-end: 0;
+  width: min(320px, calc(100vw - 32px));
+  max-height: calc(100vh - 100px);
+  overflow: auto;
+  padding: 12px;
+  background: var(--h3-surface-1);
+  border: 1px solid var(--h3-border);
+  border-radius: 4px;
+}
 .h3c {
   box-sizing: border-box;
 }
@@ -1693,6 +1777,77 @@
   border: 1px solid var(--h3-line-strong);
   padding: 12px;
   background: var(--h3-panel-2);
+}
+
+.h3s-recovery {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--h3-line-strong);
+  min-width: 0;
+}
+.h3s-recovery :is(h3, h4, p) {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.h3s-recovery h3 {
+  font-size: 14px;
+}
+.h3s-recovery-toggle,
+.h3s-recovery-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+/* IMPORTANT: .h3c stretches text inputs. Keep this checkbox fixed-size or its label wraps away. */
+.h3c .h3s-recovery-toggle input[type="checkbox"] {
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+}
+.h3s-recovery-actions .h3-icon-button {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+}
+.h3s-recovery [aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: default;
+}
+.h3s-recovery select {
+  min-width: 0;
+  width: 100%;
+}
+.h3s-recovery-confirm {
+  margin: 0;
+  padding: 8px;
+  border: 1px solid var(--h3-line-strong);
+}
+.h3s-recovery-confirm button {
+  margin: 4px 8px 0 0;
+}
+.h3s-recovery-result {
+  display: grid;
+  gap: 4px;
+  padding: 8px 0;
+}
+.h3-retained-preview {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  min-width: 0;
+  object-fit: contain;
+}
+.h3-retain-output {
+  width: 100%;
+}
+.h3-retained-inventory {
+  display: grid;
+  gap: 4px;
 }
 @container h3-sidebar (max-width: 480px) {
   .h3c {

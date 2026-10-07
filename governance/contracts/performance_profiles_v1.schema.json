@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://comfyui-h3-context.invalid/contracts/performance_profiles_v1.schema.json",
+  "title": "ComfyUI-MiniMaxH3-Context Performance Profiles V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "profiles"],
+  "properties": {
+    "schema": { "const": "h3.performance.profiles.v1" },
+    "profiles": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "prefixItems": [
+        { "$ref": "#/$defs/cpu" },
+        { "$ref": "#/$defs/low_resource" },
+        { "$ref": "#/$defs/mainstream_gpu" },
+        { "$ref": "#/$defs/high_fidelity" }
+      ],
+      "items": false
+    }
+  },
+  "$defs": {
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "warmups",
+        "repetitions",
+        "max_latency_ms",
+        "max_process_rss_bytes",
+        "max_python_peak_bytes",
+        "max_vram_bytes",
+        "max_output_bytes",
+        "max_output_items",
+        "max_cancellation_latency_ms",
+        "max_wall_time_ms",
+        "max_concurrency",
+        "max_cache_ttl_seconds"
+      ],
+      "properties": {
+        "warmups": { "type": "integer", "minimum": 1 },
+        "repetitions": { "type": "integer", "minimum": 3 },
+        "max_latency_ms": { "type": "number", "exclusiveMinimum": 0 },
+        "max_process_rss_bytes": { "type": "integer", "minimum": 1 },
+        "max_python_peak_bytes": { "type": "integer", "minimum": 1 },
+        "max_vram_bytes": { "type": "integer", "minimum": 0 },
+        "max_output_bytes": { "type": "integer", "minimum": 1 },
+        "max_output_items": { "type": "integer", "minimum": 1 },
+        "max_cancellation_latency_ms": { "type": "number", "exclusiveMinimum": 0 },
+        "max_wall_time_ms": { "type": "number", "exclusiveMinimum": 0 },
+        "max_concurrency": { "type": "integer", "minimum": 1, "maximum": 1 },
+        "max_cache_ttl_seconds": { "type": "number", "exclusiveMinimum": 0, "maximum": 3600 }
+      }
+    },
+    "base": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "workload_id",
+        "required_sources",
+        "vram_owner",
+        "budget"
+      ],
+      "properties": {
+        "profile_id": {
+          "enum": ["cpu", "low_resource", "mainstream_gpu", "high_fidelity"]
+        },
+        "workload_id": {
+          "enum": ["deterministic_product_pipeline", "supported_host_model_execution"]
+        },
+        "required_sources": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "package_clock",
+              "python_traced",
+              "process_rss",
+              "comfyui_host",
+              "ollama_external",
+              "browser_user_timing"
+            ]
+          }
+        },
+        "vram_owner": {
+          "type": ["string", "null"],
+          "enum": [null, "package", "comfyui_host", "ollama_external"]
+        },
+        "budget": { "$ref": "#/$defs/budget" }
+      }
+    },
+    "cpu": {
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "properties": {
+            "profile_id": { "const": "cpu" },
+            "workload_id": { "const": "deterministic_product_pipeline" },
+            "vram_owner": { "const": null }
+          }
+        }
+      ]
+    },
+    "low_resource": {
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "properties": {
+            "profile_id": { "const": "low_resource" },
+            "workload_id": { "const": "deterministic_product_pipeline" },
+            "vram_owner": { "const": null }
+          }
+        }
+      ]
+    },
+    "mainstream_gpu": {
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "properties": {
+            "profile_id": { "const": "mainstream_gpu" },
+            "workload_id": { "const": "supported_host_model_execution" },
+            "vram_owner": { "const": "comfyui_host" }
+          }
+        }
+      ]
+    },
+    "high_fidelity": {
+      "allOf": [
+        { "$ref": "#/$defs/base" },
+        {
+          "properties": {
+            "profile_id": { "const": "high_fidelity" },
+            "workload_id": { "const": "supported_host_model_execution" },
+            "vram_owner": { "const": "comfyui_host" }
+          }
+        }
+      ]
+    }
+  }
+}

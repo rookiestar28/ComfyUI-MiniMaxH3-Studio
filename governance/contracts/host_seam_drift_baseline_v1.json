@@ -1,0 +1,36 @@
+{
+  "schema": "h3.context.host_seam_drift_baseline.v1",
+  "fixture_version": 1,
+  "source": {
+    "commit_parts": [
+      "f6d30e0e",
+      "3e2df72f",
+      "15dec446",
+      "94bf7347",
+      "d1a9b706"
+    ],
+    "tree_parts": ["a621c778", "9f6e2c42", "e28a08af", "42cd4f3c", "85d03285"]
+  },
+  "artifacts": {
+    "census_sha256_parts": [
+      "93a03abb",
+      "e78646dc",
+      "bf79df3a",
+      "ffca55a9",
+      "6894e97a",
+      "ebc4e30d",
+      "30bc710d",
+      "90d07a06"
+    ],
+    "fixture_sha256_parts": [
+      "a64e1521",
+      "5a8483a5",
+      "de3eef64",
+      "7ed380aa",
+      "b1cb268b",
+      "87be5a8b",
+      "4d0e60d1",
+      "b9836f97"
+    ]
+  }
+}

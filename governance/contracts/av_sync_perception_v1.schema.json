@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/av_sync_perception_v1.schema.json",
+  "title": "H3 source-owned audiovisual synchronization perception",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "document_id", "status", "request", "relations", "receipt", "diagnostics"],
+  "properties": {
+    "schema": {"const": "h3.av.sync.v1"},
+    "document_id": {"$ref": "#/$defs/identifier"},
+    "status": {"enum": ["complete", "partial", "empty", "corrupt", "unsupported", "cancelled"]},
+    "request": {"$ref": "#/$defs/request"},
+    "relations": {"type": "array", "maxItems": 96, "items": {"$ref": "#/$defs/relation"}},
+    "receipt": {"anyOf": [{"$ref": "#/$defs/receipt"}, {"type": "null"}]},
+    "diagnostics": {"type": "array", "maxItems": 32, "items": {"$ref": "#/$defs/text"}}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "code": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$"},
+    "version": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+){1,2}$"},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "text": {"type": "string", "minLength": 1, "maxLength": 512},
+    "confidence": {"type": ["string", "null"], "pattern": "^(?:0|1|0\\.[0-9]+|1\\.0+)$"},
+    "timestamp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ticks", "time_base", "seconds"],
+      "properties": {
+        "ticks": {"type": "integer", "minimum": 0},
+        "time_base": {
+          "type": "array",
+          "prefixItems": [{"type": "integer", "minimum": 1}, {"type": "integer", "minimum": 1}],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "seconds": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+)?$"}
+      }
+    },
+    "span": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "asset_id", "source_id", "source_fingerprint", "media_kind", "role", "start", "end", "frame_ids", "shot_id"],
+      "properties": {
+        "schema": {"const": "h3.av.sync.v1"},
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "media_kind": {"enum": ["video", "audio"]},
+        "role": {"enum": ["video", "lip", "visible_action", "edit", "speech", "sound_event", "music", "soundtrack", "dubbed_voice"]},
+        "start": {"$ref": "#/$defs/timestamp"},
+        "end": {"$ref": "#/$defs/timestamp"},
+        "frame_ids": {"type": "array", "maxItems": 16, "items": {"$ref": "#/$defs/identifier"}},
+        "shot_id": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]}
+      }
+    },
+    "offset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "minimum_millis", "maximum_millis", "time_base_num", "time_base_den", "direction"],
+      "properties": {
+        "schema": {"const": "h3.av.sync.v1"},
+        "minimum_millis": {"type": "integer", "minimum": -120000, "maximum": 120000},
+        "maximum_millis": {"type": "integer", "minimum": -120000, "maximum": 120000},
+        "time_base_num": {"const": 1},
+        "time_base_den": {"const": 1000},
+        "direction": {"const": "video_minus_audio"}
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "kind", "detail"],
+      "properties": {
+        "schema": {"const": "h3.av.sync.v1"},
+        "kind": {"enum": ["offset_uncertain", "boundary_uncertain", "cut", "dubbing", "off_screen", "overlap", "no_visible_source", "calibration", "low_confidence", "corrupt", "unknown", "absent", "adversarial"]},
+        "detail": {"$ref": "#/$defs/text"}
+      }
+    },
+    "relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "relation_id", "kind", "support", "visual_span", "audio_span", "offset", "confidence", "boundary_confidence", "visibility", "uncertainties", "overlap_group", "label"],
+      "properties": {
+        "schema": {"const": "h3.av.sync.v1"},
+        "relation_id": {"$ref": "#/$defs/identifier"},
+        "kind": {"enum": ["speech_lip", "action_sound", "source_visibility", "music_edit", "video_soundtrack", "dubbing"]},
+        "support": {"enum": ["aligned", "desynchronized", "uncertain", "absent", "unknown"]},
+        "visual_span": {"anyOf": [{"$ref": "#/$defs/span"}, {"type": "null"}]},
+        "audio_span": {"anyOf": [{"$ref": "#/$defs/span"}, {"type": "null"}]},
+        "offset": {"anyOf": [{"$ref": "#/$defs/offset"}, {"type": "null"}]},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "boundary_confidence": {"$ref": "#/$defs/confidence"},
+        "visibility": {"enum": ["on_screen", "off_screen", "unknown"]},
+        "uncertainties": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/uncertainty"}},
+        "overlap_group": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]},
+        "label": {"anyOf": [{"type": "string", "minLength": 1, "maxLength": 256}, {"type": "null"}]}
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "video_asset_id", "video_source_id", "video_source_fingerprint", "video_duration_end", "audio_asset_id", "audio_source_id", "audio_source_fingerprint", "audio_duration_end", "preprocessing_fingerprint", "route", "max_relations"],
+      "properties": {
+        "schema": {"const": "h3.av.sync.v1"},
+        "video_asset_id": {"$ref": "#/$defs/identifier"},
+        "video_source_id": {"$ref": "#/$defs/identifier"},
+        "video_source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "video_duration_end": {"$ref": "#/$defs/timestamp"},
+        "audio_asset_id": {"$ref": "#/$defs/identifier"},
+        "audio_source_id": {"$ref": "#/$defs/identifier"},
+        "audio_source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "audio_duration_end": {"$ref": "#/$defs/timestamp"},
+        "preprocessing_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "route": {"enum": ["static_injected", "comfyui_native", "ollama", "specialist"]},
+        "max_relations": {"type": "integer", "minimum": 1, "maximum": 96}
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "route", "adapter_id", "adapter_version", "model_id", "model_fingerprint", "video_source_fingerprint", "audio_source_fingerprint", "preprocessing_fingerprint", "network_contacted", "decoder_started"],
+      "properties": {
+        "schema": {"const": "h3.av.sync.v1"},
+        "route": {"enum": ["static_injected", "comfyui_native", "ollama", "specialist"]},
+        "adapter_id": {"$ref": "#/$defs/code"},
+        "adapter_version": {"$ref": "#/$defs/version"},
+        "model_id": {"$ref": "#/$defs/identifier"},
+        "model_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "video_source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "audio_source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "preprocessing_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "network_contacted": {"type": "boolean"},
+        "decoder_started": {"type": "boolean"}
+      }
+    }
+  }
+}

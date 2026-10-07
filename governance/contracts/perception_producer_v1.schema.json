@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "h3.perception_producer.v1",
+  "title": "H3 Perception Producer Result (structural stage; semantic validation required)",
+  "$comment": "Consumers MUST also call validate_perception_producer_wire for cross-field and fingerprint joins.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "kind", "disposition", "route", "profile_id", "asset_id",
+    "admission_evidence", "media_kind", "components", "receipt", "reason_code", "reason"
+  ],
+  "properties": {
+    "schema": {"const": "h3.perception_producer.v1"},
+    "kind": {"enum": ["media", "visual", "audio"]},
+    "disposition": {"enum": ["complete", "unsupported", "unavailable", "rejected", "cancelled", "failed"]},
+    "route": {"enum": ["manual_host", "comfyui_native", "ollama", "specialist"]},
+    "profile_id": {"$ref": "#/$defs/identifier"},
+    "asset_id": {"$ref": "#/$defs/identifier"},
+    "admission_evidence": {"$ref": "#/$defs/admission_evidence"},
+    "media_kind": {"enum": ["image", "video", "audio"]},
+    "components": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/component"}},
+    "receipt": {"$ref": "#/$defs/receipt"},
+    "reason_code": {"enum": ["host_media_admitted", "host_media_input_mismatch", "profile_unavailable", "profile_unsupported", "cancelled_before_execution", "execution_failed"]},
+    "reason": {"enum": ["host media admitted", "exactly one matching host media input is required", "selected profile has no qualified production adapter", "selected profile is not supported", "cancelled before profile execution", "selected profile execution failed"]}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"kind": {"const": "media"}}, "required": ["kind"]},
+      "then": {"properties": {"route": {"const": "manual_host"}, "profile_id": {"const": "host_media_admission_v1"}}},
+      "else": {"properties": {"route": {"enum": ["comfyui_native", "ollama", "specialist"]}}}
+    },
+    {
+      "if": {"properties": {"disposition": {"const": "complete"}}, "required": ["disposition"]},
+      "then": {
+        "properties": {
+          "kind": {"const": "media"},
+          "components": {"minItems": 1, "maxItems": 1},
+          "reason_code": {"const": "host_media_admitted"},
+          "reason": {"const": "host media admitted"},
+          "receipt": {"properties": {"executed": {"const": true}, "cleanup_succeeded": {"const": true}, "progress_fraction": {"const": 1.0}}}
+        }
+      },
+      "else": {"properties": {"components": {"maxItems": 0}, "receipt": {"properties": {"executed": {"const": false}, "progress_fraction": {"const": 0.0}}}}}
+    },
+    {
+      "if": {"properties": {"disposition": {"const": "rejected"}}, "required": ["disposition"]},
+      "then": {"properties": {"reason_code": {"const": "host_media_input_mismatch"}, "reason": {"const": "exactly one matching host media input is required"}}}
+    },
+    {
+      "if": {"properties": {"disposition": {"const": "unavailable"}}, "required": ["disposition"]},
+      "then": {"properties": {"reason_code": {"const": "profile_unavailable"}, "reason": {"const": "selected profile has no qualified production adapter"}}}
+    },
+    {
+      "if": {"properties": {"disposition": {"const": "cancelled"}}, "required": ["disposition"]},
+      "then": {"properties": {"reason_code": {"const": "cancelled_before_execution"}, "reason": {"const": "cancelled before profile execution"}}}
+    },
+    {
+      "if": {"properties": {"disposition": {"const": "unsupported"}}, "required": ["disposition"]},
+      "then": {"properties": {"reason_code": {"const": "profile_unsupported"}, "reason": {"const": "selected profile is not supported"}}}
+    },
+    {
+      "if": {"properties": {"disposition": {"const": "failed"}}, "required": ["disposition"]},
+      "then": {"properties": {"reason_code": {"const": "execution_failed"}, "reason": {"const": "selected profile execution failed"}}}
+    }
+  ],
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "admission_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["declared_source_fingerprint", "fingerprint_claim", "width_pixels", "height_pixels", "duration_seconds", "sample_rate_hz", "channel_count", "reference_role", "reference_order"],
+      "properties": {
+        "declared_source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "fingerprint_claim": {"const": "caller_declared_unverified"},
+        "width_pixels": {"type": ["integer", "null"], "minimum": 1, "maximum": 32768},
+        "height_pixels": {"type": ["integer", "null"], "minimum": 1, "maximum": 32768},
+        "duration_seconds": {"type": "number", "minimum": 0, "maximum": 86400},
+        "sample_rate_hz": {"type": ["integer", "null"], "minimum": 1, "maximum": 768000},
+        "channel_count": {"type": ["integer", "null"], "minimum": 1, "maximum": 64},
+        "reference_role": {"enum": ["input", "reference", "first_frame", "last_frame", "paired_audio"]},
+        "reference_order": {"type": "integer", "minimum": 0, "maximum": 63}
+      }
+    },
+    "component": {
+      "type": "object", "additionalProperties": false,
+      "required": ["component_type", "component_fingerprint"],
+      "properties": {"component_type": {"$ref": "#/$defs/identifier"}, "component_fingerprint": {"$ref": "#/$defs/fingerprint"}}
+    },
+    "receipt": {
+      "type": "object", "additionalProperties": false,
+      "required": ["route", "profile_id", "backend_id", "model_id", "device", "executed", "cleanup_succeeded", "progress_fraction", "execution_fingerprint"],
+      "properties": {
+        "route": {"enum": ["manual_host", "comfyui_native", "ollama", "specialist"]},
+        "profile_id": {"$ref": "#/$defs/identifier"}, "backend_id": {"$ref": "#/$defs/identifier"},
+        "model_id": {"$ref": "#/$defs/identifier"}, "device": {"$ref": "#/$defs/identifier"},
+        "executed": {"type": "boolean"}, "cleanup_succeeded": {"type": "boolean"},
+        "progress_fraction": {"type": "number", "minimum": 0, "maximum": 1},
+        "execution_fingerprint": {"$ref": "#/$defs/fingerprint"}
+      }
+    }
+  }
+}

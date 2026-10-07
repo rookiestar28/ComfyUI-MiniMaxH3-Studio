@@ -1,0 +1,237 @@
+{
+  "schema": "h3.context.host_seam_probe_policy.v1",
+  "seams": [
+    {
+      "seam_id": "backend.comfy_api.latest",
+      "probe_owner": "comfyui_h3_context/adapters/comfyui_continuity.py",
+      "probe": "optional_comfy_api_latest",
+      "fallback": "none",
+      "refusals": ["continuity_unavailable"],
+      "retained_reason": "Observed backend continuity is optional and import guarded."
+    },
+    {
+      "seam_id": "backend.folder_paths.get_filename_list",
+      "probe_owner": "comfyui_h3_context/adapters/comfyui_generation_profile.py",
+      "probe": "folder_paths_capability",
+      "fallback": "none",
+      "refusals": ["generation_profile_unavailable"],
+      "retained_reason": "Generation assets are reported unavailable when the host list seam is absent."
+    },
+    {
+      "seam_id": "backend.node_class_mappings",
+      "probe_owner": "comfyui_h3_context/__init__.py",
+      "probe": "node_mapping_export",
+      "fallback": "none",
+      "refusals": ["package_import_unavailable"],
+      "retained_reason": "ComfyUI imports the canonical node mapping at package load."
+    },
+    {
+      "seam_id": "backend.node_display_name_mappings",
+      "probe_owner": "comfyui_h3_context/__init__.py",
+      "probe": "display_mapping_export",
+      "fallback": "none",
+      "refusals": ["package_import_unavailable"],
+      "retained_reason": "ComfyUI imports the canonical display mapping at package load."
+    },
+    {
+      "seam_id": "backend.prompt_server.routes",
+      "probe_owner": "comfyui_h3_context/adapters/comfyui_route_seam.py",
+      "probe": "register_routes_once",
+      "fallback": "none",
+      "refusals": ["route_registration_unavailable"],
+      "retained_reason": "One adapter owns route registration and fails closed when the server seam is absent."
+    },
+    {
+      "seam_id": "backend.web_directory",
+      "probe_owner": "comfyui_h3_context/__init__.py",
+      "probe": "web_directory_export",
+      "fallback": "none",
+      "refusals": ["package_import_unavailable"],
+      "retained_reason": "ComfyUI reads the one exported web directory."
+    },
+    {
+      "seam_id": "frontend.api.event_target",
+      "probe_owner": "frontend/src/host/hostSeams.ts",
+      "probe": "probeApiEventTarget",
+      "fallback": "none",
+      "refusals": ["api_event_target_unavailable"],
+      "retained_reason": "Host lifecycle listeners require a real event target."
+    },
+    {
+      "seam_id": "frontend.api.fetch_api",
+      "probe_owner": "frontend/src/host/hostSeams.ts",
+      "probe": "probeFetchApi",
+      "fallback": "none",
+      "refusals": ["fetch_api_unavailable"],
+      "retained_reason": "All same-origin clients share the host-bound fetch callable."
+    },
+    {
+      "seam_id": "frontend.api.file_url",
+      "probe_owner": "frontend/src/host/hostSeams.ts",
+      "probe": "probeFileUrl",
+      "fallback": "none",
+      "refusals": ["file_url_unavailable"],
+      "retained_reason": "Template URLs must be built by the supplied host."
+    },
+    {
+      "seam_id": "frontend.api.queue_prompt",
+      "probe_owner": "frontend/src/host/queueSeam.ts",
+      "probe": "probeQueueCallable",
+      "fallback": "none",
+      "refusals": ["queue_callable_missing", "queue_callable_unreadable"],
+      "retained_reason": "The queue seam has one owner and never bypasses the host wrapper."
+    },
+    {
+      "seam_id": "frontend.app.canvas.keyboard_capture",
+      "probe_owner": "frontend/src/host/canvasKeyboardGuard.ts",
+      "probe": "probeCanvasKeyboardGuard",
+      "fallback": "none",
+      "refusals": ["canvas_keyboard_guard_unavailable"],
+      "retained_reason": "Presented editor leases suspend only the canonical canvas keyboard callbacks and refuse incompatible lifetimes."
+    },
+    {
+      "seam_id": "frontend.app.extension_manager.get_sidebar_tabs",
+      "probe_owner": "frontend/src/host/hostSeams.ts",
+      "probe": "probeSidebarTabManager",
+      "fallback": "extension_owned_registration_token",
+      "refusals": [],
+      "retained_reason": "Enumeration is observed but optional; extension-owned idempotence is authoritative."
+    },
+    {
+      "seam_id": "frontend.app.extension_manager.register_sidebar_tab",
+      "probe_owner": "frontend/src/host/hostSeams.ts",
+      "probe": "probeSidebarTabManager",
+      "fallback": "none",
+      "refusals": ["sidebar_tab_registration_unavailable"],
+      "retained_reason": "The documented registration member is required for the Sidebar."
+    },
+    {
+      "seam_id": "frontend.app.extension_manager.unregister_sidebar_tab",
+      "probe_owner": "frontend/src/host/hostSeams.ts",
+      "probe": "probeSidebarTabManager",
+      "fallback": "leave_extension_owned_tab_registered",
+      "refusals": ["sidebar_tab_unregistration_unavailable"],
+      "retained_reason": "Absent disposal support is named and never converted into a TypeError."
+    },
+    {
+      "seam_id": "frontend.app.extension_manager.workflow.active_workflow",
+      "probe_owner": "frontend/src/host/canvasOwnedWrite.ts",
+      "probe": "probeWorkflowStore",
+      "fallback": "bounded_tabless_bootstrap",
+      "refusals": ["workflow_store_unavailable"],
+      "retained_reason": "Every owned write carries the captured active workflow identity."
+    },
+    {
+      "seam_id": "frontend.app.extension_manager.workflow.open_workflows",
+      "probe_owner": "frontend/src/host/canvasOwnedWrite.ts",
+      "probe": "probeWorkflowStore",
+      "fallback": "bounded_tabless_bootstrap",
+      "refusals": ["workflow_store_unavailable"],
+      "retained_reason": "The empty-to-one bootstrap is admitted only with the same workflow store."
+    },
+    {
+      "seam_id": "frontend.app.graph",
+      "probe_owner": "frontend/src/host/hostSeams.ts",
+      "probe": "probeGraph",
+      "fallback": "none",
+      "refusals": ["graph_unavailable", "graph_unreadable"],
+      "retained_reason": "The live graph is probed lazily because host construction is asynchronous."
+    },
+    {
+      "seam_id": "frontend.app.graph.change",
+      "probe_owner": "frontend/src/host/hostModuleTypes.ts",
+      "probe": "HostApp.graph.change",
+      "fallback": "type_only_no_product_read",
+      "refusals": [],
+      "retained_reason": "The member remains in the observed shape but product code does not call it."
+    },
+    {
+      "seam_id": "frontend.app.graph.events",
+      "probe_owner": "frontend/src/host/hostSeams.ts",
+      "probe": "probeGraphEvents",
+      "fallback": "none",
+      "refusals": ["graph_events_unavailable"],
+      "retained_reason": "Canvas refresh listeners require a real event source."
+    },
+    {
+      "seam_id": "frontend.app.graph.get_node_by_id",
+      "probe_owner": "frontend/src/host/hostModuleTypes.ts",
+      "probe": "HostApp.graph.getNodeById",
+      "fallback": "type_only_no_product_read",
+      "refusals": [],
+      "retained_reason": "The member remains in the observed shape but product code does not call it."
+    },
+    {
+      "seam_id": "frontend.app.graph.serialize",
+      "probe_owner": "frontend/src/host/hostSeams.ts",
+      "probe": "probeGraphSerializer",
+      "fallback": "none",
+      "refusals": ["graph_serialize_failed", "graph_serialize_unavailable"],
+      "retained_reason": "Visible graph snapshots must come from the host-bound serializer."
+    },
+    {
+      "seam_id": "frontend.app.graph.set_dirty_canvas",
+      "probe_owner": "frontend/src/host/hostModuleTypes.ts",
+      "probe": "HostApp.graph.setDirtyCanvas",
+      "fallback": "type_only_no_product_read",
+      "refusals": [],
+      "retained_reason": "The member remains in the observed shape but product code does not call it."
+    },
+    {
+      "seam_id": "frontend.app.graph_to_prompt",
+      "probe_owner": "frontend/src/host/hostSeams.ts",
+      "probe": "probeGraphToPrompt",
+      "fallback": "none",
+      "refusals": ["graph_to_prompt_unavailable"],
+      "retained_reason": "Compilation always delegates to the supplied host."
+    },
+    {
+      "seam_id": "frontend.app.load_api_json",
+      "probe_owner": "frontend/src/host/hostSeams.ts",
+      "probe": "probeLoadApiJson",
+      "fallback": "none",
+      "refusals": ["load_api_json_unavailable"],
+      "retained_reason": "The host remains the only API-prompt loader."
+    },
+    {
+      "seam_id": "frontend.app.load_graph_data",
+      "probe_owner": "frontend/src/host/canvasOwnedWrite.ts",
+      "probe": "probeGraphWriter",
+      "fallback": "none",
+      "refusals": ["load_graph_data_unavailable"],
+      "retained_reason": "Only the owned canvas transaction may invoke the graph writer."
+    },
+    {
+      "seam_id": "frontend.app.modal_keyboard_guard",
+      "probe_owner": "frontend/src/host/modalKeyboardGuard.ts",
+      "probe": "probeModalKeyboardGuard",
+      "fallback": "none",
+      "refusals": ["modal_keyboard_guard_unavailable"],
+      "retained_reason": "A nullable callable host modal predicate is leased only while the editor is presented and restored on release."
+    },
+    {
+      "seam_id": "frontend.app.register_extension",
+      "probe_owner": "frontend/src/host/hostSeams.ts",
+      "probe": "probeExtensionRegistrar",
+      "fallback": "native_nodes_only",
+      "refusals": ["extension_registrar_unavailable"],
+      "retained_reason": "An absent registrar leaves canonical nodes available without installing a second path."
+    },
+    {
+      "seam_id": "frontend.app.ui_settings",
+      "probe_owner": "frontend/src/host/hostSeams.ts",
+      "probe": "probeUiSettings",
+      "fallback": "repository_default_locale",
+      "refusals": ["ui_settings_unavailable"],
+      "retained_reason": "Language defaults remain local when host settings are unavailable."
+    },
+    {
+      "seam_id": "frontend.litegraph.registered_node_types",
+      "probe_owner": "frontend/src/host/hostSeams.ts",
+      "probe": "readNodeDefinitionRegistry",
+      "fallback": "named_mapping_readiness",
+      "refusals": [],
+      "retained_reason": "Raw readiness is classified separately without guessing from a host version."
+    }
+  ]
+}

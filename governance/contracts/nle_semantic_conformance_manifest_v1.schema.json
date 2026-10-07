@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/nle_semantic_conformance_manifest_v1.schema.json",
+  "title": "ComfyUI H3 context NLE semantic conformance manifest",
+  "description": "M25-20: the closed membership of the preview/final semantic conformance corpus, expanded from the accepted M25-10 contract domains and the 34 M25-11 command identifiers and joined to the M25-16 control-coverage rows on the backend command, never on a display operation identifier. Row classes are separate and are never summed into a single coverage figure. The manifest carries no runtime pin and no result: execution facts and dispositions belong to the report a qualification run emits.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "corpus_version",
+    "tolerance_version",
+    "operation_profile_id",
+    "engine_profile_id",
+    "output_profile_id",
+    "joined_sources",
+    "limits",
+    "tolerance",
+    "counts_by_class",
+    "command_rows",
+    "property_rows",
+    "ui_invariant_rows",
+    "import_integration_rows",
+    "deferred_negative_rows"
+  ],
+  "properties": {
+    "schema": { "const": "h3.context.nle_semantic_conformance_manifest.v1" },
+    "version": { "const": 1 },
+    "corpus_version": { "const": "nle_semantic_corpus.v1" },
+    "tolerance_version": { "const": "nle_semantic_tolerance.v1" },
+    "operation_profile_id": { "const": "h3.authoring.nle_operation.v1" },
+    "engine_profile_id": { "const": "h3.native_media_canvas_backend.v1" },
+    "output_profile_id": { "const": "h3.authoring.output.h264_aac_24fps.v1" },
+    "joined_sources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "control_coverage_manifest_sha256",
+        "sidebar_editor_ui_contract_sha256"
+      ],
+      "properties": {
+        "control_coverage_manifest_sha256": { "$ref": "#/$defs/digest" },
+        "sidebar_editor_ui_contract_sha256": { "$ref": "#/$defs/digest" }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_corpus_cases",
+        "max_case_payload_bytes",
+        "max_report_bytes",
+        "max_case_output_frames"
+      ],
+      "properties": {
+        "max_corpus_cases": { "const": 512 },
+        "max_case_payload_bytes": { "const": 131072 },
+        "max_report_bytes": { "const": 67108864 },
+        "max_case_output_frames": { "const": 384 }
+      }
+    },
+    "tolerance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "preview_max_av_drift_samples",
+        "final_impulse_tolerance_samples",
+        "geometry_max_abs_pixels",
+        "text_bounds_max_abs_pixels",
+        "patch_max_abs_channel",
+        "color_adjust_max_abs_channel",
+        "patch_size_px",
+        "patch_min_edge_distance_px",
+        "alpha_max_abs_error_milli",
+        "silence_max_abs_peak",
+        "codec_boundary_exclusion_samples",
+        "duration_max_abs_samples",
+        "audio_level_relative_error_ppm",
+        "audio_level_floor_ppm"
+      ],
+      "properties": {
+        "version": { "const": "nle_semantic_tolerance.v1" },
+        "preview_max_av_drift_samples": { "const": 2000 },
+        "final_impulse_tolerance_samples": { "const": 2048 },
+        "geometry_max_abs_pixels": { "type": "integer", "minimum": 0 },
+        "text_bounds_max_abs_pixels": { "type": "integer", "minimum": 0 },
+        "patch_max_abs_channel": { "type": "integer", "minimum": 0, "maximum": 255 },
+        "color_adjust_max_abs_channel": { "type": "integer", "minimum": 0, "maximum": 255 },
+        "patch_size_px": { "type": "integer", "minimum": 1 },
+        "patch_min_edge_distance_px": { "type": "integer", "minimum": 1 },
+        "alpha_max_abs_error_milli": { "type": "integer", "minimum": 0, "maximum": 1000 },
+        "silence_max_abs_peak": { "type": "integer", "minimum": 0 },
+        "codec_boundary_exclusion_samples": { "type": "integer", "minimum": 0 },
+        "duration_max_abs_samples": { "type": "integer", "minimum": 0 },
+        "audio_level_relative_error_ppm": { "type": "integer", "minimum": 1, "maximum": 999999 },
+        "audio_level_floor_ppm": { "type": "integer", "minimum": 1, "maximum": 999999 }
+      }
+    },
+    "counts_by_class": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "command",
+        "property",
+        "ui_invariant",
+        "import_integration",
+        "deferred_negative"
+      ],
+      "properties": {
+        "command": { "const": 68 },
+        "property": { "type": "integer", "minimum": 1 },
+        "ui_invariant": { "type": "integer", "minimum": 1 },
+        "import_integration": { "const": 2 },
+        "deferred_negative": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "command_rows": {
+      "type": "array",
+      "minItems": 68,
+      "maxItems": 68,
+      "items": { "$ref": "#/$defs/commandRow" }
+    },
+    "property_rows": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/propertyRow" }
+    },
+    "ui_invariant_rows": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/uiInvariantRow" }
+    },
+    "import_integration_rows": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": { "$ref": "#/$defs/propertyRow" }
+    },
+    "deferred_negative_rows": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/deferredRow" }
+    }
+  },
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "caseId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_.]{0,127}$" },
+    "commandRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_id",
+        "family",
+        "leaf",
+        "supported",
+        "refusal_expected",
+        "command",
+        "control_operation_id"
+      ],
+      "properties": {
+        "case_id": { "$ref": "#/$defs/caseId" },
+        "family": { "const": "command" },
+        "leaf": { "enum": ["accepted", "refused"] },
+        "supported": { "const": true },
+        "refusal_expected": { "type": "boolean" },
+        "command": { "type": "string", "minLength": 1 },
+        "control_operation_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "propertyRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["case_id", "family", "leaf", "supported", "refusal_expected"],
+      "properties": {
+        "case_id": { "$ref": "#/$defs/caseId" },
+        "family": { "type": "string", "minLength": 1 },
+        "leaf": { "type": "string", "minLength": 1 },
+        "supported": { "const": true },
+        "refusal_expected": { "type": "boolean" }
+      }
+    },
+    "uiInvariantRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["case_id", "family", "leaf", "supported", "refusal_expected", "evidence"],
+      "properties": {
+        "case_id": { "$ref": "#/$defs/caseId" },
+        "family": { "const": "ui_invariant" },
+        "leaf": { "type": "string", "minLength": 1 },
+        "supported": { "const": true },
+        "refusal_expected": { "const": false },
+        "evidence": { "type": "string", "pattern": "^[^:]+::.+$" }
+      }
+    },
+    "deferredRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["case_id", "family", "leaf", "supported", "refusal_expected"],
+      "properties": {
+        "case_id": { "$ref": "#/$defs/caseId" },
+        "family": { "const": "deferred_negative" },
+        "leaf": { "type": "string", "minLength": 1 },
+        "supported": { "const": false },
+        "refusal_expected": { "const": false }
+      }
+    }
+  }
+}

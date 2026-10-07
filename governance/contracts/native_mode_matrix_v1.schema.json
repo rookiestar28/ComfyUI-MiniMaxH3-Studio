@@ -1,0 +1,576 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/native_mode_matrix_v1.schema.json",
+  "title": "H3 Native Mode Matrix v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "product_scope",
+    "claim_scope",
+    "host_version",
+    "host_revision",
+    "native_source",
+    "native_source_blob",
+    "prompt_boundary",
+    "presentation_label_basis",
+    "autogrow_path_basis",
+    "paired_audio_basis",
+    "surfaces",
+    "graph_binding_fields",
+    "host_contract_lane",
+    "stripped_native_qualifies",
+    "model_free_qualifies",
+    "assisted_profiles",
+    "assisted_authoring",
+    "modes",
+    "sigma_shift",
+    "model_executions",
+    "provider_executions",
+    "media_executions",
+    "limitations"
+  ],
+  "properties": {
+    "schema": {
+      "const": "h3.native_mode_matrix.v1"
+    },
+    "version": {
+      "const": "1.0.0"
+    },
+    "product_scope": {
+      "const": "MANUAL_ONLY_SCOPED"
+    },
+    "claim_scope": {
+      "const": "structural_native_contract_only"
+    },
+    "host_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^(?![\\s\\S]*[\\r\\n])[0-9]+(?:\\.[0-9]+){1,3}(?:[-+][A-Za-z0-9.-]+)?$"
+    },
+    "host_revision": {
+      "type": "string",
+      "pattern": "^(?![\\s\\S]*[\\r\\n])[0-9a-f]{40}$"
+    },
+    "native_source": {
+      "const": "comfy_extras/nodes_minimax_h3.py"
+    },
+    "native_source_blob": {
+      "type": "string",
+      "pattern": "^(?![\\s\\S]*[\\r\\n])[0-9a-f]{40}$"
+    },
+    "prompt_boundary": {
+      "const": "STRING"
+    },
+    "presentation_label_basis": {
+      "const": "one_based"
+    },
+    "autogrow_path_basis": {
+      "const": "fully_qualified_zero_based"
+    },
+    "paired_audio_basis": {
+      "const": "same_zero_based_video_suffix"
+    },
+    "surfaces": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "const": "direct_node"
+        },
+        {
+          "const": "fixed_app_mode"
+        },
+        {
+          "const": "fixed_subgraph"
+        },
+        {
+          "const": "sidebar_normal_queue"
+        },
+        {
+          "const": "api_headless"
+        }
+      ],
+      "items": false,
+      "minItems": 5,
+      "maxItems": 5
+    },
+    "graph_binding_fields": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "const": "asset_id"
+        },
+        {
+          "const": "kind"
+        },
+        {
+          "const": "presentation_label"
+        },
+        {
+          "const": "presentation_ordinal"
+        },
+        {
+          "const": "source_node"
+        },
+        {
+          "const": "source_output"
+        },
+        {
+          "const": "native_node"
+        },
+        {
+          "const": "native_child_path"
+        },
+        {
+          "const": "connection_order"
+        },
+        {
+          "const": "ownership"
+        }
+      ],
+      "items": false,
+      "minItems": 10,
+      "maxItems": 10
+    },
+    "host_contract_lane": {
+      "const": "real_classes_real_schema_weight_callable_stub_only"
+    },
+    "stripped_native_qualifies": {
+      "const": false
+    },
+    "model_free_qualifies": {
+      "const": false
+    },
+    "assisted_profiles": {
+      "type": "array",
+      "prefixItems": [
+        {"const": "ollama.local"},
+        {"const": "openai.remote"},
+        {"const": "gemini.remote"},
+        {"const": "anthropic.remote"}
+      ],
+      "items": false,
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "assisted_authoring": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["available", "selected", "ready", "authorized_for_this_action", "defaulted"],
+      "properties": {
+        "available": {"const": true},
+        "selected": {"const": false},
+        "ready": {"const": false},
+        "authorized_for_this_action": {"const": false},
+        "defaulted": {"const": false}
+      }
+    },
+    "modes": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/mode"
+            },
+            {
+              "properties": {
+                "task_mode": {
+                  "const": "t2va"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/mode"
+            },
+            {
+              "properties": {
+                "task_mode": {
+                  "const": "i2va"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/mode"
+            },
+            {
+              "properties": {
+                "task_mode": {
+                  "const": "fl2va"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/mode"
+            },
+            {
+              "properties": {
+                "task_mode": {
+                  "const": "l2va"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/mode"
+            },
+            {
+              "properties": {
+                "task_mode": {
+                  "const": "ref2va"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "items": false,
+      "minItems": 5,
+      "maxItems": 5
+    },
+    "sigma_shift": {
+      "$ref": "#/$defs/sigma_shift"
+    },
+    "model_executions": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "provider_executions": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "media_executions": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "limitations": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "const": "host_identity_does_not_establish_capability"
+        },
+        {
+          "const": "no_assisted_profile_qualification"
+        },
+        {
+          "const": "no_model_output_quality_claim"
+        },
+        {
+          "const": "no_weight_backed_execution"
+        }
+      ],
+      "items": false,
+      "minItems": 4,
+      "maxItems": 4
+    }
+  },
+  "$defs": {
+    "socket": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "socket_type",
+        "default",
+        "minimum",
+        "maximum",
+        "step",
+        "options"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "socket_type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "default": {
+          "type": [
+            "string",
+            "integer",
+            "number",
+            "null"
+          ]
+        },
+        "minimum": {
+          "type": [
+            "string",
+            "integer",
+            "number",
+            "null"
+          ]
+        },
+        "maximum": {
+          "type": [
+            "string",
+            "integer",
+            "number",
+            "null"
+          ]
+        },
+        "step": {
+          "type": [
+            "integer",
+            "number",
+            "null"
+          ]
+        },
+        "options": {
+          "type": "array",
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "maxLength": 128
+          }
+        }
+      }
+    },
+    "mode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_mode",
+        "prompt_profile",
+        "disposition",
+        "native_node_id",
+        "prompt_socket",
+        "required_inputs",
+        "optional_inputs",
+        "asset_roles",
+        "minimum_assets",
+        "maximum_assets",
+        "native_paths",
+        "dynamic_reference_boundary",
+        "qualified_surfaces",
+        "unsupported_surfaces",
+        "readiness",
+        "limitations"
+      ],
+      "properties": {
+        "task_mode": {
+          "enum": [
+            "t2va",
+            "i2va",
+            "fl2va",
+            "l2va",
+            "ref2va"
+          ]
+        },
+        "prompt_profile": {
+          "enum": [
+            "h3_base",
+            "h3_full_reference"
+          ]
+        },
+        "disposition": {
+          "const": "STRUCTURALLY_QUALIFIED_NATIVE"
+        },
+        "native_node_id": {
+          "enum": [
+            "MiniMaxH3ImageToVideo",
+            "MiniMaxH3ReferenceToVideo"
+          ]
+        },
+        "prompt_socket": {
+          "const": "STRING"
+        },
+        "required_inputs": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/socket"
+          }
+        },
+        "optional_inputs": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 4,
+          "items": {
+            "$ref": "#/$defs/socket"
+          }
+        },
+        "asset_roles": {
+          "type": "array",
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "first_frame",
+              "last_frame",
+              "reference",
+              "audio_source"
+            ]
+          }
+        },
+        "minimum_assets": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12
+        },
+        "maximum_assets": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12
+        },
+        "native_paths": {
+          "type": "array",
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "maxLength": 192
+          }
+        },
+        "dynamic_reference_boundary": {
+          "enum": [
+            "not_applicable",
+            "parent_graph_visible"
+          ]
+        },
+        "qualified_surfaces": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "direct_node",
+              "fixed_app_mode",
+              "fixed_subgraph",
+              "sidebar_normal_queue",
+              "api_headless"
+            ]
+          }
+        },
+        "unsupported_surfaces": {
+          "type": "array",
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "fixed_app_mode",
+              "fixed_subgraph"
+            ]
+          }
+        },
+        "readiness": {
+          "const": "current_passed_report_and_trusted_wiring"
+        },
+        "limitations": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$",
+            "maxLength": 128
+          }
+        }
+      }
+    },
+    "sigma_shift": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "node_id",
+        "input_types",
+        "defaults",
+        "bounds",
+        "sampler",
+        "scheduler"
+      ],
+      "properties": {
+        "node_id": {
+          "const": "MiniMaxH3SigmaShift"
+        },
+        "input_types": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "items": false,
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "defaults": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "items": false,
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "bounds": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "items": false,
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "sampler": {
+          "const": "ModelSamplingDiscreteFlow"
+        },
+        "scheduler": {
+          "const": "video_discrete_flow_audio_internal_shift"
+        }
+      }
+    }
+  }
+}

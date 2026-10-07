@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/media_process_v1.schema.json",
+  "title": "H3 bounded media process invocation and capture",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": ["schema", "tool", "argv_count", "protocol_whitelist", "format_whitelist", "codec_whitelist", "timeout_seconds", "max_stdout_bytes", "max_stderr_bytes", "shell", "start_new_session", "owned_output_count", "output_lease_schema", "max_owned_output_bytes"],
+      "properties": {
+        "schema": {"const": "h3.media.process.v1"},
+        "tool": {"enum": ["ffprobe", "ffmpeg"]},
+        "argv_count": {"type": "integer", "minimum": 1, "maximum": 256},
+        "protocol_whitelist": {"type": "array", "minItems": 1, "maxItems": 128, "items": {"type": "string"}},
+        "format_whitelist": {"type": "array", "minItems": 1, "maxItems": 128, "items": {"type": "string"}},
+        "codec_whitelist": {"type": "array", "minItems": 1, "maxItems": 128, "items": {"type": "string"}},
+        "timeout_seconds": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+)?$"},
+        "max_stdout_bytes": {"type": "integer", "minimum": 1},
+        "max_stderr_bytes": {"type": "integer", "minimum": 1},
+        "shell": {"const": false},
+        "start_new_session": {"type": "boolean"},
+        "owned_output_count": {"type": "integer", "minimum": 0, "maximum": 16},
+        "output_lease_schema": {"const": "h3.media.output_lease.v1"},
+        "max_owned_output_bytes": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": ["schema", "status", "stdout_bytes", "stderr_bytes", "exit_code", "cleanup_succeeded", "owned_output_bytes", "artifact_count", "reaped", "poll_observations", "reader_threads_joined", "cleanup_errors"],
+      "properties": {
+        "schema": {"const": "h3.media.process.v1"},
+        "status": {"enum": ["succeeded", "failed", "spawn_failed", "timed_out", "cancelled", "cancellation_failed", "output_limit", "handoff_failed", "pipe_failed", "termination_failed", "cleanup_failed"]},
+        "stdout_bytes": {"type": "integer", "minimum": 0},
+        "stderr_bytes": {"type": "integer", "minimum": 0},
+        "exit_code": {"type": ["integer", "null"]},
+        "cleanup_succeeded": {"type": "boolean"},
+        "owned_output_bytes": {"type": "integer", "minimum": 0},
+        "artifact_count": {"type": "integer", "minimum": 0, "maximum": 16},
+        "reaped": {"type": "boolean"},
+        "poll_observations": {"type": "integer", "minimum": 0},
+        "reader_threads_joined": {"type": "boolean"},
+        "cleanup_errors": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    }
+  ]
+}

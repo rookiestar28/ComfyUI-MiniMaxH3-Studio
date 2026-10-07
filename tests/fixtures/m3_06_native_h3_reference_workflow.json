@@ -1,0 +1,56 @@
+{
+  "schema": "h3-native-h3-fixture/1",
+  "fixture_status": "static_contract_only",
+  "host": {
+    "version": "0.32.0",
+    "revision_parts": ["b323a", "345bb", "bfb2f", "3a95b", "5b73b", "68eb7", "919a2", "6515e"],
+    "native_source": "comfy_extras/nodes_minimax_h3.py",
+    "native_source_blob_parts": ["0b184", "0e851", "c248f", "89e99", "20159", "c3c82", "37fa2", "e7186"]
+  },
+  "adapter": {
+    "class_type": "comfyui_h3_context.H3Context.NativeH3Adapter",
+    "output": "prompt",
+    "task_mode": "ref2va",
+    "link": {
+      "target_class_type": "MiniMaxH3ReferenceToVideo",
+      "target_input": "prompt"
+    }
+  },
+  "native": {
+    "class_type": "MiniMaxH3ReferenceToVideo",
+    "task_mode": "ref2va",
+    "prompt_input": "prompt",
+    "reference_inputs": [
+      "ref_images",
+      "ref_videos",
+      "ref_video_audios",
+      "ref_audios"
+    ],
+    "media_links": [
+      {
+        "source": "fixture.image_1",
+        "source_output": "IMAGE",
+        "target_input": "ref_images.ref_image_0",
+        "label": "<Picture 1>"
+      },
+      {
+        "source": "fixture.video_1",
+        "source_output": "IMAGE",
+        "target_input": "ref_videos.ref_video_0",
+        "label": "<Video 1>"
+      },
+      {
+        "source": "fixture.audio_1",
+        "source_output": "AUDIO",
+        "target_input": "ref_audios.ref_audio_0",
+        "label": "<Audio 1>"
+      }
+    ]
+  },
+  "policy": {
+    "media_flow": "direct_to_native",
+    "media_processing": "native_only",
+    "upload_path": "none",
+    "prompt_rewrite": "none"
+  }
+}

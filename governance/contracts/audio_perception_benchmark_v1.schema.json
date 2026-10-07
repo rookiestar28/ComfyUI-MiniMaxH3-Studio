@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/audio_perception_benchmark_v1.schema.json",
+  "title": "H3 audio extraction and perception benchmark v1",
+  "type": "object",
+  "required": ["schema", "plan_id", "plan_version", "fixtures", "thresholds", "candidates", "limits", "routing"],
+  "properties": {
+    "schema": { "const": "h3.audio.perception_benchmark.v1" },
+    "plan_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "plan_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "fixtures": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "$ref": "#/$defs/fixture" } },
+    "thresholds": { "type": "array", "minItems": 1, "maxItems": 128, "items": { "$ref": "#/$defs/threshold" } },
+    "candidates": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "$ref": "#/$defs/candidate" } },
+    "limits": { "$ref": "#/$defs/limits" },
+    "routing": { "$ref": "#/$defs/routing" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "capability": {
+      "type": "string",
+      "enum": ["source_clock", "channels", "sample_rate", "gaps", "overlap", "video_audio_ownership", "speech", "multilingual_dialogue", "silence", "noise", "music", "ambience", "sfx", "clipping", "corruption", "adversarial_metadata"]
+    },
+    "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "fixture": {
+      "type": "object",
+      "required": ["schema", "fixture_id", "modality", "capabilities", "source_fingerprint", "annotation_fingerprint", "sample_rate", "channels", "segment_count", "gap_count", "overlap", "corrupt", "adversarial_metadata", "paired_video_asset_id", "tags"],
+      "properties": {
+        "schema": { "const": "h3.audio.perception_benchmark.v1" },
+        "fixture_id": { "type": "string" },
+        "modality": { "type": "string" },
+        "capabilities": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/capability" } },
+        "source_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "annotation_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "sample_rate": { "type": "integer", "minimum": 1, "maximum": 96000 },
+        "channels": { "type": "integer", "minimum": 1, "maximum": 32 },
+        "segment_count": { "type": "integer", "minimum": 0 },
+        "gap_count": { "type": "integer", "minimum": 0 },
+        "overlap": { "type": "boolean" },
+        "corrupt": { "type": "boolean" },
+        "adversarial_metadata": { "type": "boolean" },
+        "paired_video_asset_id": { "type": ["string", "null"] },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "threshold": {
+      "type": "object",
+      "required": ["schema", "metric_id", "metric", "capability", "minimum"],
+      "properties": {
+        "schema": { "const": "h3.audio.perception_benchmark.v1" },
+        "metric_id": { "type": "string" },
+        "metric": { "type": "string" },
+        "capability": { "$ref": "#/$defs/capability" },
+        "minimum": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "candidate": {
+      "type": "object",
+      "required": ["schema", "candidate_id", "family", "adapter_id", "adapter_version", "model_id", "capabilities", "requires_network", "supports_determinism", "supports_cancellation_cleanup", "disposition", "disposition_reason"],
+      "properties": {
+        "schema": { "const": "h3.audio.perception_benchmark.v1" },
+        "candidate_id": { "type": "string" },
+        "family": { "enum": ["comfyui_native", "ollama", "specialist"] },
+        "adapter_id": { "type": "string" },
+        "adapter_version": { "type": "string" },
+        "model_id": { "type": "string" },
+        "capabilities": { "type": "array", "items": { "$ref": "#/$defs/capability" } },
+        "requires_network": { "type": "boolean" },
+        "supports_determinism": { "type": "boolean" },
+        "supports_cancellation_cleanup": { "type": "boolean" },
+        "disposition": { "enum": ["qualified", "rejected", "unavailable", "unsupported"] },
+        "disposition_reason": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "limits": {
+      "type": "object",
+      "required": ["schema", "max_fixtures", "max_segments", "max_gaps", "max_wall_time_seconds", "max_total_compute_seconds", "max_peak_vram_mb", "max_peak_ram_mb", "max_output_bytes", "max_concurrency", "network_allowed", "media_upload_allowed"],
+      "properties": {
+        "schema": { "const": "h3.audio.perception_benchmark.v1" },
+        "max_fixtures": { "type": "integer", "minimum": 1 },
+        "max_segments": { "type": "integer", "minimum": 1 },
+        "max_gaps": { "type": "integer", "minimum": 1 },
+        "max_wall_time_seconds": { "type": "integer", "minimum": 1 },
+        "max_total_compute_seconds": { "type": "integer", "minimum": 1 },
+        "max_peak_vram_mb": { "type": "integer", "minimum": 1 },
+        "max_peak_ram_mb": { "type": "integer", "minimum": 1 },
+        "max_output_bytes": { "type": "integer", "minimum": 1 },
+        "max_concurrency": { "type": "integer", "minimum": 1 },
+        "network_allowed": { "const": false },
+        "media_upload_allowed": { "const": false }
+      },
+      "additionalProperties": false
+    },
+    "routing": {
+      "type": "object",
+      "required": ["schema", "preference_order", "automatic_fallback", "explicit_selection_required"],
+      "properties": {
+        "schema": { "const": "h3.audio.perception_benchmark.v1" },
+        "preference_order": { "type": "array", "minItems": 3, "maxItems": 3, "items": { "enum": ["comfyui_native", "ollama", "specialist"] } },
+        "automatic_fallback": { "const": false },
+        "explicit_selection_required": { "const": true }
+      },
+      "additionalProperties": false
+    }
+  }
+}

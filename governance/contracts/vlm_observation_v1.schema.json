@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/vlm_observation_v1.schema.json",
+  "title": "H3 strict VLM source/region observation v1",
+  "type": "object",
+  "required": ["schema", "document_id", "status", "complete", "selected_asset_ids", "observations", "uncertainties", "receipt"],
+  "properties": {
+    "schema": { "const": "h3.vlm.observation.v1" },
+    "document_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "status": { "const": "complete" },
+    "complete": { "const": true },
+    "selected_asset_ids": { "type": "array", "minItems": 1, "maxItems": 9, "items": { "type": "string" } },
+    "observations": { "type": "array", "minItems": 1, "maxItems": 256, "items": { "$ref": "#/$defs/observation" } },
+    "uncertainties": { "type": "array", "maxItems": 64, "items": { "$ref": "#/$defs/uncertainty" } },
+    "receipt": { "$ref": "#/$defs/receipt" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "kind": { "enum": ["global_description", "composition", "scene", "subject_object", "style"] },
+    "observation": {
+      "type": "object",
+      "required": ["schema", "observation_id", "asset_id", "kind", "evidence", "region", "evidence_span"],
+      "properties": {
+        "schema": { "const": "h3.vlm.observation.v1" },
+        "observation_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "asset_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "kind": { "$ref": "#/$defs/kind" },
+        "evidence": { "type": "object" },
+        "region": {
+          "anyOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "required": ["x", "y", "width", "height"],
+              "properties": {
+                "x": { "type": "number", "minimum": 0, "exclusiveMaximum": 1 },
+                "y": { "type": "number", "minimum": 0, "exclusiveMaximum": 1 },
+                "width": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+                "height": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 }
+              },
+              "additionalProperties": false
+            }
+          ]
+        },
+        "evidence_span": { "type": "string", "minLength": 1, "maxLength": 4096 }
+      },
+      "additionalProperties": false
+    },
+    "uncertainty": {
+      "type": "object",
+      "required": ["kind", "detail", "severity"],
+      "properties": {
+        "kind": { "enum": ["missing_source", "low_confidence", "ambiguous", "conflicting", "unsupported", "unintelligible", "truncated", "stale"] },
+        "detail": { "type": "string", "minLength": 1, "maxLength": 4096 },
+        "severity": { "enum": ["info", "warning", "error", "fatal"] }
+      },
+      "additionalProperties": false
+    },
+    "receipt": {
+      "type": "object",
+      "required": ["schema", "backend_family", "adapter_id", "adapter_version", "model_id", "model_digest", "parser_path", "output_fingerprint", "prompt_fingerprint", "media_fingerprints", "device"],
+      "properties": {
+        "schema": { "const": "h3.vlm.observation.v1" },
+        "backend_family": { "enum": ["comfyui_native", "ollama"] },
+        "adapter_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "adapter_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "model_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "model_digest": { "$ref": "#/$defs/fingerprint" },
+        "parser_path": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "output_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "prompt_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "media_fingerprints": { "type": "array", "minItems": 1, "maxItems": 16, "items": { "$ref": "#/$defs/fingerprint" } },
+        "device": { "type": "string", "enum": ["auto", "cpu", "cuda", "mps"] }
+      },
+      "additionalProperties": false
+    }
+  }
+}

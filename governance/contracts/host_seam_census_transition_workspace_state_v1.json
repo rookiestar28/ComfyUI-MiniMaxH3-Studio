@@ -1,0 +1,62 @@
+{
+  "schema": "h3.context.host_seam_census_transition_workspace_state.v1",
+  "item": "WORKSPACE-STATE",
+  "source": {
+    "commit_parts": [
+      "c8ff47a6",
+      "214ad7cf",
+      "b566afee",
+      "b55cd6bf",
+      "4904fa9a"
+    ],
+    "tree_parts": ["087be98c", "d9540765", "a898523d", "2f24001b", "8f84f031"]
+  },
+  "artifacts": {
+    "from_census_sha256_parts": [
+      "add5957b",
+      "1a3ebc77",
+      "741fd1e3",
+      "c17954cb",
+      "c2de3bf8",
+      "b8082c9f",
+      "92d5550f",
+      "7fa12f31"
+    ],
+    "to_census_sha256_parts": [
+      "56176c5f",
+      "014e0070",
+      "fbffade8",
+      "94bf09e7",
+      "eed2a2f8",
+      "3f20984e",
+      "5ed6ceb1",
+      "51e5e331"
+    ],
+    "fixture_sha256_parts": [
+      "ff152fbb",
+      "78ca29b4",
+      "4a0c439e",
+      "9281a0ef",
+      "5bafc89c",
+      "943a3965",
+      "41f8478e",
+      "763e6ad7"
+    ],
+    "seam_contract_sha256_parts": [
+      "40132e41",
+      "d71efd79",
+      "5a853ecc",
+      "1d6e0eef",
+      "572a207c",
+      "8460dfe8",
+      "d4b0edff",
+      "01336a12"
+    ]
+  },
+  "changes": [
+    {
+      "seam_id": "frontend.api.fetch_api",
+      "added_source_paths": ["frontend/src/host/workspaceStateClient.ts"]
+    }
+  ]
+}

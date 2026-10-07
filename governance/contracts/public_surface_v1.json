@@ -1,0 +1,92 @@
+{
+  "aliased_exports": {
+    "TaskModeOracleComparisonStatus": "OracleComparisonStatus",
+    "TemporalGroundingInterval": "TemporalInterval"
+  },
+  "authorities": [
+    {
+      "authority_id": "acceptance_abi",
+      "declared": 14,
+      "level": "gate_enforced",
+      "names": [
+        "ContextPlan",
+        "GenerationSequencePlan",
+        "RawContextRequest",
+        "build_context_preview",
+        "build_generation_sequence_plan",
+        "build_intent_graph",
+        "build_native_h3_wiring",
+        "build_reference_registry",
+        "lint_prompt",
+        "normalize_request",
+        "parse_prompt",
+        "render_base_prompt",
+        "render_full_reference_prompt",
+        "render_parsed_prompt"
+      ],
+      "names_digest": "sha256:a620f3ce95e1629122ae87004b06d43e8cd172051e17829e8eb26c90dcf961fa",
+      "path": "tests/acceptance_baseline.json"
+    },
+    {
+      "authority_id": "package",
+      "declared": 15,
+      "level": "package",
+      "names": [
+        "DEFAULT_WORKFLOW_FIXTURES",
+        "NodeObjectInfo",
+        "PUBLIC_MANIFEST_SCHEMA",
+        "PUBLIC_MANIFEST_V2_SCHEMA",
+        "PublicManifest",
+        "PublicManifestV2",
+        "RuntimeNodeFacts",
+        "WorkflowFixtureRef",
+        "build_runtime_public_manifest",
+        "build_runtime_public_manifest_v2",
+        "collect_node_object_info",
+        "get_node_mappings",
+        "get_public_manifest",
+        "get_public_manifest_v2",
+        "project_public_manifest_v1"
+      ],
+      "names_digest": "sha256:a432e27b8bebf5f867361ea4e3fed370fd10cabb18fe66813ba6c2442dda7029",
+      "path": "comfyui_h3_context/public_api.py"
+    },
+    {
+      "authority_id": "pure_core",
+      "declared": 987,
+      "level": "pure_core",
+      "names_digest": "sha256:18679ff0bc3e151a5c32b1ee4283be8833541b33647123ed39f21250815a2aeb",
+      "path": "comfyui_h3_context/core/__init__.py"
+    }
+  ],
+  "fingerprint": "sha256:e2ef0f79f3eff5dc071420f17c32d42eb7d9b599f6b27068faed7c910f1fe6cf",
+  "hub_consumed": 978,
+  "hub_unverified": 9,
+  "notes": [
+    "The package authority is the consumer promise. Pure values it exposes stay in the pure-core authority; names that need node metadata remain package facades.",
+    "hub_unverified counts exports no file in this repository imports. It is not a deletion list: an installed ComfyUI user importing from comfyui_h3_context.core is invisible here."
+  ],
+  "schema": "h3-context-public-surface/1",
+  "shadowed": [
+    {
+      "bound_origin": "core.base_evaluation",
+      "disposition": "alias",
+      "name": "OracleComparisonStatus",
+      "rationale": "Preserve the base-evaluation binding and expose the distinct task-mode status under an explicit role-qualified alias.",
+      "resolved": true,
+      "resolved_alias": "TaskModeOracleComparisonStatus",
+      "shadowed_origin": "core.task_mode_retention_classifier",
+      "values_agree": false
+    },
+    {
+      "bound_origin": "core.temporal_visual_analysis",
+      "disposition": "alias",
+      "name": "TemporalInterval",
+      "rationale": "Preserve the visual-analysis binding and retain the event-alignment interval under its existing role-qualified alias.",
+      "resolved": true,
+      "resolved_alias": "TemporalGroundingInterval",
+      "shadowed_origin": "core.temporal_event_alignment",
+      "values_agree": false
+    }
+  ]
+}

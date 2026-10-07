@@ -29,7 +29,12 @@ import { type ShellRuntime } from "./shellSession";
 
 export function createExtensionRegistration(ctx: ShellRuntime) {
   const { session, deps, actions } = ctx;
-  const syncVisibleOwner = () => actions.nleSyncOwnerRenewal(true);
+  const syncVisibleOwner = () => {
+    actions.nleSyncOwnerRenewal(true);
+    if (document.visibilityState === "visible")
+      actions.projectRecoveryObserve?.();
+    else actions.projectRecoveryLeave?.();
+  };
 
   // CRITICAL (M25-21 section 14.4): view release is host collapse, hide or takeover, not the end of
   // the session. It stops owned playback, polling, leases, requests and listeners, and it must
@@ -51,6 +56,9 @@ export function createExtensionRegistration(ctx: ShellRuntime) {
     actions.releaseProviderSession();
     // M25-33: stop job polling and drop the continuation; reopening re-reads the running job.
     actions.releaseMediaRuntime();
+    actions.workspaceStateLeave?.();
+    actions.retainedAssetsLeave?.();
+    actions.projectFileDispose?.();
     actions.closeSemanticProposalReview();
     deps.productionProposalDispatcher.clearSensitive();
     actions.closeProductionMediaPreview(false);
@@ -126,6 +134,7 @@ export function createExtensionRegistration(ctx: ShellRuntime) {
             actions.detachManagedSerialSequence,
           );
           window.addEventListener("pagehide", actions.releaseProviderSession);
+          window.addEventListener("pagehide", actions.projectRecoveryLeave);
           window.addEventListener("pageshow", actions.ensureProviderProjection);
           document.addEventListener("visibilitychange", syncVisibleOwner);
           session.pageSubscriptionDispose = deps.pageRegistry.subscribe(() => {
@@ -136,8 +145,7 @@ export function createExtensionRegistration(ctx: ShellRuntime) {
           });
           actions.ensureProviderProjection();
           actions.ensureBuildProvenance();
-          if (session.productionSessionHandle !== undefined)
-            void actions.runProductionIntent({ action: "read_projection" });
+          actions.resumeProductionSession();
           deps.host.register({
             launcherCopy() {
               const copy = sidebarCopy(deps.localeStore.getSnapshot().locale);
@@ -267,6 +275,9 @@ export function createExtensionRegistration(ctx: ShellRuntime) {
                 deps.productionProposalDispatcher.dispose();
                 actions.nleStopOwnerRenewal();
                 actions.releaseMediaRuntime();
+                actions.workspaceStateLeave?.();
+                actions.retainedAssetsLeave?.();
+                actions.projectRecoveryDispose?.();
                 actions.closeProductionMediaPreview(false);
                 session.actionAbort?.abort();
                 session.actionAbort = undefined;
@@ -290,6 +301,10 @@ export function createExtensionRegistration(ctx: ShellRuntime) {
                 window.removeEventListener(
                   "pagehide",
                   actions.releaseProviderSession,
+                );
+                window.removeEventListener(
+                  "pagehide",
+                  actions.projectRecoveryLeave,
                 );
                 window.removeEventListener(
                   "pageshow",
@@ -710,6 +725,7 @@ export function createExtensionRegistration(ctx: ShellRuntime) {
               )
                 session.acceptedManagedIdentity = undefined;
               actions.renderCurrent();
+              actions.resumeProductionSession();
             },
           });
         } catch {

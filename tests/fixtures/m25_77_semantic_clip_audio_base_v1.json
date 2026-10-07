@@ -1,0 +1,1778 @@
+{
+  "snapshot": {
+    "schema": "h3.context.public_composition_snapshot.v1",
+    "profile_id": "h3.native_media_canvas_backend.v1",
+    "operation_profile_id": "h3.authoring.nle_operation.v1",
+    "project_id": "project-fixture-clip-audio",
+    "workspace_handle": "authoring-77777777777777777777777777777777",
+    "workspace_revision": 7,
+    "workspace_fingerprint": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "timeline_revision": 11,
+    "timeline_fingerprint": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "public_fingerprint": "sha256:bab480394beca09b931c21409d6d15889087f64de5e9b755b485586f18c8c68d",
+    "output": {
+      "profile_id": "h3.authoring.output.h264_aac_24fps.v1",
+      "frame_rate": {
+        "num": 24,
+        "den": 1
+      },
+      "time_base": {
+        "num": 1,
+        "den": 24
+      },
+      "width": 320,
+      "height": 180,
+      "duration_frames": 248,
+      "container": "mp4",
+      "video_codec": "h264",
+      "pixel_format": "yuv420p",
+      "pixel_aspect": {
+        "num": 1,
+        "den": 1
+      },
+      "color_policy": "bt709_sdr_limited_v1",
+      "audio_policy": "primary_embedded_follow_video_v1",
+      "audio_codec": "aac",
+      "sample_rate": 48000,
+      "channels": 1,
+      "preview_max_av_drift_samples": 2000,
+      "final_impulse_tolerance_samples": 2048
+    },
+    "capability": {
+      "engine_profile_id": "h3.native_media_canvas_backend.v1",
+      "input_containers": [
+        "mp4"
+      ],
+      "input_video_codecs": [
+        "h264"
+      ],
+      "input_audio_codecs": [
+        "aac"
+      ],
+      "input_pixel_formats": [
+        "yuv420p"
+      ],
+      "media_transport": "intrinsic_html_media_element_v1",
+      "frame_observer": "request_video_frame_callback_v1",
+      "frame_event_fallbacks": [
+        "seeked",
+        "timeupdate"
+      ],
+      "visual_compositor": "canvas2d_ladder_v2",
+      "embedded_audio_policy": "primary_embedded_follow_video_v1",
+      "cross_origin_isolation_required": false,
+      "mse_required": false,
+      "webcodecs_required": false,
+      "network_policy": "same_origin_bounded_body_only_v1",
+      "active_video_limit": 2,
+      "warm_video_limit": 1,
+      "canvas_limit": 1,
+      "pending_rvfc_limit": 2,
+      "cancel_deadline_ms": 250,
+      "teardown_deadline_ms": 500,
+      "decision_receipt_fingerprints": [
+        "sha256:3cd21f23932be62a4dfca721ce4cf2f93d78df7ce2210412c5155c159ddea797",
+        "sha256:635892d0b5a513ec19980bf573493d1ba558c6d007cc8b8ac4884ef59c0e8e4b"
+      ],
+      "observation_corpus_ids": [
+        "cfr",
+        "invalid",
+        "lane",
+        "mse",
+        "truncated",
+        "vfr"
+      ],
+      "observation_corpus_fingerprints": [
+        "sha256:1b77cf5e99d63696f613e9be79ef29c0d99fd8914da111b631bfdb69958cb603",
+        "sha256:f7941036b79edad65b72beff2b81e9160624c1c759da2c8e875645992e504aae",
+        "sha256:159d4c24e722ca8d085c2212fd9c9ffe92422b7413443dce20923a0bf3cb7c9c",
+        "sha256:80173360d0925747b3ccdebce453eb2c13f8a748ae619214e94462d541d13fb9",
+        "sha256:b24953b14f1255a49917b20f1680d2adfe2c056e99859396df4ab691c6a2f754",
+        "sha256:e17aae228364b5d73d8eee1e5b0b068de176c6031d1c17f1b4ba5ff392985e16"
+      ],
+      "probe_root_keys": [
+        "format",
+        "programs",
+        "stream_groups",
+        "streams"
+      ],
+      "probe_format_keys": [
+        "duration",
+        "format_name"
+      ],
+      "probe_video_stream_keys": [
+        "avg_frame_rate",
+        "codec_name",
+        "codec_type",
+        "height",
+        "pix_fmt",
+        "width"
+      ],
+      "probe_audio_stream_keys": [
+        "avg_frame_rate",
+        "channel_layout",
+        "channels",
+        "codec_name",
+        "codec_type",
+        "sample_rate"
+      ],
+      "probe_empty_array_keys": [
+        "programs",
+        "stream_groups"
+      ],
+      "audio_stream_rate_sentinel": "0/0"
+    },
+    "assets": [
+      {
+        "asset_id": "vid-tone",
+        "kind": "video",
+        "source_time_base": {
+          "num": 1,
+          "den": 12288
+        },
+        "source_frame_count": 248,
+        "source_sample_count": 496000,
+        "embedded_audio": "present_bound",
+        "timestamp_policy": "nonnegative_monotonic_v1",
+        "landmarks": [
+          {
+            "frame_index": 0,
+            "pts": 0,
+            "dts": 0,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 1,
+            "pts": 512,
+            "dts": 512,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 2,
+            "pts": 1024,
+            "dts": 1024,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 3,
+            "pts": 1536,
+            "dts": 1536,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 4,
+            "pts": 2048,
+            "dts": 2048,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 5,
+            "pts": 2560,
+            "dts": 2560,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 6,
+            "pts": 3072,
+            "dts": 3072,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 7,
+            "pts": 3584,
+            "dts": 3584,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 8,
+            "pts": 4096,
+            "dts": 4096,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 9,
+            "pts": 4608,
+            "dts": 4608,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 10,
+            "pts": 5120,
+            "dts": 5120,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 11,
+            "pts": 5632,
+            "dts": 5632,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 12,
+            "pts": 6144,
+            "dts": 6144,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 13,
+            "pts": 6656,
+            "dts": 6656,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 14,
+            "pts": 7168,
+            "dts": 7168,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 15,
+            "pts": 7680,
+            "dts": 7680,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 16,
+            "pts": 8192,
+            "dts": 8192,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 17,
+            "pts": 8704,
+            "dts": 8704,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 18,
+            "pts": 9216,
+            "dts": 9216,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 19,
+            "pts": 9728,
+            "dts": 9728,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 20,
+            "pts": 10240,
+            "dts": 10240,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 21,
+            "pts": 10752,
+            "dts": 10752,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 22,
+            "pts": 11264,
+            "dts": 11264,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 23,
+            "pts": 11776,
+            "dts": 11776,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 24,
+            "pts": 12288,
+            "dts": 12288,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 25,
+            "pts": 12800,
+            "dts": 12800,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 26,
+            "pts": 13312,
+            "dts": 13312,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 27,
+            "pts": 13824,
+            "dts": 13824,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 28,
+            "pts": 14336,
+            "dts": 14336,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 29,
+            "pts": 14848,
+            "dts": 14848,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 30,
+            "pts": 15360,
+            "dts": 15360,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 31,
+            "pts": 15872,
+            "dts": 15872,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 32,
+            "pts": 16384,
+            "dts": 16384,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 33,
+            "pts": 16896,
+            "dts": 16896,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 34,
+            "pts": 17408,
+            "dts": 17408,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 35,
+            "pts": 17920,
+            "dts": 17920,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 36,
+            "pts": 18432,
+            "dts": 18432,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 37,
+            "pts": 18944,
+            "dts": 18944,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 38,
+            "pts": 19456,
+            "dts": 19456,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 39,
+            "pts": 19968,
+            "dts": 19968,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 40,
+            "pts": 20480,
+            "dts": 20480,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 41,
+            "pts": 20992,
+            "dts": 20992,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 42,
+            "pts": 21504,
+            "dts": 21504,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 43,
+            "pts": 22016,
+            "dts": 22016,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 44,
+            "pts": 22528,
+            "dts": 22528,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 45,
+            "pts": 23040,
+            "dts": 23040,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 46,
+            "pts": 23552,
+            "dts": 23552,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 47,
+            "pts": 24064,
+            "dts": 24064,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 48,
+            "pts": 24576,
+            "dts": 24576,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 49,
+            "pts": 25088,
+            "dts": 25088,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 50,
+            "pts": 25600,
+            "dts": 25600,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 51,
+            "pts": 26112,
+            "dts": 26112,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 52,
+            "pts": 26624,
+            "dts": 26624,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 53,
+            "pts": 27136,
+            "dts": 27136,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 54,
+            "pts": 27648,
+            "dts": 27648,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 55,
+            "pts": 28160,
+            "dts": 28160,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 56,
+            "pts": 28672,
+            "dts": 28672,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 57,
+            "pts": 29184,
+            "dts": 29184,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 58,
+            "pts": 29696,
+            "dts": 29696,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 59,
+            "pts": 30208,
+            "dts": 30208,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 60,
+            "pts": 30720,
+            "dts": 30720,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 61,
+            "pts": 31232,
+            "dts": 31232,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 62,
+            "pts": 31744,
+            "dts": 31744,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 63,
+            "pts": 32256,
+            "dts": 32256,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 64,
+            "pts": 32768,
+            "dts": 32768,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 65,
+            "pts": 33280,
+            "dts": 33280,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 66,
+            "pts": 33792,
+            "dts": 33792,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 67,
+            "pts": 34304,
+            "dts": 34304,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 68,
+            "pts": 34816,
+            "dts": 34816,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 69,
+            "pts": 35328,
+            "dts": 35328,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 70,
+            "pts": 35840,
+            "dts": 35840,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 71,
+            "pts": 36352,
+            "dts": 36352,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 72,
+            "pts": 36864,
+            "dts": 36864,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 73,
+            "pts": 37376,
+            "dts": 37376,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 74,
+            "pts": 37888,
+            "dts": 37888,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 75,
+            "pts": 38400,
+            "dts": 38400,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 76,
+            "pts": 38912,
+            "dts": 38912,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 77,
+            "pts": 39424,
+            "dts": 39424,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 78,
+            "pts": 39936,
+            "dts": 39936,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 79,
+            "pts": 40448,
+            "dts": 40448,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 80,
+            "pts": 40960,
+            "dts": 40960,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 81,
+            "pts": 41472,
+            "dts": 41472,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 82,
+            "pts": 41984,
+            "dts": 41984,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 83,
+            "pts": 42496,
+            "dts": 42496,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 84,
+            "pts": 43008,
+            "dts": 43008,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 85,
+            "pts": 43520,
+            "dts": 43520,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 86,
+            "pts": 44032,
+            "dts": 44032,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 87,
+            "pts": 44544,
+            "dts": 44544,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 88,
+            "pts": 45056,
+            "dts": 45056,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 89,
+            "pts": 45568,
+            "dts": 45568,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 90,
+            "pts": 46080,
+            "dts": 46080,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 91,
+            "pts": 46592,
+            "dts": 46592,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 92,
+            "pts": 47104,
+            "dts": 47104,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 93,
+            "pts": 47616,
+            "dts": 47616,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 94,
+            "pts": 48128,
+            "dts": 48128,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 95,
+            "pts": 48640,
+            "dts": 48640,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 96,
+            "pts": 49152,
+            "dts": 49152,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 97,
+            "pts": 49664,
+            "dts": 49664,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 98,
+            "pts": 50176,
+            "dts": 50176,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 99,
+            "pts": 50688,
+            "dts": 50688,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 100,
+            "pts": 51200,
+            "dts": 51200,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 101,
+            "pts": 51712,
+            "dts": 51712,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 102,
+            "pts": 52224,
+            "dts": 52224,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 103,
+            "pts": 52736,
+            "dts": 52736,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 104,
+            "pts": 53248,
+            "dts": 53248,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 105,
+            "pts": 53760,
+            "dts": 53760,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 106,
+            "pts": 54272,
+            "dts": 54272,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 107,
+            "pts": 54784,
+            "dts": 54784,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 108,
+            "pts": 55296,
+            "dts": 55296,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 109,
+            "pts": 55808,
+            "dts": 55808,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 110,
+            "pts": 56320,
+            "dts": 56320,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 111,
+            "pts": 56832,
+            "dts": 56832,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 112,
+            "pts": 57344,
+            "dts": 57344,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 113,
+            "pts": 57856,
+            "dts": 57856,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 114,
+            "pts": 58368,
+            "dts": 58368,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 115,
+            "pts": 58880,
+            "dts": 58880,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 116,
+            "pts": 59392,
+            "dts": 59392,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 117,
+            "pts": 59904,
+            "dts": 59904,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 118,
+            "pts": 60416,
+            "dts": 60416,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 119,
+            "pts": 60928,
+            "dts": 60928,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 120,
+            "pts": 61440,
+            "dts": 61440,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 121,
+            "pts": 61952,
+            "dts": 61952,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 122,
+            "pts": 62464,
+            "dts": 62464,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 123,
+            "pts": 62976,
+            "dts": 62976,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 124,
+            "pts": 63488,
+            "dts": 63488,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 125,
+            "pts": 64000,
+            "dts": 64000,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 126,
+            "pts": 64512,
+            "dts": 64512,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 127,
+            "pts": 65024,
+            "dts": 65024,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 128,
+            "pts": 65536,
+            "dts": 65536,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 129,
+            "pts": 66048,
+            "dts": 66048,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 130,
+            "pts": 66560,
+            "dts": 66560,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 131,
+            "pts": 67072,
+            "dts": 67072,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 132,
+            "pts": 67584,
+            "dts": 67584,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 133,
+            "pts": 68096,
+            "dts": 68096,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 134,
+            "pts": 68608,
+            "dts": 68608,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 135,
+            "pts": 69120,
+            "dts": 69120,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 136,
+            "pts": 69632,
+            "dts": 69632,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 137,
+            "pts": 70144,
+            "dts": 70144,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 138,
+            "pts": 70656,
+            "dts": 70656,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 139,
+            "pts": 71168,
+            "dts": 71168,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 140,
+            "pts": 71680,
+            "dts": 71680,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 141,
+            "pts": 72192,
+            "dts": 72192,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 142,
+            "pts": 72704,
+            "dts": 72704,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 143,
+            "pts": 73216,
+            "dts": 73216,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 144,
+            "pts": 73728,
+            "dts": 73728,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 145,
+            "pts": 74240,
+            "dts": 74240,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 146,
+            "pts": 74752,
+            "dts": 74752,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 147,
+            "pts": 75264,
+            "dts": 75264,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 148,
+            "pts": 75776,
+            "dts": 75776,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 149,
+            "pts": 76288,
+            "dts": 76288,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 150,
+            "pts": 76800,
+            "dts": 76800,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 151,
+            "pts": 77312,
+            "dts": 77312,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 152,
+            "pts": 77824,
+            "dts": 77824,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 153,
+            "pts": 78336,
+            "dts": 78336,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 154,
+            "pts": 78848,
+            "dts": 78848,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 155,
+            "pts": 79360,
+            "dts": 79360,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 156,
+            "pts": 79872,
+            "dts": 79872,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 157,
+            "pts": 80384,
+            "dts": 80384,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 158,
+            "pts": 80896,
+            "dts": 80896,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 159,
+            "pts": 81408,
+            "dts": 81408,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 160,
+            "pts": 81920,
+            "dts": 81920,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 161,
+            "pts": 82432,
+            "dts": 82432,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 162,
+            "pts": 82944,
+            "dts": 82944,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 163,
+            "pts": 83456,
+            "dts": 83456,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 164,
+            "pts": 83968,
+            "dts": 83968,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 165,
+            "pts": 84480,
+            "dts": 84480,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 166,
+            "pts": 84992,
+            "dts": 84992,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 167,
+            "pts": 85504,
+            "dts": 85504,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 168,
+            "pts": 86016,
+            "dts": 86016,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 169,
+            "pts": 86528,
+            "dts": 86528,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 170,
+            "pts": 87040,
+            "dts": 87040,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 171,
+            "pts": 87552,
+            "dts": 87552,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 172,
+            "pts": 88064,
+            "dts": 88064,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 173,
+            "pts": 88576,
+            "dts": 88576,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 174,
+            "pts": 89088,
+            "dts": 89088,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 175,
+            "pts": 89600,
+            "dts": 89600,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 176,
+            "pts": 90112,
+            "dts": 90112,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 177,
+            "pts": 90624,
+            "dts": 90624,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 178,
+            "pts": 91136,
+            "dts": 91136,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 179,
+            "pts": 91648,
+            "dts": 91648,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 180,
+            "pts": 92160,
+            "dts": 92160,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 181,
+            "pts": 92672,
+            "dts": 92672,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 182,
+            "pts": 93184,
+            "dts": 93184,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 183,
+            "pts": 93696,
+            "dts": 93696,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 184,
+            "pts": 94208,
+            "dts": 94208,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 185,
+            "pts": 94720,
+            "dts": 94720,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 186,
+            "pts": 95232,
+            "dts": 95232,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 187,
+            "pts": 95744,
+            "dts": 95744,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 188,
+            "pts": 96256,
+            "dts": 96256,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 189,
+            "pts": 96768,
+            "dts": 96768,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 190,
+            "pts": 97280,
+            "dts": 97280,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 191,
+            "pts": 97792,
+            "dts": 97792,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 192,
+            "pts": 98304,
+            "dts": 98304,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 193,
+            "pts": 98816,
+            "dts": 98816,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 194,
+            "pts": 99328,
+            "dts": 99328,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 195,
+            "pts": 99840,
+            "dts": 99840,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 196,
+            "pts": 100352,
+            "dts": 100352,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 197,
+            "pts": 100864,
+            "dts": 100864,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 198,
+            "pts": 101376,
+            "dts": 101376,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 199,
+            "pts": 101888,
+            "dts": 101888,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 200,
+            "pts": 102400,
+            "dts": 102400,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 201,
+            "pts": 102912,
+            "dts": 102912,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 202,
+            "pts": 103424,
+            "dts": 103424,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 203,
+            "pts": 103936,
+            "dts": 103936,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 204,
+            "pts": 104448,
+            "dts": 104448,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 205,
+            "pts": 104960,
+            "dts": 104960,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 206,
+            "pts": 105472,
+            "dts": 105472,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 207,
+            "pts": 105984,
+            "dts": 105984,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 208,
+            "pts": 106496,
+            "dts": 106496,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 209,
+            "pts": 107008,
+            "dts": 107008,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 210,
+            "pts": 107520,
+            "dts": 107520,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 211,
+            "pts": 108032,
+            "dts": 108032,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 212,
+            "pts": 108544,
+            "dts": 108544,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 213,
+            "pts": 109056,
+            "dts": 109056,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 214,
+            "pts": 109568,
+            "dts": 109568,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 215,
+            "pts": 110080,
+            "dts": 110080,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 216,
+            "pts": 110592,
+            "dts": 110592,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 217,
+            "pts": 111104,
+            "dts": 111104,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 218,
+            "pts": 111616,
+            "dts": 111616,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 219,
+            "pts": 112128,
+            "dts": 112128,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 220,
+            "pts": 112640,
+            "dts": 112640,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 221,
+            "pts": 113152,
+            "dts": 113152,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 222,
+            "pts": 113664,
+            "dts": 113664,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 223,
+            "pts": 114176,
+            "dts": 114176,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 224,
+            "pts": 114688,
+            "dts": 114688,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 225,
+            "pts": 115200,
+            "dts": 115200,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 226,
+            "pts": 115712,
+            "dts": 115712,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 227,
+            "pts": 116224,
+            "dts": 116224,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 228,
+            "pts": 116736,
+            "dts": 116736,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 229,
+            "pts": 117248,
+            "dts": 117248,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 230,
+            "pts": 117760,
+            "dts": 117760,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 231,
+            "pts": 118272,
+            "dts": 118272,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 232,
+            "pts": 118784,
+            "dts": 118784,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 233,
+            "pts": 119296,
+            "dts": 119296,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 234,
+            "pts": 119808,
+            "dts": 119808,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 235,
+            "pts": 120320,
+            "dts": 120320,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 236,
+            "pts": 120832,
+            "dts": 120832,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 237,
+            "pts": 121344,
+            "dts": 121344,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 238,
+            "pts": 121856,
+            "dts": 121856,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 239,
+            "pts": 122368,
+            "dts": 122368,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 240,
+            "pts": 122880,
+            "dts": 122880,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 241,
+            "pts": 123392,
+            "dts": 123392,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 242,
+            "pts": 123904,
+            "dts": 123904,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 243,
+            "pts": 124416,
+            "dts": 124416,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 244,
+            "pts": 124928,
+            "dts": 124928,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 245,
+            "pts": 125440,
+            "dts": 125440,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 246,
+            "pts": 125952,
+            "dts": 125952,
+            "duration_ticks": 512
+          },
+          {
+            "frame_index": 247,
+            "pts": 126464,
+            "dts": 126464,
+            "duration_ticks": 512
+          }
+        ]
+      },
+      {
+        "asset_id": "img-overlay",
+        "kind": "image",
+        "source_time_base": null,
+        "source_frame_count": null,
+        "source_sample_count": null,
+        "embedded_audio": "absent",
+        "timestamp_policy": "not_applicable",
+        "landmarks": []
+      }
+    ],
+    "tracks": [
+      {
+        "track_id": "track-primary",
+        "kind": "primary_video",
+        "order": 0,
+        "enabled": true,
+        "locked": false
+      },
+      {
+        "track_id": "track-image",
+        "kind": "image_overlay",
+        "order": 2,
+        "enabled": true,
+        "locked": false
+      }
+    ],
+    "clips": [
+      {
+        "clip_id": "clip-main",
+        "asset_id": "vid-tone",
+        "track_id": "track-primary",
+        "start_frame": 0,
+        "duration_frames": 248,
+        "source_start_frame": 0,
+        "enabled": true,
+        "transform": {
+          "anchor_x_bp": 5000,
+          "anchor_y_bp": 5000,
+          "position_x_bp": 0,
+          "position_y_bp": 0,
+          "scale_x_bp": 10000,
+          "scale_y_bp": 10000,
+          "rotation_mdeg": 0
+        },
+        "crop": {
+          "left_bp": 0,
+          "top_bp": 0,
+          "right_bp": 0,
+          "bottom_bp": 0
+        },
+        "opacity_bp": 10000,
+        "blend": "normal",
+        "text": null,
+        "transition": {
+          "kind": "none",
+          "duration_frames": 0
+        },
+        "effect": {
+          "kind": "none",
+          "brightness_permille": 0,
+          "contrast_permille": 1000,
+          "saturation_permille": 1000
+        }
+      },
+      {
+        "clip_id": "clip-image",
+        "asset_id": "img-overlay",
+        "track_id": "track-image",
+        "start_frame": 0,
+        "duration_frames": 248,
+        "source_start_frame": 0,
+        "enabled": true,
+        "transform": {
+          "anchor_x_bp": 5000,
+          "anchor_y_bp": 5000,
+          "position_x_bp": 0,
+          "position_y_bp": 0,
+          "scale_x_bp": 10000,
+          "scale_y_bp": 10000,
+          "rotation_mdeg": 0
+        },
+        "crop": {
+          "left_bp": 0,
+          "top_bp": 0,
+          "right_bp": 0,
+          "bottom_bp": 0
+        },
+        "opacity_bp": 3000,
+        "blend": "multiply",
+        "text": null,
+        "transition": {
+          "kind": "none",
+          "duration_frames": 0
+        },
+        "effect": {
+          "kind": "none",
+          "brightness_permille": 0,
+          "contrast_permille": 1000,
+          "saturation_permille": 1000
+        }
+      }
+    ],
+    "audio_extension": {
+      "schema": "h3.authoring.independent_audio_extension.v1",
+      "track_profile": "none_v1",
+      "command_namespace": "h3.authoring.audio.command.v1",
+      "command_members": [],
+      "preview_edit_capability": "unsupported",
+      "final_render_edit_capability": "unsupported",
+      "embedded_renderer_variant": "EmbeddedAudioSpanV1",
+      "independent_audio_renderer_variant": "none_v1",
+      "reason": "audio_editing_deferred"
+    },
+    "blockers": [],
+    "render_vocabulary": {
+      "schema": "h3.context.authoring_render_vocabulary.v1",
+      "request_schema": "h3.context.authoring_render_request.v1",
+      "job_schema": "h3.context.authoring_render_job.v1",
+      "receipt_schema": "h3.context.authoring_render_receipt.v1",
+      "states": [
+        "queued",
+        "probing",
+        "preparing",
+        "rendering",
+        "encoding",
+        "muxing",
+        "validating",
+        "succeeded",
+        "failed",
+        "cancelled"
+      ],
+      "terminal_states": [
+        "succeeded",
+        "failed",
+        "cancelled"
+      ],
+      "reasons": [
+        "unsupported_profile",
+        "source_unavailable",
+        "source_replaced",
+        "stale_snapshot",
+        "cancelled",
+        "timeout",
+        "renderer_failed",
+        "validation_failed",
+        "internal_failure"
+      ]
+    }
+  }
+}

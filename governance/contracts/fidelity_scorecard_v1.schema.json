@@ -1,0 +1,435 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/h3/fidelity_scorecard_v1.schema.json",
+  "title": "H3 Frozen Fidelity Scorecard",
+  "description": "Closed manual-only scorecard with conditional thresholds and no imputed evidence.",
+  "type": "object",
+  "const": {
+    "schema": "h3.fidelity_scorecard.v1",
+    "scorecard_version": "1.0.0",
+    "record_date": "2026-08-09",
+    "product_scope": "MANUAL_ONLY_SCOPED",
+    "claim_cap": "MANUAL_DETERMINISTIC_LOCAL_ONLY",
+    "assisted_profile_ids": [],
+    "composite_score": null,
+    "promotion_authorized": false,
+    "predecessors": [
+      {
+        "authority": "official_oracle_terminal",
+        "schema": "h3-context-official-oracle-terminal-disposition/1",
+        "fingerprint": "sha256:4a21488a2d7f607e4a25ff6dcaac829fd347d4e25c9a619f57aeb0c443674122",
+        "disposition": "UNAVAILABLE_PROHIBITED",
+        "claim_cap": "STRUCTURAL_AND_LOCAL_ONLY"
+      },
+      {
+        "authority": "perturbation_corpus",
+        "schema": "h3.context.perturbation.evaluation.v1",
+        "fingerprint": "sha256:96cfebbae82b1decab9cfa352f5ddd6151596576b9a094d2890c782a5c998c25",
+        "disposition": "LOCAL_ONLY",
+        "claim_cap": "NO_OFFICIAL_BEHAVIOR_EVIDENCE"
+      },
+      {
+        "authority": "semantic_evaluation",
+        "schema": "h3.semantic_graph_comparator.evaluation.v1",
+        "fingerprint": "sha256:a86a67781151dc7fb46a8739964a4efe4d6cc3ca11173377826bbd3b4056cf7d",
+        "disposition": "LOCAL_QUALIFIED_OFFICIAL_UNAVAILABLE",
+        "claim_cap": "NO_OFFICIAL_AGREEMENT_CLAIM"
+      },
+      {
+        "authority": "local_qualification",
+        "schema": "h3.local.qualification.v1",
+        "fingerprint": "sha256:693ae2289aa4b184dbf9300abd110f1ba82ffee7689446a90b5c33becff274c4",
+        "disposition": "MANUAL_ONLY_SCOPED",
+        "claim_cap": "NO_ASSISTED_PROFILE_CLAIM"
+      },
+      {
+        "authority": "fixed_h3_terminal",
+        "schema": "h3.fixed_generation.terminal.v1",
+        "fingerprint": "sha256:9a11ebfd5e2df401e6e892fa9ef3fc6fecc53bc0a28a4c4e84d003a7de4f52b0",
+        "disposition": "UNAVAILABLE",
+        "claim_cap": "NO_FIXED_H3_GENERATION_EVIDENCE"
+      },
+      {
+        "authority": "human_review_terminal",
+        "schema": "h3.human_review.terminal.v1",
+        "fingerprint": "sha256:d1a13b37fc07fb17c1af363256134f2fd182554f3c1b297025dcca6c63dadf16",
+        "disposition": "HUMAN_REVIEW_UNAVAILABLE",
+        "claim_cap": "NO_HUMAN_QUALITY_CLAIM"
+      },
+      {
+        "authority": "training_authorization_terminal",
+        "schema": "h3.training_authorization.terminal.v1",
+        "fingerprint": "sha256:55a1993f024b4fb3942acb46eb3908c4cadbcabc521477503b55bd02a257cace",
+        "disposition": "DO_NOT_IMPLEMENT",
+        "claim_cap": "NO_TRAINING_AUTHORIZATION_OR_EVIDENCE"
+      }
+    ],
+    "modes": [
+      {
+        "mode": "t2va",
+        "case_count": "41",
+        "source_cluster_count": "11",
+        "guide_case_count": "1",
+        "p0_case_count": "0",
+        "non_p0_case_count": "40",
+        "failure_count": "0",
+        "official_result_count": "0",
+        "missing_official_result_count": "41"
+      },
+      {
+        "mode": "i2va",
+        "case_count": "1",
+        "source_cluster_count": "1",
+        "guide_case_count": "1",
+        "p0_case_count": "0",
+        "non_p0_case_count": "0",
+        "failure_count": "0",
+        "official_result_count": "0",
+        "missing_official_result_count": "1"
+      },
+      {
+        "mode": "fl2va",
+        "case_count": "1",
+        "source_cluster_count": "1",
+        "guide_case_count": "1",
+        "p0_case_count": "0",
+        "non_p0_case_count": "0",
+        "failure_count": "0",
+        "official_result_count": "0",
+        "missing_official_result_count": "1"
+      },
+      {
+        "mode": "ref2va",
+        "case_count": "27",
+        "source_cluster_count": "9",
+        "guide_case_count": "3",
+        "p0_case_count": "24",
+        "non_p0_case_count": "0",
+        "failure_count": "0",
+        "official_result_count": "0",
+        "missing_official_result_count": "27"
+      }
+    ],
+    "lanes": [
+      {
+        "lane": "structural",
+        "disposition": "QUALIFIED",
+        "case_count": "70",
+        "source_cluster_count": "20",
+        "failed_count": "0",
+        "missing_count": "0",
+        "metrics": [
+          {
+            "metric": "parse_schema",
+            "passed_count": "70",
+            "total_count": "70",
+            "point_estimate": "1.00000000",
+            "confidence_interval": null
+          },
+          {
+            "metric": "hard_constraint_detection",
+            "passed_count": "6",
+            "total_count": "6",
+            "point_estimate": "1.00000000",
+            "confidence_interval": null
+          },
+          {
+            "metric": "reference_role_order_ownership_detection",
+            "passed_count": "12",
+            "total_count": "12",
+            "point_estimate": "1.00000000",
+            "confidence_interval": null
+          }
+        ],
+        "confidence_interval": null,
+        "achieved_power": null,
+        "service_window": "offline_frozen_2026-08-09",
+        "evidence_fingerprint": "sha256:a86a67781151dc7fb46a8739964a4efe4d6cc3ca11173377826bbd3b4056cf7d",
+        "noncompensatory": false,
+        "limitations": [
+          "deterministic_contract_only"
+        ]
+      },
+      {
+        "lane": "perception",
+        "disposition": "MISSING",
+        "case_count": "0",
+        "source_cluster_count": "0",
+        "failed_count": "0",
+        "missing_count": "1",
+        "metrics": [],
+        "confidence_interval": null,
+        "achieved_power": null,
+        "service_window": null,
+        "evidence_fingerprint": null,
+        "noncompensatory": false,
+        "limitations": [
+          "unmocked_raw_media_evidence_missing",
+          "no_ocr_asr_quality_claim"
+        ]
+      },
+      {
+        "lane": "planner",
+        "disposition": "LOCAL_ONLY",
+        "case_count": "70",
+        "source_cluster_count": "20",
+        "failed_count": "0",
+        "missing_count": "0",
+        "metrics": [
+          {
+            "metric": "guide_round_trip",
+            "passed_count": "6",
+            "total_count": "6",
+            "point_estimate": "1.00000000",
+            "confidence_interval": null
+          },
+          {
+            "metric": "p0_mutation_detection",
+            "passed_count": "24",
+            "total_count": "24",
+            "point_estimate": "1.00000000",
+            "confidence_interval": null
+          },
+          {
+            "metric": "semantic_precision",
+            "passed_count": "20",
+            "total_count": "20",
+            "point_estimate": "1.00000000",
+            "confidence_interval": [
+              "0.83887484",
+              "1.00000000"
+            ]
+          },
+          {
+            "metric": "semantic_recall",
+            "passed_count": "20",
+            "total_count": "20",
+            "point_estimate": "1.00000000",
+            "confidence_interval": [
+              "0.83887484",
+              "1.00000000"
+            ]
+          }
+        ],
+        "confidence_interval": null,
+        "achieved_power": null,
+        "service_window": "offline_frozen_2026-08-09",
+        "evidence_fingerprint": "sha256:a86a67781151dc7fb46a8739964a4efe4d6cc3ca11173377826bbd3b4056cf7d",
+        "noncompensatory": false,
+        "limitations": [
+          "local_public_guide_only",
+          "no_official_agreement_claim"
+        ]
+      },
+      {
+        "lane": "oracle",
+        "disposition": "UNAVAILABLE_PROHIBITED",
+        "case_count": "0",
+        "source_cluster_count": "0",
+        "failed_count": "0",
+        "missing_count": "1",
+        "metrics": [],
+        "confidence_interval": null,
+        "achieved_power": null,
+        "service_window": null,
+        "evidence_fingerprint": null,
+        "noncompensatory": false,
+        "limitations": [
+          "official_oracle_evidence_missing",
+          "no_official_behavior_claim"
+        ]
+      },
+      {
+        "lane": "fixed_h3",
+        "disposition": "UNAVAILABLE",
+        "case_count": "0",
+        "source_cluster_count": "0",
+        "failed_count": "0",
+        "missing_count": "1",
+        "metrics": [],
+        "confidence_interval": null,
+        "achieved_power": null,
+        "service_window": null,
+        "evidence_fingerprint": null,
+        "noncompensatory": true,
+        "limitations": [
+          "fixed_h3_evidence_missing",
+          "noncompensatory"
+        ]
+      },
+      {
+        "lane": "human",
+        "disposition": "UNAVAILABLE",
+        "case_count": "0",
+        "source_cluster_count": "0",
+        "failed_count": "0",
+        "missing_count": "1",
+        "metrics": [],
+        "confidence_interval": null,
+        "achieved_power": null,
+        "service_window": null,
+        "evidence_fingerprint": null,
+        "noncompensatory": true,
+        "limitations": [
+          "human_review_evidence_missing",
+          "noncompensatory"
+        ]
+      },
+      {
+        "lane": "resource",
+        "disposition": "MISSING",
+        "case_count": "0",
+        "source_cluster_count": "0",
+        "failed_count": "0",
+        "missing_count": "1",
+        "metrics": [],
+        "confidence_interval": null,
+        "achieved_power": null,
+        "service_window": null,
+        "evidence_fingerprint": null,
+        "noncompensatory": false,
+        "limitations": [
+          "resource_quality_evidence_missing",
+          "no_performance_claim"
+        ]
+      },
+      {
+        "lane": "security",
+        "disposition": "QUALIFIED",
+        "case_count": "1",
+        "source_cluster_count": "1",
+        "failed_count": "0",
+        "missing_count": "0",
+        "metrics": [
+          {
+            "metric": "portable_privacy",
+            "passed_count": "1",
+            "total_count": "1",
+            "point_estimate": "1.00000000",
+            "confidence_interval": null
+          }
+        ],
+        "confidence_interval": null,
+        "achieved_power": null,
+        "service_window": "offline_frozen_2026-08-09",
+        "evidence_fingerprint": "sha256:55a1993f024b4fb3942acb46eb3908c4cadbcabc521477503b55bd02a257cace",
+        "noncompensatory": false,
+        "limitations": [
+          "portable_content_free_contract_only"
+        ]
+      }
+    ],
+    "claims": [
+      {
+        "level": "deterministic_format_contract_conformance",
+        "disposition": "SUPPORTED",
+        "evidence_fingerprint": "sha256:a86a67781151dc7fb46a8739964a4efe4d6cc3ca11173377826bbd3b4056cf7d",
+        "scope": "format_contract_only",
+        "implies_next": false,
+        "promotion_authorized": false,
+        "limitations": [
+          "does_not_imply_semantic_or_quality_equivalence"
+        ]
+      },
+      {
+        "level": "semantic_reconstruction",
+        "disposition": "SUPPORTED_LOCAL_ONLY",
+        "evidence_fingerprint": "sha256:a86a67781151dc7fb46a8739964a4efe4d6cc3ca11173377826bbd3b4056cf7d",
+        "scope": "local_public_guide_only",
+        "implies_next": false,
+        "promotion_authorized": false,
+        "limitations": [
+          "does_not_imply_official_behavioral_agreement"
+        ]
+      },
+      {
+        "level": "official_boundary_behavioral_agreement",
+        "disposition": "UNVERIFIABLE",
+        "evidence_fingerprint": null,
+        "scope": "official_evidence_missing",
+        "implies_next": false,
+        "promotion_authorized": false,
+        "limitations": [
+          "does_not_imply_fixed_h3_quality"
+        ]
+      },
+      {
+        "level": "fixed_h3_noninferiority_equivalence",
+        "disposition": "UNVERIFIABLE",
+        "evidence_fingerprint": null,
+        "scope": "fixed_h3_evidence_missing",
+        "implies_next": false,
+        "promotion_authorized": false,
+        "limitations": [
+          "does_not_imply_human_preference_or_private_recovery"
+        ]
+      },
+      {
+        "level": "private_internal_recovery",
+        "disposition": "UNVERIFIABLE",
+        "evidence_fingerprint": null,
+        "scope": "unknown_private_internals",
+        "implies_next": false,
+        "promotion_authorized": false,
+        "limitations": [
+          "private_internal_recovery_is_not_claimed"
+        ]
+      }
+    ],
+    "statistical_protocol": {
+      "confidence_level_basis_points": "9500",
+      "interval_method": "wilson_two_sided_95",
+      "multiplicity_method": "holm_bonferroni",
+      "planned_power_floor_basis_points": "8000",
+      "failures_remain_in_denominators": true,
+      "pilot_required_for_change": true,
+      "threshold_change_after_holdout_allowed": false,
+      "repeatability_runs": "2",
+      "fixed_h3_human_noncompensatory": true
+    },
+    "oracle_targets": [
+      {
+        "metric": "semantic_micro_f1_lower_95",
+        "direction": "minimum",
+        "threshold": "0.90000000",
+        "applicability": "CONDITIONAL_NOT_EXECUTED",
+        "observed_value": null,
+        "observed_interval": null,
+        "verdict": null
+      },
+      {
+        "metric": "every_stratum_macro_f1_lower_95",
+        "direction": "minimum",
+        "threshold": "0.80000000",
+        "applicability": "CONDITIONAL_NOT_EXECUTED",
+        "observed_value": null,
+        "observed_interval": null,
+        "verdict": null
+      },
+      {
+        "metric": "unsupported_fact_upper_95",
+        "direction": "maximum",
+        "threshold": "0.05000000",
+        "applicability": "CONDITIONAL_NOT_EXECUTED",
+        "observed_value": null,
+        "observed_interval": null,
+        "verdict": null
+      }
+    ],
+    "perturbation_source_cluster_count": "9",
+    "perturbation_case_count": "27",
+    "official_relation_state": "MISSING",
+    "semantic_source_cluster_count": "20",
+    "limitations": [
+      "manual_only_product_scope",
+      "no_composite_score",
+      "missing_evidence_not_imputed",
+      "no_assisted_profile_claim",
+      "no_official_behavioral_agreement_claim",
+      "no_fixed_h3_quality_claim",
+      "no_human_quality_claim",
+      "no_private_internal_recovery_claim"
+    ],
+    "scorecard_fingerprint": "sha256:613dbb6e9459508d04241c1f6359fea24bf4264a74da41193405035d5b995e80"
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/asr_perception_v1.schema.json",
+  "title": "H3 source-owned ASR perception",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "document_id", "status", "authority_policy", "request", "segments", "receipt", "diagnostics"],
+  "properties": {
+    "schema": {"const": "h3.audio.asr.v1"},
+    "document_id": {"$ref": "#/$defs/identifier"},
+    "status": {"enum": ["complete", "partial", "empty", "corrupt", "unsupported", "cancelled"]},
+    "authority_policy": {"const": "observed_asr_not_exact_dialogue"},
+    "request": {"$ref": "#/$defs/request"},
+    "segments": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/segment"}},
+    "receipt": {"anyOf": [{"$ref": "#/$defs/receipt"}, {"type": "null"}]},
+    "diagnostics": {"type": "array", "maxItems": 32, "items": {"type": "string", "minLength": 1, "maxLength": 512}}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "version": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+){1,2}$"},
+    "language": {"type": "string", "pattern": "^[A-Za-z]{2,8}(?:[-_][A-Za-z0-9]{2,8}){0,2}$"},
+    "confidence": {"type": ["string", "null"], "pattern": "^(?:0|1|0\\.[0-9]+|1\\.0+)$"},
+    "timestamp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ticks", "time_base", "seconds"],
+      "properties": {
+        "ticks": {"type": "integer", "minimum": 0},
+        "time_base": {"type": "array", "prefixItems": [{"type": "integer", "minimum": 1}, {"type": "integer", "minimum": 1}], "minItems": 2, "maxItems": 2},
+        "seconds": {"type": "string", "pattern": "^[0-9]+(?:\\.[0-9]+)?$"}
+      }
+    },
+    "span": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "asset_id", "source_id", "source_fingerprint", "start", "end"],
+      "properties": {
+        "schema": {"const": "h3.audio.perception_benchmark.v1"},
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "start": {"$ref": "#/$defs/timestamp"},
+        "end": {"$ref": "#/$defs/timestamp"}
+      }
+    },
+    "alternative": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "text", "confidence", "rank", "authority"],
+      "properties": {
+        "schema": {"const": "h3.audio.asr.v1"},
+        "text": {"type": "string", "minLength": 1, "maxLength": 2048},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "rank": {"type": "integer", "minimum": 1, "maximum": 4},
+        "authority": {"const": "observed_asr"}
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "kind", "detail"],
+      "properties": {
+        "schema": {"const": "h3.audio.asr.v1"},
+        "kind": {"enum": ["low_confidence", "ambiguous", "unintelligible", "noise", "music_masking", "overlap", "language_unknown", "timing_uncertain", "corrupt", "truncated", "no_speech"]},
+        "detail": {"type": "string", "minLength": 1, "maxLength": 512}
+      }
+    },
+    "word": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "word_id", "span", "text", "confidence", "alternatives", "uncertainties", "authority"],
+      "properties": {
+        "schema": {"const": "h3.audio.asr.v1"},
+        "word_id": {"$ref": "#/$defs/identifier"},
+        "span": {"$ref": "#/$defs/span"},
+        "text": {"type": "string", "minLength": 1, "maxLength": 256},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "alternatives": {"type": "array", "maxItems": 4, "items": {"$ref": "#/$defs/alternative"}},
+        "uncertainties": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/uncertainty"}},
+        "authority": {"const": "observed_asr"}
+      }
+    },
+    "segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "segment_id", "span", "text", "text_status", "language", "language_confidence", "confidence", "words", "alternatives", "uncertainties", "overlap_group", "authority"],
+      "properties": {
+        "schema": {"const": "h3.audio.asr.v1"},
+        "segment_id": {"$ref": "#/$defs/identifier"},
+        "span": {"$ref": "#/$defs/span"},
+        "text": {"type": "string", "minLength": 1, "maxLength": 2048},
+        "text_status": {"enum": ["transcribed", "unclear"]},
+        "language": {"anyOf": [{"$ref": "#/$defs/language"}, {"type": "null"}]},
+        "language_confidence": {"$ref": "#/$defs/confidence"},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "words": {"type": "array", "maxItems": 1024, "items": {"$ref": "#/$defs/word"}},
+        "alternatives": {"type": "array", "maxItems": 4, "items": {"$ref": "#/$defs/alternative"}},
+        "uncertainties": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/uncertainty"}},
+        "overlap_group": {"type": ["string", "null"], "maxLength": 128},
+        "authority": {"const": "observed_asr"}
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "asset_id", "source_id", "source_fingerprint", "preprocessing_fingerprint", "duration_end", "language_hints", "route", "max_segments", "max_words"],
+      "properties": {
+        "schema": {"const": "h3.audio.asr.v1"},
+        "asset_id": {"$ref": "#/$defs/identifier"},
+        "source_id": {"$ref": "#/$defs/identifier"},
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "preprocessing_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "duration_end": {"$ref": "#/$defs/timestamp"},
+        "language_hints": {"type": "array", "maxItems": 8, "items": {"$ref": "#/$defs/language"}},
+        "route": {"enum": ["static_injected", "comfyui_native", "ollama", "specialist"]},
+        "max_segments": {"type": "integer", "minimum": 1, "maximum": 64},
+        "max_words": {"type": "integer", "minimum": 1, "maximum": 1024}
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "route", "adapter_id", "adapter_version", "model_id", "model_fingerprint", "source_fingerprint", "preprocessing_fingerprint", "network_contacted", "decoder_started"],
+      "properties": {
+        "schema": {"const": "h3.audio.asr.v1"},
+        "route": {"enum": ["static_injected", "comfyui_native", "ollama", "specialist"]},
+        "adapter_id": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,127}$"},
+        "adapter_version": {"$ref": "#/$defs/version"},
+        "model_id": {"$ref": "#/$defs/identifier"},
+        "model_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "source_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "preprocessing_fingerprint": {"$ref": "#/$defs/fingerprint"},
+        "network_contacted": {"type": "boolean"},
+        "decoder_started": {"type": "boolean"}
+      }
+    }
+  }
+}

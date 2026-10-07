@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/h3_prompt_profile_v1.schema.json",
+  "title": "ComfyUI-MiniMaxH3-Context Prompt Profile Registry v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["registry_schema", "schema_version", "profiles"],
+  "properties": {
+    "registry_schema": {"const": "h3-prompt-profile-registry/1"},
+    "schema_version": {"type": "string", "pattern": "^[1-9][0-9]{0,2}\\.[0-9]{1,2}$"},
+    "profiles": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {"$ref": "#/$defs/profile"}
+    }
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"},
+    "field": {"type": "string", "pattern": "^[a-z][a-z0-9_.-]{0,63}$"},
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity", "source", "supported_modes", "required_fields", "duration_rule",
+        "label_rules", "render_order", "validation_rules", "provider_compatibility", "limitations"
+      ],
+      "properties": {
+        "identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "version"],
+          "properties": {
+            "name": {"enum": ["h3_base", "h3_full_reference"]},
+            "version": {"type": "string", "const": "1.0"}
+          }
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source_id", "source_revision", "evidence_level", "official_override", "modified_from"],
+          "properties": {
+            "source_id": {"$ref": "#/$defs/identifier"},
+            "source_revision": {"type": "string", "minLength": 1, "maxLength": 256},
+            "evidence_level": {"enum": ["official", "framework_reference", "community_recommended", "experimental", "modified"]},
+            "official_override": {"type": "boolean"},
+            "modified_from": {"anyOf": [{"$ref": "#/$defs/identifier"}, {"type": "null"}]}
+          }
+        },
+        "supported_modes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {"enum": ["t2va", "i2va", "fl2va", "l2va", "ref2va"]}
+        },
+        "required_fields": {
+          "type": "array", "minItems": 1, "maxItems": 64, "uniqueItems": true,
+          "items": {"$ref": "#/$defs/field"}
+        },
+        "duration_rule": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source_precedence", "frame_rate", "minimum_frame_count", "maximum_frame_count", "alignment", "time_precision", "mode_alignments"],
+          "properties": {
+            "source_precedence": {"type": "array", "minItems": 1, "maxItems": 3, "uniqueItems": true, "items": {"enum": ["default", "seconds", "frame_count"]}},
+            "frame_rate": {"type": "integer", "minimum": 1, "maximum": 240},
+            "minimum_frame_count": {"type": "integer", "minimum": 5, "maximum": 3600},
+            "maximum_frame_count": {"type": "integer", "minimum": 5, "maximum": 3600},
+            "alignment": {"enum": ["none", "first", "first_and_last", "last"]},
+            "time_precision": {"type": "integer", "minimum": 0, "maximum": 6},
+            "mode_alignments": {
+              "type": "array", "maxItems": 64, "uniqueItems": true,
+              "items": {
+                "type": "object", "additionalProperties": false,
+                "required": ["mode", "alignment"],
+                "properties": {
+                  "mode": {"enum": ["t2va", "i2va", "fl2va", "l2va", "ref2va"]},
+                  "alignment": {"enum": ["none", "first", "first_and_last", "last"]}
+                }
+              }
+            }
+          }
+        },
+        "label_rules": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/labelRule"}},
+        "render_order": {
+          "type": "array", "minItems": 1, "maxItems": 64, "uniqueItems": true,
+          "items": {"$ref": "#/$defs/field"}
+        },
+        "validation_rules": {"type": "array", "minItems": 1, "maxItems": 64, "items": {"$ref": "#/$defs/validationRule"}},
+        "provider_compatibility": {
+          "type": "array", "minItems": 1, "maxItems": 4, "uniqueItems": true,
+          "items": {"enum": ["manual", "local", "remote_custom", "official_minimax"]}
+        },
+        "limitations": {"type": "array", "maxItems": 64, "items": {"$ref": "#/$defs/limitation"}}
+      }
+    },
+    "labelRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "syntax", "ordinal_scope", "description"],
+      "properties": {
+        "kind": {"enum": ["subject", "picture", "video", "audio"]},
+        "syntax": {"type": "string", "pattern": "^<[A-Za-z][A-Za-z ]*\\{ordinal\\}>$"},
+        "ordinal_scope": {"$ref": "#/$defs/identifier"},
+        "description": {"type": "string", "minLength": 1, "maxLength": 4096}
+      }
+    },
+    "validationRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "severity", "description", "remediation"],
+      "properties": {
+        "code": {"$ref": "#/$defs/field"},
+        "severity": {"enum": ["info", "warning", "error", "fatal"]},
+        "description": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "remediation": {"type": "string", "minLength": 1, "maxLength": 4096}
+      }
+    },
+    "limitation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message"],
+      "properties": {
+        "code": {"$ref": "#/$defs/field"},
+        "message": {"type": "string", "minLength": 1, "maxLength": 4096}
+      }
+    }
+  }
+}

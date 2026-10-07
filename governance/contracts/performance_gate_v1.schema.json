@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://comfyui-h3-context.invalid/contracts/performance_gate_v1.schema.json",
+  "title": "ComfyUI-MiniMaxH3-Context Performance Gate V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "candidate_commit",
+    "environment",
+    "network",
+    "model_execution",
+    "profiles",
+    "control_flow"
+  ],
+  "properties": {
+    "schema": { "const": "h3.performance.gate.v1" },
+    "status": { "enum": ["PASS", "FAIL"] },
+    "candidate_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["implementation", "python_version", "system"],
+      "properties": {
+        "implementation": { "type": "string", "minLength": 1, "maxLength": 32 },
+        "python_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "system": { "enum": ["Windows", "Linux", "Darwin"] }
+      }
+    },
+    "network": { "const": "disabled" },
+    "model_execution": { "const": "not_run" },
+    "profiles": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": { "$ref": "#/$defs/qualification" }
+    },
+    "control_flow": { "$ref": "#/$defs/controlFlow" }
+  },
+  "$defs": {
+    "nullableNumber": { "type": ["number", "null"], "minimum": 0 },
+    "nullableInteger": { "type": ["integer", "null"], "minimum": 0 },
+    "qualification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema", "profile_id", "status", "candidate_commit", "workload_fingerprint",
+        "config_fingerprint", "observed_sources", "sample_count", "median_latency_ms",
+        "p95_latency_ms", "worst_latency_ms", "throughput_per_second", "peak_python_bytes",
+        "peak_process_rss_bytes", "peak_vram_bytes", "peak_output_bytes", "peak_output_items",
+        "cache_misses", "cache_hits", "cache_gain_percent", "quality_preserved",
+        "cancelled_samples", "cleanup_verified", "diagnostic_codes"
+      ],
+      "properties": {
+        "schema": { "const": "h3.performance.qualification.v1" },
+        "profile_id": { "enum": ["cpu", "low_resource", "mainstream_gpu", "high_fidelity"] },
+        "status": { "enum": ["qualified", "unavailable", "failed"] },
+        "candidate_commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "workload_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "config_fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "observed_sources": {
+          "type": "array", "maxItems": 6, "uniqueItems": true,
+          "items": { "enum": ["package_clock", "python_traced", "process_rss", "comfyui_host", "ollama_external", "browser_user_timing"] }
+        },
+        "sample_count": { "type": "integer", "minimum": 0, "maximum": 64 },
+        "median_latency_ms": { "$ref": "#/$defs/nullableNumber" },
+        "p95_latency_ms": { "$ref": "#/$defs/nullableNumber" },
+        "worst_latency_ms": { "$ref": "#/$defs/nullableNumber" },
+        "throughput_per_second": { "$ref": "#/$defs/nullableNumber" },
+        "peak_python_bytes": { "$ref": "#/$defs/nullableInteger" },
+        "peak_process_rss_bytes": { "$ref": "#/$defs/nullableInteger" },
+        "peak_vram_bytes": { "$ref": "#/$defs/nullableInteger" },
+        "peak_output_bytes": { "$ref": "#/$defs/nullableInteger" },
+        "peak_output_items": { "$ref": "#/$defs/nullableInteger" },
+        "cache_misses": { "type": "integer", "minimum": 0, "maximum": 64 },
+        "cache_hits": { "type": "integer", "minimum": 0, "maximum": 64 },
+        "cache_gain_percent": { "type": ["number", "null"] },
+        "quality_preserved": { "type": "boolean" },
+        "cancelled_samples": { "type": "integer", "minimum": 0, "maximum": 64 },
+        "cleanup_verified": { "type": "boolean" },
+        "diagnostic_codes": {
+          "type": "array", "maxItems": 32, "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9_.:-]{0,127}$" }
+        }
+      }
+    },
+    "controlFlow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pre_cancel", "mid_run_cancel", "mid_run_cancellation_latency_ms", "mid_run_cancellation_ceiling", "timeout", "output_ceiling"],
+      "properties": {
+        "pre_cancel": { "enum": ["cancelled_before_worker", "failed"] },
+        "mid_run_cancel": { "enum": ["cancelled_and_released", "failed"] },
+        "mid_run_cancellation_latency_ms": { "type": "number", "minimum": 0 },
+        "mid_run_cancellation_ceiling": { "enum": ["within_profile_budget", "failed"] },
+        "timeout": { "enum": ["timed_out_and_released", "failed"] },
+        "output_ceiling": { "enum": ["rejected_and_released", "failed"] }
+      }
+    },
+    "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+  }
+}

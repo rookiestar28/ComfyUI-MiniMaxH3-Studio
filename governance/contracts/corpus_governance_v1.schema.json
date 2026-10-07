@@ -1,0 +1,388 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/corpus_governance_v1.schema.json",
+  "title": "H3 Context corpus and annotation governance v1",
+  "description": "Closed, privacy-safe corpus metadata with source-bundle split isolation and blinded review protocol.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "corpus_id",
+    "corpus_version",
+    "updated_at",
+    "purpose",
+    "license_policy",
+    "privacy_policy",
+    "review_protocol",
+    "coverage_policy",
+    "strata",
+    "partitions",
+    "provenance",
+    "cases"
+  ],
+  "properties": {
+    "schema": {"const": "h3-context-corpus-governance/1"},
+    "corpus_id": {"$ref": "#/$defs/identifier"},
+    "corpus_version": {"$ref": "#/$defs/version"},
+    "updated_at": {"$ref": "#/$defs/date"},
+    "purpose": {"type": "string", "minLength": 1, "maxLength": 512},
+    "license_policy": {"$ref": "#/$defs/license_policy"},
+    "privacy_policy": {"$ref": "#/$defs/privacy_policy"},
+    "review_protocol": {"$ref": "#/$defs/review_protocol"},
+    "coverage_policy": {"$ref": "#/$defs/coverage_policy"},
+    "strata": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 512,
+      "items": {"$ref": "#/$defs/stratum"}
+    },
+    "partitions": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 16,
+      "items": {"$ref": "#/$defs/partition"}
+    },
+    "provenance": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 512,
+      "items": {"$ref": "#/$defs/provenance"}
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4096,
+      "items": {"$ref": "#/$defs/case"}
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["t2va", "i2va", "fl2va", "l2va", "ref2va"]
+    },
+    "dimension": {
+      "type": "string",
+      "enum": [
+        "identity",
+        "style",
+        "motion",
+        "camera",
+        "editing",
+        "dialogue",
+        "ocr",
+        "audio",
+        "ambiguity",
+        "adversarial",
+        "resource"
+      ]
+    },
+    "identifier_list": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/identifier"}
+    },
+    "mode_list": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/mode"}
+    },
+    "language": {
+      "type": "string",
+      "enum": ["chinese", "english", "code_switch", "multilingual"]
+    },
+    "language_list": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/language"}
+    },
+    "modality": {
+      "type": "string",
+      "enum": ["text", "image", "video", "audio", "reference"]
+    },
+    "modality_list": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/modality"}
+    },
+    "risk_class": {
+      "type": "string",
+      "enum": [
+        "standard",
+        "ambiguity",
+        "conflict",
+        "impossible_constraint",
+        "adversarial",
+        "resource",
+        "missing_media",
+        "malformed_media"
+      ]
+    },
+    "risk_list": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/risk_class"}
+    },
+    "timing": {
+      "type": "string",
+      "enum": ["explicit", "implicit", "mixed"]
+    },
+    "timing_list": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/timing"}
+    },
+    "dimension_list": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 11,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/dimension"}
+    },
+    "license_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["review_status", "reviewed_source_refs", "allowed_license_classes", "forbidden_content_classes"],
+      "properties": {
+        "review_status": {"enum": ["reviewed", "pending", "restricted"]},
+        "reviewed_source_refs": {"$ref": "#/$defs/identifier_list"},
+        "allowed_license_classes": {"$ref": "#/$defs/identifier_list"},
+        "forbidden_content_classes": {"$ref": "#/$defs/identifier_list"}
+      }
+    },
+    "privacy_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["review_status", "portable_projection", "forbidden_fields", "restricted_retention_days"],
+      "properties": {
+        "review_status": {"enum": ["reviewed", "pending", "restricted"]},
+        "portable_projection": {"const": "fingerprints_and_bounded_metadata"},
+        "forbidden_fields": {"$ref": "#/$defs/identifier_list"},
+        "restricted_retention_days": {"type": "integer", "minimum": 1, "maximum": 3650}
+      }
+    },
+    "coverage_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "languages",
+        "modalities",
+        "risk_classes",
+        "timing_semantics",
+        "exact_text_fields",
+        "rationale",
+        "quota_policy"
+      ],
+      "properties": {
+        "languages": {"$ref": "#/$defs/language_list"},
+        "modalities": {"$ref": "#/$defs/modality_list"},
+        "risk_classes": {"$ref": "#/$defs/risk_list"},
+        "timing_semantics": {"$ref": "#/$defs/timing_list"},
+        "exact_text_fields": {"$ref": "#/$defs/identifier_list"},
+        "rationale": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pilot", "power", "variability", "budget", "source_clusters"],
+          "properties": {
+            "pilot": {"type": "string", "minLength": 1, "maxLength": 512},
+            "power": {"type": "string", "minLength": 1, "maxLength": 512},
+            "variability": {"type": "string", "minLength": 1, "maxLength": 512},
+            "budget": {"type": "string", "minLength": 1, "maxLength": 512},
+            "source_clusters": {"type": "string", "minLength": 1, "maxLength": 512}
+          }
+        },
+        "quota_policy": {"const": "evidence_justified_not_fixed"}
+      }
+    },
+    "review_protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_id",
+        "method",
+        "blind",
+        "pairwise",
+        "tie_allowed",
+        "order_swap_required",
+        "dimensions",
+        "qualification",
+        "adjudication"
+      ],
+      "properties": {
+        "protocol_id": {"$ref": "#/$defs/identifier"},
+        "method": {"const": "blinded_pairwise"},
+        "blind": {"const": true},
+        "pairwise": {"const": true},
+        "tie_allowed": {"const": true},
+        "order_swap_required": {"const": true},
+        "dimensions": {"$ref": "#/$defs/identifier_list"},
+        "qualification": {"type": "string", "minLength": 1, "maxLength": 512},
+        "adjudication": {"type": "string", "minLength": 1, "maxLength": 512}
+      }
+    },
+    "stratum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stratum_id",
+        "task_modes",
+        "dimensions",
+        "languages",
+        "modalities",
+        "risk_classes",
+        "timing_semantics"
+      ],
+      "properties": {
+        "stratum_id": {"$ref": "#/$defs/identifier"},
+        "task_modes": {"$ref": "#/$defs/mode_list"},
+        "dimensions": {"$ref": "#/$defs/dimension_list"},
+        "languages": {"$ref": "#/$defs/language_list"},
+        "modalities": {"$ref": "#/$defs/modality_list"},
+        "risk_classes": {"$ref": "#/$defs/risk_list"},
+        "timing_semantics": {"$ref": "#/$defs/timing_list"}
+      }
+    },
+    "partition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["partition_id", "kind", "public", "oracle_allowed", "purpose"],
+      "properties": {
+        "partition_id": {"$ref": "#/$defs/identifier"},
+        "kind": {"enum": ["train", "dev", "test", "restricted_oracle"]},
+        "public": {"type": "boolean"},
+        "oracle_allowed": {"type": "boolean"},
+        "purpose": {"type": "string", "minLength": 1, "maxLength": 512}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provenance_id", "kind", "rights_status", "license_ref", "source_ref"],
+      "properties": {
+        "provenance_id": {"$ref": "#/$defs/identifier"},
+        "kind": {"enum": ["synthetic_ground_truth", "licensed_public", "official_guide_golden", "authorized_oracle", "human_adjudication"]},
+        "rights_status": {"enum": ["reviewed", "restricted", "pending", "prohibited"]},
+        "license_ref": {"$ref": "#/$defs/identifier"},
+        "source_ref": {"$ref": "#/$defs/identifier"},
+        "source_url": {"type": "string", "pattern": "^https://[^\\s]+$", "maxLength": 2048}
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "fields", "rationale_code"],
+      "properties": {
+        "level": {"enum": ["low", "medium", "high", "unknown"]},
+        "fields": {"$ref": "#/$defs/identifier_list"},
+        "rationale_code": {"$ref": "#/$defs/identifier"}
+      }
+    },
+    "agreement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "annotator_count", "status"],
+      "properties": {
+        "method": {"enum": ["single_annotator", "multi_annotator", "adjudicated", "imported"]},
+        "annotator_count": {"type": "integer", "minimum": 1, "maximum": 128},
+        "status": {"enum": ["complete", "adjudicated"]}
+      }
+    },
+    "exact_text_ownership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner", "language_class", "field_ids", "preserve_verbatim"],
+      "properties": {
+        "owner": {"enum": ["user_declared", "annotator_transcribed", "synthetic_ground_truth", "not_applicable", "unknown"]},
+        "language_class": {
+          "enum": ["chinese", "english", "code_switch", "multilingual", "unknown", "not_applicable"]
+        },
+        "field_ids": {"$ref": "#/$defs/identifier_list"},
+        "preserve_verbatim": {"type": "boolean"}
+      }
+    },
+    "annotation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["annotation_id", "provenance", "uncertainty", "agreement", "exact_text_ownership"],
+      "properties": {
+        "annotation_id": {"$ref": "#/$defs/identifier"},
+        "provenance": {"$ref": "#/$defs/identifier_list"},
+        "uncertainty": {"$ref": "#/$defs/uncertainty"},
+        "agreement": {"$ref": "#/$defs/agreement"},
+        "exact_text_ownership": {"$ref": "#/$defs/exact_text_ownership"}
+      }
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_id",
+        "source_bundle_id",
+        "derivation_family_id",
+        "partition_id",
+        "stratum_ids",
+        "task_mode",
+        "language",
+        "modalities",
+        "risk_classes",
+        "timing",
+        "provenance_id",
+        "privacy_class",
+        "media_fingerprints",
+        "review_eligible",
+        "annotation"
+      ],
+      "properties": {
+        "case_id": {"$ref": "#/$defs/identifier"},
+        "source_bundle_id": {"$ref": "#/$defs/identifier"},
+        "derivation_family_id": {"$ref": "#/$defs/identifier"},
+        "partition_id": {"$ref": "#/$defs/identifier"},
+        "stratum_ids": {"$ref": "#/$defs/identifier_list"},
+        "task_mode": {"$ref": "#/$defs/mode"},
+        "language": {"$ref": "#/$defs/language"},
+        "modalities": {"$ref": "#/$defs/modality_list"},
+        "risk_classes": {"$ref": "#/$defs/risk_list"},
+        "timing": {"$ref": "#/$defs/timing"},
+        "provenance_id": {"$ref": "#/$defs/identifier"},
+        "privacy_class": {"enum": ["synthetic", "licensed_public", "restricted_oracle"]},
+        "media_fingerprints": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/fingerprint"}
+        },
+        "review_eligible": {"type": "boolean"},
+        "annotation": {"$ref": "#/$defs/annotation"}
+      }
+    }
+  }
+}

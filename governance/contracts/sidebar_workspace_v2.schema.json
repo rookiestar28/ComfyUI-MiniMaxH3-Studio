@@ -1,0 +1,987 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rookiestar28.github.io/ComfyUI-MinimaxH3-Context/contracts/sidebar_workspace_v2.schema.json",
+  "title": "H3 Context Sidebar Workspace V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "workspace_id",
+    "report_id",
+    "report_revision",
+    "report_fingerprint",
+    "prompt_fingerprint",
+    "base_prompt_fingerprint",
+    "correlation",
+    "lifecycle",
+    "validation_status",
+    "guide_conformance",
+    "task_mode",
+    "profile",
+    "product_scope",
+    "assisted_authoring",
+    "prompt_text",
+    "prompt_text_redacted",
+    "evidence",
+    "plan_steps",
+    "exact_text",
+    "diagnostics",
+    "limitations",
+    "planning",
+    "capabilities",
+    "media_receipt",
+    "receipt",
+    "comparison",
+    "resources",
+    "bindings",
+    "reference_candidates",
+    "subject_candidates",
+    "proposal",
+    "stages",
+    "actions"
+  ],
+  "properties": {
+    "schema": {
+      "const": "h3.context.sidebar.workspace.v2"
+    },
+    "workspace_id": {
+      "type": "string",
+      "pattern": "^ws_[A-Za-z0-9_-]{32,128}$"
+    },
+    "report_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 192
+    },
+    "report_revision": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000
+    },
+    "report_fingerprint": {
+      "$ref": "#/$defs/fingerprint"
+    },
+    "prompt_fingerprint": {
+      "$ref": "#/$defs/fingerprint"
+    },
+    "base_prompt_fingerprint": {
+      "$ref": "#/$defs/fingerprint"
+    },
+    "correlation": {
+      "$ref": "#/$defs/correlation"
+    },
+    "lifecycle": {
+      "enum": [
+        "ready",
+        "stale",
+        "blocked"
+      ]
+    },
+    "validation_status": {
+      "enum": [
+        "passed",
+        "failed",
+        "not_run"
+      ]
+    },
+    "guide_conformance": {
+      "$ref": "#/$defs/guide_conformance"
+    },
+    "task_mode": {
+      "enum": [
+        "t2va",
+        "i2va",
+        "fl2va",
+        "l2va",
+        "ref2va"
+      ]
+    },
+    "profile": {
+      "enum": [
+        "h3_base",
+        "h3_full_reference"
+      ]
+    },
+    "product_scope": {
+      "const": "MANUAL_ONLY_SCOPED"
+    },
+    "assisted_authoring": {
+      "$ref": "#/$defs/assisted_authoring"
+    },
+    "prompt_text": {
+      "type": "string",
+      "maxLength": 65536
+    },
+    "prompt_text_redacted": {
+      "type": "boolean"
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count",
+        "origins"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 256
+        },
+        "origins": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        }
+      }
+    },
+    "plan_steps": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/plan_step"
+      }
+    },
+    "exact_text": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/exact_text"
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/message"
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/message"
+      }
+    },
+    "planning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy",
+        "alternatives_status",
+        "alternatives",
+        "timeline",
+        "creative_additions_status",
+        "creative_additions"
+      ],
+      "properties": {
+        "policy": {
+          "const": "deterministic_manual"
+        },
+        "alternatives_status": {
+          "const": "not_available"
+        },
+        "alternatives": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "timeline": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "start_seconds",
+            "end_seconds",
+            "effective_frame_count",
+            "effective_duration_milliseconds",
+            "duration_source"
+          ],
+          "properties": {
+            "start_seconds": {
+              "const": 0
+            },
+            "end_seconds": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 150
+            },
+            "effective_frame_count": {
+              "type": "integer",
+              "minimum": 5,
+              "maximum": 3600
+            },
+            "effective_duration_milliseconds": {
+              "type": "integer",
+              "minimum": 208,
+              "maximum": 150000
+            },
+            "duration_source": {
+              "enum": [
+                "default",
+                "seconds"
+              ]
+            }
+          }
+        },
+        "creative_additions_status": {
+          "enum": [
+            "none",
+            "user_authored"
+          ]
+        },
+        "creative_additions": {
+          "type": "array",
+          "maxItems": 1,
+          "items": {
+            "type": "string",
+            "maxLength": 1024
+          }
+        }
+      }
+    },
+    "capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode_status",
+        "supported_modes",
+        "native_prompt_boundary",
+        "output_duration",
+        "reference_limits",
+        "timed_reference_limits"
+      ],
+      "properties": {
+        "mode_status": {
+          "const": "available"
+        },
+        "supported_modes": {
+          "const": [
+            "t2va",
+            "i2va",
+            "fl2va",
+            "l2va",
+            "ref2va"
+          ]
+        },
+        "native_prompt_boundary": {
+          "const": "STRING"
+        },
+        "output_duration": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "requested_seconds",
+            "effective_seconds",
+            "min_seconds",
+            "max_seconds",
+            "status"
+          ],
+          "properties": {
+            "requested_seconds": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 150
+            },
+            "effective_seconds": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 150
+            },
+            "min_seconds": {
+              "const": 4
+            },
+            "max_seconds": {
+              "const": 15
+            },
+            "status": {
+              "const": "within_limit"
+            }
+          }
+        },
+        "reference_limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total",
+            "image",
+            "video",
+            "audio"
+          ],
+          "properties": {
+            "total": {
+              "const": 12
+            },
+            "image": {
+              "const": 9
+            },
+            "video": {
+              "const": 3
+            },
+            "audio": {
+              "const": 3
+            }
+          }
+        },
+        "timed_reference_limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "per_item_min_seconds",
+            "per_item_max_seconds",
+            "video_total_max_seconds",
+            "audio_total_max_seconds",
+            "status",
+            "limitation"
+          ],
+          "properties": {
+            "per_item_min_seconds": {
+              "const": 2
+            },
+            "per_item_max_seconds": {
+              "const": 15
+            },
+            "video_total_max_seconds": {
+              "const": 15
+            },
+            "audio_total_max_seconds": {
+              "const": 15
+            },
+            "status": {
+              "enum": [
+                "not_applicable",
+                "verified",
+                "unverified"
+              ]
+            },
+            "limitation": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 256
+            }
+          }
+        }
+      }
+    },
+    "media_receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "queue_ready",
+        "asset_count",
+        "image_count",
+        "video_count",
+        "audio_count",
+        "binding_count"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "not_required",
+            "verified",
+            "unverified"
+          ]
+        },
+        "queue_ready": {
+          "type": "boolean"
+        },
+        "asset_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12
+        },
+        "image_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9
+        },
+        "video_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "audio_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "binding_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12
+        }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "outcome"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "outcome": {
+          "type": "string",
+          "maxLength": 64
+        }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "reason"
+      ],
+      "properties": {
+        "status": {
+          "const": "not_available"
+        },
+        "reason": {
+          "const": "manual_only_scoped"
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "native_node_id",
+        "core_version",
+        "frontend_version"
+      ],
+      "properties": {
+        "native_node_id": {
+          "enum": [
+            "MiniMaxH3ImageToVideo",
+            "MiniMaxH3ReferenceToVideo"
+          ]
+        },
+        "core_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^(?![\\s\\S]*[\\r\\n])[0-9]+(?:\\.[0-9]+){1,3}(?:[-+][A-Za-z0-9.-]+)?$"
+        },
+        "frontend_version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^(?![\\s\\S]*[\\r\\n])[0-9]+(?:\\.[0-9]+){1,3}(?:[-+][A-Za-z0-9.-]+)?$"
+        }
+      }
+    },
+    "bindings": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/binding"
+      }
+    },
+    "reference_candidates": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/candidate"
+      }
+    },
+    "subject_candidates": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/subject_candidate"
+      }
+    },
+    "proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "changed",
+        "reason",
+        "base_prompt_fingerprint",
+        "current_prompt_fingerprint",
+        "diff"
+      ],
+      "properties": {
+        "changed": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1024
+        },
+        "base_prompt_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "current_prompt_fingerprint": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "diff": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "lines"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "unchanged",
+                "changed",
+                "unavailable",
+                "unavailable_redacted"
+              ]
+            },
+            "lines": {
+              "type": "array",
+              "maxItems": 32,
+              "items": {
+                "type": "string",
+                "maxLength": 512
+              }
+            }
+          }
+        }
+      }
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "$ref": "#/$defs/stage"
+      }
+    },
+    "actions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stage_prompt",
+        "import_prompt",
+        "validate",
+        "export",
+        "copy_prompt"
+      ],
+      "properties": {
+        "stage_prompt": {
+          "type": "boolean"
+        },
+        "import_prompt": {
+          "type": "boolean"
+        },
+        "validate": {
+          "type": "boolean"
+        },
+        "export": {
+          "type": "boolean"
+        },
+        "copy_prompt": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "profile": {
+            "const": "h3_base"
+          }
+        },
+        "required": [
+          "profile"
+        ]
+      },
+      "then": {
+        "properties": {
+          "subject_candidates": {
+            "maxItems": 0
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "guide_conformance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "readiness",
+        "reasons"
+      ],
+      "properties": {
+        "schema": {
+          "const": "h3.context.guide_conformance.v2"
+        },
+        "readiness": {
+          "enum": [
+            "ready",
+            "incomplete",
+            "modified"
+          ]
+        },
+        "reasons": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "fidelity.soundscape.unspecified",
+              "fidelity.audio.ownership_unresolved",
+              "fidelity.audio.unlinked",
+              "fidelity.keyframe.anchor_missing",
+              "fidelity.keyframe.development_missing",
+              "fidelity.description.semantic_empty",
+              "fidelity.reference.unused",
+              "fidelity.keyframe.path_unowned",
+              "fidelity.keyframe.static_hold_contradicted",
+              "fidelity.retention.scope_unspecified",
+              "fidelity.audio.final_track_contradicted"
+            ]
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "readiness": {
+                "const": "ready"
+              }
+            },
+            "required": [
+              "readiness"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reasons": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "readiness": {
+                "const": "incomplete"
+              }
+            },
+            "required": [
+              "readiness"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reasons": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "assisted_authoring": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "available",
+        "selected",
+        "ready",
+        "authorized_for_this_action",
+        "defaulted"
+      ],
+      "properties": {
+        "available": {
+          "const": true
+        },
+        "selected": {
+          "const": false
+        },
+        "ready": {
+          "const": false
+        },
+        "authorized_for_this_action": {
+          "const": false
+        },
+        "defaulted": {
+          "const": false
+        }
+      }
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "correlation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prompt_id",
+        "execution_node_id"
+      ],
+      "properties": {
+        "prompt_id": {
+          "type": "string",
+          "maxLength": 192
+        },
+        "execution_node_id": {
+          "type": "string",
+          "maxLength": 192
+        }
+      }
+    },
+    "message": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "severity",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "severity": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "parameters": {
+          "type": "object",
+          "maxProperties": 8,
+          "additionalProperties": {
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              {
+                "type": "integer",
+                "minimum": -1000000,
+                "maximum": 1000000
+              }
+            ]
+          }
+        }
+      }
+    },
+    "plan_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "step_id",
+        "stage",
+        "status",
+        "description"
+      ],
+      "properties": {
+        "step_id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "stage": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "status": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 4096
+        }
+      }
+    },
+    "exact_text": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "constraint_id",
+        "kind",
+        "text"
+      ],
+      "properties": {
+        "constraint_id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "kind": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 4096
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asset_id",
+        "kind",
+        "label",
+        "ordinal",
+        "paired_with"
+      ],
+      "properties": {
+        "asset_id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "kind": {
+          "enum": [
+            "image",
+            "video",
+            "audio"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "pattern": "^<(Picture|Video|Audio) [1-9][0-9]{0,2}>$"
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "paired_with": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^<Video [1-9][0-9]{0,2}>$"
+        }
+      }
+    },
+    "subject_candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subject_id",
+        "ordinal",
+        "label",
+        "display"
+      ],
+      "properties": {
+        "subject_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "label": {
+          "type": "string",
+          "pattern": "^<Subject [1-9][0-9]{0,2}>$"
+        },
+        "display": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asset_id",
+        "kind",
+        "presentation_label",
+        "presentation_ordinal",
+        "native_input",
+        "native_child_path"
+      ],
+      "properties": {
+        "asset_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,191}$"
+        },
+        "kind": {
+          "enum": [
+            "image",
+            "video",
+            "audio"
+          ]
+        },
+        "presentation_label": {
+          "type": "string",
+          "pattern": "^<(Picture|Video|Audio) [1-9][0-9]{0,2}>$"
+        },
+        "presentation_ordinal": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "native_input": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,191}$"
+        },
+        "native_child_path": {
+          "type": "string",
+          "maxLength": 256
+        }
+      }
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stage_id",
+        "status",
+        "summary"
+      ],
+      "properties": {
+        "stage_id": {
+          "enum": [
+            "intent",
+            "media",
+            "understand",
+            "audit",
+            "execute"
+          ]
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "active",
+            "blocked",
+            "pending"
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 512
+        }
+      }
+    }
+  }
+}

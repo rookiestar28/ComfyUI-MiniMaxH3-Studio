@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/public_surface_v1.schema.json",
+  "title": "ComfyUI H3 context public surface",
+  "description": "Deterministic, content-free record of what this package promises and who promises it. Three authorities declare surfaces at three different levels -- the package, the pure core, and the gate-enforced subset -- and the record enforces the one constraint that binds between them: every gate-enforced name must be a pure-core export, because describe_public_callable resolves it through core.__all__. It also records exports that two modules define, where the flat re-export list silently binds one of them.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "authorities", "fingerprint", "hub_consumed", "hub_unverified"],
+  "properties": {
+    "schema": { "const": "h3-context-public-surface/1" },
+    "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "authorities": {
+      "description": "Each declared surface, sorted and unique by authority_id. No two share a level.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 8,
+      "items": { "$ref": "#/$defs/authority" }
+    },
+    "shadowed": {
+      "description": "Exports two modules define. Every live row records the hub binding and an explicit closed disposition.",
+      "type": "array",
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/shadowed" }
+    },
+    "hub_consumed": {
+      "description": "Pure-core exports imported by at least one file under tests/ or scripts/.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "hub_unverified": {
+      "description": "Pure-core exports no file in this repository imports. Not a deletion list: an installed host user is invisible to any scan here.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "aliased_exports": {
+      "description": "Exported name -> the original name it was imported as. An alias is how a collision gets resolved.",
+      "type": "object",
+      "additionalProperties": { "type": "string", "minLength": 1, "maxLength": 200 }
+    },
+    "notes": {
+      "type": "array",
+      "maxItems": 16,
+      "items": { "type": "string", "minLength": 1, "maxLength": 200 }
+    }
+  },
+  "$defs": {
+    "symbol": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "module_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*)*$"
+    },
+    "relative_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 260,
+      "pattern": "^[A-Za-z0-9._-][A-Za-z0-9._ -]*(/[A-Za-z0-9._-][A-Za-z0-9._ -]*)*$"
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authority_id", "path", "level", "declared", "names_digest"],
+      "properties": {
+        "authority_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "path": { "$ref": "#/$defs/relative_path" },
+        "level": { "enum": ["package", "pure_core", "gate_enforced"] },
+        "declared": { "type": "integer", "minimum": 1 },
+        "names_digest": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "names": {
+          "description": "Listed only for a surface small enough to read. A large one is pinned by its digest.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": { "$ref": "#/$defs/symbol" }
+        }
+      }
+    },
+    "shadowed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "bound_origin",
+        "shadowed_origin",
+        "values_agree",
+        "resolved",
+        "resolved_alias",
+        "disposition",
+        "rationale"
+      ],
+      "properties": {
+        "name": { "$ref": "#/$defs/symbol" },
+        "bound_origin": { "$ref": "#/$defs/module_name" },
+        "shadowed_origin": { "$ref": "#/$defs/module_name" },
+        "values_agree": { "type": "boolean" },
+        "resolved": { "type": "boolean" },
+        "disposition": { "enum": ["alias", "non_public", "merge", "rebind"] },
+        "rationale": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "resolved_alias": {
+          "oneOf": [{ "$ref": "#/$defs/symbol" }, { "type": "null" }]
+        }
+      }
+    }
+  }
+}

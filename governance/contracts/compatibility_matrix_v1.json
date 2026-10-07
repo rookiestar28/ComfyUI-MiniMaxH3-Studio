@@ -1,0 +1,74 @@
+{
+  "schema": "h3.compatibility.matrix.v1",
+  "profiles": [
+    {
+      "profile_id": "linux-wsl-core",
+      "platform": "linux_wsl",
+      "python": {"minimum": "3.10.0", "maximum": null},
+      "host": {"version": null, "revision_parts": null},
+      "dependencies": [],
+      "required_native_node_ids": [],
+      "forbidden_optional_imports": [
+        "aiohttp",
+        "comfy",
+        "comfy_api",
+        "diffusers",
+        "httpx",
+        "moviepy",
+        "requests",
+        "torch",
+        "torchaudio",
+        "transformers"
+      ],
+      "status": "supported",
+      "evidence_level": "framework_reference",
+      "description": "Offline pure-core and package import without optional runtime stacks."
+    },
+    {
+      "profile_id": "windows-core",
+      "platform": "windows",
+      "python": {"minimum": "3.10.0", "maximum": null},
+      "host": {"version": null, "revision_parts": null},
+      "dependencies": [],
+      "required_native_node_ids": [],
+      "forbidden_optional_imports": [
+        "aiohttp",
+        "comfy",
+        "comfy_api",
+        "diffusers",
+        "httpx",
+        "moviepy",
+        "requests",
+        "torch",
+        "torchaudio",
+        "transformers"
+      ],
+      "status": "supported",
+      "evidence_level": "framework_reference",
+      "description": "Offline pure-core and package import on a Windows interpreter."
+    },
+    {
+      "profile_id": "comfyui-reference-0.32.0",
+      "platform": "any",
+      "python": {"minimum": "3.10.0", "maximum": null},
+      "host": {
+        "version": "0.32.0",
+        "revision_parts": ["b323a", "345bb", "bfb2f", "3a95b", "5b73b", "68eb7", "919a2", "6515e"]
+      },
+      "dependencies": [
+        {"name": "comfy-aimdo", "minimum": null, "maximum": null, "exact": "0.4.11", "optional": false},
+        {"name": "comfy-kitchen", "minimum": null, "maximum": null, "exact": "0.2.26", "optional": false},
+        {"name": "torch", "minimum": "2.4.0", "maximum": null, "exact": null, "optional": false},
+        {"name": "transformers", "minimum": "4.50.3", "maximum": null, "exact": null, "optional": false}
+      ],
+      "required_native_node_ids": [
+        "MiniMaxH3ImageToVideo",
+        "MiniMaxH3ReferenceToVideo"
+      ],
+      "forbidden_optional_imports": [],
+      "status": "supported",
+      "evidence_level": "framework_reference",
+      "description": "Pinned model-free ComfyUI H0/H1 host and native MiniMax H3 wiring."
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "fixture_status": "static_feasible_timeline_contract",
+  "claim_ceiling": "no media, model, provider, oracle, or host qualification",
+  "plan": {
+    "schema": "h3.feasible_av_timeline_planner.v1",
+    "status": "complete",
+    "task_mode": "i2va",
+    "effective_duration": {"raw": "8", "seconds": "8"},
+    "frame_grid": {"schema": "h3.feasible_av_timeline_planner.v1", "fps_num": 24, "fps_den": 1, "rounding": "reject", "max_frames": 2073600},
+    "shots": [{"schema": "h3.feasible_av_timeline_planner.v1", "shot_id": "shot.1", "start": {"raw": "0", "seconds": "0"}, "end": {"raw": "8", "seconds": "8"}, "cut_time": null, "anchor_ids": ["anchor.first"], "event_ids": [], "source_asset_ids": ["first"]}],
+    "events": [],
+    "anchors": [{"schema": "h3.feasible_av_timeline_planner.v1", "anchor_id": "anchor.first", "kind": "first_frame", "asset_id": "first", "at": {"raw": "0", "seconds": "0"}, "hard": true}],
+    "relations": [],
+    "reference_order": ["first"],
+    "mode_report_fingerprint": "sha256:7fd4430a6c0c52a87aab404f6fd96771673811842e6d2f36fe6af2609e9daafc",
+    "diagnostics": [],
+    "limitations": [],
+    "plan_fingerprint": "sha256:e5178fd7ea432c9565e8f09be010141d7cdf1874fc75562a5dd66dada9b951f1"
+  },
+  "plan_fingerprint": "sha256:e5178fd7ea432c9565e8f09be010141d7cdf1874fc75562a5dd66dada9b951f1"
+}

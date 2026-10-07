@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/image_observation_v1.schema.json",
+  "title": "H3 image observation and OCR batch",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "batch_id", "status", "complete", "selected_asset_ids", "observations", "visible_text", "diagnostics"],
+  "properties": {
+    "schema": {"const": "h3.image.observation.v1"},
+    "batch_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "status": {"enum": ["complete", "partial", "empty", "corrupt", "unsupported"]},
+    "complete": {"type": "boolean"},
+    "selected_asset_ids": {"type": "array", "minItems": 1, "maxItems": 9, "uniqueItems": true, "items": {"type": "string"}},
+    "observations": {"type": "array", "maxItems": 256, "items": {"type": "object"}},
+    "visible_text": {"type": "array", "maxItems": 128, "items": {"type": "object"}},
+    "diagnostics": {"type": "array", "items": {"type": "object"}}
+  }
+}

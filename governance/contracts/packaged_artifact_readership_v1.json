@@ -1,0 +1,258 @@
+{
+  "artifact_count": 18,
+  "artifacts": [
+    {
+      "disposition": "retain: the installed package opens it at run time",
+      "path": "comfyui_h3_context/contracts/authoring_renderer_qualification_v1.json",
+      "readers": [
+        "comfyui_h3_context/adapters/authoring_renderer_qualification.py",
+        "scripts/nle_semantic_conformance.py",
+        "tests/test_m23_48_packaged_readership.py"
+      ],
+      "readership": "runtime_read"
+    },
+    {
+      "disposition": "retain: the installed package opens it at run time",
+      "path": "comfyui_h3_context/contracts/build_provenance_v1.json",
+      "readers": [
+        "comfyui_h3_context/core/build_provenance.py",
+        "frontend/buildProvenance.ts",
+        "frontend/e2e/sidebarHeader.tsx",
+        "frontend/tests/buildProvenance.test.ts",
+        "scripts/architecture_fitness.py",
+        "scripts/derived_artifacts.py",
+        "scripts/frontend_build_report.py",
+        "scripts/supply_chain_manifest.py",
+        "tests/fixtures/m23_48_derived_artifact_graph_v1.json",
+        "tests/test_architecture_fitness.py",
+        "tests/test_build_provenance.py",
+        "tests/test_m23_48_derived_artifacts.py",
+        "tests/test_m23_48_packaged_readership.py",
+        "tests/test_tooling_contract.py"
+      ],
+      "readership": "runtime_read"
+    },
+    {
+      "disposition": "retain: the installed package opens it at run time",
+      "path": "comfyui_h3_context/contracts/contract_inventory_v1.json",
+      "readers": [
+        "comfyui_h3_context/core/node_contracts_registry.py",
+        "scripts/architecture_fitness.py",
+        "scripts/build_provenance.py",
+        "scripts/closeout_matrix.py",
+        "scripts/contract_inventory.py",
+        "scripts/derived_artifacts.py",
+        "scripts/fingerprint_domain.py",
+        "scripts/m19_closeout.py",
+        "scripts/tooling_retirement.py",
+        "tests/fixtures/m23_48_derived_artifact_graph_v1.json",
+        "tests/test_architecture_fitness.py",
+        "tests/test_closeout_matrix.py",
+        "tests/test_contract_inventory.py",
+        "tests/test_fingerprint_domain.py",
+        "tests/test_m23_48_derived_artifacts.py",
+        "tests/test_m23_48_packaged_readership.py"
+      ],
+      "readership": "runtime_read"
+    },
+    {
+      "disposition": "retain: the bundle compiles it in",
+      "path": "comfyui_h3_context/contracts/cross_language_surface_v1.json",
+      "readers": [
+        "frontend/src/contracts/generatedSurface.ts",
+        "frontend/tests/generatedSurface.test.ts",
+        "scripts/architecture_fitness.py",
+        "scripts/cross_language_surface.py",
+        "scripts/derived_artifacts.py",
+        "tests/fixtures/m23_48_derived_artifact_graph_v1.json",
+        "tests/test_architecture_fitness.py",
+        "tests/test_cross_language_surface.py",
+        "tests/test_m23_48_derived_artifacts.py",
+        "tests/test_m23_48_packaged_readership.py",
+        "tests/test_m25_77_clip_audio_contract.py"
+      ],
+      "readership": "frontend_source_read"
+    },
+    {
+      "disposition": "retain: the bundle compiles it in",
+      "path": "comfyui_h3_context/contracts/host_seam_census_v1.json",
+      "readers": [
+        "frontend/src/host/hostSeamContract.ts",
+        "frontend/tests/e2e/journeys/hostSeams/hc09HostSeamCapture.spec.ts",
+        "frontend/tests/e2e/journeys/hostSeams/hc10HostSeamDrift.spec.ts",
+        "frontend/tests/hostSeamDrift.test.ts",
+        "frontend/tests/hostSeamObservation.test.ts",
+        "scripts/derived_artifacts.py",
+        "scripts/governance/relocate_packaged_artifacts.py",
+        "scripts/hc_09_host_seam_census.py",
+        "scripts/hc_09_host_seam_fixture.py",
+        "scripts/hc_09_host_seam_test_double.py",
+        "scripts/packaged_artifact_readership.py",
+        "scripts/supply_chain_manifest.py",
+        "tests/test_hc_09_host_seam_census.py",
+        "tests/test_hc_09_host_seam_contract.py",
+        "tests/test_hc_09_host_seam_fixture.py",
+        "tests/test_hc_09_host_seam_probe_policy.py",
+        "tests/test_m23_48_derived_artifacts.py",
+        "tests/test_m23_48_packaged_readership.py",
+        "tests/test_m23_55_relocation.py",
+        "tests/test_supply_chain_manifest.py"
+      ],
+      "readership": "frontend_source_read"
+    },
+    {
+      "disposition": "retain: the bundle compiles it in",
+      "path": "comfyui_h3_context/contracts/host_seam_shape_fixture_v1.json",
+      "readers": [
+        "frontend/src/host/hostSeamContract.ts",
+        "frontend/tests/e2e/journeys/hostSeams/hc09HostSeamCapture.spec.ts",
+        "frontend/tests/e2e/journeys/hostSeams/hc10HostSeamDrift.spec.ts",
+        "frontend/tests/hostSeamDrift.test.ts",
+        "frontend/tests/hostSeamObservation.test.ts",
+        "scripts/hc_09_host_seam_census.py",
+        "scripts/hc_09_host_seam_fixture.py",
+        "scripts/hc_09_host_seam_test_double.py",
+        "scripts/m22_16_compatibility_matrix.py",
+        "scripts/supply_chain_manifest.py",
+        "tests/test_hc_09_host_seam_contract.py",
+        "tests/test_hc_09_host_seam_fixture.py",
+        "tests/test_hc_09_host_seam_test_double.py",
+        "tests/test_m23_48_packaged_readership.py",
+        "tests/test_supply_chain_manifest.py",
+        "tests/test_tooling_contract.py"
+      ],
+      "readership": "frontend_source_read"
+    },
+    {
+      "disposition": "retain: the installed package opens it at run time",
+      "path": "comfyui_h3_context/contracts/installation_profiles_v1.json",
+      "readers": [
+        "comfyui_h3_context/core/installation_profiles.py",
+        "frontend/buildMetadata.ts",
+        "frontend/tests/buildMetadata.test.ts",
+        "scripts/supply_chain_manifest.py",
+        "tests/test_installation_profiles.py",
+        "tests/test_m23_48_packaged_readership.py"
+      ],
+      "readership": "runtime_read"
+    },
+    {
+      "disposition": "retain: the bundle compiles it in",
+      "path": "comfyui_h3_context/contracts/official_h3_assets_v2.json",
+      "readers": [
+        "comfyui_h3_context/adapters/comfyui_generation_profile.py",
+        "frontend/src/host/officialAssetResolution.ts",
+        "frontend/tests/e2e/host/candidate.ts",
+        "frontend/tests/m17_29OfficialAssetResolution.test.ts",
+        "scripts/supply_chain_manifest.py",
+        "tests/test_generation_profile_adapter.py",
+        "tests/test_m23_48_packaged_readership.py",
+        "tests/test_supply_chain_manifest.py"
+      ],
+      "readership": "frontend_source_read"
+    },
+    {
+      "disposition": "retain: the installed package opens it at run time",
+      "path": "comfyui_h3_context/contracts/prompt_model_profiles_v5.json",
+      "readers": [
+        "comfyui_h3_context/core/prompt_model_provider.py",
+        "comfyui_h3_context/core/remote_provider_policy.py",
+        "scripts/m16_02_reconstruction_regression.py",
+        "tests/fixtures/m16_02_reconstruction_regression.json",
+        "tests/historical_prompt_model_fixtures.py",
+        "tests/test_m23_48_packaged_readership.py",
+        "tests/test_tooling_contract.py"
+      ],
+      "readership": "runtime_read"
+    },
+    {
+      "disposition": "retain: the installed package opens it at run time",
+      "path": "comfyui_h3_context/contracts/prompt_model_profiles_v6.json",
+      "readers": [
+        "comfyui_h3_context/core/prompt_model_provider.py",
+        "frontend/tests/e2e/journeys/host/optionalAuthoring.spec.ts",
+        "tests/test_m23_48_packaged_readership.py",
+        "tests/test_product_completeness.py"
+      ],
+      "readership": "runtime_read"
+    },
+    {
+      "disposition": "retain: the installed package opens it at run time",
+      "path": "comfyui_h3_context/contracts/semantic_provider_profiles_v1.json",
+      "readers": [
+        "comfyui_h3_context/core/semantic_proposal_producer.py",
+        "tests/test_m23_48_packaged_readership.py"
+      ],
+      "readership": "runtime_read"
+    },
+    {
+      "disposition": "retain: the installed package opens it at run time",
+      "path": "comfyui_h3_context/contracts/semantic_provider_profiles_v2.json",
+      "readers": [
+        "comfyui_h3_context/core/semantic_proposal_producer.py",
+        "tests/test_m23_48_packaged_readership.py"
+      ],
+      "readership": "runtime_read"
+    },
+    {
+      "disposition": "retain: the installed package opens it at run time",
+      "path": "comfyui_h3_context/fonts/LICENSE-OFL-1.1.txt",
+      "readers": [
+        "comfyui_h3_context/adapters/authoring_fonts.py"
+      ],
+      "readership": "runtime_read"
+    },
+    {
+      "disposition": "retain: the installed package opens it at run time",
+      "path": "comfyui_h3_context/fonts/NotoSans-Bold.ttf",
+      "readers": [
+        "comfyui_h3_context/adapters/authoring_fonts.py"
+      ],
+      "readership": "runtime_read"
+    },
+    {
+      "disposition": "retain: the installed package opens it at run time",
+      "path": "comfyui_h3_context/fonts/NotoSans-BoldItalic.ttf",
+      "readers": [
+        "comfyui_h3_context/adapters/authoring_fonts.py"
+      ],
+      "readership": "runtime_read"
+    },
+    {
+      "disposition": "retain: the installed package opens it at run time",
+      "path": "comfyui_h3_context/fonts/NotoSans-Italic.ttf",
+      "readers": [
+        "comfyui_h3_context/adapters/authoring_fonts.py"
+      ],
+      "readership": "runtime_read"
+    },
+    {
+      "disposition": "retain: the installed package opens it at run time",
+      "path": "comfyui_h3_context/fonts/NotoSans-Regular.ttf",
+      "readers": [
+        "comfyui_h3_context/adapters/authoring_fonts.py"
+      ],
+      "readership": "runtime_read"
+    },
+    {
+      "disposition": "retain: the installed package opens it at run time",
+      "path": "comfyui_h3_context/fonts/font_manifest_v1.json",
+      "readers": [
+        "comfyui_h3_context/adapters/authoring_fonts.py"
+      ],
+      "readership": "runtime_read"
+    }
+  ],
+  "counts": {
+    "frontend_source_read": 4,
+    "runtime_read": 14
+  },
+  "dispositions": {
+    "frontend_source_read": "retain: the bundle compiles it in",
+    "no_reader": "retain pending retirement review: nothing reads it",
+    "runtime_read": "retain: the installed package opens it at run time",
+    "tooling_or_evidence_only": "movable: no runtime or bundle reader"
+  },
+  "movable": [],
+  "schema": "h3.context.packaged_artifact_readership.v1"
+}

@@ -1,0 +1,603 @@
+{
+  "checkpoints": [
+    {
+      "commit": "2fea0df9025e639e4b2c6bf66ba65d081eee0d4e",
+      "item": "M19-01",
+      "summary": "architecture inventory and fitness baseline"
+    },
+    {
+      "commit": "f3742ae66c9c64b27a8f8d466c8a1809c90353af",
+      "item": "M19-02",
+      "summary": "public surface authority; two import-time payloads deferred"
+    },
+    {
+      "commit": "e0d897915fa6c4f9dadd18854f204d2031c2afbd",
+      "item": "M19-03",
+      "summary": "ComfyUI node adapter decomposition behind a node-surface record"
+    },
+    {
+      "commit": "9da959fc6de7d27ba1d289c74b64a4f45832fa5a",
+      "item": "M19-04",
+      "summary": "product shell frontend decomposition and its layering guard"
+    },
+    {
+      "commit": "ab4c3cc0c1e149509ac2d821fa4533664273a2b7",
+      "item": "M19-05",
+      "summary": "three pure-core modules decomposed and their layering guard"
+    }
+  ],
+  "fingerprint": "sha256:6adc6e3827ac3009d34073461cd8296ff5926da25a3e5bf6f0131512defd7232",
+  "rows": [
+    {
+      "domain": "architecture",
+      "expectation": "constant",
+      "introduced_by": "M19-01",
+      "metric": "forbidden_imports",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "0"
+        },
+        {
+          "item": "M19-02",
+          "value": "0"
+        },
+        {
+          "item": "M19-03",
+          "value": "0"
+        },
+        {
+          "item": "M19-04",
+          "value": "0"
+        },
+        {
+          "item": "M19-05",
+          "value": "0"
+        }
+      ],
+      "source": "comfyui_h3_context/contracts/architecture_inventory_v1.json",
+      "verdict": "held"
+    },
+    {
+      "domain": "architecture",
+      "expectation": "constant",
+      "introduced_by": "M19-01",
+      "metric": "layer_inversions",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "0"
+        },
+        {
+          "item": "M19-02",
+          "value": "0"
+        },
+        {
+          "item": "M19-03",
+          "value": "0"
+        },
+        {
+          "item": "M19-04",
+          "value": "0"
+        },
+        {
+          "item": "M19-05",
+          "value": "0"
+        }
+      ],
+      "source": "comfyui_h3_context/contracts/architecture_inventory_v1.json",
+      "verdict": "held"
+    },
+    {
+      "domain": "architecture",
+      "expectation": "constant",
+      "introduced_by": "M19-01",
+      "metric": "runtime_cycles",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "0"
+        },
+        {
+          "item": "M19-02",
+          "value": "0"
+        },
+        {
+          "item": "M19-03",
+          "value": "0"
+        },
+        {
+          "item": "M19-04",
+          "value": "0"
+        },
+        {
+          "item": "M19-05",
+          "value": "0"
+        }
+      ],
+      "source": "comfyui_h3_context/contracts/architecture_inventory_v1.json",
+      "verdict": "held"
+    },
+    {
+      "domain": "architecture",
+      "expectation": "informational",
+      "introduced_by": "M19-01",
+      "metric": "modules",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "158"
+        },
+        {
+          "item": "M19-02",
+          "value": "159"
+        },
+        {
+          "item": "M19-03",
+          "value": "168"
+        },
+        {
+          "item": "M19-04",
+          "value": "168"
+        },
+        {
+          "item": "M19-05",
+          "value": "180"
+        }
+      ],
+      "source": "comfyui_h3_context/contracts/architecture_inventory_v1.json",
+      "verdict": "reported"
+    },
+    {
+      "domain": "architecture",
+      "expectation": "informational",
+      "introduced_by": "M19-01",
+      "metric": "largest_module_lines",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "4423"
+        },
+        {
+          "item": "M19-02",
+          "value": "4422"
+        },
+        {
+          "item": "M19-03",
+          "value": "4422"
+        },
+        {
+          "item": "M19-04",
+          "value": "4422"
+        },
+        {
+          "item": "M19-05",
+          "value": "4422"
+        }
+      ],
+      "source": "comfyui_h3_context/contracts/architecture_inventory_v1.json",
+      "verdict": "reported"
+    },
+    {
+      "domain": "architecture",
+      "expectation": "informational",
+      "introduced_by": "M19-01",
+      "metric": "largest_authored_module_lines",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "3330"
+        },
+        {
+          "item": "M19-02",
+          "value": "3330"
+        },
+        {
+          "item": "M19-03",
+          "value": "2569"
+        },
+        {
+          "item": "M19-04",
+          "value": "2569"
+        },
+        {
+          "item": "M19-05",
+          "value": "2181"
+        }
+      ],
+      "source": "comfyui_h3_context/contracts/architecture_inventory_v1.json",
+      "verdict": "reported"
+    },
+    {
+      "domain": "surface",
+      "expectation": "constant",
+      "introduced_by": "M19-02",
+      "metric": "pure_core_declared",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "absent"
+        },
+        {
+          "item": "M19-02",
+          "value": "2093"
+        },
+        {
+          "item": "M19-03",
+          "value": "2093"
+        },
+        {
+          "item": "M19-04",
+          "value": "2093"
+        },
+        {
+          "item": "M19-05",
+          "value": "2093"
+        }
+      ],
+      "source": "comfyui_h3_context/contracts/public_surface_v1.json",
+      "verdict": "held"
+    },
+    {
+      "domain": "surface",
+      "expectation": "constant",
+      "introduced_by": "M19-02",
+      "metric": "pure_core_names_digest",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "absent"
+        },
+        {
+          "item": "M19-02",
+          "value": "sha256:340d713ed3798388272b1bc28bb3f2ac7bd1fdfcd5f3044892f06e1ef5652f76"
+        },
+        {
+          "item": "M19-03",
+          "value": "sha256:340d713ed3798388272b1bc28bb3f2ac7bd1fdfcd5f3044892f06e1ef5652f76"
+        },
+        {
+          "item": "M19-04",
+          "value": "sha256:340d713ed3798388272b1bc28bb3f2ac7bd1fdfcd5f3044892f06e1ef5652f76"
+        },
+        {
+          "item": "M19-05",
+          "value": "sha256:340d713ed3798388272b1bc28bb3f2ac7bd1fdfcd5f3044892f06e1ef5652f76"
+        }
+      ],
+      "source": "comfyui_h3_context/contracts/public_surface_v1.json",
+      "verdict": "held"
+    },
+    {
+      "domain": "surface",
+      "expectation": "constant",
+      "introduced_by": "M19-02",
+      "metric": "shadowed_exports",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "absent"
+        },
+        {
+          "item": "M19-02",
+          "value": "7"
+        },
+        {
+          "item": "M19-03",
+          "value": "7"
+        },
+        {
+          "item": "M19-04",
+          "value": "7"
+        },
+        {
+          "item": "M19-05",
+          "value": "7"
+        }
+      ],
+      "source": "comfyui_h3_context/contracts/public_surface_v1.json",
+      "verdict": "held"
+    },
+    {
+      "domain": "contracts",
+      "expectation": "constant",
+      "introduced_by": "M19-01",
+      "metric": "baseline_identities_retained",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "285"
+        },
+        {
+          "item": "M19-02",
+          "value": "285"
+        },
+        {
+          "item": "M19-03",
+          "value": "285"
+        },
+        {
+          "item": "M19-04",
+          "value": "285"
+        },
+        {
+          "item": "M19-05",
+          "value": "285"
+        }
+      ],
+      "source": "comfyui_h3_context/contracts/contract_inventory_v1.json",
+      "verdict": "held"
+    },
+    {
+      "domain": "host",
+      "expectation": "constant",
+      "introduced_by": "M19-03",
+      "metric": "node_surface_fingerprint",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "absent"
+        },
+        {
+          "item": "M19-02",
+          "value": "absent"
+        },
+        {
+          "item": "M19-03",
+          "value": "sha256:30230269bf4f368d9dac55d0e238f3fefbbc7ec4090059d356e51383a2528ede"
+        },
+        {
+          "item": "M19-04",
+          "value": "sha256:30230269bf4f368d9dac55d0e238f3fefbbc7ec4090059d356e51383a2528ede"
+        },
+        {
+          "item": "M19-05",
+          "value": "sha256:30230269bf4f368d9dac55d0e238f3fefbbc7ec4090059d356e51383a2528ede"
+        }
+      ],
+      "source": "comfyui_h3_context/contracts/node_surface_v1.json",
+      "verdict": "held"
+    },
+    {
+      "domain": "host",
+      "expectation": "constant",
+      "introduced_by": "M19-03",
+      "metric": "nodes",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "absent"
+        },
+        {
+          "item": "M19-02",
+          "value": "absent"
+        },
+        {
+          "item": "M19-03",
+          "value": "28"
+        },
+        {
+          "item": "M19-04",
+          "value": "28"
+        },
+        {
+          "item": "M19-05",
+          "value": "28"
+        }
+      ],
+      "source": "comfyui_h3_context/contracts/node_surface_v1.json",
+      "verdict": "held"
+    },
+    {
+      "domain": "host",
+      "expectation": "constant",
+      "introduced_by": "M19-03",
+      "metric": "exported_names",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "absent"
+        },
+        {
+          "item": "M19-02",
+          "value": "absent"
+        },
+        {
+          "item": "M19-03",
+          "value": "112"
+        },
+        {
+          "item": "M19-04",
+          "value": "112"
+        },
+        {
+          "item": "M19-05",
+          "value": "112"
+        }
+      ],
+      "source": "comfyui_h3_context/contracts/node_surface_v1.json",
+      "verdict": "held"
+    },
+    {
+      "domain": "frontend",
+      "expectation": "informational",
+      "introduced_by": "M19-01",
+      "metric": "bundle_sha256",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "sha256:1ea03caad21bdc5d20e07f7bc6e1af282c50b6d3cd133c0c4110d0c3d63ac27b"
+        },
+        {
+          "item": "M19-02",
+          "value": "sha256:1ea03caad21bdc5d20e07f7bc6e1af282c50b6d3cd133c0c4110d0c3d63ac27b"
+        },
+        {
+          "item": "M19-03",
+          "value": "sha256:1ea03caad21bdc5d20e07f7bc6e1af282c50b6d3cd133c0c4110d0c3d63ac27b"
+        },
+        {
+          "item": "M19-04",
+          "value": "sha256:4cbb0647477affbe60d8a03df483d60eb15733ec4c947b2d80d638c7059739f3"
+        },
+        {
+          "item": "M19-05",
+          "value": "sha256:4cbb0647477affbe60d8a03df483d60eb15733ec4c947b2d80d638c7059739f3"
+        }
+      ],
+      "source": "comfyui_h3_context/web/h3-context-sidebar.js",
+      "verdict": "reported"
+    },
+    {
+      "domain": "frontend",
+      "expectation": "informational",
+      "introduced_by": "M19-01",
+      "metric": "bundle_bytes",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "560041"
+        },
+        {
+          "item": "M19-02",
+          "value": "560041"
+        },
+        {
+          "item": "M19-03",
+          "value": "560041"
+        },
+        {
+          "item": "M19-04",
+          "value": "560008"
+        },
+        {
+          "item": "M19-05",
+          "value": "560008"
+        }
+      ],
+      "source": "comfyui_h3_context/web/h3-context-sidebar.js",
+      "verdict": "reported"
+    },
+    {
+      "domain": "frontend",
+      "expectation": "informational",
+      "introduced_by": "M19-01",
+      "metric": "largest_graph_module_bytes",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "116685"
+        },
+        {
+          "item": "M19-02",
+          "value": "116685"
+        },
+        {
+          "item": "M19-03",
+          "value": "116685"
+        },
+        {
+          "item": "M19-04",
+          "value": "26645"
+        },
+        {
+          "item": "M19-05",
+          "value": "26645"
+        }
+      ],
+      "source": "frontend/src/host",
+      "verdict": "reported"
+    },
+    {
+      "domain": "frontend",
+      "expectation": "informational",
+      "introduced_by": "M19-01",
+      "metric": "largest_host_module_bytes",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "120109"
+        },
+        {
+          "item": "M19-02",
+          "value": "120109"
+        },
+        {
+          "item": "M19-03",
+          "value": "120109"
+        },
+        {
+          "item": "M19-04",
+          "value": "120109"
+        },
+        {
+          "item": "M19-05",
+          "value": "120109"
+        }
+      ],
+      "source": "frontend/src/host",
+      "verdict": "reported"
+    },
+    {
+      "domain": "acceptance",
+      "expectation": "constant",
+      "introduced_by": "M19-01",
+      "metric": "registered_criteria",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "23"
+        },
+        {
+          "item": "M19-02",
+          "value": "23"
+        },
+        {
+          "item": "M19-03",
+          "value": "23"
+        },
+        {
+          "item": "M19-04",
+          "value": "23"
+        },
+        {
+          "item": "M19-05",
+          "value": "23"
+        }
+      ],
+      "source": "tests/acceptance_baseline.json",
+      "verdict": "held"
+    },
+    {
+      "domain": "acceptance",
+      "expectation": "constant",
+      "introduced_by": "M19-01",
+      "metric": "public_python_abi",
+      "readings": [
+        {
+          "item": "M19-01",
+          "value": "14"
+        },
+        {
+          "item": "M19-02",
+          "value": "14"
+        },
+        {
+          "item": "M19-03",
+          "value": "14"
+        },
+        {
+          "item": "M19-04",
+          "value": "14"
+        },
+        {
+          "item": "M19-05",
+          "value": "14"
+        }
+      ],
+      "source": "tests/acceptance_baseline.json",
+      "verdict": "held"
+    }
+  ],
+  "schema": "h3-context-m19-closeout/1"
+}

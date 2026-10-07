@@ -1,0 +1,13 @@
+{
+  "authorization_label": "mocked_fixture",
+  "endpoint_revision": "api-v2-h3-context-ir",
+  "outcome": "succeeded",
+  "output_fingerprint": "sha256:9284e979e0da46f02cfd5383f8fa9127f6f53f6ff327b7337757034b9ba8fc3a",
+  "provider": "official_minimax",
+  "provider_version": "MiniMax-H3",
+  "recording_id": "recording_bf5fa255894c229377b3c36e",
+  "request_fingerprint": "sha256:ab703304da7c681bb9e1ef38ebdd5776c78bfb03f27b44ec6a26162adfb325d4",
+  "sanitized": true,
+  "schema_version": "h3.context.ir.recording.v1",
+  "task_id": "node-task-1"
+}

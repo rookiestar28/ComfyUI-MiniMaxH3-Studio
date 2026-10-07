@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/authoring_render_job_request_v1.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "h3.authoring.render_job_request.v1"
+    },
+    "workspace_handle": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$(?![\\s\\S])",
+      "maxLength": 128
+    },
+    "workspace_revision": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000
+    },
+    "timeline_revision": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000
+    },
+    "snapshot_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+      "maxLength": 71
+    },
+    "plan_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+      "maxLength": 71
+    },
+    "source_manifest_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+      "maxLength": 71
+    },
+    "font_facts_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+      "maxLength": 71
+    },
+    "font_package_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+      "maxLength": 71
+    },
+    "renderer_profile_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+      "maxLength": 71
+    },
+    "currentness_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+      "maxLength": 71
+    },
+    "output_profile_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$(?![\\s\\S])",
+      "maxLength": 71
+    },
+    "idempotency_key": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{15,127}$(?![\\s\\S])",
+      "maxLength": 128
+    },
+    "timeout_ms": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 900000
+    }
+  },
+  "required": [
+    "schema",
+    "workspace_handle",
+    "workspace_revision",
+    "timeline_revision",
+    "snapshot_fingerprint",
+    "plan_fingerprint",
+    "source_manifest_fingerprint",
+    "font_facts_fingerprint",
+    "font_package_fingerprint",
+    "renderer_profile_fingerprint",
+    "currentness_fingerprint",
+    "output_profile_fingerprint",
+    "idempotency_key",
+    "timeout_ms"
+  ]
+}

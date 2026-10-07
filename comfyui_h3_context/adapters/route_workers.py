@@ -12,7 +12,17 @@ from typing import TypeVar
 T = TypeVar("T")
 ROUTE_WORKER_CAPACITY = 2
 _LANES = frozenset(
-    {"sidebar", "production", "authoring", "planning", "coordinator", "coordinator_media"}
+    {
+        "sidebar",
+        "production",
+        "authoring",
+        "planning",
+        "coordinator",
+        "coordinator_media",
+        "retained_cleanup",
+        "project_document",
+        "editor_recovery",
+    }
 )
 
 

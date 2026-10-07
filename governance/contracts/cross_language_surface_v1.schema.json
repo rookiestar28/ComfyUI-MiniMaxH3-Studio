@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/cross_language_surface_v1.schema.json",
+  "title": "ComfyUI H3 context cross-language structural surface",
+  "description": "Deterministic, content-free record naming, for every frozen cross-language wire, the single Python authority that produces it and the exact key set it produces. Key names only: the record carries no value, prompt, media locator, credential or private path, and it grants no permission to accept an unknown key.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "shapes", "fingerprint"],
+  "properties": {
+    "schema": { "const": "h3-context-cross-language-surface/1" },
+    "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "shapes": {
+      "description": "Sorted by export_name, which is unique: a wire with two authorities, or an authority claimed by two exports, fails generation rather than appearing twice here.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 256,
+      "items": { "$ref": "#/$defs/shape" }
+    }
+  },
+  "$defs": {
+    "wire_key": {
+      "description": "A snake_case key as it appears on the wire. Constrained so that a value, a path or a locator cannot be recorded here even by accident.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "shape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["export_name", "module_path", "class_name", "required_keys"],
+      "properties": {
+        "export_name": {
+          "description": "The lowerCamelCase name the generated TypeScript module exports for this key set.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[a-z][A-Za-z0-9]*Keys$"
+        },
+        "module_path": {
+          "description": "The repository-relative Python module whose to_wire produces the wire. Relative by construction, so the record never names an absolute or user-specific path.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^comfyui_h3_context/[A-Za-z0-9_/]+\\.py$"
+        },
+        "class_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "pattern": "^[A-Z][A-Za-z0-9]*$"
+        },
+        "required_keys": {
+          "description": "Every key the authority always emits, sorted. A to_wire whose key set cannot be resolved to literals is unresolved and stops generation, so a partial key set never reaches this record.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/wire_key" }
+        },
+        "optional_keys": {
+          "description": "Keys the authority emits conditionally. Recorded separately because a closed-shape check that demanded them would reject a wire the producer may legitimately emit without them.",
+          "type": "array",
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/wire_key" }
+        }
+      }
+    }
+  }
+}

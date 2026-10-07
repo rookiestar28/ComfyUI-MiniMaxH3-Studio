@@ -1,0 +1,219 @@
+{
+  "schema": "h3.context.host_seam_census_transition_m23_28.v1",
+  "item": "M23-28",
+  "source": {
+    "commit_parts": [
+      "cfa38b40",
+      "2d9b9e31",
+      "dedd30c2",
+      "9659c32a",
+      "ffbc9edc"
+    ],
+    "tree_parts": ["aea2939c", "fb92d211", "d46cd455", "f9482acb", "0ffe37ca"]
+  },
+  "artifacts": {
+    "from_census_sha256_parts": [
+      "5a2ecc45",
+      "257c98d9",
+      "2c2964fc",
+      "edc080b6",
+      "6c8689c1",
+      "750cb04d",
+      "c3b064fb",
+      "31befe16"
+    ],
+    "to_census_sha256_parts": [
+      "9a265cbc",
+      "5837c5d3",
+      "38cc9089",
+      "7f7f21a5",
+      "63887592",
+      "f7744f31",
+      "3cfe05d8",
+      "0e60e75a"
+    ],
+    "fixture_sha256_parts": [
+      "6c5b39b2",
+      "d8681074",
+      "e5742cef",
+      "b81a574e",
+      "5087834f",
+      "df89fdb5",
+      "aea23c70",
+      "2cf2a023"
+    ],
+    "seam_contract_sha256_parts": [
+      "c6522421",
+      "bebc84e1",
+      "b68d716f",
+      "b600edfb",
+      "fe035ed8",
+      "0068c58b",
+      "8c0ab3c2",
+      "6e9e07f9"
+    ]
+  },
+  "changes": [
+    {
+      "seam_id": "frontend.api.event_target",
+      "removed_source_paths": ["frontend/src/host-modules.d.ts"],
+      "from_owner": "frontend/src/host/sidebarHost.ts",
+      "to_owner": "frontend/src/host/hostSeams.ts"
+    },
+    {
+      "seam_id": "frontend.api.fetch_api",
+      "removed_source_paths": ["frontend/src/host-modules.d.ts"],
+      "from_owner": "frontend/src/entry.tsx",
+      "to_owner": "frontend/src/host/hostSeams.ts"
+    },
+    {
+      "seam_id": "frontend.api.file_url",
+      "removed_source_paths": ["frontend/src/host/appMode.ts"],
+      "from_owner": "frontend/src/host/appMode.ts",
+      "to_owner": "frontend/src/host/hostSeams.ts"
+    },
+    {
+      "seam_id": "frontend.api.queue_prompt",
+      "removed_source_paths": [
+        "frontend/src/entry.tsx",
+        "frontend/src/host-modules.d.ts",
+        "frontend/src/host/appMode.ts"
+      ],
+      "from_owner": "frontend/src/host/appMode.ts",
+      "to_owner": "frontend/src/host/queueSeam.ts"
+    },
+    {
+      "seam_id": "frontend.app.extension_manager.get_sidebar_tabs",
+      "removed_source_paths": ["frontend/src/host-modules.d.ts"],
+      "from_owner": "frontend/src/host/sidebarHost.ts",
+      "to_owner": "frontend/src/host/hostSeams.ts"
+    },
+    {
+      "seam_id": "frontend.app.extension_manager.register_sidebar_tab",
+      "removed_source_paths": ["frontend/src/host-modules.d.ts"],
+      "from_owner": "frontend/src/host/sidebarHost.ts",
+      "to_owner": "frontend/src/host/hostSeams.ts"
+    },
+    {
+      "seam_id": "frontend.app.extension_manager.unregister_sidebar_tab",
+      "removed_source_paths": ["frontend/src/host-modules.d.ts"],
+      "from_owner": "frontend/src/host/sidebarHost.ts",
+      "to_owner": "frontend/src/host/hostSeams.ts"
+    },
+    {
+      "seam_id": "frontend.app.extension_manager.workflow.active_workflow",
+      "removed_source_paths": [
+        "frontend/src/entry.tsx",
+        "frontend/src/host-modules.d.ts",
+        "frontend/src/host/appMode.ts"
+      ],
+      "from_owner": "frontend/src/host/appMode.ts",
+      "to_owner": "frontend/src/host/canvasOwnedWrite.ts"
+    },
+    {
+      "seam_id": "frontend.app.extension_manager.workflow.open_workflows",
+      "removed_source_paths": [
+        "frontend/src/host-modules.d.ts",
+        "frontend/src/host/appMode.ts"
+      ],
+      "from_owner": "frontend/src/host/appMode.ts",
+      "to_owner": "frontend/src/host/canvasOwnedWrite.ts"
+    },
+    {
+      "seam_id": "frontend.app.graph",
+      "removed_source_paths": [
+        "frontend/src/entry.tsx",
+        "frontend/src/host-modules.d.ts",
+        "frontend/src/host/appMode.ts"
+      ],
+      "from_owner": "frontend/src/entry.tsx",
+      "to_owner": "frontend/src/host/hostSeams.ts"
+    },
+    {
+      "seam_id": "frontend.app.graph.change",
+      "removed_source_paths": ["frontend/src/host-modules.d.ts"],
+      "from_owner": "frontend/src/host-modules.d.ts",
+      "to_owner": "frontend/src/host/hostModuleTypes.ts"
+    },
+    {
+      "seam_id": "frontend.app.graph.events",
+      "removed_source_paths": ["frontend/src/host-modules.d.ts"],
+      "from_owner": "frontend/src/host/sidebarHost.ts",
+      "to_owner": "frontend/src/host/hostSeams.ts"
+    },
+    {
+      "seam_id": "frontend.app.graph.get_node_by_id",
+      "removed_source_paths": ["frontend/src/host-modules.d.ts"],
+      "from_owner": "frontend/src/host-modules.d.ts",
+      "to_owner": "frontend/src/host/hostModuleTypes.ts"
+    },
+    {
+      "seam_id": "frontend.app.graph.serialize",
+      "removed_source_paths": [
+        "frontend/src/entry.tsx",
+        "frontend/src/host-modules.d.ts",
+        "frontend/src/host/appMode.ts"
+      ],
+      "from_owner": "frontend/src/host/appMode.ts",
+      "to_owner": "frontend/src/host/hostSeams.ts"
+    },
+    {
+      "seam_id": "frontend.app.graph.set_dirty_canvas",
+      "removed_source_paths": ["frontend/src/host-modules.d.ts"],
+      "from_owner": "frontend/src/host-modules.d.ts",
+      "to_owner": "frontend/src/host/hostModuleTypes.ts"
+    },
+    {
+      "seam_id": "frontend.app.graph_to_prompt",
+      "removed_source_paths": [
+        "frontend/src/entry.tsx",
+        "frontend/src/host-modules.d.ts",
+        "frontend/src/host/appMode.ts"
+      ],
+      "from_owner": "frontend/src/host/appMode.ts",
+      "to_owner": "frontend/src/host/hostSeams.ts"
+    },
+    {
+      "seam_id": "frontend.app.load_api_json",
+      "removed_source_paths": [
+        "frontend/src/host-modules.d.ts",
+        "frontend/src/host/appMode.ts"
+      ],
+      "from_owner": "frontend/src/host/appMode.ts",
+      "to_owner": "frontend/src/host/hostSeams.ts"
+    },
+    {
+      "seam_id": "frontend.app.load_graph_data",
+      "removed_source_paths": [
+        "frontend/src/host-modules.d.ts",
+        "frontend/src/host/appMode.ts"
+      ],
+      "from_owner": "frontend/src/host/appMode.ts",
+      "to_owner": "frontend/src/host/canvasOwnedWrite.ts"
+    },
+    {
+      "seam_id": "frontend.app.register_extension",
+      "removed_source_paths": [
+        "frontend/src/entry.tsx",
+        "frontend/src/host-modules.d.ts"
+      ],
+      "from_owner": "frontend/src/entry.tsx",
+      "to_owner": "frontend/src/host/hostSeams.ts"
+    },
+    {
+      "seam_id": "frontend.app.ui_settings",
+      "removed_source_paths": [
+        "frontend/src/entry.tsx",
+        "frontend/src/host-modules.d.ts"
+      ],
+      "from_owner": "frontend/src/entry.tsx",
+      "to_owner": "frontend/src/host/hostSeams.ts"
+    },
+    {
+      "seam_id": "frontend.litegraph.registered_node_types",
+      "removed_source_paths": ["frontend/src/host/appMode.ts"],
+      "from_owner": "frontend/src/host/appMode.ts",
+      "to_owner": "frontend/src/host/hostSeams.ts"
+    }
+  ]
+}

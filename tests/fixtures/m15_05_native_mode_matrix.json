@@ -1,0 +1,695 @@
+{
+  "fingerprint": "sha256:9a061485b492d04e4cac2d0b1e7581ab4c4ea2cfdbe73bbb2c45c1b43d0eaacf",
+  "matrix": {
+    "assisted_authoring": {
+      "authorized_for_this_action": false,
+      "available": true,
+      "defaulted": false,
+      "ready": false,
+      "selected": false
+    },
+    "assisted_profiles": [
+      "ollama.local",
+      "openai.remote",
+      "gemini.remote",
+      "anthropic.remote"
+    ],
+    "autogrow_path_basis": "fully_qualified_zero_based",
+    "claim_scope": "structural_native_contract_only",
+    "graph_binding_fields": [
+      "asset_id",
+      "kind",
+      "presentation_label",
+      "presentation_ordinal",
+      "source_node",
+      "source_output",
+      "native_node",
+      "native_child_path",
+      "connection_order",
+      "ownership"
+    ],
+    "host_contract_lane": "real_classes_real_schema_weight_callable_stub_only",
+    "host_revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+    "host_version": "0.32.0",
+    "limitations": [
+      "host_identity_does_not_establish_capability",
+      "no_assisted_profile_qualification",
+      "no_model_output_quality_claim",
+      "no_weight_backed_execution"
+    ],
+    "media_executions": [],
+    "model_executions": [],
+    "model_free_qualifies": false,
+    "modes": [
+      {
+        "asset_roles": [],
+        "disposition": "STRUCTURALLY_QUALIFIED_NATIVE",
+        "dynamic_reference_boundary": "not_applicable",
+        "limitations": [
+          "no_assisted_profile_qualification",
+          "no_model_output_quality_claim",
+          "no_weight_backed_execution"
+        ],
+        "maximum_assets": 0,
+        "minimum_assets": 0,
+        "native_node_id": "MiniMaxH3ImageToVideo",
+        "native_paths": [],
+        "optional_inputs": [
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "first_frame",
+            "options": [],
+            "socket_type": "IMAGE",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "last_frame",
+            "options": [],
+            "socket_type": "IMAGE",
+            "step": null
+          }
+        ],
+        "prompt_profile": "h3_base",
+        "prompt_socket": "STRING",
+        "qualified_surfaces": [
+          "direct_node",
+          "fixed_app_mode",
+          "fixed_subgraph",
+          "sidebar_normal_queue",
+          "api_headless"
+        ],
+        "readiness": "current_passed_report_and_trusted_wiring",
+        "required_inputs": [
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "clip",
+            "options": [],
+            "socket_type": "CLIP",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "vae",
+            "options": [],
+            "socket_type": "VAE",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "prompt",
+            "options": [],
+            "socket_type": "STRING",
+            "step": null
+          },
+          {
+            "default": 1344,
+            "maximum": "MAX_RESOLUTION",
+            "minimum": 32,
+            "name": "width",
+            "options": [],
+            "socket_type": "INT",
+            "step": 32
+          },
+          {
+            "default": 768,
+            "maximum": "MAX_RESOLUTION",
+            "minimum": 32,
+            "name": "height",
+            "options": [],
+            "socket_type": "INT",
+            "step": 32
+          },
+          {
+            "default": 124,
+            "maximum": 3600,
+            "minimum": 5,
+            "name": "length",
+            "options": [],
+            "socket_type": "INT",
+            "step": 17
+          }
+        ],
+        "task_mode": "t2va",
+        "unsupported_surfaces": []
+      },
+      {
+        "asset_roles": [
+          "first_frame"
+        ],
+        "disposition": "STRUCTURALLY_QUALIFIED_NATIVE",
+        "dynamic_reference_boundary": "not_applicable",
+        "limitations": [
+          "no_assisted_profile_qualification",
+          "no_model_output_quality_claim",
+          "no_weight_backed_execution"
+        ],
+        "maximum_assets": 1,
+        "minimum_assets": 1,
+        "native_node_id": "MiniMaxH3ImageToVideo",
+        "native_paths": [
+          "MiniMaxH3ImageToVideo.first_frame"
+        ],
+        "optional_inputs": [
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "first_frame",
+            "options": [],
+            "socket_type": "IMAGE",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "last_frame",
+            "options": [],
+            "socket_type": "IMAGE",
+            "step": null
+          }
+        ],
+        "prompt_profile": "h3_base",
+        "prompt_socket": "STRING",
+        "qualified_surfaces": [
+          "direct_node",
+          "sidebar_normal_queue",
+          "api_headless"
+        ],
+        "readiness": "current_passed_report_and_trusted_wiring",
+        "required_inputs": [
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "clip",
+            "options": [],
+            "socket_type": "CLIP",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "vae",
+            "options": [],
+            "socket_type": "VAE",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "prompt",
+            "options": [],
+            "socket_type": "STRING",
+            "step": null
+          },
+          {
+            "default": 1344,
+            "maximum": "MAX_RESOLUTION",
+            "minimum": 32,
+            "name": "width",
+            "options": [],
+            "socket_type": "INT",
+            "step": 32
+          },
+          {
+            "default": 768,
+            "maximum": "MAX_RESOLUTION",
+            "minimum": 32,
+            "name": "height",
+            "options": [],
+            "socket_type": "INT",
+            "step": 32
+          },
+          {
+            "default": 124,
+            "maximum": 3600,
+            "minimum": 5,
+            "name": "length",
+            "options": [],
+            "socket_type": "INT",
+            "step": 17
+          }
+        ],
+        "task_mode": "i2va",
+        "unsupported_surfaces": [
+          "fixed_app_mode",
+          "fixed_subgraph"
+        ]
+      },
+      {
+        "asset_roles": [
+          "first_frame",
+          "last_frame"
+        ],
+        "disposition": "STRUCTURALLY_QUALIFIED_NATIVE",
+        "dynamic_reference_boundary": "not_applicable",
+        "limitations": [
+          "no_assisted_profile_qualification",
+          "no_model_output_quality_claim",
+          "no_weight_backed_execution"
+        ],
+        "maximum_assets": 2,
+        "minimum_assets": 2,
+        "native_node_id": "MiniMaxH3ImageToVideo",
+        "native_paths": [
+          "MiniMaxH3ImageToVideo.first_frame",
+          "MiniMaxH3ImageToVideo.last_frame"
+        ],
+        "optional_inputs": [
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "first_frame",
+            "options": [],
+            "socket_type": "IMAGE",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "last_frame",
+            "options": [],
+            "socket_type": "IMAGE",
+            "step": null
+          }
+        ],
+        "prompt_profile": "h3_base",
+        "prompt_socket": "STRING",
+        "qualified_surfaces": [
+          "direct_node",
+          "sidebar_normal_queue",
+          "api_headless"
+        ],
+        "readiness": "current_passed_report_and_trusted_wiring",
+        "required_inputs": [
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "clip",
+            "options": [],
+            "socket_type": "CLIP",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "vae",
+            "options": [],
+            "socket_type": "VAE",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "prompt",
+            "options": [],
+            "socket_type": "STRING",
+            "step": null
+          },
+          {
+            "default": 1344,
+            "maximum": "MAX_RESOLUTION",
+            "minimum": 32,
+            "name": "width",
+            "options": [],
+            "socket_type": "INT",
+            "step": 32
+          },
+          {
+            "default": 768,
+            "maximum": "MAX_RESOLUTION",
+            "minimum": 32,
+            "name": "height",
+            "options": [],
+            "socket_type": "INT",
+            "step": 32
+          },
+          {
+            "default": 124,
+            "maximum": 3600,
+            "minimum": 5,
+            "name": "length",
+            "options": [],
+            "socket_type": "INT",
+            "step": 17
+          }
+        ],
+        "task_mode": "fl2va",
+        "unsupported_surfaces": [
+          "fixed_app_mode",
+          "fixed_subgraph"
+        ]
+      },
+      {
+        "asset_roles": [
+          "last_frame"
+        ],
+        "disposition": "STRUCTURALLY_QUALIFIED_NATIVE",
+        "dynamic_reference_boundary": "not_applicable",
+        "limitations": [
+          "no_assisted_profile_qualification",
+          "no_model_output_quality_claim",
+          "no_weight_backed_execution"
+        ],
+        "maximum_assets": 1,
+        "minimum_assets": 1,
+        "native_node_id": "MiniMaxH3ImageToVideo",
+        "native_paths": [
+          "MiniMaxH3ImageToVideo.last_frame"
+        ],
+        "optional_inputs": [
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "first_frame",
+            "options": [],
+            "socket_type": "IMAGE",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "last_frame",
+            "options": [],
+            "socket_type": "IMAGE",
+            "step": null
+          }
+        ],
+        "prompt_profile": "h3_base",
+        "prompt_socket": "STRING",
+        "qualified_surfaces": [
+          "direct_node",
+          "sidebar_normal_queue",
+          "api_headless"
+        ],
+        "readiness": "current_passed_report_and_trusted_wiring",
+        "required_inputs": [
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "clip",
+            "options": [],
+            "socket_type": "CLIP",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "vae",
+            "options": [],
+            "socket_type": "VAE",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "prompt",
+            "options": [],
+            "socket_type": "STRING",
+            "step": null
+          },
+          {
+            "default": 1344,
+            "maximum": "MAX_RESOLUTION",
+            "minimum": 32,
+            "name": "width",
+            "options": [],
+            "socket_type": "INT",
+            "step": 32
+          },
+          {
+            "default": 768,
+            "maximum": "MAX_RESOLUTION",
+            "minimum": 32,
+            "name": "height",
+            "options": [],
+            "socket_type": "INT",
+            "step": 32
+          },
+          {
+            "default": 124,
+            "maximum": 3600,
+            "minimum": 5,
+            "name": "length",
+            "options": [],
+            "socket_type": "INT",
+            "step": 17
+          }
+        ],
+        "task_mode": "l2va",
+        "unsupported_surfaces": [
+          "fixed_app_mode",
+          "fixed_subgraph"
+        ]
+      },
+      {
+        "asset_roles": [
+          "reference",
+          "audio_source"
+        ],
+        "disposition": "STRUCTURALLY_QUALIFIED_NATIVE",
+        "dynamic_reference_boundary": "parent_graph_visible",
+        "limitations": [
+          "no_assisted_profile_qualification",
+          "no_model_output_quality_claim",
+          "no_weight_backed_execution",
+          "dynamic_reference_node_must_remain_parent_visible",
+          "fixed_subgraph_does_not_claim_arbitrary_cardinality"
+        ],
+        "maximum_assets": 12,
+        "minimum_assets": 1,
+        "native_node_id": "MiniMaxH3ReferenceToVideo",
+        "native_paths": [
+          "MiniMaxH3ReferenceToVideo.ref_images.ref_image_{index}",
+          "MiniMaxH3ReferenceToVideo.ref_videos.ref_video_{index}",
+          "MiniMaxH3ReferenceToVideo.ref_video_audios.ref_video_audio_{video_index}",
+          "MiniMaxH3ReferenceToVideo.ref_audios.ref_audio_{index}"
+        ],
+        "optional_inputs": [
+          {
+            "default": null,
+            "maximum": 9,
+            "minimum": 0,
+            "name": "ref_images",
+            "options": [
+              "IMAGE",
+              "ref_image_"
+            ],
+            "socket_type": "COMFY_AUTOGROW_V3",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": 3,
+            "minimum": 0,
+            "name": "ref_videos",
+            "options": [
+              "IMAGE",
+              "ref_video_"
+            ],
+            "socket_type": "COMFY_AUTOGROW_V3",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": 3,
+            "minimum": 0,
+            "name": "ref_video_audios",
+            "options": [
+              "AUDIO",
+              "ref_video_audio_"
+            ],
+            "socket_type": "COMFY_AUTOGROW_V3",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": 3,
+            "minimum": 0,
+            "name": "ref_audios",
+            "options": [
+              "AUDIO",
+              "ref_audio_"
+            ],
+            "socket_type": "COMFY_AUTOGROW_V3",
+            "step": null
+          }
+        ],
+        "prompt_profile": "h3_full_reference",
+        "prompt_socket": "STRING",
+        "qualified_surfaces": [
+          "direct_node",
+          "fixed_app_mode",
+          "sidebar_normal_queue",
+          "api_headless"
+        ],
+        "readiness": "current_passed_report_and_trusted_wiring",
+        "required_inputs": [
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "clip",
+            "options": [],
+            "socket_type": "CLIP",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "vae",
+            "options": [],
+            "socket_type": "VAE",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "audio_vae",
+            "options": [],
+            "socket_type": "VAE",
+            "step": null
+          },
+          {
+            "default": null,
+            "maximum": null,
+            "minimum": null,
+            "name": "prompt",
+            "options": [],
+            "socket_type": "STRING",
+            "step": null
+          },
+          {
+            "default": 1344,
+            "maximum": "MAX_RESOLUTION",
+            "minimum": 32,
+            "name": "width",
+            "options": [],
+            "socket_type": "INT",
+            "step": 32
+          },
+          {
+            "default": 768,
+            "maximum": "MAX_RESOLUTION",
+            "minimum": 32,
+            "name": "height",
+            "options": [],
+            "socket_type": "INT",
+            "step": 32
+          },
+          {
+            "default": 124,
+            "maximum": 3600,
+            "minimum": 5,
+            "name": "length",
+            "options": [],
+            "socket_type": "INT",
+            "step": 17
+          },
+          {
+            "default": "match",
+            "maximum": null,
+            "minimum": null,
+            "name": "ref_image_size",
+            "options": [
+              "match",
+              "max"
+            ],
+            "socket_type": "COMBO",
+            "step": null
+          }
+        ],
+        "task_mode": "ref2va",
+        "unsupported_surfaces": [
+          "fixed_subgraph"
+        ]
+      }
+    ],
+    "native_source": "comfy_extras/nodes_minimax_h3.py",
+    "native_source_blob": "0b1840e851c248f89e9920159c3c8237fa2e7186",
+    "paired_audio_basis": "same_zero_based_video_suffix",
+    "presentation_label_basis": "one_based",
+    "product_scope": "MANUAL_ONLY_SCOPED",
+    "prompt_boundary": "STRING",
+    "provider_executions": [],
+    "schema": "h3.native_mode_matrix.v1",
+    "sigma_shift": {
+      "bounds": [
+        [
+          "minimum",
+          0.01
+        ],
+        [
+          "maximum",
+          100.0
+        ],
+        [
+          "step",
+          0.01
+        ]
+      ],
+      "defaults": [
+        [
+          "shift_video",
+          12.0
+        ],
+        [
+          "shift_audio",
+          3.0
+        ]
+      ],
+      "input_types": [
+        [
+          "model",
+          "MODEL"
+        ],
+        [
+          "shift_video",
+          "FLOAT"
+        ],
+        [
+          "shift_audio",
+          "FLOAT"
+        ]
+      ],
+      "node_id": "MiniMaxH3SigmaShift",
+      "sampler": "ModelSamplingDiscreteFlow",
+      "scheduler": "video_discrete_flow_audio_internal_shift"
+    },
+    "stripped_native_qualifies": false,
+    "surfaces": [
+      "direct_node",
+      "fixed_app_mode",
+      "fixed_subgraph",
+      "sidebar_normal_queue",
+      "api_headless"
+    ],
+    "version": "1.0.0"
+  }
+}

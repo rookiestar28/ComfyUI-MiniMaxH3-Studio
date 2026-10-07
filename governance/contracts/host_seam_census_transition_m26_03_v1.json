@@ -1,0 +1,71 @@
+{
+  "schema": "h3.context.host_seam_census_transition_m26_03.v1",
+  "item": "M26-03",
+  "source": {
+    "commit_parts": [
+      "4ccea337",
+      "3f285b5c",
+      "d8af1b30",
+      "24203c2f",
+      "3382a580"
+    ],
+    "tree_parts": ["601427af", "221c5d03", "669df599", "f3c06186", "8b417006"]
+  },
+  "artifacts": {
+    "from_census_sha256_parts": [
+      "d5b57e75",
+      "6ed6ff1a",
+      "cf261a75",
+      "af4104e5",
+      "73aa15ef",
+      "f1b70a28",
+      "7e90edcf",
+      "c4f84e1b"
+    ],
+    "to_census_sha256_parts": [
+      "afad11c6",
+      "e0889484",
+      "419723eb",
+      "b809ad8c",
+      "467afa55",
+      "bc9246b1",
+      "79c9c215",
+      "392f3e6f"
+    ],
+    "fixture_sha256_parts": [
+      "6c5b39b2",
+      "d8681074",
+      "e5742cef",
+      "b81a574e",
+      "5087834f",
+      "df89fdb5",
+      "aea23c70",
+      "2cf2a023"
+    ],
+    "seam_contract_sha256_parts": [
+      "c6522421",
+      "bebc84e1",
+      "b68d716f",
+      "b600edfb",
+      "fe035ed8",
+      "0068c58b",
+      "8c0ab3c2",
+      "6e9e07f9"
+    ]
+  },
+  "changes": [
+    {
+      "seam_id": "frontend.api.fetch_api",
+      "added_source_paths": [
+        "frontend/src/host/productionManagedChildResolver.ts",
+        "frontend/src/host/productionPlanningActions.ts"
+      ]
+    },
+    {
+      "seam_id": "frontend.app.extension_manager.workflow.open_workflows",
+      "added_source_paths": [
+        "frontend/src/host/productionManagedChildResolver.ts"
+      ]
+    }
+  ]
+}

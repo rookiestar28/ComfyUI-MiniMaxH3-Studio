@@ -1,0 +1,186 @@
+import type { ProductShellProjection } from "../src/contracts/projectionCodecs";
+import type { SidebarWorkspaceProjection } from "../src/contracts/sidebarWorkspaceCodec";
+
+export const fingerprintA = `sha256:${"a".repeat(64)}`;
+export const fingerprintB = `sha256:${"b".repeat(64)}`;
+
+export const validSidebarWorkspace = {
+  schema: "h3.context.sidebar.workspace.v2",
+  workspace_id: "ws_0123456789abcdefghijklmnopqrstuv",
+  report_id: "report-1",
+  report_revision: 1,
+  report_fingerprint: fingerprintA,
+  prompt_fingerprint: fingerprintB,
+  base_prompt_fingerprint: fingerprintB,
+  correlation: { prompt_id: "prompt-1", execution_node_id: "17" },
+  lifecycle: "ready",
+  validation_status: "passed",
+  guide_conformance: {
+    schema: "h3.context.guide_conformance.v2",
+    readiness: "ready",
+    reasons: [],
+  },
+  task_mode: "ref2va",
+  profile: "h3_full_reference",
+  product_scope: "MANUAL_ONLY_SCOPED",
+  assisted_authoring: {
+    available: true,
+    selected: false,
+    ready: false,
+    authorized_for_this_action: false,
+    defaulted: false,
+  },
+  prompt_text: "Subject: A safe prompt with <Picture 1>.",
+  prompt_text_redacted: false,
+  evidence: { count: 1, origins: ["user_declared"] },
+  plan_steps: [
+    {
+      step_id: "plan-1",
+      stage: "render",
+      status: "completed",
+      description: "Render the declared prompt.",
+    },
+  ],
+  exact_text: [
+    { constraint_id: "dialogue-1", kind: "dialogue", text: "Keep it on." },
+  ],
+  diagnostics: [],
+  limitations: [],
+  planning: {
+    policy: "deterministic_manual",
+    alternatives_status: "not_available",
+    alternatives: [],
+    timeline: {
+      start_seconds: 0,
+      end_seconds: 5.166666666666667,
+      effective_frame_count: 124,
+      effective_duration_milliseconds: 5167,
+      duration_source: "seconds",
+    },
+    creative_additions_status: "none",
+    creative_additions: [],
+  },
+  capabilities: {
+    mode_status: "available",
+    supported_modes: ["t2va", "i2va", "fl2va", "l2va", "ref2va"],
+    native_prompt_boundary: "STRING",
+    output_duration: {
+      requested_seconds: 5,
+      effective_seconds: 5.166666666666667,
+      min_seconds: 4,
+      max_seconds: 15,
+      status: "within_limit",
+    },
+    reference_limits: { total: 12, image: 9, video: 3, audio: 3 },
+    timed_reference_limits: {
+      per_item_min_seconds: 2,
+      per_item_max_seconds: 15,
+      video_total_max_seconds: 15,
+      audio_total_max_seconds: 15,
+      status: "verified",
+      limitation: null,
+    },
+  },
+  media_receipt: {
+    status: "verified",
+    queue_ready: true,
+    asset_count: 1,
+    image_count: 1,
+    video_count: 0,
+    audio_count: 0,
+    binding_count: 1,
+  },
+  receipt: { provider: "manual", outcome: "not_requested" },
+  comparison: {
+    status: "not_available",
+    reason: "manual_only_scoped",
+  },
+  resources: {
+    native_node_id: "MiniMaxH3ReferenceToVideo",
+    core_version: "0.32.0",
+    frontend_version: "1.48.7",
+  },
+  bindings: [
+    {
+      asset_id: "image_1",
+      kind: "image",
+      presentation_label: "<Picture 1>",
+      presentation_ordinal: 1,
+      native_input: "ref_images",
+      native_child_path: "MiniMaxH3ReferenceToVideo.ref_images.ref_image_0",
+    },
+  ],
+  reference_candidates: [
+    {
+      asset_id: "image_1",
+      kind: "image",
+      label: "<Picture 1>",
+      ordinal: 1,
+      paired_with: null,
+    },
+  ],
+  subject_candidates: [
+    {
+      subject_id: "subject_1",
+      ordinal: 1,
+      label: "<Subject 1>",
+      display: "the baker",
+    },
+  ],
+  proposal: {
+    changed: false,
+    reason: null,
+    base_prompt_fingerprint: fingerprintB,
+    current_prompt_fingerprint: fingerprintB,
+    diff: { status: "unchanged", lines: [] },
+  },
+  stages: [
+    { stage_id: "intent", status: "complete", summary: "Mode is explicit." },
+    { stage_id: "media", status: "complete", summary: "One binding." },
+    {
+      stage_id: "understand",
+      status: "complete",
+      summary: "Plan is inspectable.",
+    },
+    { stage_id: "audit", status: "complete", summary: "Validation passed." },
+    { stage_id: "execute", status: "active", summary: "Export is ready." },
+  ],
+  actions: {
+    stage_prompt: true,
+    import_prompt: true,
+    validate: false,
+    export: true,
+    copy_prompt: true,
+  },
+} satisfies SidebarWorkspaceProjection;
+
+export const validProductShell = {
+  schema: "h3.context.product.shell.v1",
+  product_scope: "MANUAL_ONLY_SCOPED",
+  qualification_plan_fingerprint: fingerprintA,
+  report_id: "report-1",
+  report_revision: 1,
+  report_fingerprint: fingerprintA,
+  prompt_fingerprint: fingerprintB,
+  correlation: { prompt_id: "prompt-1", execution_node_id: "17" },
+  task_mode: "ref2va",
+  profile: "h3_full_reference",
+  host: {
+    node_api: "V1_ONLY",
+    core_version: "0.32.0",
+    core_revision: "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+    frontend_version: "1.48.7",
+    frontend_revision: "6d6af63c00f132cd25dc29307fc56bd2c094fa22",
+  },
+  native_node_id: "MiniMaxH3ReferenceToVideo",
+  prompt_export_ready: true,
+  native_queue_ready: true,
+  assisted_ready: false,
+  readiness_reason: "manual_only_scoped",
+  field_ids: [
+    "h3.comfyui_h3_context_h3context_productshell.output.product_shell",
+  ],
+  bindings: validSidebarWorkspace.bindings,
+  limitations: [],
+  assisted_authoring: validSidebarWorkspace.assisted_authoring,
+} satisfies ProductShellProjection;

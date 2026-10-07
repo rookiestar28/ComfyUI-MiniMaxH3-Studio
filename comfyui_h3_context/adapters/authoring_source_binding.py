@@ -935,10 +935,16 @@ def execute_transferred_authoring_preview(
         # Imported artifacts have a distinct owner type and never pass through input-root
         # admission.  Keep the private locator inside its owning module.
         from .authoring_generated_source import GeneratedAuthoringVideoSource
+        from .retained_asset_use import RetainedVideoSource
 
-        if type(source) is not GeneratedAuthoringVideoSource:
+        if type(source) is GeneratedAuthoringVideoSource:
+            source_path = source.lease.path
+        elif type(source) is RetainedVideoSource:
+            if not source.current():
+                raise AuthoringSourceBindingError("source_stale")
+            source_path = source.lease.path
+        else:
             raise AuthoringSourceBindingError("source_unsupported")
-        source_path = source.lease.path
     if not source.current() or source_path is None:
         raise AuthoringSourceBindingError("source_stale")
     body, disposition = adapter.execute_authoring_preview(

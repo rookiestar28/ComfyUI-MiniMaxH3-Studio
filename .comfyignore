@@ -1,18 +1,15 @@
-# Comfy Registry payload is the public runtime/package boundary.
-# Git already ignores the governance and reference trees; these rules also keep them out of the
-# registry archive when a local checkout contains ignored or development-only material.
+# Comfy Registry includes product and developer sources. Keep maintainer-only records,
+# local environments and runtime media outside that public boundary.
 .planning/
 reference/
-tests/
-scripts/
-frontend/
-governance/
-compatibility/
 .github/
 AGENTS.md
 ROADMAP.md
-.pre-commit-config.yaml
 .secrets.baseline
+tests/TEST_SOP.md
+tests/E2E_TESTING_NOTICE.md
+tests/E2E_TESTING_SOP.md
+tests/CI_TEST_MATRIX.md
 
 # Local environments, build output, caches, and logs.
 .venv/
@@ -34,10 +31,15 @@ __pycache__/
 *.pt
 *.bin
 *.onnx
+# Synthetic tracked test media is a required developer input; arbitrary runtime media stays out.
 *.mp4
+!frontend/tests/fixtures/**/*.mp4
+!tests/fixtures/**/*.mp4
 *.mov
 *.avi
 *.webm
 *.wav
+!tests/fixtures/**/*.wav
+!tests/fixtures/**/*.bin
 *.mp3
 *.flac

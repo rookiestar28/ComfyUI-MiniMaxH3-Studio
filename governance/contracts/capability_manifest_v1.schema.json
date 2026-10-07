@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "h3-context://contracts/capability_manifest_v1.schema.json",
+  "title": "ComfyUI-MiniMaxH3-Context capability and binding manifest",
+  "type": "object",
+  "required": ["schema", "node_ids", "display_names", "capabilities", "bindings", "fingerprint"],
+  "properties": {
+    "schema": {"const": "h3.context.binding.manifest.v1"},
+    "node_ids": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"type": "string"}},
+    "display_names": {"type": "array", "maxItems": 64, "items": {"type": "array", "minItems": 2, "maxItems": 2}},
+    "capabilities": {"type": "object", "required": ["schema", "capabilities"]},
+    "bindings": {"type": "array", "maxItems": 512, "uniqueItems": true, "items": {"$ref": "#/$defs/Binding"}},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "Binding": {
+      "type": "object",
+      "required": ["field_id", "pipeline_role", "node_type", "node_id", "binding_kind", "port_name", "widget_name", "socket_type", "codec", "cardinality", "default", "choices", "priority", "visibility", "maturity", "sync_direction", "sensitivity", "consent", "runtime_only", "schema_version"],
+      "properties": {
+        "field_id": {"type": "string"},
+        "pipeline_role": {"type": "string"},
+        "node_type": {"type": "string"},
+        "node_id": {"type": "string"},
+        "binding_kind": {"enum": ["input", "output", "widget"]},
+        "port_name": {"type": "string"},
+        "widget_name": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+        "socket_type": {"type": "string"},
+        "codec": {"type": "string"},
+        "cardinality": {"enum": ["single", "optional_single", "list", "optional_list"]},
+        "default": {},
+        "choices": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "priority": {"enum": ["core", "supporting", "advanced"]},
+        "visibility": {"enum": ["public", "advanced", "internal", "hidden"]},
+        "maturity": {"enum": ["deterministic", "concrete_executable", "injected_only", "fixture_only", "optional_live", "unsupported"]},
+        "sync_direction": {"enum": ["to_core", "from_core", "bidirectional"]},
+        "sensitivity": {"enum": ["public", "canonical", "media_runtime", "credential_reference"]},
+        "consent": {"enum": ["none", "remote_media", "credential"]},
+        "runtime_only": {"type": "boolean"},
+        "schema_version": {"const": "1.0"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

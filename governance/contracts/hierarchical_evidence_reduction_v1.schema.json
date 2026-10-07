@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/hierarchical_evidence_reduction_v1.schema.json",
+  "title": "H3 hierarchical evidence reduction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "status", "target_id", "graph_fingerprint", "timeline_fingerprint", "retained_items", "dropped_item_ids", "levels", "receipt", "diagnostics", "limitations", "plan_fingerprint"],
+  "properties": {
+    "schema": {"const": "h3.hierarchical_evidence_reduction.v1"},
+    "status": {"enum": ["complete", "partial", "blocked", "conflicting"]},
+    "target_id": {"$ref": "#/$defs/id"},
+    "graph_fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "timeline_fingerprint": {"$ref": "#/$defs/fingerprint"},
+    "retained_items": {"type": "array", "minItems": 1, "maxItems": 512, "items": {"$ref": "#/$defs/item"}},
+    "dropped_item_ids": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/id"}},
+    "levels": {"type": "array", "minItems": 1, "maxItems": 5, "items": {"$ref": "#/$defs/level"}},
+    "receipt": {"$ref": "#/$defs/receipt"},
+    "diagnostics": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/diagnostic"}},
+    "limitations": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/diagnostic"}},
+    "plan_fingerprint": {"$ref": "#/$defs/fingerprint"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "decimal": {"type": "string", "pattern": "^(0|1|0\\.[0-9]+)$"},
+    "item": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "item_id", "level", "modality", "claim", "source_ids", "token_estimate", "fidelity_weight", "salience", "hard", "high_risk", "constraint_ids", "ambiguity_ids", "conflict_ids", "depends_on"],
+      "properties": {
+        "schema": {"const": "h3.hierarchical_evidence_reduction.v1"}, "item_id": {"$ref": "#/$defs/id"},
+        "level": {"enum": ["asset", "shot", "segment", "modality_summary", "cross_modal_relation"]},
+        "modality": {"enum": ["visual", "audio", "text", "multimodal"]}, "claim": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "source_ids": {"type": "array", "minItems": 1, "maxItems": 256, "items": {"$ref": "#/$defs/id"}},
+        "token_estimate": {"type": "integer", "minimum": 1, "maximum": 4000000}, "fidelity_weight": {"type": "integer", "minimum": 1, "maximum": 1000000}, "salience": {"$ref": "#/$defs/decimal"},
+        "hard": {"type": "boolean"}, "high_risk": {"type": "boolean"}, "constraint_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/id"}}, "ambiguity_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/id"}}, "conflict_ids": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/id"}}, "depends_on": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/id"}}
+      }
+    },
+    "level": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "level", "input_item_ids", "retained_item_ids", "dropped_item_ids", "input_token_estimate", "output_token_estimate"],
+      "properties": {"schema": {"const": "h3.hierarchical_evidence_reduction.v1"}, "level": {"enum": ["asset", "shot", "segment", "modality_summary", "cross_modal_relation"]}, "input_item_ids": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/id"}}, "retained_item_ids": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/id"}}, "dropped_item_ids": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/id"}}, "input_token_estimate": {"type": "integer", "minimum": 1, "maximum": 4000000}, "output_token_estimate": {"type": "integer", "minimum": 0, "maximum": 4000000}}
+    },
+    "budget": {
+      "type": "object", "additionalProperties": false, "required": ["schema", "max_output_items", "max_output_tokens", "min_source_coverage", "min_target_coverage", "min_fidelity"],
+      "properties": {"schema": {"const": "h3.hierarchical_evidence_reduction.v1"}, "max_output_items": {"type": "integer", "minimum": 1, "maximum": 512}, "max_output_tokens": {"type": "integer", "minimum": 1, "maximum": 4000000}, "min_source_coverage": {"$ref": "#/$defs/decimal"}, "min_target_coverage": {"$ref": "#/$defs/decimal"}, "min_fidelity": {"$ref": "#/$defs/decimal"}}
+    },
+    "receipt": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema", "graph_fingerprint", "timeline_fingerprint", "input_item_count", "output_item_count", "input_token_estimate", "output_token_estimate", "retained_item_ids", "dropped_item_ids", "protected_item_ids", "conflict_ids", "rationale", "budget", "source_coverage", "target_coverage", "fidelity_score"],
+      "properties": {"schema": {"const": "h3.hierarchical_evidence_reduction.v1"}, "graph_fingerprint": {"$ref": "#/$defs/fingerprint"}, "timeline_fingerprint": {"$ref": "#/$defs/fingerprint"}, "input_item_count": {"type": "integer", "minimum": 0, "maximum": 512}, "output_item_count": {"type": "integer", "minimum": 0, "maximum": 512}, "input_token_estimate": {"type": "integer", "minimum": 0, "maximum": 4000000}, "output_token_estimate": {"type": "integer", "minimum": 0, "maximum": 4000000}, "retained_item_ids": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/id"}}, "dropped_item_ids": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/id"}}, "protected_item_ids": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/id"}}, "conflict_ids": {"type": "array", "maxItems": 512, "items": {"$ref": "#/$defs/id"}}, "rationale": {"type": "array", "maxItems": 128, "items": {"type": "string", "minLength": 1, "maxLength": 512}}, "budget": {"$ref": "#/$defs/budget"}, "source_coverage": {"$ref": "#/$defs/decimal"}, "target_coverage": {"$ref": "#/$defs/decimal"}, "fidelity_score": {"$ref": "#/$defs/decimal"}}
+    },
+    "diagnostic": {"type": "object", "additionalProperties": false, "required": ["severity", "code", "message", "location"], "properties": {"severity": {"enum": ["info", "warning", "error", "fatal"]}, "code": {"$ref": "#/$defs/id"}, "message": {"type": "string", "minLength": 1, "maxLength": 4096}, "location": {"type": ["string", "null"], "maxLength": 256}}}
+  }
+}

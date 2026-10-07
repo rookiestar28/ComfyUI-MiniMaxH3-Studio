@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/closeout_matrix_v1.schema.json",
+  "title": "ComfyUI H3 context M18 closeout matrix",
+  "description": "Deterministic, content-free closeout record for the M18 contract chain. Metrics carry a baseline and a final, each read from an accepted checkpoint's own committed artifact, and a metric that did not move says so. Blast-radius rows measure whether the M18-02 identity domains stayed separate end to end: one mutation per domain against one shared synthetic world, and every probe that moved.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "probes", "metrics", "rows", "fingerprint"],
+  "properties": {
+    "schema": { "const": "h3-context-closeout-matrix/1" },
+    "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "probes": {
+      "description": "The shipped fingerprint functions this matrix watches, sorted and unique by probe_id.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": { "$ref": "#/$defs/probe" }
+    },
+    "metrics": {
+      "description": "What the chain changed, sorted and unique by metric_id.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": { "$ref": "#/$defs/metric" }
+    },
+    "rows": {
+      "description": "One row per mutation, sorted and unique by mutation_id. Every identity domain is exercised by at least one row.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": { "$ref": "#/$defs/row" }
+    }
+  },
+  "$defs": {
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "domain": {
+      "enum": ["semantic", "wire_contract", "presentation", "fixture", "release_integrity"]
+    },
+    "text": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "probe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["probe_id", "domain", "authority", "depends_on"],
+      "properties": {
+        "probe_id": { "$ref": "#/$defs/name" },
+        "domain": { "$ref": "#/$defs/domain" },
+        "authority": {
+          "description": "The function or record that computes this identity, named rather than pathed so a probe follows its function if the module moves.",
+          "$ref": "#/$defs/text"
+        },
+        "depends_on": {
+          "description": "Domains whose material may legitimately move this identity, beyond its own. A stale-render identity declares semantic here and is right to. A semantic probe may declare nothing: it is the only domain a runtime may consume as an execution, cache or receipt identity, so an execution identity computed over render, fixture or bundle material is wrong before any mutation is applied.",
+          "type": "array",
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/domain" }
+        }
+      }
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metric_id",
+        "unit",
+        "baseline",
+        "final",
+        "moved",
+        "baseline_commit",
+        "final_commit",
+        "evidence"
+      ],
+      "properties": {
+        "metric_id": { "$ref": "#/$defs/name" },
+        "unit": {
+          "description": "What is being counted. \"89 to 89\" and \"308056 to 72778\" are not the same kind of statement and a reader should not have to infer which one they are looking at.",
+          "$ref": "#/$defs/name"
+        },
+        "baseline": { "type": "integer", "minimum": 0, "maximum": 100000000 },
+        "final": { "type": "integer", "minimum": 0, "maximum": 100000000 },
+        "moved": {
+          "description": "False is a real and useful result: the chain's headline number, shipped schema files, moved by nothing.",
+          "type": "boolean"
+        },
+        "baseline_commit": { "$ref": "#/$defs/commit" },
+        "final_commit": { "$ref": "#/$defs/commit" },
+        "evidence": { "$ref": "#/$defs/text" }
+      }
+    },
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mutation_id", "domain", "moved", "unmoved", "evidence"],
+      "properties": {
+        "mutation_id": { "$ref": "#/$defs/name" },
+        "domain": { "$ref": "#/$defs/domain" },
+        "moved": {
+          "description": "Probes whose identity changed. Never empty: a mutation that moves nothing observes nothing, and a matrix of inert probes proves separation trivially. Every entry declares this row's domain among its inputs.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/name" }
+        },
+        "unmoved": {
+          "description": "Probes whose identity did not change. Recorded rather than omitted, because \"did not move\" is the claim the row exists to make.",
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/name" }
+        },
+        "evidence": { "$ref": "#/$defs/text" }
+      }
+    }
+  }
+}

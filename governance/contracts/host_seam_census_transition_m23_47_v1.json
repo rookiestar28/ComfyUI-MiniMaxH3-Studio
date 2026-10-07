@@ -1,0 +1,74 @@
+{
+  "schema": "h3.context.host_seam_census_transition_m23_47.v1",
+  "item": "M23-47",
+  "source": {
+    "commit_parts": [
+      "eba83217",
+      "eda24177",
+      "10d254bc",
+      "a9081dbe",
+      "fb5054fd"
+    ],
+    "tree_parts": ["6a7d824c", "ebecc902", "41544e1b", "b349d8a0", "7df506b6"]
+  },
+  "artifacts": {
+    "from_census_sha256_parts": [
+      "f488f7ec",
+      "e0d47e50",
+      "5b85cd21",
+      "3deaa28a",
+      "e337e2bd",
+      "1f168778",
+      "d50e13b8",
+      "038368bf"
+    ],
+    "to_census_sha256_parts": [
+      "5a2ecc45",
+      "257c98d9",
+      "2c2964fc",
+      "edc080b6",
+      "6c8689c1",
+      "750cb04d",
+      "c3b064fb",
+      "31befe16"
+    ],
+    "fixture_sha256_parts": [
+      "6c5b39b2",
+      "d8681074",
+      "e5742cef",
+      "b81a574e",
+      "5087834f",
+      "df89fdb5",
+      "aea23c70",
+      "2cf2a023"
+    ],
+    "seam_contract_sha256_parts": [
+      "17fac8c0",
+      "41c75069",
+      "1df96010",
+      "6c26bc44",
+      "e0093d3f",
+      "6a768ab7",
+      "fcff7639",
+      "4b42e01b"
+    ]
+  },
+  "changes": [
+    {
+      "seam_id": "backend.prompt_server.routes",
+      "removed_source_paths": [
+        "comfyui_h3_context/adapters/comfyui_authoring_workspace.py",
+        "comfyui_h3_context/adapters/comfyui_build_provenance.py",
+        "comfyui_h3_context/adapters/comfyui_duration_resolution.py",
+        "comfyui_h3_context/adapters/comfyui_generation_profile.py",
+        "comfyui_h3_context/adapters/comfyui_input_geometry.py",
+        "comfyui_h3_context/adapters/comfyui_production_workspace.py",
+        "comfyui_h3_context/adapters/comfyui_provider_settings.py",
+        "comfyui_h3_context/adapters/comfyui_sequence_coordinator.py",
+        "comfyui_h3_context/adapters/comfyui_sidebar_workspace.py"
+      ],
+      "from_owner": "comfyui_h3_context/adapters/comfyui_authoring_workspace.py",
+      "to_owner": "comfyui_h3_context/adapters/comfyui_route_seam.py"
+    }
+  ]
+}

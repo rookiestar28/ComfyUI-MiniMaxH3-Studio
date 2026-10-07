@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "h3-context://contracts/contracts_v2.schema.json",
+  "title": "ComfyUI-MiniMaxH3-Context portable contract v2",
+  "type": "object",
+  "required": ["schema", "version", "report_id", "revision", "status", "claim_ceiling", "asset_ids", "observations", "entities", "tracks", "timeline", "diagnostics", "migrated_from", "fingerprint"],
+  "properties": {
+    "schema": {"const": "h3.context.contract.v2"},
+    "version": {"const": "2.0"},
+    "report_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "revision": {"type": "integer", "minimum": 1},
+    "status": {"enum": ["draft", "complete", "partial", "failed"]},
+    "claim_ceiling": {"enum": ["no_claim", "partial", "complete"]},
+    "asset_ids": {"type": "array", "maxItems": 256, "items": {"type": "string"}, "uniqueItems": true},
+    "observations": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/Observation"}},
+    "entities": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/Entity"}},
+    "tracks": {"type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/Track"}},
+    "timeline": {"anyOf": [{"$ref": "#/$defs/Timeline"}, {"type": "null"}]},
+    "diagnostics": {"type": "array", "maxItems": 256, "items": {"type": "string"}},
+    "migrated_from": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+    "fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
+  },
+  "$defs": {
+    "Span": {
+      "type": "object",
+      "required": ["start_ms", "end_ms"],
+      "properties": {
+        "start_ms": {"type": "integer", "minimum": 0, "maximum": 86400000},
+        "end_ms": {"type": "integer", "minimum": 0, "maximum": 86400000}
+      },
+      "additionalProperties": false
+    },
+    "Observation": {
+      "type": "object",
+      "required": ["observation_id", "asset_id", "kind", "label", "source_kind", "source_fingerprint", "evidence_ids", "span", "confidence", "uncertainty_codes", "entity_ids", "attributes"],
+      "properties": {
+        "observation_id": {"type": "string"},
+        "asset_id": {"type": "string"},
+        "kind": {"enum": ["subject", "object", "scene", "action", "camera", "style", "text", "audio", "other"]},
+        "label": {"type": "string"},
+        "source_kind": {"enum": ["public_dereferenceable", "user_local", "user_hash_only", "runtime_only"]},
+        "source_fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "evidence_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "span": {"anyOf": [{"$ref": "#/$defs/Span"}, {"type": "null"}]},
+        "confidence": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+        "uncertainty_codes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "entity_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "attributes": {"type": "array", "items": {"type": "array", "minItems": 2, "maxItems": 2}}
+      },
+      "additionalProperties": false
+    },
+    "Entity": {
+      "type": "object",
+      "required": ["entity_id", "kind", "observation_ids", "confidence", "uncertainty_codes", "attributes"],
+      "properties": {
+        "entity_id": {"type": "string"},
+        "kind": {"enum": ["subject", "object", "scene", "speaker", "other"]},
+        "observation_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "confidence": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+        "uncertainty_codes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "attributes": {"type": "array", "items": {"type": "array", "minItems": 2, "maxItems": 2}}
+      },
+      "additionalProperties": false
+    },
+    "Track": {
+      "type": "object",
+      "required": ["track_id", "entity_id", "observation_ids", "spans", "confidence"],
+      "properties": {
+        "track_id": {"type": "string"},
+        "entity_id": {"type": "string"},
+        "observation_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "spans": {"type": "array", "items": {"$ref": "#/$defs/Span"}},
+        "confidence": {"anyOf": [{"type": "string"}, {"type": "null"}]}
+      },
+      "additionalProperties": false
+    },
+    "Event": {
+      "type": "object",
+      "required": ["event_id", "kind", "ordinal", "entity_id", "observation_ids", "span", "confidence", "attributes"],
+      "properties": {
+        "event_id": {"type": "string"},
+        "kind": {"enum": ["scene", "action", "speech", "edit", "audio", "other"]},
+        "ordinal": {"type": "integer", "minimum": 1},
+        "entity_id": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+        "observation_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "span": {"$ref": "#/$defs/Span"},
+        "confidence": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+        "attributes": {"type": "array", "items": {"type": "array", "minItems": 2, "maxItems": 2}}
+      },
+      "additionalProperties": false
+    },
+    "Timeline": {
+      "type": "object",
+      "required": ["timeline_id", "events", "duration_ms", "diagnostics"],
+      "properties": {
+        "timeline_id": {"type": "string"},
+        "events": {"type": "array", "items": {"$ref": "#/$defs/Event"}},
+        "duration_ms": {"type": "integer", "minimum": 0, "maximum": 86400000},
+        "diagnostics": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,702 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comfyui-h3-context://contracts/h3_context_v1.schema.json",
+  "title": "ComfyUI-MiniMaxH3-Context Contract v1",
+  "description": "Local typed contract artifact; not an official MiniMax Context-IR schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "profile",
+    "task_mode",
+    "model_variant",
+    "evidence_level",
+    "provider",
+    "assets",
+    "hard_constraints",
+    "reference_registry",
+    "evidence",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "profile": {
+      "$ref": "#/$defs/ProfileIdentity"
+    },
+    "task_mode": {
+      "type": "string",
+      "enum": ["t2va", "i2va", "fl2va", "l2va", "ref2va"]
+    },
+    "model_variant": {
+      "type": "string",
+      "enum": ["base_fl2va", "base_ref2va"]
+    },
+    "evidence_level": {
+      "type": "string",
+      "enum": [
+        "official",
+        "framework_reference",
+        "community_recommended",
+        "experimental",
+        "modified"
+      ]
+    },
+    "provider": {
+      "type": "string",
+      "enum": ["manual", "local", "remote_custom", "official_minimax"]
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/AssetDescriptor"
+      }
+    },
+    "hard_constraints": {
+      "$ref": "#/$defs/HardConstraintSet"
+    },
+    "reference_registry": {
+      "$ref": "#/$defs/ReferenceRegistry"
+    },
+    "evidence": {
+      "$ref": "#/$defs/EvidenceSet"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ValidationDiagnostic"
+      }
+    }
+  },
+  "$defs": {
+    "ProfileIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": ["h3_base", "h3_full_reference"]
+        },
+        "version": {
+          "type": "string",
+          "const": "1.0"
+        }
+      }
+    },
+    "AssetDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["asset_id", "kind", "role"],
+      "properties": {
+        "asset_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["image", "video", "audio"]
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "primary",
+            "first_frame",
+            "last_frame",
+            "reference",
+            "subject_reference",
+            "style_reference",
+            "motion_reference",
+            "camera_reference",
+            "editing_source",
+            "continuation_source",
+            "audio_source"
+          ]
+        }
+      }
+    },
+    "ValidationDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "code", "message", "location"],
+      "properties": {
+        "severity": {
+          "type": "string",
+          "enum": ["info", "warning", "error", "fatal"]
+        },
+        "code": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_.-]{0,63}$"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "location": {
+          "type": ["string", "null"],
+          "maxLength": 256
+        }
+      }
+    },
+    "TimePoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["raw", "seconds"],
+      "properties": {
+        "raw": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "seconds": {
+          "type": "string",
+          "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+        }
+      }
+    },
+    "DialogueSpeaker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "subject_id", "identity"],
+      "properties": {
+        "key": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+        "subject_id": {"type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+        "identity": {"type": ["string", "null"], "minLength": 1, "maxLength": 256}
+      }
+    },
+    "ExactTextConstraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constraint_id", "kind", "text", "language", "location", "speakers", "delivery", "segment_id"],
+      "properties": {
+        "constraint_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["dialogue", "lyrics", "visible_text"]
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "language": {
+          "type": ["string", "null"],
+          "maxLength": 64
+        },
+        "location": {
+          "type": ["string", "null"],
+          "maxLength": 256
+        },
+        "speakers": {
+          "type": "array", "maxItems": 256, "items": {"$ref": "#/$defs/DialogueSpeaker"}
+        },
+        "delivery": {"type": "string", "enum": ["on_screen", "voiceover"]},
+        "segment_id": {
+          "type": ["string", "null"], "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        }
+      },
+      "allOf": [{
+        "if": {"properties": {"kind": {"const": "visible_text"}}},
+        "then": {"properties": {
+          "speakers": {"maxItems": 0}, "delivery": {"const": "on_screen"}, "segment_id": {"type": "null"}
+        }}
+      }]
+    },
+    "TimingConstraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constraint_id", "start", "end", "label"],
+      "properties": {
+        "constraint_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "start": {
+          "$ref": "#/$defs/TimePoint"
+        },
+        "end": {
+          "anyOf": [{"$ref": "#/$defs/TimePoint"}, {"type": "null"}]
+        },
+        "label": {
+          "type": ["string", "null"],
+          "maxLength": 256
+        }
+      }
+    },
+    "ContentConstraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constraint_id", "kind", "scope", "content", "asset_id", "location"],
+      "properties": {
+        "constraint_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["required", "forbidden"]
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "general",
+            "visual",
+            "audio",
+            "dialogue",
+            "lyrics",
+            "visible_text",
+            "scene",
+            "action",
+            "camera",
+            "style",
+            "asset"
+          ]
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "asset_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+            },
+            {"type": "null"}
+          ]
+        },
+        "location": {
+          "type": ["string", "null"],
+          "maxLength": 256
+        }
+      }
+    },
+    "KeepChangeDirective": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constraint_id", "action", "target", "value", "replacement"],
+      "properties": {
+        "constraint_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "action": {
+          "type": "string",
+          "enum": ["keep", "change"]
+        },
+        "target": {
+          "type": "string",
+          "enum": [
+            "subject",
+            "scene",
+            "action",
+            "camera",
+            "style",
+            "audio",
+            "dialogue",
+            "lyrics",
+            "visible_text",
+            "asset"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "replacement": {
+          "type": ["string", "null"],
+          "maxLength": 65536
+        }
+      }
+    },
+    "ConstraintTransformation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "transformation_id",
+        "constraint_id",
+        "field",
+        "original_value",
+        "transformed_value",
+        "authorized_by",
+        "reason"
+      ],
+      "properties": {
+        "transformation_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "constraint_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "field": {
+          "type": "string",
+          "enum": ["text", "start", "end", "content", "value", "replacement"]
+        },
+        "original_value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "transformed_value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "authorized_by": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      }
+    },
+    "HardConstraintValue": {
+      "oneOf": [
+        {"$ref": "#/$defs/ExactTextConstraint"},
+        {"$ref": "#/$defs/TimingConstraint"},
+        {
+          "allOf": [
+            {"$ref": "#/$defs/ContentConstraint"},
+            {"properties": {"kind": {"const": "required"}}}
+          ]
+        },
+        {
+          "allOf": [
+            {"$ref": "#/$defs/ContentConstraint"},
+            {"properties": {"kind": {"const": "forbidden"}}}
+          ]
+        },
+        {"$ref": "#/$defs/KeepChangeDirective"}
+      ]
+    },
+    "HardConstraintSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constraints", "transformations"],
+      "properties": {
+        "constraints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/HardConstraintValue"
+          }
+        },
+        "transformations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConstraintTransformation"
+          }
+        }
+      }
+    },
+    "MediaMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "duration_seconds",
+        "width",
+        "height",
+        "frame_count",
+        "sample_rate",
+        "channels"
+      ],
+      "properties": {
+        "duration_seconds": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]+(?:\\.[0-9]+)?$"
+            },
+            {"type": "null"}
+          ]
+        },
+        "width": {
+          "anyOf": [{"type": "integer", "minimum": 1}, {"type": "null"}]
+        },
+        "height": {
+          "anyOf": [{"type": "integer", "minimum": 1}, {"type": "null"}]
+        },
+        "frame_count": {
+          "anyOf": [{"type": "integer", "minimum": 1}, {"type": "null"}]
+        },
+        "sample_rate": {
+          "anyOf": [{"type": "integer", "minimum": 1}, {"type": "null"}]
+        },
+        "channels": {
+          "anyOf": [{"type": "integer", "minimum": 1}, {"type": "null"}]
+        }
+      }
+    },
+    "ReferenceAsset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asset_id",
+        "kind",
+        "role",
+        "connection_order",
+        "metadata",
+        "paired_video_id"
+      ],
+      "properties": {
+        "asset_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["image", "video", "audio"]
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "primary",
+            "first_frame",
+            "last_frame",
+            "reference",
+            "subject_reference",
+            "style_reference",
+            "motion_reference",
+            "camera_reference",
+            "editing_source",
+            "continuation_source",
+            "audio_source"
+          ]
+        },
+        "connection_order": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "metadata": {
+          "anyOf": [{"$ref": "#/$defs/MediaMetadata"}, {"type": "null"}]
+        },
+        "paired_video_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+            },
+            {"type": "null"}
+          ]
+        }
+      }
+    },
+    "BackendLabel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["backend", "kind", "ordinal", "asset_id", "label"],
+      "properties": {
+        "backend": {
+          "type": "string",
+          "const": "comfyui_h3"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["picture", "video", "audio"]
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "asset_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "label": {
+          "type": "string",
+          "pattern": "^<(Picture|Video|Audio) [1-9][0-9]*>$"
+        }
+      }
+    },
+    "ReferenceRegistry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["assets", "labels"],
+      "properties": {
+        "assets": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/ReferenceAsset"}
+        },
+        "labels": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/BackendLabel"}
+        }
+      }
+    },
+    "EvidenceSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "source_id", "asset_id", "span", "start", "end"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["user_input", "media_asset", "provider_output", "system_derived"]
+        },
+        "source_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "asset_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+            },
+            {"type": "null"}
+          ]
+        },
+        "span": {
+          "type": ["string", "null"],
+          "maxLength": 4096
+        },
+        "start": {
+          "anyOf": [{"$ref": "#/$defs/TimePoint"}, {"type": "null"}]
+        },
+        "end": {
+          "anyOf": [{"$ref": "#/$defs/TimePoint"}, {"type": "null"}]
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "provider",
+        "evidence_level",
+        "provider_version",
+        "source_revision"
+      ],
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/EvidenceSource"
+        },
+        "provider": {
+          "type": "string",
+          "enum": ["manual", "local", "remote_custom", "official_minimax"]
+        },
+        "evidence_level": {
+          "type": "string",
+          "enum": [
+            "official",
+            "framework_reference",
+            "community_recommended",
+            "experimental",
+            "modified"
+          ]
+        },
+        "provider_version": {
+          "type": ["string", "null"],
+          "maxLength": 256
+        },
+        "source_revision": {
+          "type": ["string", "null"],
+          "maxLength": 256
+        }
+      }
+    },
+    "Uncertainty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "detail", "severity"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "missing_source",
+            "low_confidence",
+            "ambiguous",
+            "conflicting",
+            "unsupported",
+            "unintelligible",
+            "truncated",
+            "stale"
+          ]
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["info", "warning", "error", "fatal"]
+        }
+      }
+    },
+    "EvidenceRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "claim",
+        "origin",
+        "support",
+        "provenance",
+        "confidence",
+        "uncertainties"
+      ],
+      "properties": {
+        "evidence_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "claim": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "origin": {
+          "type": "string",
+          "enum": ["user_declared", "observed", "assisted_proposal", "derived"]
+        },
+        "support": {
+          "type": "string",
+          "enum": ["supported", "uncertain", "unsupported", "rejected"]
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^(?:0(?:\\.[0-9]+)?|1(?:\\.0+)?)$"
+            },
+            {"type": "null"}
+          ]
+        },
+        "uncertainties": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/Uncertainty"}
+        }
+      }
+    },
+    "EvidenceSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["records"],
+      "properties": {
+        "records": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/EvidenceRecord"}
+        }
+      }
+    }
+  }
+}

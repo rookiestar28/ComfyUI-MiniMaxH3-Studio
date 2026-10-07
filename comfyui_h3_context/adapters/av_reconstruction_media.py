@@ -12,7 +12,7 @@ import time
 import wave
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import ExitStack, contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from dataclasses import field as dataclass_field
 from decimal import Decimal
 from fractions import Fraction
@@ -1097,6 +1097,38 @@ def _normalize_preview_probe_wire(value: object) -> dict[str, object]:
     return {"format": value["format"], "streams": value["streams"]}
 
 
+def _authoring_preview_frame_count_wire(value: object) -> int:
+    if type(value) is not dict:
+        raise AVMediaAdapterError("preview_source_unsupported")
+    wire = cast(dict[str, object], value)
+    if not {"streams"}.issubset(wire) or not set(wire).issubset(
+        {"streams", "programs", "stream_groups"}
+    ):
+        raise AVMediaAdapterError("preview_source_unsupported")
+    for key in ("programs", "stream_groups"):
+        if key in wire and (type(wire[key]) is not list or wire[key]):
+            raise AVMediaAdapterError("preview_source_unsupported")
+    streams = wire["streams"]
+    if type(streams) is not list or len(cast(list[object], streams)) != 1:
+        raise AVMediaAdapterError("preview_source_unsupported")
+    row = cast(list[object], streams)[0]
+    if type(row) is not dict or set(cast(dict[str, object], row)) != {"nb_read_frames"}:
+        raise AVMediaAdapterError("preview_source_unsupported")
+    count = cast(dict[str, object], row)["nb_read_frames"]
+    if (
+        type(count) is not str
+        or not 1 <= len(count) <= 4
+        or not count.isascii()
+        or not count.isdecimal()
+        or count.startswith("0")
+    ):
+        raise AVMediaAdapterError("preview_source_unsupported")
+    frames = int(count)
+    if frames > _PREVIEW_MAX_DURATION_MS * qualified_av_limits().max_input_fps // 1000:
+        raise AVMediaAdapterError("preview_source_unsupported")
+    return frames
+
+
 def _normalize_preview_audio_stream_wire(
     value: dict[str, object],
 ) -> dict[str, object] | None:
@@ -1462,6 +1494,38 @@ class QualifiedAVMediaAdapter:
             raise AVMediaAdapterError("media_output_invalid") from exc
         return _normalize_preview_probe_wire(value)
 
+    def _authoring_preview_frame_count(
+        self,
+        path: Path,
+        *,
+        deadline: float,
+        cancellation: CancellationProbe | None,
+    ) -> int:
+        _raise_if_cancelled(cancellation)
+        invocation = self._preview_probe_invocation(path, deadline=deadline)
+        argv = list(invocation.argv)
+        selected = argv.index("-show_entries")
+        argv[selected + 1] = "stream=nb_read_frames"
+        argv[selected:selected] = ["-count_frames", "-select_streams", "v:0"]
+        invocation = replace(invocation, argv=tuple(argv))
+        with _pin_regular_media(
+            path, _PREVIEW_MAX_SOURCE_BYTES, deadline=deadline, cancellation=cancellation
+        ):
+            capability = qualified_ffmpeg_capability()
+            with _pin_exact_executable(self._ffprobe_path, capability.ffprobe_sha256):
+                capture = self._runner.run(invocation, cancellation=cancellation)
+        if cast(ProcessStatus, capture.status) is not ProcessStatus.SUCCEEDED:
+            raise _probe_failure(
+                cast(ProcessStatus, capture.status), cleanup_succeeded=capture.cleanup_succeeded
+            )
+        if not capture.cleanup_succeeded:
+            raise AVMediaAdapterError("cleanup_failed")
+        try:
+            value = json.loads(capture.stdout.decode("utf-8", errors="strict"))
+        except (UnicodeError, json.JSONDecodeError, ValueError, TypeError):
+            raise AVMediaAdapterError("preview_source_unsupported") from None
+        return _authoring_preview_frame_count_wire(value)
+
     @staticmethod
     def _validate_preview_probe(
         value: dict[str, object],
@@ -1653,6 +1717,7 @@ class QualifiedAVMediaAdapter:
         source_fps: int,
         source_start_frame: int,
         frames: int,
+        counted_frames: int | None = None,
     ) -> tuple[int, str]:
         format_value = value.get("format")
         streams = value.get("streams")
@@ -1694,6 +1759,15 @@ class QualifiedAVMediaAdapter:
         except (ValueError, ZeroDivisionError, TypeError) as exc:
             raise AVMediaAdapterError("preview_source_unsupported") from exc
         limits = qualified_av_limits()
+        if counted_frames is not None and (
+            type(counted_frames) is not int
+            or not 1 <= counted_frames <= _PREVIEW_MAX_DURATION_MS * source_fps // 1000
+        ):
+            raise AVMediaAdapterError("preview_source_unsupported")
+        # CRITICAL: container duration is microsecond-rounded, not exact frame-range authority.
+        # Executable previews count the same pinned staged video; a decimal epsilon or trimming
+        # a frame would either admit an unavailable range or drop a valid full-file tail.
+        available_frames = counted_frames if counted_frames is not None else duration * source_fps
         if (
             video.get("codec_name") != "h264"
             or video.get("pix_fmt") != "yuv420p"
@@ -1701,7 +1775,7 @@ class QualifiedAVMediaAdapter:
             or not 1 <= height <= limits.max_height
             or frame_rate != source_fps
             or frame_rate > limits.max_input_fps
-            or source_start_frame + frames > duration * source_fps
+            or source_start_frame + frames > available_frames
         ):
             raise AVMediaAdapterError("preview_source_unsupported")
         if not audios:
@@ -1877,11 +1951,19 @@ class QualifiedAVMediaAdapter:
                 deadline=deadline,
                 cancellation=cancellation,
             )
+            # Validate the bounded source profile before counting a whole decoded file. Zero
+            # frames here checks no range; the actual nonempty request is checked below.
+            self._authoring_preview_source_facts(
+                source_probe, source_fps=source_fps, source_start_frame=0, frames=0
+            )
             _duration, audio_disposition = self._authoring_preview_source_facts(
                 source_probe,
                 source_fps=source_fps,
                 source_start_frame=source_start_frame,
                 frames=frames,
+                counted_frames=self._authoring_preview_frame_count(
+                    staged.path, deadline=deadline, cancellation=cancellation
+                ),
             )
             invocation = self._authoring_preview_invocation(
                 staged.path,
@@ -2202,7 +2284,7 @@ class QualifiedAVMediaAdapter:
         value: dict[str, object],
         *,
         audio_disposition: str,
-    ) -> int:
+    ) -> Fraction:
         format_value = value.get("format")
         streams = value.get("streams")
         expected_count = 2 if audio_disposition == "present_bound" else 1
@@ -2254,10 +2336,9 @@ class QualifiedAVMediaAdapter:
                 raise AVMediaAdapterError("media_output_invalid")
         elif audio is not None:
             raise AVMediaAdapterError("media_output_invalid")
-        milliseconds = duration * 1000
-        if milliseconds.denominator != 1:
-            raise AVMediaAdapterError("media_output_invalid")
-        return int(milliseconds)
+        # IMPORTANT: valid 15 fps tails have fractional milliseconds. Keep the exact probed
+        # rational value for the independent duration check; rounding cannot repair authority.
+        return duration * 1000
 
     def execute_preview(
         self,

@@ -14,6 +14,10 @@ import {
 import type { SidebarRetention } from "../state/sidebarRetention";
 import type { MediaToolsBinding } from "../state/mediaRuntimeState";
 import { MediaToolsCard } from "./MediaToolsCard";
+import { WorkspaceStateSection } from "./WorkspaceStateSection";
+import type { WorkspaceStateBinding } from "../lifecycle/workspaceStateSession";
+import type { RetainedAssetsBinding } from "../lifecycle/retainedAssetsSession";
+import { RetainedAssetsSection } from "./RetainedAssetsSection";
 
 const copy = {
   en: {
@@ -72,6 +76,8 @@ export function SettingsPage({
   onProviderCredentialClearerChange,
   retention,
   mediaTools,
+  recoveryMetadata,
+  retainedAssets,
 }: {
   locale: Locale;
   snapshot: LanguageSettingSnapshot;
@@ -90,6 +96,8 @@ export function SettingsPage({
   retention?: SidebarRetention;
   /** M25-33: the shared Media tools status and setup; absent when rendered on its own. */
   mediaTools?: MediaToolsBinding;
+  recoveryMetadata?: WorkspaceStateBinding;
+  retainedAssets?: RetainedAssetsBinding;
 }) {
   const text = copy[locale];
   const disabled =
@@ -142,6 +150,12 @@ export function SettingsPage({
           binding={mediaTools}
           locale={locale}
         />
+      ) : null}
+      {recoveryMetadata !== undefined ? (
+        <WorkspaceStateSection locale={locale} binding={recoveryMetadata} />
+      ) : null}
+      {retainedAssets !== undefined ? (
+        <RetainedAssetsSection locale={locale} binding={retainedAssets} />
       ) : null}
       {/* M22-06: provider selection lives in this page. There is no second
           settings surface, and this section is the only place it appears. */}

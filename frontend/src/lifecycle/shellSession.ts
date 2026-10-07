@@ -62,6 +62,11 @@ import type { createManagedQualificationClient } from "../host/managedQualificat
 import type { createAuthoringMediaSourceLeaseClient } from "../host/authoringMediaSourceLease";
 import type { createAuthoringOutputCapabilityClient } from "../host/authoringOutputCapabilityClient";
 import type { createMediaRuntimeClient } from "../host/mediaRuntimeClient";
+import type { createWorkspaceStateClient } from "../host/workspaceStateClient";
+import type { createRetainedAssetsClient } from "../host/retainedAssetsClient";
+import type { createProjectDocumentClient } from "../host/projectDocumentClient";
+import type { createProjectRecoveryClient } from "../host/projectRecoveryClient";
+import type { createProjectPersistenceSession } from "./projectPersistenceSession";
 import type { createOutputClient } from "../host/authoringOutputActions";
 import type { createOutputPreview } from "../host/authoringOutputPreview";
 import {
@@ -119,6 +124,8 @@ import type { createProviderSession } from "../host/providerSession";
 import type { createPresentationBinding } from "./presentationBinding";
 import type { createNleWorkspaceSession } from "./nleWorkspaceSession";
 import type { createMediaRuntimeSession } from "./mediaRuntimeSession";
+import type { createWorkspaceStateLifecycle } from "./workspaceStateSession";
+import type { createRetainedAssetsLifecycle } from "./retainedAssetsSession";
 import type { createExtensionRegistration } from "./extensionRegistration";
 
 export type ProductionEnsureAdmission = Readonly<{
@@ -424,6 +431,10 @@ export type ShellDeps = Readonly<{
   >;
   authoringOutputClient: ReturnType<typeof createOutputClient>;
   mediaRuntimeClient: ReturnType<typeof createMediaRuntimeClient>;
+  workspaceStateClient?: ReturnType<typeof createWorkspaceStateClient>;
+  retainedAssetsClient?: ReturnType<typeof createRetainedAssetsClient>;
+  projectDocumentClient?: ReturnType<typeof createProjectDocumentClient>;
+  projectRecoveryClient?: ReturnType<typeof createProjectRecoveryClient>;
   authoringOutputPreview: ReturnType<typeof createOutputPreview>;
   /**
    * Optional measurement observers for the two sibling subtrees. Normal entry wiring omits
@@ -445,7 +456,10 @@ export type ShellActions = ReturnType<typeof createAppModeSession> &
   ReturnType<typeof createProviderSession> &
   ReturnType<typeof createPresentationBinding> &
   ReturnType<typeof createNleWorkspaceSession> &
-  ReturnType<typeof createMediaRuntimeSession>;
+  ReturnType<typeof createMediaRuntimeSession> &
+  ReturnType<typeof createWorkspaceStateLifecycle> &
+  ReturnType<typeof createRetainedAssetsLifecycle> &
+  ReturnType<typeof createProjectPersistenceSession>;
 
 export type ShellRuntime = Readonly<{
   session: ShellSession;

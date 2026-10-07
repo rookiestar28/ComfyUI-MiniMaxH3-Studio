@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/comfyui-h3-context/official-context-ir-recording-v1.schema.json",
+  "title": "Sanitized official H3-Context-IR recording",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "recording_id",
+    "schema_version",
+    "provider",
+    "provider_version",
+    "endpoint_revision",
+    "authorization_label",
+    "outcome",
+    "task_id",
+    "request_fingerprint",
+    "output_fingerprint",
+    "sanitized"
+  ],
+  "properties": {
+    "recording_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "schema_version": {"const": "h3.context.ir.recording.v1"},
+    "provider": {"const": "official_minimax"},
+    "provider_version": {"type": "string", "minLength": 1, "maxLength": 128},
+    "endpoint_revision": {"type": "string", "minLength": 1, "maxLength": 128},
+    "authorization_label": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "outcome": {"const": "succeeded"},
+    "task_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"},
+    "request_fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "output_fingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "sanitized": {"const": true}
+  }
+}

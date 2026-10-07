@@ -21,6 +21,8 @@ import type {
 import { createPortal } from "react-dom";
 
 import { MediaToolsCard, mediaToolsCardVisible } from "./MediaToolsCard";
+import { RetainOutputAction } from "./RetainedAssetsSection";
+import type { RetainedAssetsBinding } from "../lifecycle/retainedAssetsSession";
 import { plainReason } from "./plainReasons";
 import type { ProductionGenerationDisposition } from "../host/productionGeneration";
 import type { ProductionProposalRow } from "../host/productionProposalDispatcher";
@@ -47,6 +49,8 @@ import {
 } from "./productionStateLabels";
 import { NleActionIcon } from "./nle/NleIconActions";
 import { NlePlanningSection } from "./nle/NlePlanningSection";
+import { ProjectFileControls } from "./ProjectFileControls";
+import type { ProjectFileBinding } from "../lifecycle/projectFileSession";
 import type { NleWorkspaceBinding } from "./nle/nleWorkspaceBinding";
 
 export type ProductionViewState =
@@ -1068,6 +1072,8 @@ export function ProductionWorkbench({
   onMediaPreview,
   onMediaPreviewClose,
   importToEditor,
+  retainedAssets,
+  projectFile,
   retention,
   destination,
   accumulationNotice,
@@ -1092,6 +1098,8 @@ export function ProductionWorkbench({
   onMediaPreviewClose?: () => void;
   /** M25-16: the explicit accepted M25-29 import of the selected segments' ready outputs. */
   importToEditor?: ProductionImportToEditor;
+  retainedAssets?: RetainedAssetsBinding;
+  projectFile?: ProjectFileBinding;
   /** M25-21: session retention for unsent drafts, the list anchor and the authority expansion. */
   retention?: SidebarRetention;
   destination?: Readonly<{
@@ -1406,6 +1414,7 @@ export function ProductionWorkbench({
           {text.title}
         </h2>
         <p className="h3ds">{text.description}</p>
+        <ProjectFileControls binding={projectFile} locale={locale} />
         <p data-testid="production-empty-project">{text.emptyProject}</p>
         {latest === undefined ? null : (
           <p
@@ -1439,6 +1448,7 @@ export function ProductionWorkbench({
           {text.title}
         </h2>
         <p className="h3ds">{text.description}</p>
+        <ProjectFileControls binding={projectFile} locale={locale} />
         {state.status === "error" || state.status === "gone" ? (
           <>
             <p role="alert">{text.error}</p>
@@ -1595,6 +1605,7 @@ export function ProductionWorkbench({
             .replace("{total}", String(projection.runProgress.total))}
         </span>
       </header>
+      <ProjectFileControls binding={projectFile} locale={locale} />
       {planning !== undefined ? (
         <NlePlanningSection
           locale={locale}
@@ -2595,6 +2606,14 @@ export function ProductionWorkbench({
           projection={projection}
           busy={busy}
           binding={importToEditor}
+        />
+      ) : null}
+      {retainedAssets !== undefined && projection !== undefined ? (
+        <RetainOutputAction
+          locale={locale}
+          binding={retainedAssets}
+          projection={projection}
+          eligible={!busy && can("import_production_outputs_to_authoring")}
         />
       ) : null}
       <footer className="h3p-f">

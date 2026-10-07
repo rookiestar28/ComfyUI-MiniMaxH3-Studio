@@ -1,0 +1,202 @@
+{
+  "schema": "h3-context-corpus-governance/1",
+  "corpus_id": "m9-03-synthetic-governance",
+  "corpus_version": "1.0.0",
+  "updated_at": "2026-08-07",
+  "purpose": "Metadata-only synthetic fixture for split, annotation, privacy, and blinded-review governance.",
+  "license_policy": {
+    "review_status": "reviewed",
+    "reviewed_source_refs": ["M9-03-SYNTHETIC", "M9-03-GUIDE-GOLDEN"],
+    "allowed_license_classes": ["synthetic", "MIT", "Apache-2.0"],
+    "forbidden_content_classes": ["unreviewed_or_prohibited", "noncommercial_without_approval"]
+  },
+  "privacy_policy": {
+    "review_status": "reviewed",
+    "portable_projection": "fingerprints_and_bounded_metadata",
+    "forbidden_fields": ["raw_media", "prompt_content", "credentials", "cookies", "signed_urls", "private_paths"],
+    "restricted_retention_days": 30
+  },
+  "review_protocol": {
+    "protocol_id": "m9-03-blind-pairwise-v1",
+    "method": "blinded_pairwise",
+    "blind": true,
+    "pairwise": true,
+    "tie_allowed": true,
+    "order_swap_required": true,
+    "dimensions": ["hard_constraints", "subject_identity", "reference_role", "temporal_order", "camera_motion", "audio_visual", "hallucination_omission", "overall_intent"],
+    "qualification": "Reviewers complete qualification anchors and use calibrated audiovisual instructions before holdout review.",
+    "adjudication": "Disagreements are retained by dimension and resolved by a recorded adjudication pass after the blind comparison."
+  },
+  "coverage_policy": {
+    "languages": ["chinese", "english", "code_switch", "multilingual"],
+    "modalities": ["text", "image", "video", "audio", "reference"],
+    "risk_classes": ["standard", "ambiguity", "conflict", "impossible_constraint", "adversarial", "resource", "missing_media", "malformed_media"],
+    "timing_semantics": ["explicit", "implicit", "mixed"],
+    "exact_text_fields": ["dialogue", "lyrics", "visible_text"],
+    "rationale": {
+      "pilot": "A bounded pilot identifies missing mode-language-risk cells before the frozen split.",
+      "power": "Power is estimated per stratum and reported rather than replaced with a fixed case quota.",
+      "variability": "Observed language, modality, timing, source-cluster, and risk variability drive expansion.",
+      "budget": "Collection and review spend caps decide additions after safety and power checks.",
+      "source_clusters": "Source bundles and derivation families are balanced without crossing partition boundaries."
+    },
+    "quota_policy": "evidence_justified_not_fixed"
+  },
+  "strata": [
+    {
+      "stratum_id": "m9-03-mode-core",
+      "task_modes": ["t2va", "i2va", "fl2va", "l2va", "ref2va"],
+      "dimensions": ["identity", "style", "motion", "camera", "editing", "dialogue", "ocr", "audio"],
+      "languages": ["chinese", "english", "code_switch", "multilingual"],
+      "modalities": ["text", "image", "video", "audio", "reference"],
+      "risk_classes": ["standard"],
+      "timing_semantics": ["explicit", "implicit", "mixed"]
+    },
+    {
+      "stratum_id": "m9-03-ambiguity-adversarial",
+      "task_modes": ["t2va", "i2va", "l2va"],
+      "dimensions": ["ambiguity", "adversarial"],
+      "languages": ["chinese", "english", "code_switch", "multilingual"],
+      "modalities": ["text", "image", "video"],
+      "risk_classes": ["ambiguity", "conflict", "impossible_constraint", "adversarial"],
+      "timing_semantics": ["explicit", "implicit", "mixed"]
+    },
+    {
+      "stratum_id": "m9-03-resource-boundary",
+      "task_modes": ["fl2va", "ref2va"],
+      "dimensions": ["resource"],
+      "languages": ["chinese", "english", "code_switch", "multilingual"],
+      "modalities": ["video", "audio", "reference"],
+      "risk_classes": ["resource", "missing_media", "malformed_media"],
+      "timing_semantics": ["explicit", "implicit", "mixed"]
+    }
+  ],
+  "partitions": [
+    {"partition_id": "train", "kind": "train", "public": true, "oracle_allowed": false, "purpose": "Tune deterministic contracts and synthetic annotations only."},
+    {"partition_id": "dev", "kind": "dev", "public": true, "oracle_allowed": false, "purpose": "Calibrate rules and review protocol before the frozen test split."},
+    {"partition_id": "test", "kind": "test", "public": true, "oracle_allowed": false, "purpose": "Frozen structural and annotation checks after development is locked."},
+    {"partition_id": "restricted-oracle", "kind": "restricted_oracle", "public": false, "oracle_allowed": true, "purpose": "Declarative private tier reserved for a later consented oracle gate; no content is present here."}
+  ],
+  "provenance": [
+    {"provenance_id": "prov-synthetic", "kind": "synthetic_ground_truth", "rights_status": "reviewed", "license_ref": "synthetic-v1", "source_ref": "M9-03-SYNTHETIC"},
+    {"provenance_id": "prov-guide-golden", "kind": "official_guide_golden", "rights_status": "reviewed", "license_ref": "official-reference-review", "source_ref": "M9-03-GUIDE-GOLDEN"},
+    {"provenance_id": "prov-oracle-restricted", "kind": "authorized_oracle", "rights_status": "restricted", "license_ref": "M9-04-TERMS-GATE", "source_ref": "M9-04-ORACLE-TERMS-GATE"}
+  ],
+  "cases": [
+    {
+      "case_id": "m9-03-case-train-t2va",
+      "source_bundle_id": "bundle-train-alpha",
+      "derivation_family_id": "family-train-alpha",
+      "partition_id": "train",
+      "stratum_ids": ["m9-03-mode-core", "m9-03-ambiguity-adversarial"],
+      "task_mode": "t2va",
+      "language": "chinese",
+      "modalities": ["text"],
+      "risk_classes": ["standard", "ambiguity"],
+      "timing": "explicit",
+      "provenance_id": "prov-synthetic",
+      "privacy_class": "synthetic",
+      "media_fingerprints": ["sha256:1111111111111111111111111111111111111111111111111111111111111111"],
+      "review_eligible": true,
+      "annotation": {
+        "annotation_id": "annotation-train-t2va",
+        "provenance": ["synthetic_ground_truth", "human_adjudication"],
+        "uncertainty": {"level": "low", "fields": ["identity", "dialogue"], "rationale_code": "synthetic-ground-truth"},
+        "agreement": {"method": "adjudicated", "annotator_count": 2, "status": "adjudicated"},
+        "exact_text_ownership": {"owner": "synthetic_ground_truth", "language_class": "chinese", "field_ids": ["dialogue", "lyrics", "visible_text"], "preserve_verbatim": true}
+      }
+    },
+    {
+      "case_id": "m9-03-case-train-l2va",
+      "source_bundle_id": "bundle-train-beta",
+      "derivation_family_id": "family-train-beta",
+      "partition_id": "train",
+      "stratum_ids": ["m9-03-mode-core", "m9-03-ambiguity-adversarial"],
+      "task_mode": "l2va",
+      "language": "english",
+      "modalities": ["text", "video"],
+      "risk_classes": ["conflict", "impossible_constraint", "adversarial"],
+      "timing": "implicit",
+      "provenance_id": "prov-synthetic",
+      "privacy_class": "synthetic",
+      "media_fingerprints": ["sha256:2222222222222222222222222222222222222222222222222222222222222222"],
+      "review_eligible": true,
+      "annotation": {
+        "annotation_id": "annotation-train-l2va",
+        "provenance": ["synthetic_ground_truth", "human_adjudication"],
+        "uncertainty": {"level": "medium", "fields": ["ambiguity", "adversarial"], "rationale_code": "counterfactual-review"},
+        "agreement": {"method": "multi_annotator", "annotator_count": 3, "status": "complete"},
+        "exact_text_ownership": {"owner": "synthetic_ground_truth", "language_class": "english", "field_ids": ["dialogue", "lyrics"], "preserve_verbatim": true}
+      }
+    },
+    {
+      "case_id": "m9-03-case-dev-i2va",
+      "source_bundle_id": "bundle-dev-alpha",
+      "derivation_family_id": "family-dev-alpha",
+      "partition_id": "dev",
+      "stratum_ids": ["m9-03-mode-core", "m9-03-ambiguity-adversarial"],
+      "task_mode": "i2va",
+      "language": "code_switch",
+      "modalities": ["image"],
+      "risk_classes": ["standard", "adversarial"],
+      "timing": "mixed",
+      "provenance_id": "prov-guide-golden",
+      "privacy_class": "licensed_public",
+      "media_fingerprints": ["sha256:3333333333333333333333333333333333333333333333333333333333333333"],
+      "review_eligible": true,
+      "annotation": {
+        "annotation_id": "annotation-dev-i2va",
+        "provenance": ["licensed_source", "human_adjudication"],
+        "uncertainty": {"level": "medium", "fields": ["style", "camera"], "rationale_code": "guide-golden-boundary"},
+        "agreement": {"method": "adjudicated", "annotator_count": 2, "status": "adjudicated"},
+        "exact_text_ownership": {"owner": "annotator_transcribed", "language_class": "code_switch", "field_ids": ["visible_text"], "preserve_verbatim": true}
+      }
+    },
+    {
+      "case_id": "m9-03-case-test-fl2va",
+      "source_bundle_id": "bundle-test-alpha",
+      "derivation_family_id": "family-test-alpha",
+      "partition_id": "test",
+      "stratum_ids": ["m9-03-mode-core", "m9-03-resource-boundary"],
+      "task_mode": "fl2va",
+      "language": "multilingual",
+      "modalities": ["video", "audio"],
+      "risk_classes": ["resource", "missing_media"],
+      "timing": "explicit",
+      "provenance_id": "prov-synthetic",
+      "privacy_class": "synthetic",
+      "media_fingerprints": ["sha256:4444444444444444444444444444444444444444444444444444444444444444"],
+      "review_eligible": true,
+      "annotation": {
+        "annotation_id": "annotation-test-fl2va",
+        "provenance": ["synthetic_ground_truth", "human_adjudication"],
+        "uncertainty": {"level": "high", "fields": ["resource", "motion"], "rationale_code": "boundary-condition"},
+        "agreement": {"method": "adjudicated", "annotator_count": 2, "status": "adjudicated"},
+        "exact_text_ownership": {"owner": "synthetic_ground_truth", "language_class": "multilingual", "field_ids": ["dialogue", "visible_text"], "preserve_verbatim": true}
+      }
+    },
+    {
+      "case_id": "m9-03-case-oracle-ref2va",
+      "source_bundle_id": "bundle-oracle-alpha",
+      "derivation_family_id": "family-oracle-alpha",
+      "partition_id": "restricted-oracle",
+      "stratum_ids": ["m9-03-mode-core", "m9-03-resource-boundary"],
+      "task_mode": "ref2va",
+      "language": "chinese",
+      "modalities": ["reference", "video", "audio"],
+      "risk_classes": ["malformed_media"],
+      "timing": "implicit",
+      "provenance_id": "prov-oracle-restricted",
+      "privacy_class": "restricted_oracle",
+      "media_fingerprints": ["sha256:5555555555555555555555555555555555555555555555555555555555555555"],
+      "review_eligible": false,
+      "annotation": {
+        "annotation_id": "annotation-oracle-ref2va",
+        "provenance": ["official_oracle", "human_adjudication"],
+        "uncertainty": {"level": "unknown", "fields": ["identity", "audio", "resource"], "rationale_code": "terms-gated-not-collected"},
+        "agreement": {"method": "imported", "annotator_count": 1, "status": "complete"},
+        "exact_text_ownership": {"owner": "unknown", "language_class": "unknown", "field_ids": ["dialogue", "lyrics", "visible_text"], "preserve_verbatim": false}
+      }
+    }
+  ]
+}

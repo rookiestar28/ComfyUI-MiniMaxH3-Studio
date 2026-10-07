@@ -1,0 +1,1643 @@
+{
+  "schema": "h3.context.nle_hardening_coverage_manifest.v1",
+  "version": 1,
+  "surface": "overlay_v1",
+  "joined_sources": {
+    "control_coverage_manifest_sha256": "sha256:921399a9f7d1aa9f3aea76fc25c90b89e9a0c8f0fefbb22018a4ba165c5323d9",
+    "sidebar_editor_ui_contract_sha256": "sha256:3a0bba2e967f413fafef6784b3a9691811a9fb390a271bac882ff8aadf68eede"
+  },
+  "fixtures": {
+    "smoke": "M25-16-overlay-v1-smoke",
+    "stress": "NLE-STRESS-V1",
+    "render": "NLE-STRESS-RENDER-V1",
+    "ui_stress": "UI-CONTRACT-STRESS-V1"
+  },
+  "dimensions": [
+    "accessibility",
+    "stress",
+    "recovery"
+  ],
+  "command_rows": [
+    {
+      "command": "create_track",
+      "operation_id": "track.add",
+      "control_selector": "[data-h3-nle-control=\"track.add\"]",
+      "role": "menuitem",
+      "accessible_name": "Add track",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y track.add is a named 44px touch target that issues one create_track and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery track.add lost reply after the core accepted create_track reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "remove_track",
+      "operation_id": "track.remove",
+      "control_selector": "[data-h3-nle-control=\"track.remove\"]",
+      "role": "menuitem",
+      "accessible_name": "Remove track",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y track.remove is a named 44px touch target that issues one remove_track and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery track.remove lost reply after the core accepted remove_track reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "reorder_track",
+      "operation_id": "track.reorder",
+      "control_selector": "[data-h3-nle-control=\"track.reorder\"]",
+      "role": "menuitem",
+      "accessible_name": "Reorder track",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y track.reorder is a named 44px touch target that issues one reorder_track and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery track.reorder lost reply after the core accepted reorder_track reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "set_track_enabled",
+      "operation_id": "track.enabled",
+      "control_selector": "[data-h3-nle-control=\"track.enabled\"]",
+      "role": "button",
+      "accessible_name": "Show {track}",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y track.enabled is a named 44px touch target that issues one set_track_enabled and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery track.enabled lost reply after the core accepted set_track_enabled reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "set_track_locked",
+      "operation_id": "track.locked",
+      "control_selector": "[data-h3-nle-control=\"track.locked\"]",
+      "role": "button",
+      "accessible_name": "Lock {track}",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y track.locked is a named 44px touch target that issues one set_track_locked and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery track.locked lost reply after the core accepted set_track_locked reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "insert_asset_clip",
+      "operation_id": "asset.insert",
+      "control_selector": "[data-h3-nle-control=\"asset.insert\"]",
+      "role": "button",
+      "accessible_name": "Add {asset} to the timeline",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y asset.insert is a named 44px touch target that issues one insert_asset_clip and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery asset.insert lost reply after the core accepted insert_asset_clip reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "insert_title_clip",
+      "operation_id": "title.insert",
+      "control_selector": "[data-h3-nle-control=\"title.insert\"]",
+      "role": "button",
+      "accessible_name": "Add title",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y title.insert is a named 44px touch target that issues one insert_title_clip and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery title.insert lost reply after the core accepted insert_title_clip reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "replace_clip_asset",
+      "operation_id": "asset.replace",
+      "control_selector": "[data-h3-nle-control=\"asset.replace\"]",
+      "role": "menuitem",
+      "accessible_name": "Replace clip asset",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y asset.replace is a named 44px touch target that issues one replace_clip_asset and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery asset.replace lost reply after the core accepted replace_clip_asset reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "remove_clip",
+      "operation_id": "clip.remove",
+      "control_selector": "[data-h3-nle-control=\"clip.remove\"]",
+      "role": "button",
+      "accessible_name": "Delete",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y clip.remove is a named 44px touch target that issues one remove_clip and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery clip.remove lost reply after the core accepted remove_clip reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "move_clip",
+      "operation_id": "clip.move",
+      "control_selector": "[data-h3-nle-control=\"clip.move\"]",
+      "role": "button",
+      "accessible_name": "Move clip",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y clip.move is a named 44px touch target that issues one move_clip and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery clip.move lost reply after the core accepted move_clip reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "move_group",
+      "operation_id": "clip.move_group",
+      "control_selector": "[data-h3-nle-control=\"clip.move_group\"]",
+      "role": "button",
+      "accessible_name": "Move selected group",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y clip.move_group is a named 44px touch target that issues one move_group and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery clip.move_group lost reply after the core accepted move_group reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "trim_clip",
+      "operation_id": "clip.trim",
+      "control_selector": "[data-h3-nle-control=\"clip.trim\"]",
+      "role": "button",
+      "accessible_name": "Trim start of {clip} / Trim end of {clip}",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y clip.trim is a named 44px touch target that issues one trim_clip and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery clip.trim lost reply after the core accepted trim_clip reconciles read-only without replay"
+      },
+      "subcases": [
+        {
+          "subcase_id": "edge_trim_accessible_input",
+          "dimension": "accessibility",
+          "evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y clip.trim edge grips are separate 44px touch targets with keyboard draft, commit and cancel"
+        },
+        {
+          "subcase_id": "edge_trim_cancel_conflict",
+          "dimension": "recovery",
+          "evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery clip.trim drafts cancel on capture loss, Escape and a changed view without a transaction"
+        },
+        {
+          "subcase_id": "edge_trim_history",
+          "dimension": "stress",
+          "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+        }
+      ]
+    },
+    {
+      "command": "split_clip",
+      "operation_id": "clip.split",
+      "control_selector": "[data-h3-nle-control=\"clip.split\"]",
+      "role": "button",
+      "accessible_name": "Split at playhead",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y clip.split is a named 44px touch target that issues one split_clip and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery clip.split lost reply after the core accepted split_clip reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "merge_clips",
+      "operation_id": "clip.merge",
+      "control_selector": "[data-h3-nle-control=\"clip.merge\"]",
+      "role": "menuitem",
+      "accessible_name": "Merge clips",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y clip.merge is a named 44px touch target that issues one merge_clips and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery clip.merge lost reply after the core accepted merge_clips reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "insert_range",
+      "operation_id": "range.insert",
+      "control_selector": "[data-h3-nle-control=\"range.insert\"]",
+      "role": "menuitem",
+      "accessible_name": "Insert at playhead",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y range.insert is a named 44px touch target that issues one insert_range and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery range.insert lost reply after the core accepted insert_range reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "overwrite_range",
+      "operation_id": "range.overwrite",
+      "control_selector": "[data-h3-nle-control=\"range.overwrite\"]",
+      "role": "menuitem",
+      "accessible_name": "Overwrite at playhead",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y range.overwrite is a named 44px touch target that issues one overwrite_range and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery range.overwrite lost reply after the core accepted overwrite_range reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "ripple_delete",
+      "operation_id": "range.ripple_delete",
+      "control_selector": "[data-h3-nle-control=\"range.ripple_delete\"]",
+      "role": "button",
+      "accessible_name": "Ripple delete",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y range.ripple_delete is a named 44px touch target that issues one ripple_delete and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery range.ripple_delete lost reply after the core accepted ripple_delete reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "ripple_trim",
+      "operation_id": "range.ripple_trim",
+      "control_selector": "[data-h3-nle-control=\"range.ripple_trim\"]",
+      "role": "button",
+      "accessible_name": "Trim start to playhead",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y range.ripple_trim is a named 44px touch target that issues one ripple_trim and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery range.ripple_trim lost reply after the core accepted ripple_trim reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "roll_edit",
+      "operation_id": "boundary.roll",
+      "control_selector": "[data-h3-nle-control=\"boundary.roll\"]",
+      "role": "button",
+      "accessible_name": "Roll edit",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y boundary.roll is a named 44px touch target that issues one roll_edit and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery boundary.roll lost reply after the core accepted roll_edit reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "slip_clip",
+      "operation_id": "clip.slip",
+      "control_selector": "[data-h3-nle-control=\"clip.slip\"]",
+      "role": "menuitem",
+      "accessible_name": "Slip clip",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y clip.slip is a named 44px touch target that issues one slip_clip and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery clip.slip lost reply after the core accepted slip_clip reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "slide_clip",
+      "operation_id": "clip.slide",
+      "control_selector": "[data-h3-nle-control=\"clip.slide\"]",
+      "role": "menuitem",
+      "accessible_name": "Slide clip",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y clip.slide is a named 44px touch target that issues one slide_clip and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery clip.slide lost reply after the core accepted slide_clip reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "set_clip_enabled",
+      "operation_id": "clip.enabled",
+      "control_selector": "[data-h3-nle-control=\"clip.enabled\"]",
+      "role": "menuitem",
+      "accessible_name": "Clip enabled",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y clip.enabled is a named 44px touch target that issues one set_clip_enabled and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery clip.enabled lost reply after the core accepted set_clip_enabled reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "set_visual_transform",
+      "operation_id": "visual.transform",
+      "control_selector": "[data-h3-nle-control=\"visual.transform\"]",
+      "role": "button",
+      "accessible_name": "Transform",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y visual.transform is a named 44px touch target that issues one set_visual_transform and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery visual.transform lost reply after the core accepted set_visual_transform reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "set_crop",
+      "operation_id": "visual.crop",
+      "control_selector": "[data-h3-nle-control=\"visual.crop\"]",
+      "role": "button",
+      "accessible_name": "Crop",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y visual.crop is a named 44px touch target that issues one set_crop and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery visual.crop lost reply after the core accepted set_crop reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "set_opacity_blend",
+      "operation_id": "visual.opacity_blend",
+      "control_selector": "[data-h3-nle-control=\"visual.opacity_blend\"]",
+      "role": "button",
+      "accessible_name": "Opacity and blend",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y visual.opacity_blend is a named 44px touch target that issues one set_opacity_blend and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery visual.opacity_blend lost reply after the core accepted set_opacity_blend reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "set_text_content",
+      "operation_id": "text.content",
+      "control_selector": "[data-h3-nle-control=\"text.content\"]",
+      "role": "button",
+      "accessible_name": "Text content",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y text.content is a named 44px touch target that issues one set_text_content and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery text.content lost reply after the core accepted set_text_content reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "set_text_style",
+      "operation_id": "text.style",
+      "control_selector": "[data-h3-nle-control=\"text.style\"]",
+      "role": "button",
+      "accessible_name": "Text style",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y text.style is a named 44px touch target that issues one set_text_style and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery text.style lost reply after the core accepted set_text_style reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "set_transition",
+      "operation_id": "boundary.transition",
+      "control_selector": "[data-h3-nle-control=\"boundary.transition\"]",
+      "role": "button",
+      "accessible_name": "Transition",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y boundary.transition is a named 44px touch target that issues one set_transition and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery boundary.transition lost reply after the core accepted set_transition reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "set_effect",
+      "operation_id": "visual.effect",
+      "control_selector": "[data-h3-nle-control=\"visual.effect\"]",
+      "role": "button",
+      "accessible_name": "Effect",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y visual.effect is a named 44px touch target that issues one set_effect and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery visual.effect lost reply after the core accepted set_effect reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "set_clip_audio",
+      "operation_id": "audio.clip",
+      "control_selector": "[data-h3-nle-control=\"audio.clip\"]",
+      "role": "button",
+      "accessible_name": "Clip audio",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y audio.clip is a named 44px touch target that issues one set_clip_audio and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery audio.clip lost reply after the core accepted set_clip_audio reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "select_clips",
+      "operation_id": "selection.set",
+      "control_selector": "[data-h3-nle-control=\"selection.set\"]",
+      "role": "button",
+      "accessible_name": "{clip label}",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y selection.set is a named 44px touch target that issues one select_clips and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery selection.set lost reply after the core accepted select_clips reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "undo",
+      "operation_id": "history.undo",
+      "control_selector": "[data-h3-nle-control=\"history.undo\"]",
+      "role": "button",
+      "accessible_name": "Undo",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y history.undo is a named 44px touch target that issues one undo and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery history.undo lost reply after the core accepted undo reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "redo",
+      "operation_id": "history.redo",
+      "control_selector": "[data-h3-nle-control=\"history.redo\"]",
+      "role": "button",
+      "accessible_name": "Redo",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y history.redo is a named 44px touch target that issues one redo and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery history.redo lost reply after the core accepted redo reconciles read-only without replay"
+      }
+    },
+    {
+      "command": "rebase_transaction",
+      "operation_id": "conflict.rebase",
+      "control_selector": "[data-h3-nle-control=\"conflict.rebase\"]",
+      "role": "button",
+      "accessible_name": "Rebase rejected edit",
+      "recovery_injection": "response_loss",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening a11y conflict.rebase is a named 44px touch target that issues one rebase_transaction and keeps focus in the editor",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningCommands.spec.ts::hardening recovery conflict.rebase lost reply after the core accepted rebase_transaction reconciles read-only without replay"
+      }
+    }
+  ],
+  "ui_rows": [
+    {
+      "invariant_id": "global_shell_identity",
+      "owned_selector": "nav.h3n[aria-label=\"H3 Context pages\"]",
+      "role": "navigation",
+      "relationship": "three page buttons with exactly one aria-current page; the Production page owns the two-function tablist",
+      "lifecycle_before": "unchanged",
+      "lifecycle_after": "unchanged",
+      "close_reasons": [],
+      "focus_targets": {
+        "page_activation": "[data-h3-focus-key=\"page-{page}\"]"
+      },
+      "fallback_vocabulary": [],
+      "expected_effects": {
+        "command": 0,
+        "revision": 0,
+        "job": 0,
+        "output": 0,
+        "queue": 0,
+        "provider": 0
+      },
+      "retention_slots": [
+        "navigation.function",
+        "settings.view"
+      ],
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningShell.spec.ts::hardening a11y ui global_shell_identity pages are one navigation landmark of 44px buttons with one current page",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::UI-CONTRACT-STRESS-V1 shell workload keeps every invariant with zero navigation effects",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningShell.spec.ts::hardening recovery ui global_shell_identity the selected page and function survive a view destroy and remount"
+      }
+    },
+    {
+      "invariant_id": "function_switch",
+      "owned_selector": "[data-h3-director-function-tabs]",
+      "role": "tablist",
+      "relationship": "manual-activation tabs: the selected tab controls data-h3-director-panel and an inactive panel has no focusable descendant",
+      "lifecycle_before": "compact_ready",
+      "lifecycle_after": "compact_ready",
+      "close_reasons": [],
+      "focus_targets": {
+        "activation": "[data-h3-director-function=\"{function}\"]"
+      },
+      "fallback_vocabulary": [],
+      "expected_effects": {
+        "command": 0,
+        "revision": 0,
+        "job": 0,
+        "output": 0,
+        "queue": 0,
+        "provider": 0
+      },
+      "retention_slots": [
+        "navigation.function",
+        "production.view",
+        "production.anchor",
+        "production.draft",
+        "nle.track"
+      ],
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningShell.spec.ts::hardening a11y ui function_switch manual-activation tabs move focus without side effects and activate on Enter or tap",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::UI-CONTRACT-STRESS-V1 shell workload keeps every invariant with zero navigation effects",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningShell.spec.ts::hardening recovery ui function_switch drafts on both functions survive switching and a remount without an action"
+      }
+    },
+    {
+      "invariant_id": "overlay_open",
+      "owned_selector": "[data-h3-nle-surface=\"overlay_v1\"]",
+      "role": "dialog",
+      "relationship": "aria-modal dialog in one owned root; initial focus on its heading; Tab contained; no foreign root made inert or hidden",
+      "lifecycle_before": "compact_ready",
+      "lifecycle_after": "expanded",
+      "close_reasons": [],
+      "focus_targets": {
+        "open": "[data-h3-nle-surface=\"overlay_v1\"] .h3-nle-header h2"
+      },
+      "fallback_vocabulary": [],
+      "expected_effects": {
+        "command": 0,
+        "revision": 0,
+        "job": 0,
+        "output": 0,
+        "queue": 0,
+        "provider": 0
+      },
+      "retention_slots": [
+        "nle.overlay",
+        "nle.timeline",
+        "nle.transport",
+        "nle.track",
+        "nle.insert",
+        "nle.range",
+        "nle.clip"
+      ],
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningShell.spec.ts::hardening a11y ui overlay_open dialog starts at its heading and contains Tab without touching the host",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::UI-CONTRACT-STRESS-V1 shell workload keeps every invariant with zero navigation effects",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningShell.spec.ts::hardening recovery ui overlay_open an explicit reopen restores the retained editor state paused and replays nothing"
+      }
+    },
+    {
+      "invariant_id": "duplicate_open",
+      "owned_selector": "[data-h3-nle-entry=\"open\"]",
+      "role": "button",
+      "relationship": "a second open while expanded keeps one root and one generation",
+      "lifecycle_before": "expanded",
+      "lifecycle_after": "expanded",
+      "close_reasons": [],
+      "focus_targets": {
+        "duplicate": "[data-h3-nle-surface=\"overlay_v1\"] .h3-nle-header h2"
+      },
+      "fallback_vocabulary": [],
+      "expected_effects": {
+        "command": 0,
+        "revision": 0,
+        "job": 0,
+        "output": 0,
+        "queue": 0,
+        "provider": 0
+      },
+      "retention_slots": [
+        "nle.overlay"
+      ],
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningShell.spec.ts::hardening a11y ui duplicate_open the real open origin and a backdrop tap keep one dialog and its focus",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::UI-CONTRACT-STRESS-V1 shell workload keeps every invariant with zero navigation effects",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningShell.spec.ts::hardening recovery ui duplicate_open an open racing a pending capability read settles on one generation"
+      }
+    },
+    {
+      "invariant_id": "overlay_close_return_focus",
+      "owned_selector": "[data-h3-nle-action=\"close\"]",
+      "role": "button",
+      "relationship": "a close records exactly one reason, then returns focus per the matrix",
+      "lifecycle_before": "expanded",
+      "lifecycle_after": "compact_ready",
+      "close_reasons": [
+        "explicit_close",
+        "escape",
+        "function_switch",
+        "top_level_navigation",
+        "capability_or_mount_failure"
+      ],
+      "focus_targets": {
+        "explicit_close": "[data-h3-focus-key=\"nle-open-overlay\"]",
+        "escape": "[data-h3-focus-key=\"nle-open-overlay\"]",
+        "function_switch": "[data-h3-director-function=\"production_workbench\"]",
+        "top_level_navigation": "[data-h3-focus-key=\"page-context\"]",
+        "capability_or_mount_failure": "[data-h3-focus-key=\"nle-open-overlay\"]"
+      },
+      "fallback_vocabulary": [],
+      "expected_effects": {
+        "command": 0,
+        "revision": 0,
+        "job": 0,
+        "output": 0,
+        "queue": 0,
+        "provider": 0
+      },
+      "retention_slots": [
+        "nle.overlay",
+        "nle.timeline",
+        "nle.transport",
+        "nle.track",
+        "nle.insert",
+        "nle.range",
+        "nle.clip"
+      ],
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningShell.spec.ts::hardening a11y ui overlay_close_return_focus every close reason lands on its frozen focus target",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::UI-CONTRACT-STRESS-V1 shell workload keeps every invariant with zero navigation effects",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningShell.spec.ts::hardening recovery ui overlay_close_return_focus every close keeps valid drafts and releases every owner before a reopen"
+      }
+    },
+    {
+      "invariant_id": "overlay_unavailable_status",
+      "owned_selector": "[data-h3-nle-unavailable=\"overlay_v1\"] [data-h3-nle-status=\"surface\"]",
+      "role": "status",
+      "relationship": "an unsupported runtime announces the surface status beside the launcher and mounts no dialog",
+      "lifecycle_before": "compact_ready",
+      "lifecycle_after": "compact_unsupported",
+      "close_reasons": [
+        "capability_or_mount_failure"
+      ],
+      "focus_targets": {
+        "refusal": "[data-h3-focus-key=\"nle-open-overlay\"]"
+      },
+      "fallback_vocabulary": [
+        "media_runtime_unavailable",
+        "compact_unsupported"
+      ],
+      "expected_effects": {
+        "command": 0,
+        "revision": 0,
+        "job": 0,
+        "output": 0,
+        "queue": 0,
+        "provider": 0
+      },
+      "retention_slots": [
+        "nle.clip"
+      ],
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningShell.spec.ts::hardening a11y ui overlay_unavailable_status the unavailable status is announced and focus stays on the launcher",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::UI-CONTRACT-STRESS-V1 shell workload keeps every invariant with zero navigation effects",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningShell.spec.ts::hardening recovery ui overlay_unavailable_status a refused open keeps the retained drafts and a later supported open works"
+      }
+    },
+    {
+      "invariant_id": "view_destroy_cleanup",
+      "owned_selector": "[data-h3-nle-root]",
+      "role": "dialog",
+      "relationship": "a native sidebar close records view_destroy once, removes the owned root and releases every owner",
+      "lifecycle_before": "expanded",
+      "lifecycle_after": "compact_ready",
+      "close_reasons": [
+        "view_destroy"
+      ],
+      "focus_targets": {
+        "view_destroy": "host"
+      },
+      "fallback_vocabulary": [],
+      "expected_effects": {
+        "command": 0,
+        "revision": 0,
+        "job": 0,
+        "output": 0,
+        "queue": 0,
+        "provider": 0
+      },
+      "retention_slots": [
+        "navigation.function",
+        "production.view",
+        "production.anchor",
+        "production.draft",
+        "nle.overlay",
+        "nle.timeline",
+        "nle.transport",
+        "nle.track",
+        "nle.insert",
+        "nle.range",
+        "nle.clip",
+        "settings.view"
+      ],
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningShell.spec.ts::hardening a11y ui view_destroy_cleanup a native close delegates focus to the host without detached targets",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::UI-CONTRACT-STRESS-V1 shell workload keeps every invariant with zero navigation effects",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningShell.spec.ts::hardening recovery ui view_destroy_cleanup a late reply after a native close cannot revive the destroyed view"
+      }
+    }
+  ],
+  "action_rows": [
+    {
+      "row_id": "action.transport.play",
+      "row_class": "action",
+      "authority_class": "local_transport",
+      "control_selector": "[data-h3-nle-control=\"transport.play\"]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y transport controls are named 44px targets reachable by keyboard and touch",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery transport restores its position paused after a remount and a blocked monitor recovers"
+      }
+    },
+    {
+      "row_id": "action.transport.pause",
+      "row_class": "action",
+      "authority_class": "local_transport",
+      "control_selector": "[data-h3-nle-control=\"transport.pause\"]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y transport controls are named 44px targets reachable by keyboard and touch",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery transport restores its position paused after a remount and a blocked monitor recovers"
+      }
+    },
+    {
+      "row_id": "action.transport.step_back",
+      "row_class": "action",
+      "authority_class": "local_transport",
+      "control_selector": "[data-h3-nle-control=\"transport.step_back\"]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y transport controls are named 44px targets reachable by keyboard and touch",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery transport restores its position paused after a remount and a blocked monitor recovers"
+      }
+    },
+    {
+      "row_id": "action.transport.step_forward",
+      "row_class": "action",
+      "authority_class": "local_transport",
+      "control_selector": "[data-h3-nle-control=\"transport.step_forward\"]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y transport controls are named 44px targets reachable by keyboard and touch",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery transport restores its position paused after a remount and a blocked monitor recovers"
+      }
+    },
+    {
+      "row_id": "action.transport.seek",
+      "row_class": "action",
+      "authority_class": "local_transport",
+      "control_selector": "[data-h3-nle-control=\"transport.seek\"]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y transport.seek steps one frame and pages one output second",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery transport restores its position paused after a remount and a blocked monitor recovers"
+      }
+    },
+    {
+      "row_id": "action.transport.recover",
+      "row_class": "action",
+      "authority_class": "local_transport",
+      "control_selector": "[data-h3-nle-control=\"transport.recover\"]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y transport controls are named 44px targets reachable by keyboard and touch",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery transport restores its position paused after a remount and a blocked monitor recovers"
+      }
+    },
+    {
+      "row_id": "action.transport.zoom_in",
+      "row_class": "action",
+      "authority_class": "local_transport",
+      "control_selector": "[data-h3-nle-control=\"transport.zoom_in\"]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y transport controls are named 44px targets reachable by keyboard and touch",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery transport restores its position paused after a remount and a blocked monitor recovers"
+      }
+    },
+    {
+      "row_id": "action.transport.zoom_out",
+      "row_class": "action",
+      "authority_class": "local_transport",
+      "control_selector": "[data-h3-nle-control=\"transport.zoom_out\"]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y transport controls are named 44px targets reachable by keyboard and touch",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery transport restores its position paused after a remount and a blocked monitor recovers"
+      }
+    },
+    {
+      "row_id": "action.transport.scroll",
+      "row_class": "action",
+      "authority_class": "local_transport",
+      "control_selector": "[data-h3-nle-control=\"transport.scroll\"]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y transport controls are named 44px targets reachable by keyboard and touch",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery transport restores its position paused after a remount and a blocked monitor recovers"
+      }
+    },
+    {
+      "row_id": "action.audio.embedded_primary_follow",
+      "row_class": "action",
+      "authority_class": "canonical_derived_effect",
+      "control_selector": "[data-h3-nle-status=\"audio\"]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y audio follower is announced read-only and no audio control takes focus",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery audio follower suspends on hide and follows the accepted primary video again"
+      }
+    },
+    {
+      "row_id": "action.audio.deferred",
+      "row_class": "action",
+      "authority_class": "deferred_unavailable",
+      "control_selector": null,
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y audio follower is announced read-only and no audio control takes focus",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery audio follower suspends on hide and follows the accepted primary video again"
+      }
+    },
+    {
+      "row_id": "action.output.render",
+      "row_class": "action",
+      "authority_class": "output_action",
+      "control_selector": "[data-h3-nle-render]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y output actions are named 44px targets with keyboard paths and an extension-owned preview",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::output status workload keeps at most two status clients and one running job",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery output status loss and remount never replay a render"
+      }
+    },
+    {
+      "row_id": "action.output.status",
+      "row_class": "action",
+      "authority_class": "output_action",
+      "control_selector": "[data-h3-nle-render]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y output actions are named 44px targets with keyboard paths and an extension-owned preview",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::output status workload keeps at most two status clients and one running job",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery output status loss and remount never replay a render"
+      }
+    },
+    {
+      "row_id": "action.output.cancel",
+      "row_class": "action",
+      "authority_class": "output_action",
+      "control_selector": "[data-h3-nle-render]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y output actions are named 44px targets with keyboard paths and an extension-owned preview",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::output status workload keeps at most two status clients and one running job",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery output status loss and remount never replay a render"
+      }
+    },
+    {
+      "row_id": "action.output.final_preview",
+      "row_class": "action",
+      "authority_class": "output_action",
+      "control_selector": "[data-h3-nle-render]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y output actions are named 44px targets with keyboard paths and an extension-owned preview",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::output status workload keeps at most two status clients and one running job",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery output status loss and remount never replay a render"
+      }
+    },
+    {
+      "row_id": "action.output.download",
+      "row_class": "action",
+      "authority_class": "output_action",
+      "control_selector": "[data-h3-nle-render]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y output actions are named 44px targets with keyboard paths and an extension-owned preview",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::output status workload keeps at most two status clients and one running job",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery output status loss and remount never replay a render"
+      }
+    },
+    {
+      "row_id": "import.production_outputs",
+      "row_class": "import",
+      "authority_class": "output_action",
+      "control_selector": "[data-h3-nle-control=\"asset.import_production\"]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y import is reachable by pointer, keyboard and touch and focuses the highlighted result",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::import workload stays inside the selection, byte and cleanup bounds",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery import lost reply is uncertain until an explicit exact retry"
+      }
+    },
+    {
+      "row_id": "import.production_outputs.refusal",
+      "row_class": "import",
+      "authority_class": "output_action",
+      "control_selector": "[data-h3-nle-control=\"asset.import_production\"]",
+      "evidence": {
+        "accessibility_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y import is reachable by pointer, keyboard and touch and focuses the highlighted result",
+        "stress_evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::import workload stays inside the selection, byte and cleanup bounds",
+        "recovery_evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening recovery import refusals keep no optimistic state and no timeline change"
+      }
+    }
+  ],
+  "recovery_rows": [
+    {
+      "seam_id": "seam.native_media",
+      "injection": "native_media_error",
+      "injections_min": 10,
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 injected seam losses recover the accepted revision or fail closed"
+    },
+    {
+      "seam_id": "seam.compositor",
+      "injection": "canvas_context_loss",
+      "injections_min": 10,
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 injected seam losses recover the accepted revision or fail closed"
+    },
+    {
+      "seam_id": "seam.follower",
+      "injection": "follower_suspension",
+      "injections_min": 10,
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 injected seam losses recover the accepted revision or fail closed"
+    },
+    {
+      "seam_id": "seam.client_response",
+      "injection": "response_loss",
+      "injections_min": 10,
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 injected seam losses recover the accepted revision or fail closed"
+    },
+    {
+      "seam_id": "seam.lifecycle",
+      "injection": "view_release_mid_flight",
+      "injections_min": 10,
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 injected seam losses recover the accepted revision or fail closed"
+    },
+    {
+      "seam_id": "seam.backend_restart",
+      "injection": "backend_restart",
+      "injections_min": 1,
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 injected seam losses recover the accepted revision or fail closed"
+    },
+    {
+      "seam_id": "seam.worker",
+      "injection": "non_allocation",
+      "injections_min": 0,
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 injected seam losses recover the accepted revision or fail closed"
+    },
+    {
+      "seam_id": "seam.webgl",
+      "injection": "non_allocation",
+      "injections_min": 0,
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 injected seam losses recover the accepted revision or fail closed"
+    }
+  ],
+  "measurements": [
+    {
+      "measurement_id": "stress.main_thread_busy_ratio",
+      "scope": "NLE-STRESS-V1",
+      "unit": "ratio",
+      "threshold": {
+        "op": "<=",
+        "value": 0.5
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.idle_long_task_max",
+      "scope": "NLE-STRESS-V1",
+      "unit": "ms",
+      "threshold": {
+        "op": "<=",
+        "value": 50
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.render_p95",
+      "scope": "NLE-STRESS-V1",
+      "unit": "ms",
+      "threshold": {
+        "op": "<=",
+        "value": 16
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.presentation_p95",
+      "scope": "NLE-STRESS-V1",
+      "unit": "ms",
+      "threshold": {
+        "op": "<=",
+        "value": 50
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.presentation_max",
+      "scope": "NLE-STRESS-V1",
+      "unit": "ms",
+      "threshold": {
+        "op": "<=",
+        "value": 150
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.handler_p95",
+      "scope": "NLE-STRESS-V1",
+      "unit": "ms",
+      "threshold": {
+        "op": "<=",
+        "value": 50
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "stress.rebase_presentation_p95",
+      "scope": "NLE-STRESS-V1",
+      "unit": "ms",
+      "threshold": {
+        "op": "<=",
+        "value": 100
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "stress.sidebar_commits_per_tick",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "==",
+        "value": 0
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.nle_commits_per_edit_max",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "<=",
+        "value": 4
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "stress.heap_growth",
+      "scope": "NLE-STRESS-V1",
+      "unit": "bytes",
+      "threshold": {
+        "op": "<=",
+        "value": 268435456
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.mounted_clip_nodes_max",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "<=",
+        "value": 96
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.mounted_track_rows_max",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "<=",
+        "value": 8
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.row_ruler_nodes_max",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "<=",
+        "value": 256
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.nle_dom_nodes_max",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "<=",
+        "value": 1500
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.composition_canvas_surfaces",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "==",
+        "value": 1
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.decoration_canvas_surfaces",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "<=",
+        "value": 1
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.active_video_owners_max",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "<=",
+        "value": 2
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.warm_video_owners_max",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "<=",
+        "value": 1
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.retained_surfaces_max",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "<=",
+        "value": 16
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.retained_surface_bytes_max",
+      "scope": "NLE-STRESS-V1",
+      "unit": "bytes",
+      "threshold": {
+        "op": "<=",
+        "value": 268435456
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.worker_allocations",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "==",
+        "value": 0
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.blob_urls_max",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "<=",
+        "value": 2
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.follower_count_max",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "<=",
+        "value": 1
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.playback_advancing",
+      "scope": "NLE-STRESS-V1",
+      "unit": "ms",
+      "threshold": {
+        "op": ">=",
+        "value": 600000
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "stress.teardown_max",
+      "scope": "NLE-STRESS-V1",
+      "unit": "ms",
+      "threshold": {
+        "op": "<=",
+        "value": 500
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 remount cycles restore retained state paused and release every owner"
+    },
+    {
+      "measurement_id": "stress.cancellation_max",
+      "scope": "NLE-STRESS-V1",
+      "unit": "ms",
+      "threshold": {
+        "op": "<=",
+        "value": 250
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 injected seam losses recover the accepted revision or fail closed"
+    },
+    {
+      "measurement_id": "floor.seeks",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 600
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "floor.audio_seeks",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 120
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "floor.edit_attempts",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 240
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "floor.conflict_rebase",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 40
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "floor.primary_video_geometry",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 40
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "floor.undo_redo_cycles",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 20
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "floor.source_replacements",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 10
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "floor.edge_drags",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 20
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "floor.edge_drags_per_direction",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 5
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "floor.cancelled_drafts",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 10
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "floor.trim_undo_redo",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 10
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "floor.move_drags",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 20
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "floor.group_move_drags",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 5
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "floor.cross_track_moves",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 5
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "floor.marquee_selections",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 5
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "floor.ruler_scrubs",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 10
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "floor.follower_injections",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 10
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 injected seam losses recover the accepted revision or fail closed"
+    },
+    {
+      "measurement_id": "floor.remount_cycles",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 25
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 remount cycles restore retained state paused and release every owner"
+    },
+    {
+      "measurement_id": "floor.edit_phase_wall",
+      "scope": "NLE-STRESS-V1",
+      "unit": "ms",
+      "threshold": {
+        "op": "<=",
+        "value": 1200000
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 scheduled edit phase accepts and refuses every command within the edit budgets"
+    },
+    {
+      "measurement_id": "smoke.heap_growth",
+      "scope": "M25-16-overlay-v1-smoke",
+      "unit": "bytes",
+      "threshold": {
+        "op": "<=",
+        "value": 134217728
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::M25-16-overlay-v1-smoke five-minute decoded playback stays within the smoke budgets"
+    },
+    {
+      "measurement_id": "smoke.playback_advancing",
+      "scope": "M25-16-overlay-v1-smoke",
+      "unit": "ms",
+      "threshold": {
+        "op": ">=",
+        "value": 300000
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::M25-16-overlay-v1-smoke five-minute decoded playback stays within the smoke budgets"
+    },
+    {
+      "measurement_id": "smoke.nle_dom_nodes_max",
+      "scope": "M25-16-overlay-v1-smoke",
+      "unit": "count",
+      "threshold": {
+        "op": "<=",
+        "value": 1500
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::M25-16-overlay-v1-smoke five-minute decoded playback stays within the smoke budgets"
+    },
+    {
+      "measurement_id": "smoke.sidebar_commits_per_tick",
+      "scope": "M25-16-overlay-v1-smoke",
+      "unit": "count",
+      "threshold": {
+        "op": "==",
+        "value": 0
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::M25-16-overlay-v1-smoke five-minute decoded playback stays within the smoke budgets"
+    },
+    {
+      "measurement_id": "ui.function_switches",
+      "scope": "UI-CONTRACT-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 100
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::UI-CONTRACT-STRESS-V1 shell workload keeps every invariant with zero navigation effects"
+    },
+    {
+      "measurement_id": "ui.overlay_cycles",
+      "scope": "UI-CONTRACT-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 25
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::UI-CONTRACT-STRESS-V1 shell workload keeps every invariant with zero navigation effects"
+    },
+    {
+      "measurement_id": "ui.duplicate_opens",
+      "scope": "UI-CONTRACT-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 10
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::UI-CONTRACT-STRESS-V1 shell workload keeps every invariant with zero navigation effects"
+    },
+    {
+      "measurement_id": "ui.fallbacks",
+      "scope": "UI-CONTRACT-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 10
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::UI-CONTRACT-STRESS-V1 shell workload keeps every invariant with zero navigation effects"
+    },
+    {
+      "measurement_id": "ui.navigation_closures",
+      "scope": "UI-CONTRACT-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 10
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::UI-CONTRACT-STRESS-V1 shell workload keeps every invariant with zero navigation effects"
+    },
+    {
+      "measurement_id": "ui.view_destroy_cycles",
+      "scope": "UI-CONTRACT-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 10
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::UI-CONTRACT-STRESS-V1 shell workload keeps every invariant with zero navigation effects"
+    },
+    {
+      "measurement_id": "ui.navigation_effects",
+      "scope": "UI-CONTRACT-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "==",
+        "value": 0
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::UI-CONTRACT-STRESS-V1 shell workload keeps every invariant with zero navigation effects"
+    },
+    {
+      "measurement_id": "ui.hidden_playback_or_polling",
+      "scope": "UI-CONTRACT-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "==",
+        "value": 0
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::UI-CONTRACT-STRESS-V1 shell workload keeps every invariant with zero navigation effects"
+    },
+    {
+      "measurement_id": "a11y.frame_step",
+      "scope": "M25-16-overlay-v1-smoke",
+      "unit": "frames",
+      "threshold": {
+        "op": "==",
+        "value": 1
+      },
+      "evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y transport.seek steps one frame and pages one output second"
+    },
+    {
+      "measurement_id": "a11y.page_step",
+      "scope": "M25-16-overlay-v1-smoke",
+      "unit": "frames",
+      "threshold": {
+        "op": "==",
+        "value": 24
+      },
+      "evidence_id": "e2e/journeys/nleHardeningActions.spec.ts::hardening a11y transport.seek steps one frame and pages one output second"
+    },
+    {
+      "measurement_id": "audio.standalone_allocations",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "==",
+        "value": 0
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "audio.workspace_context_allocations",
+      "scope": "NLE-STRESS-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "<=",
+        "value": 1
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::NLE-STRESS-V1 ten-minute decoded playback and seek workload stays within the runtime budgets"
+    },
+    {
+      "measurement_id": "render.jobs",
+      "scope": "NLE-STRESS-RENDER-V1",
+      "unit": "count",
+      "threshold": {
+        "op": ">=",
+        "value": 8
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::output status workload keeps at most two status clients and one running job"
+    },
+    {
+      "measurement_id": "render.running_max",
+      "scope": "NLE-STRESS-RENDER-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "<=",
+        "value": 1
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::output status workload keeps at most two status clients and one running job"
+    },
+    {
+      "measurement_id": "render.queued_max",
+      "scope": "NLE-STRESS-RENDER-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "<=",
+        "value": 1
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::output status workload keeps at most two status clients and one running job"
+    },
+    {
+      "measurement_id": "render.status_clients_max",
+      "scope": "NLE-STRESS-RENDER-V1",
+      "unit": "count",
+      "threshold": {
+        "op": "<=",
+        "value": 2
+      },
+      "evidence_id": "e2e/journeys/nleHardeningStress.spec.ts::output status workload keeps at most two status clients and one running job"
+    },
+    {
+      "measurement_id": "backend.rss_increment_max",
+      "scope": "NLE-STRESS-RENDER-V1",
+      "unit": "bytes",
+      "threshold": {
+        "op": "<=",
+        "value": 1073741824
+      },
+      "evidence_id": "e2e/journeys/nleHardeningRender.spec.ts::NLE-STRESS-RENDER-V1 backend companion renders eight jobs inside the process resource ceilings"
+    }
+  ]
+}

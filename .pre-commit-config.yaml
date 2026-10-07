@@ -1,0 +1,42 @@
+exclude: ^(?:\.git/|\.planning/|reference/|\.venv-wsl/|build/|dist/)
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # v6.0.0  # pragma: allowlist secret
+    hooks:
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        # These four packaged font artifacts are size/hash checked by their runtime reader.
+        exclude: ^comfyui_h3_context/fonts/NotoSans-(?:Regular|Italic|Bold|BoldItalic)\.ttf$
+      - id: check-toml
+      - id: check-yaml
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: 39d9ac5938dadb73df0564a45f163e25ff9fa6e2  # v0.16.1  # pragma: allowlist secret
+    hooks:
+      - id: ruff-check
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: 41e691678310dfd3833f7ab4e180ddb014310356  # v2.3.0  # pragma: allowlist secret
+    hooks:
+      - id: mypy
+        files: ^(?:comfyui_h3_context|tests|scripts)/.*\.py$
+        additional_dependencies:
+          - jsonschema==4.26.0
+          - types-jsonschema==4.26.0.20260518
+          # IMPORTANT: keep typed pytest decorators deterministic inside the isolated mypy hook.
+          - pytest==9.1.1
+          - coverage==7.15.4
+          # IMPORTANT: the hook environment is isolated, so a test-only library the suite subclasses
+          # must be listed here too. Without it `RuleBasedStateMachine` resolves to `Any` and the
+          # stateful model silently stops being type-checked at all.
+          - hypothesis==6.167.1
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: 68e8b45440415753fff70a312ece8da92ba85b4a  # v1.5.0  # pragma: allowlist secret
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", "requirements/secret-scan-baseline.json"]
+        # The hash-only baseline is scanner metadata, not a credential-bearing source file.
+        exclude: ^(?:\.secrets\.baseline|requirements/secret-scan-baseline\.json)$

@@ -1,0 +1,72 @@
+{
+  "claim_ceiling": "no model, media, provider, oracle, or host qualification",
+  "fixture_status": "static_typed_classifier_contract",
+  "report": {
+    "authority_report_fingerprint": null,
+    "calibration": {
+      "abstention_threshold": "0.60",
+      "accept_threshold": "0.90",
+      "schema": "h3.task_mode_retention_classifier.v1"
+    },
+    "diagnostics": [],
+    "input_fingerprint": "sha256:e13bf6a7c537a4aa6646356e1e3c8d30acfa656cd7418cdcde464828df0d0420",
+    "mode": {
+      "confidence": "1",
+      "disposition": "accepted",
+      "evidence_ids": ["mode.fixture"],
+      "mode": "ref2va",
+      "reason": "typed mode evidence was evaluated without prose inference",
+      "schema": "h3.task_mode_retention_classifier.v1",
+      "source": "user_directive"
+    },
+    "oracle_comparison": {
+      "note": "official-oracle comparison is a separate evidence layer",
+      "schema": "h3.task_mode_retention_classifier.v1",
+      "status": "not_requested"
+    },
+    "registry_fingerprint": "sha256:ed9237e6cdf1203e9277d3afa200e3963ecbb6fb6bbc83a1179072b2a752850a",
+    "report_fingerprint": "sha256:39b812e3098f2d4a7a6238aad4af9a09fe49afcf87642ad0ce6a345eb13de16b",
+    "retention": [
+      {
+        "confidence": "1",
+        "disposition": "accepted",
+        "domain": "audio",
+        "evidence_ids": ["retention.audio-1"],
+        "marker": "reference",
+        "reason": "typed retention evidence was evaluated",
+        "schema": "h3.task_mode_retention_classifier.v1",
+        "source": "user_directive",
+        "source_asset_ids": ["audio"],
+        "target_id": "audio-1"
+      },
+      {
+        "confidence": "1",
+        "disposition": "accepted",
+        "domain": "visual",
+        "evidence_ids": ["retention.subject-1"],
+        "marker": "fully_preserved",
+        "reason": "typed retention evidence was evaluated",
+        "schema": "h3.task_mode_retention_classifier.v1",
+        "source": "user_directive",
+        "source_asset_ids": ["picture"],
+        "target_id": "subject-1"
+      }
+    ],
+    "role_graph_fingerprint": null,
+    "schema": "h3.task_mode_retention_classifier.v1",
+    "status": "complete",
+    "task_types": [
+      {
+        "confidence": "1",
+        "disposition": "accepted",
+        "evidence_ids": ["task.fixture"],
+        "reason": "typed full-reference task evidence was evaluated",
+        "schema": "h3.task_mode_retention_classifier.v1",
+        "source": "user_directive",
+        "source_asset_ids": ["picture"],
+        "task_type": "reference_generation"
+      }
+    ]
+  },
+  "report_fingerprint": "sha256:39b812e3098f2d4a7a6238aad4af9a09fe49afcf87642ad0ce6a345eb13de16b"
+}

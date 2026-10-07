@@ -1,0 +1,55 @@
+{
+  "schema": "h3-context-reachability-fixture/1",
+  "fixture_status": "static_model_free_contract",
+  "host": {
+    "version": "0.32.0",
+    "revision": "m10-06-pinned-host-contract"
+  },
+  "asset_roles": [
+    "first_frame",
+    "last_frame",
+    "reference",
+    "paired_video_audio",
+    "audio_source"
+  ],
+  "role_connection_order": [
+    "first_frame_1",
+    "last_frame_1",
+    "image_1",
+    "audio_pair_1",
+    "video_1",
+    "video_2",
+    "audio_1"
+  ],
+  "task_modes": {
+    "t2va": {
+      "context_ir": "injected_only",
+      "compiler": "reachable",
+      "native_generation": "reachable"
+    },
+    "i2va": {
+      "context_ir": "injected_only",
+      "compiler": "reachable",
+      "native_generation": "unsupported"
+    },
+    "fl2va": {
+      "context_ir": "injected_only",
+      "compiler": "reachable",
+      "native_generation": "reachable"
+    },
+    "l2va": {
+      "context_ir": "injected_only",
+      "compiler": "reachable",
+      "native_generation": "unsupported"
+    },
+    "ref2va": {
+      "context_ir": "injected_only",
+      "compiler": "reachable",
+      "native_generation": "reachable"
+    }
+  },
+  "negative_failures": {
+    "i2va.native_generation": "unsupported_native_task_mode",
+    "l2va.native_generation": "unsupported_native_task_mode"
+  }
+}
