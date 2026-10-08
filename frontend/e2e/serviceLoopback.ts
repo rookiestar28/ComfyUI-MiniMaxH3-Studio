@@ -2,6 +2,7 @@ import type { Plugin } from "vite";
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import http from "node:http";
 import { fileURLToPath } from "node:url";
+import { fixturePython } from "./fixturePython";
 
 // M25-16 evidence layer 2: this plugin exists only to give a hermetic Playwright journey a real,
 // running application service to talk to -- see scripts/m25_16_service_loopback.py. It is gated
@@ -28,9 +29,7 @@ const PROXIED_PREFIXES = [
 
 function pythonExecutable(): string {
   const root = fileURLToPath(new URL("../../", import.meta.url));
-  return process.platform === "win32"
-    ? `${root}.venv\\Scripts\\python.exe`
-    : `${root}.venv/bin/python`;
+  return fixturePython(root);
 }
 
 function loopbackScript(): string {

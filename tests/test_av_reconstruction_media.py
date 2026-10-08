@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any, cast
 
 import pytest
+from media_pin_fixture import semantic_media_pin
 from test_av_reconstruction import _plan_kwargs
 
 import comfyui_h3_context.adapters.av_reconstruction_media as media_module
@@ -437,6 +438,12 @@ def _accepted_pin(_path: Path, _expected_sha256: str) -> Iterator[None]:
     yield
 
 
+def _stub_media_pins(monkeypatch: pytest.MonkeyPatch, *, native_media_pin: bool = False) -> None:
+    monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_pin)
+    if not native_media_pin:
+        monkeypatch.setattr(media_module, "_pin_regular_media", semantic_media_pin)
+
+
 def _adapter(
     root: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -464,7 +471,7 @@ def _adapter(
             exit_code=0 if status is ProcessStatus.SUCCEEDED else 1,
         )
 
-    monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_pin)
+    _stub_media_pins(monkeypatch)
     monkeypatch.setattr(SubprocessMediaRunner, "run", fake_run)
     return (
         QualifiedAVMediaAdapter(
@@ -523,6 +530,7 @@ def test_exact_probe_builds_closed_descriptor_and_keeps_locator_private(
         assert tuple((root / "scratch").iterdir()) == ()
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Real Windows executable identity pin")
 def test_real_hash_replacement_is_rejected_before_process_use() -> None:
     with tempfile.TemporaryDirectory() as temporary:
         root = Path(temporary)
@@ -744,6 +752,7 @@ def test_executable_replacement_at_use_time_spawns_nothing(
         ffmpeg.write_bytes(b"synthetic ffmpeg")
         ffprobe.write_bytes(b"synthetic ffprobe")
         monkeypatch.setattr(media_module, "_pin_exact_executable", replacement_pin)
+        monkeypatch.setattr(media_module, "_pin_regular_media", semantic_media_pin)
         monkeypatch.setattr(SubprocessMediaRunner, "run", fake_run)
         adapter = QualifiedAVMediaAdapter(
             ffmpeg_path=ffmpeg,
@@ -792,7 +801,7 @@ def test_process_concurrency_is_shared_across_adapter_instances(
         ffprobe = (root / "ffprobe.exe").resolve()
         ffmpeg.write_bytes(b"synthetic ffmpeg")
         ffprobe.write_bytes(b"synthetic ffprobe")
-        monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_pin)
+        _stub_media_pins(monkeypatch)
         monkeypatch.setattr(SubprocessMediaRunner, "run", blocking_run)
         adapters = tuple(
             QualifiedAVMediaAdapter(
@@ -862,7 +871,7 @@ def test_inspection_pins_staged_input_across_probe(
         ffprobe = (root / "ffprobe.exe").resolve()
         ffmpeg.write_bytes(b"synthetic ffmpeg")
         ffprobe.write_bytes(b"synthetic ffprobe")
-        monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_pin)
+        _stub_media_pins(monkeypatch)
         monkeypatch.setattr(media_module, "_pin_regular_media", tracked_pin)
         monkeypatch.setattr(SubprocessMediaRunner, "run", fake_run)
         adapter = QualifiedAVMediaAdapter(
@@ -1361,7 +1370,7 @@ def test_execution_uses_approved_operations_and_reinspects_every_output(
                 exit_code=0,
             )
 
-        monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_pin)
+        _stub_media_pins(monkeypatch)
         monkeypatch.setattr(SubprocessMediaRunner, "run", fake_run)
         adapter = QualifiedAVMediaAdapter(
             ffmpeg_path=ffmpeg,
@@ -1426,7 +1435,7 @@ def test_execution_rechecks_cancellation_before_result_handoff(
         output_root = root / "outputs"
         output_root.mkdir()
         aggregate = create_output_lease(output_root, suffix=".mp4")
-        monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_pin)
+        _stub_media_pins(monkeypatch)
         adapter = QualifiedAVMediaAdapter(
             ffmpeg_path=ffmpeg,
             ffprobe_path=ffprobe,
@@ -1540,7 +1549,7 @@ def test_each_activated_transform_maps_to_exact_approved_command(
                 exit_code=0,
             )
 
-        monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_pin)
+        _stub_media_pins(monkeypatch)
         monkeypatch.setattr(SubprocessMediaRunner, "run", fake_run)
         adapter = QualifiedAVMediaAdapter(
             ffmpeg_path=ffmpeg,
@@ -1604,7 +1613,7 @@ def test_execution_reinspects_every_source_before_transform_spawn(
         output_root.mkdir()
         aggregate = create_output_lease(output_root, suffix=".mp4")
         derived = create_output_lease(output_root, suffix=".mp4")
-        monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_pin)
+        _stub_media_pins(monkeypatch)
         monkeypatch.setattr(SubprocessMediaRunner, "run", fake_run)
         adapter = QualifiedAVMediaAdapter(
             ffmpeg_path=ffmpeg,
@@ -1666,7 +1675,7 @@ def test_output_reinspection_mismatch_releases_all_outputs(
                 exit_code=0,
             )
 
-        monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_pin)
+        _stub_media_pins(monkeypatch)
         monkeypatch.setattr(SubprocessMediaRunner, "run", fake_run)
         adapter = QualifiedAVMediaAdapter(
             ffmpeg_path=ffmpeg,
@@ -1750,7 +1759,7 @@ def test_execution_pins_every_process_input_and_enforces_temp_budget(
                 exit_code=0,
             )
 
-        monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_pin)
+        _stub_media_pins(monkeypatch)
         monkeypatch.setattr(media_module, "_pin_regular_media", tracked_pin)
         monkeypatch.setattr(SubprocessMediaRunner, "run", fake_run)
         adapter = QualifiedAVMediaAdapter(
@@ -1801,7 +1810,7 @@ def test_temp_budget_exhaustion_prevents_process_spawn(
         output_root.mkdir()
         aggregate = create_output_lease(output_root, suffix=".mp4")
         constrained = replace(plan.limits, max_temp_bytes=len(payload) - 1)
-        monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_pin)
+        _stub_media_pins(monkeypatch)
         monkeypatch.setattr(media_module, "qualified_av_limits", lambda: constrained)
         monkeypatch.setattr(SubprocessMediaRunner, "run", fake_run)
         adapter = QualifiedAVMediaAdapter(
@@ -1868,7 +1877,7 @@ def test_scratch_cleanup_failure_releases_otherwise_successful_outputs(
                 raise OSError("injected private cleanup failure")
             original_release(lease)
 
-        monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_pin)
+        _stub_media_pins(monkeypatch)
         monkeypatch.setattr(SubprocessMediaRunner, "run", fake_run)
         monkeypatch.setattr(OwnedOutputLease, "release", fail_one_scratch_release)
         adapter = QualifiedAVMediaAdapter(
@@ -1956,6 +1965,7 @@ def _prepared_adapter(
     root: Path,
     *,
     missing_audio: bool,
+    native_media_pin: bool = False,
 ) -> tuple[QualifiedAVMediaAdapter, OwnedOutputLease, OwnedOutputLease | None]:
     root.mkdir(parents=True, exist_ok=True)
     ffmpeg = (root / "ffmpeg.exe").resolve()
@@ -1994,7 +2004,7 @@ def _prepared_adapter(
             exit_code=0,
         )
 
-    monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_pin)
+    _stub_media_pins(monkeypatch, native_media_pin=native_media_pin)
     monkeypatch.setattr(SubprocessMediaRunner, "run", fake_run)
     adapter = QualifiedAVMediaAdapter(
         ffmpeg_path=ffmpeg,
@@ -2082,6 +2092,7 @@ def test_source_declared_identity_mismatch_fails_before_any_stream(
         assert aggregate.released
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Real Windows media identity pin")
 def test_lying_source_content_is_caught_by_the_adapters_own_pin(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -2089,7 +2100,9 @@ def test_lying_source_content_is_caught_by_the_adapters_own_pin(
     plan, approval = _executable_plan(payload, missing_audio=False)
     with tempfile.TemporaryDirectory() as temporary:
         root = Path(temporary)
-        adapter, aggregate, _ = _prepared_adapter(monkeypatch, root, missing_audio=False)
+        adapter, aggregate, _ = _prepared_adapter(
+            monkeypatch, root, missing_audio=False, native_media_pin=True
+        )
         # Same length, different content, and the source reports the declared identity:
         # only the adapter's own pinned hash can catch it.
         source = _ReplaySource(
@@ -2304,7 +2317,7 @@ def test_bounded_cohort_peak_staged_copies_rolling_versus_bytes(
                 exit_code=0,
             )
 
-        monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_pin)
+        _stub_media_pins(monkeypatch)
         monkeypatch.setattr(SubprocessMediaRunner, "run", fake_run)
         adapter = QualifiedAVMediaAdapter(
             ffmpeg_path=ffmpeg,
@@ -2519,7 +2532,7 @@ def test_m26_media_bridge_crops_exact_frame_and_sample_tail_then_releases_only_l
                 exit_code=0,
             )
 
-        monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_pin)
+        _stub_media_pins(monkeypatch)
         monkeypatch.setattr(SubprocessMediaRunner, "run", fake_run)
         adapter = QualifiedAVMediaAdapter(
             ffmpeg_path=ffmpeg,

@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import cast
 
 import pytest
+from media_pin_fixture import semantic_media_pin
 
 import comfyui_h3_context.adapters.av_reconstruction_media as media_module
 from comfyui_h3_context.adapters.authoring_video_facts import (
@@ -421,6 +422,7 @@ def test_adapter_stages_pins_probes_and_cleans_private_source(
         )
 
     monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_executable_pin)
+    monkeypatch.setattr(media_module, "_pin_regular_media", semantic_media_pin)
     monkeypatch.setattr(SubprocessMediaRunner, "run", fake_run)
     adapter = QualifiedAVMediaAdapter(
         ffmpeg_path=ffmpeg,
@@ -482,6 +484,7 @@ def test_adapter_process_failure_is_content_free_and_releases_scratch(
     ffprobe.write_bytes(b"qualified")
 
     monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_executable_pin)
+    monkeypatch.setattr(media_module, "_pin_regular_media", semantic_media_pin)
     monkeypatch.setattr(SubprocessMediaRunner, "run", lambda *_args, **_kwargs: capture)
     adapter = QualifiedAVMediaAdapter(
         ffmpeg_path=ffmpeg,

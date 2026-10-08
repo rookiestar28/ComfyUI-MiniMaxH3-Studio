@@ -324,6 +324,10 @@ def _typescript_specs(text: str) -> tuple[str, ...]:
 def _resolve_typescript_import(source: Path, specifier: str, known: set[Path]) -> Path | None:
     if not specifier.startswith("."):
         return None
+    # CRITICAL: suffix substitution must not turn a CSS/asset import into a same-named
+    # code module. Windows path equality otherwise invents edges absent on Linux.
+    if Path(specifier.split("?", 1)[0]).suffix not in {"", ".ts", ".tsx"}:
+        return None
     # CRITICAL: normalise lexically before comparing. `source.parent / "../x"` keeps the `..`
     # component, so every parent-relative specifier silently failed to match a scanned path and
     # the TypeScript half of the graph recorded only same-directory edges -- H3Sidebar.tsx showed
@@ -337,7 +341,15 @@ def _resolve_typescript_import(source: Path, specifier: str, known: set[Path]) -
         base / "index.ts",
         base / "index.tsx",
     )
-    return next((candidate for candidate in candidates if candidate in known), None)
+    known_by_name = {path.as_posix(): path for path in known}
+    return next(
+        (
+            known_by_name[name]
+            for candidate in candidates
+            if (name := candidate.as_posix()) in known_by_name
+        ),
+        None,
+    )
 
 
 def _typescript_modules(root: Path) -> tuple[dict[str, object], ...]:

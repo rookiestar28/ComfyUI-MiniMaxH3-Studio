@@ -11,6 +11,7 @@ from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import cast
 
 from ..core.canonical import canonical_bytes
 from ..core.private_storage_layout import MANAGED_ARTIFACT_SUBTREE, MIB, private_subtree_path
@@ -209,12 +210,17 @@ def _acquire_lock(path: Path, expected: bytes, budget: _Budget | None = None) ->
             if os.name == "nt":
                 import msvcrt
 
-                msvcrt.locking(descriptor, msvcrt.LK_NBLCK, 1)
+                # IMPORTANT: lazy native access preserves byte locking on Windows while POSIX
+                # stubs omit the API; never replace either branch with a no-op or blocking lock.
+                locking = cast(Callable[[int, int, int], None], getattr(msvcrt, "locking"))  # noqa: B009
+                locking(descriptor, int(getattr(msvcrt, "LK_NBLCK")), 1)  # noqa: B009
             else:
                 import fcntl
 
-                # Windows stubs omit POSIX lock APIs; this branch only runs on POSIX.
-                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)  # type: ignore[attr-defined]
+                flock = cast(Callable[[int, int], None], getattr(fcntl, "flock"))  # noqa: B009
+                exclusive = int(getattr(fcntl, "LOCK_EX"))  # noqa: B009
+                nonblocking = int(getattr(fcntl, "LOCK_NB"))  # noqa: B009
+                flock(descriptor, exclusive | nonblocking)
         except OSError as exc:
             raise ArtifactStoreError("scope_busy") from exc
         # IMPORTANT: read through the lock owner; reopening byte zero fails on Windows.
@@ -365,7 +371,8 @@ def _unlink_exact(path: Path, expected: os.stat_result, parent_identity: tuple[i
         _windows_delete_exact(path, expected=expected)
     else:
         # Windows stubs omit these flags; do not weaken no-follow on the POSIX path.
-        descriptor = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)  # type: ignore[attr-defined]
+        flags = os.O_RDONLY | int(getattr(os, "O_DIRECTORY")) | int(getattr(os, "O_NOFOLLOW"))  # noqa: B009
+        descriptor = os.open(path.parent, flags)
         try:
             if (
                 _directory_identity(os.fstat(descriptor)) != parent_identity
@@ -387,10 +394,8 @@ def _remove_empty_directory(
     if _directory_identity(validate_directory(path).lstat()) != expected:
         raise ArtifactStoreError("scope_identity_changed")
     if os.name != "nt":
-        directory_descriptor = os.open(
-            path.parent,
-            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,  # type: ignore[attr-defined]
-        )
+        flags = os.O_RDONLY | int(getattr(os, "O_DIRECTORY")) | int(getattr(os, "O_NOFOLLOW"))  # noqa: B009
+        directory_descriptor = os.open(path.parent, flags)
         try:
             if (
                 _directory_identity(os.fstat(directory_descriptor)) != parent_identity

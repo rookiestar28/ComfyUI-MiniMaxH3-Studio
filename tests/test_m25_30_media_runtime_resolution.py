@@ -565,7 +565,10 @@ def test_incomplete_pairs_scripts_and_links_are_never_hashed(
     os.link(real / "ffmpeg.exe", linked / "ffmpeg.exe")
     (linked / "ffprobe.exe").write_bytes(FFPROBE_BYTES)
     junction = tmp_path / "junction"
-    _winapi.CreateJunction(str(make_pair(tmp_path / "behind-junction")), str(junction))
+    # Windows-only fixture APIs are absent from POSIX stubs, but must stay real junctions.
+    getattr(_winapi, "CreateJunction")(  # noqa: B009
+        str(make_pair(tmp_path / "behind-junction")), str(junction)
+    )
     hashed: list[Path] = []
 
     def spy(path: Path, expected: str, **kwargs: object) -> object:
@@ -1262,7 +1265,7 @@ def test_a_linked_private_root_component_is_refused(tmp_path: Path) -> None:
     real = tmp_path / "real-user"
     real.mkdir()
     link = tmp_path / "linked-user"
-    _winapi.CreateJunction(str(real), str(link))
+    getattr(_winapi, "CreateJunction")(str(real), str(link))  # noqa: B009
     service, _, worker = resolver(
         tmp_path, inputs(path=str(tools)), roots=FakeRoots(link / "__h3_context")
     )
@@ -1332,7 +1335,7 @@ def test_a_valid_legacy_binding_keeps_its_scratch_and_creates_nothing(tmp_path: 
 
     target = tmp_path / "elsewhere"
     target.mkdir()
-    _winapi.CreateJunction(str(target), str(tmp_path / "private-scratch"))
+    getattr(_winapi, "CreateJunction")(str(target), str(tmp_path / "private-scratch"))  # noqa: B009
     refused = service.resolve(rescan=True)
     assert refused.state is ResolutionState.INVALID_CONFIG
     assert refused.reason is ResolutionReason.PRIVATE_ROOT_INVALID

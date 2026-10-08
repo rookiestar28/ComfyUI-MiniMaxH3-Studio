@@ -67,7 +67,9 @@ class OwnedWindowsJob:
     def __init__(self, process: Any) -> None:
         psutil = import_module("psutil")
 
-        kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+        # IMPORTANT: keep the real Windows loader lazy; POSIX ctypes stubs omit WinDLL.
+        win_dll = getattr(ctypes, "WinDLL")  # noqa: B009
+        kernel = win_dll("kernel32", use_last_error=True)
         signatures = {
             "CreateJobObjectW": ([ctypes.c_void_p, wintypes.LPCWSTR], wintypes.HANDLE),
             "SetInformationJobObject": (

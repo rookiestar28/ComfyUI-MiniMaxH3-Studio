@@ -500,7 +500,7 @@ def call(
     *values: Any,
 ) -> Any:
     # CRITICAL: keep the Windows ABI lookup lazy; eager binding breaks pure POSIX reducer imports.
-    win = C.WINFUNCTYPE
+    win = getattr(C, "WINFUNCTYPE")  # noqa: B009
     table = C.cast(pointer, C.POINTER(C.POINTER(PTR))).contents
     return win(restype, PTR, *arguments)(table[slot])(pointer, *values)
 
@@ -511,7 +511,8 @@ def check(result: int, label: str) -> None:
 
 
 def executable_identity(pid: int) -> str:
-    kernel = C.WinDLL("kernel32", use_last_error=True)
+    win_dll = getattr(C, "WinDLL")  # noqa: B009
+    kernel = win_dll("kernel32", use_last_error=True)
     kernel.OpenProcess.argtypes = [DWORD, C.c_int, DWORD]
     kernel.OpenProcess.restype = PTR
     kernel.QueryFullProcessImageNameW.argtypes = [PTR, DWORD, C.c_wchar_p, C.POINTER(DWORD)]
@@ -533,9 +534,11 @@ def executable_identity(pid: int) -> str:
 
 
 def observe(pid: int, duration: float) -> dict[str, object]:
-    win = C.WINFUNCTYPE
+    # CRITICAL: late lookup must retain Windows stdcall, never substitute CFUNCTYPE on POSIX.
+    win = getattr(C, "WINFUNCTYPE")  # noqa: B009
     browser_hash = executable_identity(pid)
-    ole = C.WinDLL("ole32")
+    win_dll = getattr(C, "WinDLL")  # noqa: B009
+    ole = win_dll("ole32")
     ole.CoInitializeEx.argtypes = [PTR, DWORD]
     ole.CoInitializeEx.restype = HRESULT
     check(ole.CoInitializeEx(None, 0), "com_initialize")
@@ -598,7 +601,7 @@ def observe(pid: int, duration: float) -> dict[str, object]:
     )
     iid = GUID("1cb9ad4c-dbfa-4c32-b178-c2f568a703b2")
     operation = PTR()
-    mmdev = C.WinDLL("Mmdevapi")
+    mmdev = win_dll("Mmdevapi")
     activate = mmdev.ActivateAudioInterfaceAsync
     activate.argtypes = [C.c_wchar_p, C.POINTER(GUID), C.POINTER(Variant), PTR, C.POINTER(PTR)]
     activate.restype = HRESULT

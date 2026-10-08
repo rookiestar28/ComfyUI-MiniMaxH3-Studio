@@ -236,6 +236,7 @@ def _seed_repo_with_worktree(base: Path, gitignore: str) -> tuple[Path, Path, Pa
     return repo, worktree, canary
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Git for Windows follows ignored directory junctions")
 def test_bare_git_worktree_remove_destroys_the_link_target(tmp_path: Path) -> None:
     """The control arm. If this ever stops failing, upstream fixed it and the guard can relax."""
     repo, worktree, canary = _seed_repo_with_worktree(tmp_path, ".venv/\n")
@@ -372,6 +373,7 @@ def _git_remove(repo: Path, worktree: Path, *flags: str) -> subprocess.Completed
 
 
 @pytest.mark.parametrize("flags", [(), ("--force",)])
+@pytest.mark.skipif(os.name != "nt", reason="Git for Windows leaves an internal-junction husk")
 def test_git_worktree_remove_is_defeated_by_an_internal_junction(
     tmp_path: Path, flags: tuple[str, ...]
 ) -> None:
@@ -494,6 +496,7 @@ def test_force_overrides_a_refusal_and_names_it(
     assert not worktree.exists()
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Fixture requires a real Git for Windows junction husk")
 def test_a_real_husk_is_refused_rather_than_recognised(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -522,7 +525,9 @@ def test_an_escaping_link_target_survives_the_completion_walker(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """AC-M23-03-06: the repair must not reintroduce the hazard it completes around."""
-    repo, worktree, canary = _seed_repo_with_worktree(tmp_path, "node_modules/\n.venv/\n")
+    # IMPORTANT: a trailing slash ignores junction directories but not POSIX symlinks;
+    # keep the fixture link ignored on both without bypassing the dirty-work refusal.
+    repo, worktree, canary = _seed_repo_with_worktree(tmp_path, "node_modules/\n.venv\n")
     if not _internal_junction(worktree) or not _make_directory_link(worktree / ".venv", canary):
         pytest.skip("this platform cannot create a directory link without extra privilege")
     _use_fixture_repo(monkeypatch, repo)

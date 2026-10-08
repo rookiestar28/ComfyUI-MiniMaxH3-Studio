@@ -323,8 +323,10 @@ class _WindowsMemory:
     """
 
     def __init__(self) -> None:
-        self._kernel = ctypes.WinDLL("kernel32", use_last_error=True)
-        self._psapi = ctypes.WinDLL("psapi", use_last_error=True)
+        # IMPORTANT: retain the real Windows loader; POSIX type stubs omit WinDLL.
+        win_dll = getattr(ctypes, "WinDLL")  # noqa: B009
+        self._kernel = win_dll("kernel32", use_last_error=True)
+        self._psapi = win_dll("psapi", use_last_error=True)
         self._pid = os.getpid()
 
     def _counters(self, handle: int) -> _ProcessMemoryCounters | None:
@@ -449,7 +451,7 @@ class _PosixMemory:
         self._pid = os.getpid()
         # `os.sysconf` exists only on the hosts where this class is ever constructed, and the
         # Windows stubs this repository type-checks against do not declare it.
-        sysconf = cast(Callable[[str], int], os.sysconf)  # type: ignore[attr-defined]
+        sysconf = cast(Callable[[str], int], getattr(os, "sysconf"))  # noqa: B009
         self._page = sysconf("SC_PAGE_SIZE")
 
     def _statm(self, pid: int) -> int:

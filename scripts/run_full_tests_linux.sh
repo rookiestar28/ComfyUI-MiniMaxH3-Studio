@@ -37,6 +37,7 @@ export PLAYWRIGHT_OUTPUT_DIR="$repo_root/.tmp/playwright-output"
 
 run_step() {
   local name="$1"
+  local expected=""
   shift
   if [[ "$resume" == "1" ]]; then
     local decision=0
@@ -49,15 +50,17 @@ run_step() {
       echo "Gate cache lookup failed: $decision" >&2
       exit "$decision"
     fi
+    expected="$("$python_bin" scripts/gate_stages.py before-run "$name")"
   fi
   printf '\n==> %s\n' "$name"
   "$@"
   if [[ "$resume" == "1" ]]; then
-    "$python_bin" scripts/gate_stages.py record "$name"
+    "$python_bin" scripts/gate_stages.py record "$name" --expected "$expected"
   fi
 }
 
 run_step "workspace link guard" "$python_bin" scripts/workspace_link_guard.py check
+run_step "CI prerequisite contracts" "$python_bin" scripts/ci_preflight.py
 # Frontend evidence-policy fixtures create bounded children here, including in a fresh worktree.
 mkdir -p .planning
 run_step "shipped artifact integrity" bash -c \

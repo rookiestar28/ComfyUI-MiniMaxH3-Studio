@@ -38,7 +38,7 @@ const processAudioObserverPath = resolve(
 const processAudioObserverSha256 =
   // IMPORTANT: audio evidence is process-scoped only when this reviewed observer is pinned.
   // A drifted observer could capture outside the owned browser or retain raw audio.
-  "39923ffe21e1c19d78d61f167941cd65f181f0f4e86f4acbaa972d3983aff9f2"; // pragma: allowlist secret
+  "b7a6eb2454d800fac0072ce445cf6f4a263aa7157cbb11207e5455be50ae815c"; // pragma: allowlist secret
 
 test.use({
   viewport: { width: 1600, height: 900 },

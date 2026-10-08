@@ -17,9 +17,13 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import subprocess
 import unittest
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
+
+from history_fixture import commit, git_history, require_history, write_json
 
 from scripts.governance.m19_closeout import (
     ABSENT,
@@ -151,9 +155,24 @@ class GeneratedMatrixTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.document = json.loads(ARTIFACT.read_text(encoding="utf-8"))
-        cls.closeout = GENERATOR.build_closeout()
+        # CRITICAL: public snapshots lack maintainer checkpoints. Keep artifact validation
+        # independent of historical replay, or one missing object disables every assertion.
+        cls.closeout = M19Closeout(
+            checkpoints=tuple(Checkpoint(**row) for row in cls.document["checkpoints"]),
+            rows=tuple(
+                CloseoutRow(
+                    domain=row["domain"],
+                    metric=row["metric"],
+                    source=row["source"],
+                    introduced_by=row["introduced_by"],
+                    expectation=RowExpectation(row["expectation"]),
+                    readings=tuple(Reading(**reading) for reading in row["readings"]),
+                )
+                for row in cls.document["rows"]
+            ),
+        )
 
-    def test_the_artifact_regenerates_byte_identically(self) -> None:
+    def test_the_artifact_round_trips_with_recomputed_verdicts(self) -> None:
         self.assertEqual(
             GENERATOR.artifact_bytes(self.closeout),
             ARTIFACT.read_bytes().replace(b"\r\n", b"\n"),
@@ -228,6 +247,98 @@ class GeneratedMatrixTests(unittest.TestCase):
             if row["metric"] == metric:
                 return dict(row)
         raise AssertionError(f"no row named {metric}")
+
+
+class HistoricalReplayTests(unittest.TestCase):
+    def test_the_accepted_history_regenerates_byte_identically(self) -> None:
+        require_history(REPO_ROOT, [row[1] for row in GENERATOR.CHECKPOINTS])
+        self.assertEqual(
+            GENERATOR.artifact_bytes(GENERATOR.build_closeout()),
+            ARTIFACT.read_bytes().replace(b"\r\n", b"\n"),
+        )
+
+
+class SyntheticHistoryTests(unittest.TestCase):
+    def test_real_commit_reads_detect_changed_invariants_and_missing_objects(self) -> None:
+        with git_history() as root:
+            checkpoints = []
+            for index in range(1, 6):
+                write_json(
+                    root,
+                    GENERATOR.ARCHITECTURE,
+                    {
+                        "forbidden_imports": ["synthetic"] if index == 5 else [],
+                        "layer_inversions": [],
+                        "cycles": [],
+                        "modules": [{"module": "example", "lines": 10}],
+                    },
+                )
+                write_json(
+                    root,
+                    GENERATOR.CONTRACTS,
+                    {
+                        "entries": [{"contract_id": "first"}]
+                        if index == 5
+                        else [{"contract_id": "first"}, {"contract_id": "second"}],
+                    },
+                )
+                write_json(root, GENERATOR.BASELINE, {"criteria": [1], "public_python_abi": [1]})
+                write_json(root, GENERATOR.BUNDLE, {"bundle": 1 if index < 4 else 2})
+                write_json(root, "frontend/src/host/graph.ts", "x" * (10 if index < 4 else 5))
+                write_json(root, "frontend/src/host/app.ts", "x" * 20)
+                if index >= 2:
+                    write_json(
+                        root,
+                        GENERATOR.SURFACE,
+                        {
+                            "authorities": [
+                                {
+                                    "level": "pure_core",
+                                    "declared": 1,
+                                    "names_digest": "sha256:" + "1" * 64,
+                                }
+                            ],
+                            "shadowed": [],
+                        },
+                    )
+                if index >= 3:
+                    write_json(
+                        root,
+                        GENERATOR.NODES,
+                        {
+                            "fingerprint": "sha256:" + "2" * 64,
+                            "nodes": [1],
+                            "exported_names": [1],
+                        },
+                    )
+                checkpoints.append((f"M19-{index:02}", commit(root), "synthetic checkpoint"))
+            with (
+                patch.object(GENERATOR, "ROOT", root),
+                patch.object(GENERATOR, "CHECKPOINTS", tuple(checkpoints)),
+            ):
+                result = GENERATOR.build_closeout()
+                rows = {row.metric: row for row in result.rows}
+                self.assertEqual(
+                    {row.metric for row in result.broken},
+                    {"forbidden_imports", "baseline_identities_retained"},
+                )
+                self.assertEqual(rows["node_surface_fingerprint"].readings[0].value, ABSENT)
+                self.assertEqual(rows["node_surface_fingerprint"].verdict, RowVerdict.HELD)
+                self.assertEqual(rows["baseline_identities_retained"].readings[-1].value, "1")
+                self.assertEqual(len(set(rows["bundle_sha256"].observed)), 2)
+                self.assertIsNone(GENERATOR._blob(checkpoints[0][1], "absent.json"))
+                missing = (("M19-01", "0" * 40, "missing checkpoint"), *checkpoints[1:])
+                with patch.object(GENERATOR, "CHECKPOINTS", missing):
+                    with self.assertRaises(subprocess.CalledProcessError):
+                        GENERATOR.build_closeout()
+
+    def test_public_artifact_checks_do_not_read_history(self) -> None:
+        with patch.object(GENERATOR, "_git", side_effect=AssertionError("history unavailable")):
+            GeneratedMatrixTests.setUpClass()
+            self.assertEqual(
+                GeneratedMatrixTests.closeout.fingerprint,
+                GeneratedMatrixTests.document["fingerprint"],
+            )
 
 
 if __name__ == "__main__":

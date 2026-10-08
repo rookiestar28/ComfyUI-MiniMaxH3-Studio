@@ -343,6 +343,18 @@ class RegistryPublicationLockTests(unittest.TestCase):
 
 
 class RegistryPublishGuardTests(unittest.TestCase):
+    def test_guard_help_runs_on_supported_interpreter(self) -> None:
+        result = subprocess.run(
+            [sys.executable, "-I", str(ROOT / "scripts" / "registry_publish_guard.py"), "--help"],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    @unittest.skipIf(sys.version_info < (3, 11), "stdlib-only tomllib requires Python 3.11+")
     def test_guard_help_runs_without_site_packages_under_stdlib_tomllib_python(self) -> None:
         self.assertGreaterEqual(sys.version_info, (3, 11))
         result = subprocess.run(

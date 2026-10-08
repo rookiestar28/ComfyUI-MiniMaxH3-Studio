@@ -8,6 +8,8 @@ include NOTICE
 include MANIFEST.in
 include .comfyignore
 include .gitignore
+# IMPORTANT: root selectors must include Git attributes or issued-sdist rebuilds lose required bytes.
+include .gitattributes
 include public-source-inventory.json
 include pyproject.toml
 include __init__.py

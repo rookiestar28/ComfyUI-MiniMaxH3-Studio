@@ -26,6 +26,7 @@ import urllib.request
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import cast
 from urllib.parse import urlsplit
 
 MAX_CANDIDATE_FILES = 512
@@ -1297,12 +1298,14 @@ def _terminate_owned_process_tree(process: subprocess.Popen[str]) -> None:
             check=False,
         )
     else:  # pragma: no cover - exercised by Linux CI
+        # IMPORTANT: retain group signaling on POSIX; Windows stubs omit these native APIs.
+        killpg = cast(Callable[[int, int], None], getattr(os, "killpg"))  # noqa: B009
         try:
-            os.killpg(process.pid, signal.SIGTERM)  # type: ignore[attr-defined]
+            killpg(process.pid, signal.SIGTERM)
             process.wait(timeout=5)
         except (ProcessLookupError, subprocess.TimeoutExpired):
             if process.poll() is None:
-                os.killpg(process.pid, signal.SIGKILL)  # type: ignore[attr-defined]
+                killpg(process.pid, int(getattr(signal, "SIGKILL")))  # noqa: B009
     if process.poll() is None:
         process.kill()
     process.wait(timeout=15)
@@ -1310,10 +1313,11 @@ def _terminate_owned_process_tree(process: subprocess.Popen[str]) -> None:
 
 def process_exists(pid: int) -> bool:
     if os.name == "nt":
-        handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)
+        kernel = getattr(ctypes, "windll").kernel32  # noqa: B009
+        handle = kernel.OpenProcess(0x1000, False, pid)
         if not handle:
             return False
-        ctypes.windll.kernel32.CloseHandle(handle)
+        kernel.CloseHandle(handle)
         return True
     try:  # pragma: no cover - exercised by Linux CI
         os.kill(pid, 0)
@@ -1325,7 +1329,9 @@ def process_exists(pid: int) -> bool:
 def run_bounded(
     command: Sequence[str], *, cwd: Path, environment: Mapping[str, str], timeout: float
 ) -> CommandResult:
-    creationflags = subprocess.CREATE_NEW_PROCESS_GROUP if os.name == "nt" else 0
+    creationflags = (
+        int(getattr(subprocess, "CREATE_NEW_PROCESS_GROUP")) if os.name == "nt" else 0  # noqa: B009
+    )
     process = subprocess.Popen(  # noqa: S603 - argv only, no shell
         list(command),
         cwd=cwd,

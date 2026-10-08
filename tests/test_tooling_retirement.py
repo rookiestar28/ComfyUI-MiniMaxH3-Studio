@@ -5,7 +5,11 @@ from __future__ import annotations
 import importlib.util
 import subprocess
 import unittest
+from contextlib import ExitStack
 from pathlib import Path
+from unittest.mock import patch
+
+from history_fixture import commit, git_history, write_json
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location(
@@ -18,6 +22,30 @@ SPEC.loader.exec_module(TOOL)
 
 
 class ToolingRetirementPolicyTests(unittest.TestCase):
+    history_root: Path
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        resources = ExitStack()
+        cls.addClassCleanup(resources.close)
+        cls.history_root = resources.enter_context(git_history())
+        for path in TOOL.RETIRED_PATHS:
+            write_json(cls.history_root, path, "synthetic retired tool")
+        commit(cls.history_root)
+        for path in TOOL.RETIRED_PATHS:
+            (cls.history_root / path).unlink()
+        commit(cls.history_root)
+        recovery = TOOL._recovery_commit
+        # CRITICAL: live reader/retention checks need the current tree, while recovery uses
+        # real synthetic Git objects. Missing private history must not disable the live census.
+        resources.enter_context(
+            patch.object(
+                TOOL,
+                "_recovery_commit",
+                side_effect=lambda _root, path: recovery(cls.history_root, path),
+            )
+        )
+
     def test_census_is_complete_sorted_and_byte_deterministic(self) -> None:
         first = TOOL.build_census(ROOT)
         second = TOOL.build_census(ROOT)
@@ -105,7 +133,7 @@ class ToolingRetirementPolicyTests(unittest.TestCase):
         self.assertEqual(row.disposition, "retain_required")
         self.assertIn("typed receipt", row.rationale)
 
-    def test_retired_paths_are_absent_and_recoverable_from_git_history(self) -> None:
+    def test_retired_paths_are_absent_and_synthetic_recovery_reads_real_git_history(self) -> None:
         census = TOOL.build_census(ROOT)
         self.assertEqual(len(census.retired_paths), 9)
         for record in census.retired_tools:
@@ -122,7 +150,7 @@ class ToolingRetirementPolicyTests(unittest.TestCase):
                         "-e",
                         f"{record.recovery_commit}:{record.path}",
                     ],
-                    cwd=ROOT,
+                    cwd=self.history_root,
                     check=True,
                     capture_output=True,
                 )
@@ -174,6 +202,47 @@ class ToolingRetirementPolicyTests(unittest.TestCase):
                     [item for item in row.consumers if not item.startswith(generated)],
                     f"{row.path} is referenced only by generated records",
                 )
+
+
+class RecoveryHistoryTests(unittest.TestCase):
+    def test_missing_addition_history_fails_closed(self) -> None:
+        with git_history() as root:
+            commit(root)
+            with self.assertRaisesRegex(TOOL.ToolingRetirementError, "no exact recovery commit"):
+                TOOL._recovery_commit(root, "scripts/never_added.py")
+
+    def test_a_claimed_recovery_commit_with_no_blob_is_rejected(self) -> None:
+        with git_history() as root:
+            revision = commit(root)
+            real_git = TOOL._run_git
+
+            def substituted_log(target: Path, arguments: tuple[str, ...]) -> bytes:
+                if arguments[0] == "log":
+                    return revision.encode("ascii")
+                return bytes(real_git(target, arguments))
+
+            with patch.object(TOOL, "_run_git", side_effect=substituted_log):
+                with self.assertRaises(TOOL.ToolingRetirementError):
+                    TOOL._recovery_commit(root, "scripts/never_added.py")
+
+    def test_actual_retired_tools_are_recoverable_when_the_exact_history_is_present(self) -> None:
+        # This is the sole actual-history replay; synthetic recovery above makes no claim
+        # about maintainer objects that were never part of a public source snapshot.
+        missing = [
+            path
+            for path in TOOL.RETIRED_PATHS
+            if not subprocess.run(
+                ["git", "log", "--diff-filter=A", "-1", "--format=%H", "--", path],
+                cwd=ROOT,
+                capture_output=True,
+                check=True,
+            ).stdout.strip()
+        ]
+        if missing:
+            self.skipTest("NOT_RUN: exact retired-tool history unavailable: " + ", ".join(missing))
+        for path in TOOL.RETIRED_PATHS:
+            revision = TOOL._recovery_commit(ROOT, path)
+            self.assertRegex(revision, r"\A[0-9a-f]{40}\Z")
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ import { expect, type Page } from "@playwright/test";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
+import { fixturePython } from "../../../e2e/fixturePython";
 
 import type { NleWorkspaceHarnessSnapshot } from "../../../e2e/nleWorkspace";
 import { NLE_AUTHORING_SCHEMA } from "../../../src/contracts/authoringWorkbenchCodec";
@@ -57,11 +58,7 @@ async function canonicalWorkspaceMode(
   v2: boolean,
 ) {
   const root = fileURLToPath(new URL("../../../../", import.meta.url));
-  const python = join(
-    root,
-    ".venv",
-    process.platform === "win32" ? "Scripts/python.exe" : "bin/python",
-  );
+  const python = fixturePython(root);
   const transactions: unknown[] = [];
   let initial: unknown;
   let bootstrapped: (() => void) | undefined;

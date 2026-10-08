@@ -1029,7 +1029,10 @@ def test_a_linked_runtime_target_is_refused(tmp_path: Path) -> None:
     elsewhere.mkdir()
     (elsewhere / "precious.txt").write_bytes(b"not ours")
     layout.runtime_root.mkdir(parents=True)
-    _winapi.CreateJunction(str(elsewhere), str(layout.runtime_root / MANAGED_PROFILE_COMPONENT))
+    # Windows-only fixture APIs are absent from POSIX stubs, but must stay real junctions.
+    getattr(_winapi, "CreateJunction")(  # noqa: B009
+        str(elsewhere), str(layout.runtime_root / MANAGED_PROFILE_COMPONENT)
+    )
 
     with pytest.raises(InstallerError, match="^private_root_invalid$"):
         run.run()
@@ -1047,7 +1050,7 @@ def test_a_linked_staging_directory_is_refused_before_any_download(tmp_path: Pat
     elsewhere.mkdir()
     (elsewhere / "precious.txt").write_bytes(b"not ours")
     layout.media_runtime.mkdir(parents=True)
-    _winapi.CreateJunction(str(elsewhere), str(layout.media_runtime / "staging"))
+    getattr(_winapi, "CreateJunction")(str(elsewhere), str(layout.media_runtime / "staging"))  # noqa: B009
 
     with pytest.raises(InstallerError, match="^private_root_invalid$"):
         run.run()
@@ -1146,12 +1149,13 @@ def test_an_install_lock_held_by_another_installer_is_busy(tmp_path: Path) -> No
     staging = layout.media_runtime / "staging"
     staging.mkdir(parents=True)
     holder = os.open(staging / "install.lock", os.O_RDWR | os.O_CREAT)
-    msvcrt.locking(holder, msvcrt.LK_NBLCK, 1)
+    locking = cast(Callable[[int, int, int], None], getattr(msvcrt, "locking"))  # noqa: B009
+    locking(holder, int(getattr(msvcrt, "LK_NBLCK")), 1)  # noqa: B009
     try:
         with pytest.raises(InstallerError, match="^setup_busy$"):
             run.run()
     finally:
-        msvcrt.locking(holder, msvcrt.LK_UNLCK, 1)
+        locking(holder, int(getattr(msvcrt, "LK_UNLCK")), 1)  # noqa: B009
         os.close(holder)
 
     assert downloader.urls == []
@@ -1206,7 +1210,7 @@ def test_cleanup_never_deletes_through_a_junctioned_tree(tmp_path: Path) -> None
         (elsewhere / name).write_bytes(b"not ours")
     job = tmp_path / JOB
     job.mkdir()
-    _winapi.CreateJunction(str(elsewhere), str(job / "tree"))
+    getattr(_winapi, "CreateJunction")(str(elsewhere), str(job / "tree"))  # noqa: B009
 
     cleanup_job_directory(job, manifest, include_retired=True)
 
@@ -1230,7 +1234,7 @@ def test_the_sweep_leaves_a_junctioned_job_directory_untouched(tmp_path: Path) -
     elsewhere = tmp_path / "elsewhere"
     elsewhere.mkdir()
     (elsewhere / "archive.zip.part").write_bytes(b"not ours")
-    _winapi.CreateJunction(str(elsewhere), str(staging / OTHER_JOB))
+    getattr(_winapi, "CreateJunction")(str(elsewhere), str(staging / OTHER_JOB))  # noqa: B009
 
     run.run()
 
@@ -1261,7 +1265,10 @@ def test_the_exclusive_writer_never_opens_an_existing_file(tmp_path: Path) -> No
     ],
 )
 def test_os_failures_map_to_closed_codes(errno: int, winerror: int | None, code: str) -> None:
-    error = OSError(errno, "injected failure")
+    class InjectedError(OSError):
+        winerror: int
+
+    error = InjectedError(errno, "injected failure")
     # IMPORTANT: POSIX ignores OSError's winerror constructor argument; inject Windows fixtures.
     if winerror is not None:
         error.winerror = winerror

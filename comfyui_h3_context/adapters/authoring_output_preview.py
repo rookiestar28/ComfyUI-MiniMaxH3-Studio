@@ -13,6 +13,10 @@ from contextlib import ExitStack
 from dataclasses import replace
 from fractions import Fraction
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from _thread import LockType
 
 from ..core.authoring_output_protocol import (
     OUTPUT_MAX_BYTES,
@@ -128,6 +132,15 @@ class _Control:
 
 class NativeOutputPreview:
     """Own one guarded staging session; no original artifact path is ever consumed."""
+
+    if TYPE_CHECKING:
+        # IMPORTANT: non-Windows construction raises before initialization; keep fields typed
+        # without moving resource allocation ahead of that fail-closed platform check.
+        _renderer_path: Path
+        _probe_path: Path
+        _stop: threading.Event
+        _lock: LockType
+        _store: RenderOutputStore
 
     def __init__(self, *, root: Path, renderer_path: Path, probe_path: Path) -> None:
         if sys.platform != "win32" or not all(

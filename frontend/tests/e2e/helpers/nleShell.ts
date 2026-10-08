@@ -15,6 +15,7 @@ import { readFileSync } from "node:fs";
 import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
+import { fixturePython } from "../../../e2e/fixturePython";
 
 import {
   routeGenericFixtureMedia,
@@ -261,11 +262,7 @@ type Oracle = Readonly<{
 }>;
 
 function pythonPath(root: string): string {
-  return join(
-    root,
-    ".venv",
-    process.platform === "win32" ? "Scripts/python.exe" : "bin/python",
-  );
+  return fixturePython(root);
 }
 
 /** The stateless replay oracle every M25-16 journey uses: all transactions, every call. */
@@ -642,11 +639,7 @@ export async function openCompositionSeriesShell(
   // `/nle-media/<member>` path), so this route answers those specifically and falls through to the
   // generic `members` table above for everything else.
   await routeCorpusFixtureMedia(page, root);
-  const python = join(
-    root,
-    ".venv",
-    process.platform === "win32" ? "Scripts/python.exe" : "bin/python",
-  );
+  const python = fixturePython(root);
   let currentWire: Record<string, unknown> | undefined;
   await page.route("**/__nle_fixture/*", async (route) => {
     if (!route.request().url().endsWith("/bootstrap")) {

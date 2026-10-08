@@ -1,0 +1,2 @@
+# Exact native observer admission hashes checkout bytes, not only the Git blob.
+scripts/process_audio_observer.py text eol=lf

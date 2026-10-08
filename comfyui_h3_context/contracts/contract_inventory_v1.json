@@ -5752,6 +5752,7 @@
         "scripts/security_audit.py",
         "scripts/supply_chain_manifest.py",
         "scripts/validate_comfy_registry_metadata.py",
+        "tests/test_ci_preflight.py",
         "tests/test_comfy_registry_metadata.py",
         "tests/test_gate_stages.py",
         "tests/test_host_version_tolerance.py",
@@ -15222,6 +15223,6 @@
       "reachability_source": "none"
     }
   ],
-  "fingerprint": "sha256:4021891f631280fd8797e0c3ac13672bc1b79fd659ecc8652ca864339116f488",
+  "fingerprint": "sha256:9472c1cba9ae0f0bf80d1f3c0a7ede29c8bc4fecb678069b3376cfe8c9f96607",
   "schema": "h3-context-contract-inventory/1"
 }

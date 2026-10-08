@@ -73,6 +73,7 @@ required = [".gitignore", "MANIFEST.in"]
         "pyproject.toml": metadata.encode(),
         "MANIFEST.in": (ROOT / "MANIFEST.in").read_bytes(),
         ".gitignore": (ROOT / ".gitignore").read_bytes(),
+        ".gitattributes": b"scripts/probe.py text eol=lf\n",
         "README.md": b"Public source build probe.\n",
         "RELEASE_NOTES.md": b"Public release build probe.\n",
         "LICENSE": b"Apache-2.0\n",
@@ -128,7 +129,7 @@ def _members(path: Path) -> dict[str, bytes]:
 
 def test_standard_sdist_carries_all_reviewed_suffixes_and_ignore_policy(source: Path) -> None:
     members = _members(_sdist(source))
-    required = {*REVIEWED_INPUTS, ".gitignore", "MANIFEST.in", "RELEASE_NOTES.md"}
+    required = {*REVIEWED_INPUTS, ".gitignore", ".gitattributes", "MANIFEST.in", "RELEASE_NOTES.md"}
     assert required <= members.keys(), sorted(required - members.keys())
     for relative in required:
         assert members[relative] == (source / relative).read_bytes()

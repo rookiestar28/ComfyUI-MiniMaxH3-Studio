@@ -49,7 +49,7 @@
       "path": "frontend/src/entry.tsx"
     }
   ],
-  "fingerprint": "sha256:41aaa3a9ac41c2caa22e53df0983798a710fdb3ed980ca78163b100775df06e1",
+  "fingerprint": "sha256:2e4c6c33b65c720df97bc78af73e7a98239b5101920701158bf241dd908c1704",
   "known_violations": [],
   "modules": [
     {
@@ -407,7 +407,7 @@
         "comfyui_h3_context/core/authoring_render_receipts.py"
       ],
       "language": "python",
-      "lines": 307,
+      "lines": 320,
       "path": "comfyui_h3_context/adapters/authoring_output_preview.py",
       "source_reachability": {
         "class": "product",
@@ -1962,7 +1962,7 @@
         "comfyui_h3_context/core/safe_paths.py"
       ],
       "language": "python",
-      "lines": 610,
+      "lines": 615,
       "path": "comfyui_h3_context/adapters/managed_artifact_scopes.py",
       "source_reachability": {
         "class": "product",
@@ -2404,7 +2404,7 @@
     {
       "imports": [],
       "language": "python",
-      "lines": 138,
+      "lines": 140,
       "path": "comfyui_h3_context/adapters/perception_process.py",
       "source_reachability": {
         "class": "product",
@@ -5431,7 +5431,7 @@
         "comfyui_h3_context/core/native_t2va_baseline.py"
       ],
       "language": "python",
-      "lines": 770,
+      "lines": 777,
       "path": "comfyui_h3_context/core/native_t2va_structure.py",
       "source_reachability": {
         "class": "product",
@@ -7331,7 +7331,7 @@
         "comfyui_h3_context/core/semantic_conformance.py"
       ],
       "language": "python",
-      "lines": 1352,
+      "lines": 1363,
       "path": "comfyui_h3_context/core/semantic_conformance_compare.py",
       "source_reachability": {
         "class": "qualification",
@@ -8932,7 +8932,6 @@
     },
     {
       "imports": [
-        "frontend/src/components/authoringOutput.tsx",
         "frontend/src/components/authoringOutputCopy.ts",
         "frontend/src/components/ownedRangeKeys.ts",
         "frontend/src/components/useAuthoringOutput.ts",
@@ -9600,7 +9599,6 @@
         "frontend/src/components/nle/NleWorkspace.tsx",
         "frontend/src/components/nle/nleCopy.ts",
         "frontend/src/components/nle/nleMonitorChannel.ts",
-        "frontend/src/components/nle/nleWorkspace.tsx",
         "frontend/src/components/nle/nleWorkspaceBinding.ts",
         "frontend/src/runtime/nleSaveIndicator.ts",
         "frontend/src/state/nleWorkspaceState.ts"

@@ -173,6 +173,29 @@ def _seed_sidebar_context(
     return seed
 
 
+def _read_loopback_seed(seed: dict[str, object], *, multi_shot: bool = False) -> dict[str, object]:
+    from comfyui_h3_context.adapters.composition_root import SIDEBAR_WORKSPACE, get
+
+    handle = seed["workspace_id"]
+    if not isinstance(handle, str):
+        raise RuntimeError("loopback seed identity unavailable")
+    try:
+        get(SIDEBAR_WORKSPACE).claim_production_seed(handle)
+    except KeyError:
+        # CRITICAL: broad suites reach this fixture after the real Context TTL. Publish a fresh
+        # synthetic seed at fixture read, never lengthen the product TTL or retry its actions.
+        fresh = (
+            _seed_sidebar_context(
+                MULTI_SHOT_INTENT, 15.0, "loopback_seed_multi_shot", include_prompt=True
+            )
+            if multi_shot
+            else _seed_sidebar_context()
+        )
+        seed.clear()
+        seed.update(fresh)
+    return dict(seed)
+
+
 #: Opt-in only. Absent or anything but "1" keeps the media runner refused like any other process.
 MEDIA_RUNNER_ENV = "H3_CONTEXT_E2E_SERVICE_LOOPBACK_MEDIA"
 #: A scheme-bearing argument is how a local transcode becomes a network fetch; ffmpeg accepts a URL
@@ -1126,12 +1149,12 @@ def _build_app(
         )
 
     async def _context_handler(_request: web.Request) -> web.Response:
-        return web.json_response(dict(seed))
+        return web.json_response(_read_loopback_seed(seed))
 
     async def _multi_shot_context_handler(_request: web.Request) -> web.Response:
         if multi_shot_seed is None:
             return web.json_response({"error": "seed_unavailable"}, status=404)
-        return web.json_response(dict(multi_shot_seed))
+        return web.json_response(_read_loopback_seed(multi_shot_seed, multi_shot=True))
 
     async def _media_context_handler(_request: web.Request) -> web.Response:
         if not media_context:

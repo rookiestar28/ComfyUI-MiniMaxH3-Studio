@@ -21,6 +21,9 @@ import sys
 import unittest
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
+
+from history_fixture import commit, git_history, require_history, write_json
 
 from comfyui_h3_context.core.fingerprint_domain import IdentityDomain
 from scripts.governance.closeout_matrix import (
@@ -305,11 +308,52 @@ class GeneratedMatrixTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.document = json.loads(ARTIFACT.read_text(encoding="utf-8"))
-        cls.matrix = GENERATOR.build_matrix()
+        # CRITICAL: a public snapshot cannot replay private checkpoints. Recompute the typed
+        # artifact and current runtime rows here; keep historical re-derivation separate.
+        cls.matrix = CloseoutMatrix(
+            probes=tuple(
+                Probe(
+                    probe_id=row["probe_id"],
+                    domain=IdentityDomain(row["domain"]),
+                    authority=row["authority"],
+                    depends_on=tuple(IdentityDomain(value) for value in row["depends_on"]),
+                )
+                for row in cls.document["probes"]
+            ),
+            metrics=tuple(
+                CloseoutMetric(
+                    metric_id=row["metric_id"],
+                    unit=row["unit"],
+                    baseline=row["baseline"],
+                    final=row["final"],
+                    baseline_commit=row["baseline_commit"],
+                    final_commit=row["final_commit"],
+                    evidence=row["evidence"],
+                )
+                for row in cls.document["metrics"]
+            ),
+            rows=tuple(
+                BlastRadiusRow(
+                    mutation_id=row["mutation_id"],
+                    domain=IdentityDomain(row["domain"]),
+                    moved=tuple(row["moved"]),
+                    unmoved=tuple(row["unmoved"]),
+                    evidence=row["evidence"],
+                )
+                for row in cls.document["rows"]
+            ),
+        )
 
-    def test_the_artifact_regenerates_byte_identically(self) -> None:
+    def test_the_artifact_round_trips_with_recomputed_fingerprint(self) -> None:
         self.assertEqual(
             GENERATOR.artifact_bytes(self.matrix), ARTIFACT.read_bytes().replace(b"\r\n", b"\n")
+        )
+
+    def test_current_runtime_mutations_reproduce_the_recorded_rows(self) -> None:
+        self.assertEqual([row.to_wire() for row in GENERATOR.build_rows()], self.document["rows"])
+        self.assertEqual(
+            [probe.to_wire() for probe in sorted(GENERATOR.PROBES, key=lambda row: row.probe_id)],
+            self.document["probes"],
         )
 
     def test_the_record_and_its_fingerprint_agree(self) -> None:
@@ -402,18 +446,6 @@ class GeneratedMatrixTests(unittest.TestCase):
         )
         self.assertEqual(metric["baseline"], metric["final"])
         self.assertFalse(metric["moved"])
-
-    def test_every_metric_names_a_commit_that_exists(self) -> None:
-        for metric in self.document["metrics"]:
-            for field in ("baseline_commit", "final_commit"):
-                with self.subTest(metric=metric["metric_id"], field=field):
-                    result = subprocess.run(
-                        ["git", "cat-file", "-e", f"{metric[field]}^{{commit}}"],
-                        cwd=REPO_ROOT,
-                        capture_output=True,
-                        check=False,
-                    )
-                    self.assertEqual(result.returncode, 0, metric[field])
 
     def test_the_record_carries_identifiers_and_counts_and_nothing_else(self) -> None:
         from comfyui_h3_context.core.contract_inventory import FORBIDDEN_RECORD_TEXT
@@ -545,7 +577,6 @@ class ChainCloseoutTests(unittest.TestCase):
             "fingerprint_domain.py",
             "cross_language_surface.py",
             "retirement_eligibility.py",
-            "closeout_matrix.py",
         ):
             with self.subTest(generator=script):
                 result = subprocess.run(
@@ -556,6 +587,96 @@ class ChainCloseoutTests(unittest.TestCase):
                     check=False,
                 )
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
+class HistoricalReplayTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        require_history(REPO_ROOT, [GENERATOR.M18_01, GENERATOR.M18_04, GENERATOR.M18_05])
+
+    def test_the_accepted_history_regenerates_byte_identically(self) -> None:
+        self.assertEqual(
+            GENERATOR.artifact_bytes(GENERATOR.build_matrix()),
+            ARTIFACT.read_bytes().replace(b"\r\n", b"\n"),
+        )
+
+    def test_every_recorded_metric_commit_exists(self) -> None:
+        document = json.loads(ARTIFACT.read_text(encoding="utf-8"))
+        for metric in document["metrics"]:
+            for field in ("baseline_commit", "final_commit"):
+                subprocess.run(
+                    ["git", "cat-file", "-e", f"{metric[field]}^{{commit}}"],
+                    cwd=REPO_ROOT,
+                    check=True,
+                    capture_output=True,
+                )
+
+    def test_the_historical_cli_checks_the_actual_artifact(self) -> None:
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "scripts/closeout_matrix.py"), "--check"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
+class SyntheticHistoryTests(unittest.TestCase):
+    def test_real_commit_metrics_and_missing_objects(self) -> None:
+        with git_history() as root:
+            write_json(
+                root,
+                GENERATOR.INVENTORY,
+                {
+                    "entries": [
+                        {"disposition": "NEED_EVIDENCE"},
+                        {"disposition": "NEED_EVIDENCE"},
+                    ]
+                },
+            )
+            write_json(root, "comfyui_h3_context/contracts/example.schema.json", {})
+            first = commit(root)
+            write_json(root, GENERATOR.INVENTORY, {"entries": [{"disposition": "ACTIVE"}]})
+            write_json(root, GENERATOR.DOMAIN, {"assignments": [1, 2, 3]})
+            write_json(
+                root,
+                "comfyui_h3_context/contracts/retirement_eligibility_v1.json",
+                {
+                    "retired": [1, 2],
+                },
+            )
+            last = commit(root)
+            with (
+                patch.object(GENERATOR, "ROOT", root),
+                patch.object(GENERATOR, "M18_01", first),
+                patch.object(GENERATOR, "M18_04", last),
+                patch.object(GENERATOR, "M18_05", last),
+            ):
+                metrics = {row.metric_id: row for row in GENERATOR.build_metrics()}
+                undecided = metrics["contracts_with_undecided_disposition"]
+                self.assertEqual((undecided.baseline, undecided.final), (2, 0))
+                self.assertEqual(metrics["identities_without_a_declared_domain"].baseline, 3)
+                self.assertEqual(metrics["schemas_restating_a_wire_with_no_reader"].baseline, 2)
+                self.assertEqual(metrics["shipped_schema_files"].baseline, 1)
+                self.assertEqual(metrics["shipped_schema_files"].final, 1)
+                with self.assertRaises(subprocess.CalledProcessError):
+                    GENERATOR.git_show(last, "absent.json")
+                with patch.object(GENERATOR, "M18_01", "0" * 40):
+                    with self.assertRaises(subprocess.CalledProcessError):
+                        GENERATOR.build_matrix()
+
+    def test_public_artifact_and_runtime_checks_do_not_read_history(self) -> None:
+        with patch.object(GENERATOR, "git_show", side_effect=AssertionError("history unavailable")):
+            GeneratedMatrixTests.setUpClass()
+            self.assertEqual(
+                GeneratedMatrixTests.matrix.fingerprint,
+                GeneratedMatrixTests.document["fingerprint"],
+            )
+            self.assertEqual(
+                [row.to_wire() for row in GENERATOR.build_rows()],
+                GeneratedMatrixTests.document["rows"],
+            )
 
 
 if __name__ == "__main__":  # pragma: no cover - convenience for a single-file run

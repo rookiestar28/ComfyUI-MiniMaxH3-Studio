@@ -1122,16 +1122,19 @@ def test_real_aggregate_preview_keeps_playable_audio_extent(tmp_path: Path, seco
         assert not any((tmp_path / "scratch").iterdir())
 
 
-def test_preview_media_hash_and_body_read_obey_absolute_cutoff() -> None:
-    class _CutoffClock:
-        def __init__(self) -> None:
-            self.values = iter((9.999, 10.0))
-            self.value = 10.0
+class _CutoffClock:
+    def __init__(self) -> None:
+        self.values = iter((9.999, 10.0))
+        self.value = 10.0
 
-        def __call__(self) -> float:
-            self.value = next(self.values, self.value)
-            return self.value
+    def __call__(self) -> float:
+        self.value = next(self.values, self.value)
+        return self.value
 
+
+@pytest.mark.skipif(os.name != "nt", reason="Real Windows media identity pin")
+def test_preview_media_hash_obeys_absolute_cutoff() -> None:
+    # Native pinning stays real; the separate body-read deadline is platform-independent.
     with tempfile.TemporaryDirectory() as temporary:
         path = Path(temporary) / "preview.mp4"
         path.write_bytes(b"x" * (1024 * 1024 + 1))
@@ -1143,6 +1146,12 @@ def test_preview_media_hash_and_body_read_obey_absolute_cutoff() -> None:
                 clock=_CutoffClock(),
             ):
                 pass
+
+
+def test_preview_media_body_read_obeys_absolute_cutoff() -> None:
+    with tempfile.TemporaryDirectory() as temporary:
+        path = Path(temporary) / "preview.mp4"
+        path.write_bytes(b"x" * (1024 * 1024 + 1))
         with pytest.raises(AVMediaAdapterError, match="preview_deadline"):
             media_module._read_regular_media_body(
                 path,

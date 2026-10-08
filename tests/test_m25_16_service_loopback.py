@@ -18,6 +18,49 @@ def test_loopback_census_includes_the_two_path_media_lease_registrar() -> None:
     ) in labels
 
 
+def test_loopback_seed_read_republishes_expired_fixture_without_extending_product_ttl() -> None:
+    program = """
+import json
+from comfyui_h3_context.adapters.composition_root import SIDEBAR_WORKSPACE, get
+from comfyui_h3_context.adapters.comfyui_sidebar_workspace import SIDEBAR_WORKSPACE_TTL_SECONDS
+from scripts.m25_16_service_loopback import _read_loopback_seed, _seed_sidebar_context
+registry = get(SIDEBAR_WORKSPACE)
+clock = [1000.0]
+registry._clock = lambda: clock[0]
+seed = _seed_sidebar_context()
+before = dict(seed)
+assert _read_loopback_seed(seed) == before
+clock[0] += SIDEBAR_WORKSPACE_TTL_SECONDS + 1
+try:
+    registry.claim_production_seed(before['workspace_id'])
+except KeyError:
+    pass
+else:
+    raise AssertionError('product TTL was extended')
+fresh = _read_loopback_seed(seed)
+assert fresh == seed and fresh['workspace_id'] != before['workspace_id']
+registry.claim_production_seed(fresh['workspace_id'])
+assert _read_loopback_seed(seed) == fresh
+print(json.dumps({
+    'expired_refused': True, 'fresh_claimed': True, 'valid_identity_preserved': True,
+}))
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", program],
+        cwd=Path(__file__).resolve().parents[1],
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=30,
+    )
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout) == {
+        "expired_refused": True,
+        "fresh_claimed": True,
+        "valid_identity_preserved": True,
+    }
+
+
 def test_loopback_external_guards_refuse_and_count_in_an_isolated_process() -> None:
     # Audit hooks cannot be removed. Never install this guard in the shared pytest process.
     program = """

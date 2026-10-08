@@ -19,6 +19,7 @@ PUBLICATION_FILES = frozenset(
 FILES = frozenset(
     {
         ".comfyignore",
+        ".gitattributes",
         ".gitignore",
         "LICENSE",
         "MANIFEST.in",

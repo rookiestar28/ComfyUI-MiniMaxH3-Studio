@@ -32,7 +32,10 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import hashlib
+import importlib.metadata
 import json
+import os
+import platform
 import re
 import subprocess
 import sys
@@ -40,9 +43,13 @@ from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 
+if __package__ in (None, ""):
+    # IMPORTANT: direct script entry has scripts/ on sys.path, not the helper's package root.
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 PNPM = "pnpm.cmd" if sys.platform == "win32" else "pnpm"
 
-STATE_VERSION = 3
+STATE_VERSION = 4
 STATE_RELATIVE = Path(".tmp/gate-state.json")
 TEMPLATE_CORPUS = "reference/rm02/official/workflow_templates/templates"
 
@@ -74,19 +81,26 @@ WHOLE_TREE = ("*",)
 # it; E2E claims the built sidebar because that is what the browser loads.
 STAGES: tuple[Stage, ...] = (
     Stage("workspace link guard", inputs=(), cacheable=False),
+    Stage("CI prerequisite contracts", inputs=(), cacheable=False),
     Stage("shipped artifact integrity", inputs=WHOLE_TREE, cacheable=False),
     Stage("pre-commit once (includes secret scan, lint, format, and typing)", inputs=WHOLE_TREE),
     Stage("package import", inputs=("comfyui_h3_context/*", "pyproject.toml")),
     Stage("frontend formatting", inputs=("frontend/*",)),
     Stage("frontend static contract", inputs=("frontend/*",)),
-    Stage("frontend unit tests", inputs=("frontend/*", f"{TEMPLATE_CORPUS}/*")),
+    Stage(
+        "frontend unit tests",
+        inputs=("frontend/*", "scripts/process_audio_observer.py", f"{TEMPLATE_CORPUS}/*"),
+    ),
     Stage(
         "backend product tests",
         inputs=("comfyui_h3_context/*", "tests/*", "scripts/*", "pyproject.toml"),
         cacheable=False,
     ),
     Stage("security audit", inputs=WHOLE_TREE),
-    Stage("frontend hermetic smoke", inputs=("frontend/*", "comfyui_h3_context/web/*")),
+    Stage(
+        "frontend hermetic smoke",
+        inputs=("frontend/*", "scripts/*", "comfyui_h3_context/*", "pyproject.toml"),
+    ),
 )
 
 STAGE_NAMES = tuple(stage.name for stage in STAGES)
@@ -139,6 +153,39 @@ SMOKE_CASES = tuple(
 SMOKE_SPECS = tuple(dict.fromkeys(name for name, _ in SMOKE_CASES))
 
 
+def browser_environment(root: Path) -> dict[str, str]:
+    from scripts.ci_preflight import fixture_python
+
+    return {**os.environ, "H3_CONTEXT_E2E_PYTHON": str(fixture_python(root))}
+
+
+def _smoke_population(report: object, *, executed: bool) -> Counter[tuple[str, str]]:
+    if not isinstance(report, dict) or report.get("errors"):
+        raise ValueError("Browser report contains global errors or is malformed")
+    pending = list(report["suites"])
+    selected = []
+    while pending:
+        suite = pending.pop()
+        pending.extend(suite.get("suites", []))
+        for spec in suite.get("specs", []):
+            for test in spec["tests"]:
+                if test["expectedStatus"] != "passed":
+                    raise ValueError("Smoke case must be enabled and expected to pass")
+                if executed:
+                    results = test["results"]
+                    # CRITICAL: exit zero can hide runtime skips or successful retries.
+                    if (
+                        len(results) != 1
+                        or results[0]["status"] != "passed"
+                        or results[0].get("retry") != 0
+                        or results[0].get("errors")
+                        or results[0].get("error")
+                    ):
+                        raise ValueError("Smoke requires one passed attempt without retries")
+                selected.append((spec["file"].replace("\\", "/"), spec["title"]))
+    return Counter(selected)
+
+
 def browser_smoke(root: Path, *, list_only: bool = False) -> int:
     # IMPORTANT: keep exact file selection on the hermetic config. A package-script positional
     # filter can be swallowed and accidentally run the entire host or hardening lane.
@@ -146,6 +193,7 @@ def browser_smoke(root: Path, *, list_only: bool = False) -> int:
     if missing:
         print("Browser smoke spec missing: " + ", ".join(missing))
         return 2
+    env = browser_environment(root)
     args = [
         PNPM,
         "--dir",
@@ -164,6 +212,7 @@ def browser_smoke(root: Path, *, list_only: bool = False) -> int:
     collected = subprocess.run(
         [*args, "--list", "--reporter=json"],
         cwd=root,
+        env=env,
         stdout=subprocess.PIPE,
         text=True,
         encoding="utf-8",
@@ -172,27 +221,36 @@ def browser_smoke(root: Path, *, list_only: bool = False) -> int:
     if collected.returncode:
         return collected.returncode
     try:
-        pending = json.loads(collected.stdout)["suites"]
-        selected = []
-        while pending:
-            suite = pending.pop()
-            pending.extend(suite.get("suites", []))
-            for spec in suite.get("specs", []):
-                for test in spec["tests"]:
-                    if test["expectedStatus"] != "passed":
-                        raise ValueError("Smoke case must be enabled and expected to pass")
-                    selected.append((spec["file"].replace("\\", "/"), spec["title"]))
-        if Counter(selected) != Counter(SMOKE_CASES):
+        if _smoke_population(json.loads(collected.stdout), executed=False) != Counter(SMOKE_CASES):
             raise ValueError("Collected cases differ from SMOKE_CASES; review the selector")
-    except (KeyError, TypeError, ValueError) as exc:
+    except (KeyError, TypeError, ValueError, AttributeError) as exc:
         print(f"Browser smoke selection failed: {exc}")
         return 2
-    print(f"Browser smoke: {len(selected)} cases in {len(SMOKE_SPECS)} files", flush=True)
+    print(f"Browser smoke: {len(SMOKE_CASES)} cases in {len(SMOKE_SPECS)} files", flush=True)
     if list_only:
         for name, title in SMOKE_CASES:
             print(f"  {name}: {title}")
         return 0
-    return subprocess.run(args, cwd=root, check=False).returncode
+    completed = subprocess.run(
+        [*args, "--reporter=json"],
+        cwd=root,
+        env=env,
+        stdout=subprocess.PIPE,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    if completed.returncode:
+        print(completed.stdout, flush=True)
+        return completed.returncode
+    try:
+        if _smoke_population(json.loads(completed.stdout), executed=True) != Counter(SMOKE_CASES):
+            raise ValueError("Executed cases differ from SMOKE_CASES")
+    except (KeyError, TypeError, ValueError, IndexError, AttributeError) as exc:
+        print(f"Browser smoke execution failed: {exc}")
+        return 2
+    print(f"Browser smoke: {len(SMOKE_CASES)} passed, no skips or retries", flush=True)
+    return 0
 
 
 def _repo_root() -> Path:
@@ -200,17 +258,23 @@ def _repo_root() -> Path:
 
 
 def _run(args: list[str], root: Path) -> str:
-    """Stdout on success, empty string on failure or a missing executable."""
-    try:
-        completed = subprocess.run(args, cwd=root, capture_output=True, text=True, check=False)
-    except OSError:
-        return ""
-    return completed.stdout if completed.returncode == 0 else ""
+    """Discover inputs or fail closed; missing tools are never an empty inventory."""
+    return subprocess.run(
+        args, cwd=root, capture_output=True, text=True, encoding="utf-8", check=True
+    ).stdout
 
 
 def tracked_files(root: Path) -> list[str]:
-    """Every tracked path, POSIX-separated, sorted. Empty when git is unavailable."""
-    return sorted(line for line in _run(["git", "ls-files"], root).splitlines() if line)
+    """Tracked and nonignored untracked inputs; discovery errors reject cache lookup."""
+    return sorted(
+        set(
+            path
+            for path in _run(
+                ["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"], root
+            ).split("\0")
+            if path
+        )
+    )
 
 
 def _digest_paths(root: Path, paths: list[str]) -> str:
@@ -221,7 +285,8 @@ def _digest_paths(root: Path, paths: list[str]) -> str:
         accumulator.update(b"\0")
         try:
             accumulator.update(hashlib.sha256((root / path).read_bytes()).digest())
-        except OSError:
+        except FileNotFoundError:
+            # CRITICAL: permission/lock/I/O failures are not absence and must reject cache reuse.
             accumulator.update(b"<absent>")
         accumulator.update(b"\0")
     return accumulator.hexdigest()
@@ -229,11 +294,22 @@ def _digest_paths(root: Path, paths: list[str]) -> str:
 
 def _tool_versions(root: Path) -> str:
     parts = [
-        sys.version.split()[0],
+        sys.version,
+        sys.platform,
+        os.name,
+        platform.machine(),
+        sys.executable,
+        sys.prefix,
+        hashlib.sha256(Path(sys.executable).read_bytes()).hexdigest(),
+        sorted(
+            (dist.metadata["Name"], dist.version) for dist in importlib.metadata.distributions()
+        ),
         _run(["node", "-p", "process.versions.node"], root).strip(),
         _run([PNPM, "--version"], root).strip(),
+        # IMPORTANT: store only the digest, never private environment values, in cache/output.
+        {key: value for key, value in os.environ.items() if key != "PYTEST_CURRENT_TEST"},
     ]
-    return "|".join(parts)
+    return hashlib.sha256(json.dumps(parts, sort_keys=True).encode("utf-8")).hexdigest()
 
 
 def narrow_stages() -> tuple[Stage, ...]:
@@ -304,19 +380,42 @@ def load_state(root: Path) -> dict[str, str]:
     return {str(k): str(v) for k, v in passed.items() if isinstance(v, str)}
 
 
-def record_pass(name: str, root: Path | None = None) -> None:
-    root = root or _repo_root()
-    current = fingerprints(root)
-    if name not in current:
-        return
-    state = load_state(root)
-    state[name] = current[name]
+def _write_state(root: Path, state: dict[str, str]) -> None:
     path = _state_path(root)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         json.dumps({"version": STATE_VERSION, "passed": state}, indent=1, sort_keys=True),
         encoding="utf-8",
     )
+
+
+def begin_stage(name: str, *, resume: bool, root: Path | None = None) -> str | None:
+    if not resume:
+        return None
+    # CRITICAL: the workspace guard must execute before any tree-wide cache input reads.
+    if not any(stage.name == name and stage.cacheable for stage in STAGES):
+        return "uncached"
+    root = root or _repo_root()
+    current = fingerprints(root)
+    state = load_state(root)
+    # CRITICAL: revoke prior PASS before attempting work; interruptions cannot resurrect it.
+    state.pop(name, None)
+    _write_state(root, state)
+    return current.get(name, "uncached")
+
+
+def record_pass(name: str, expected: str, root: Path | None = None) -> None:
+    if not any(stage.name == name and stage.cacheable for stage in STAGES):
+        return
+    root = root or _repo_root()
+    current = fingerprints(root)
+    if name not in current:
+        return
+    if current[name] != expected:
+        raise ValueError("Stage inputs changed during execution; no PASS recorded")
+    state = load_state(root)
+    state[name] = current[name]
+    _write_state(root, state)
 
 
 def should_run(name: str, resume: bool, root: Path | None = None) -> bool:
@@ -336,23 +435,30 @@ def _cmd_should_run(args: argparse.Namespace) -> int:
 
 
 def _cmd_record(args: argparse.Namespace) -> int:
-    record_pass(args.name)
+    record_pass(args.name, args.expected)
+    return 0
+
+
+def _cmd_before_run(args: argparse.Namespace) -> int:
+    print(begin_stage(args.name, resume=True))
     return 0
 
 
 def _cmd_summary(args: argparse.Namespace) -> int:
-    root = _repo_root()
-    state = load_state(root)
-    current = fingerprints(root)
-    skipped = [n for n in STAGE_NAMES if n in current and state.get(n) == current[n]]
     if not args.resume:
         print("resume not requested: every stage ran, no cache was read or written")
         return 0
-    if not skipped:
-        print("resume requested: no stage was eligible to skip")
-        return 0
+    root = _repo_root()
+    state = load_state(root)
+    current = fingerprints(root)
+    # CRITICAL: a later stage can mutate an earlier stage's inputs after its own check passed.
+    # Never emit final acceptance merely by omitting those now-stale records from the summary.
+    invalid = [s.name for s in STAGES if s.cacheable and state.get(s.name) != current[s.name]]
+    if invalid:
+        print("Resume validation failed: missing or stale PASS for " + ", ".join(invalid))
+        return 2
     print("resume requested; valid stage records (see RUN/SKIP output for this execution):")
-    for name in skipped:
+    for name in current:
         print(f"  {name}  {current[name][:16]}")
     return 0
 
@@ -375,7 +481,12 @@ def main(argv: list[str] | None = None) -> int:
 
     rec = sub.add_parser("record")
     rec.add_argument("name")
+    rec.add_argument("--expected", required=True)
     rec.set_defaults(func=_cmd_record)
+
+    begin = sub.add_parser("before-run")
+    begin.add_argument("name")
+    begin.set_defaults(func=_cmd_before_run)
 
     summary = sub.add_parser("summary")
     summary.add_argument("--resume", action="store_true")
@@ -389,7 +500,12 @@ def main(argv: list[str] | None = None) -> int:
     smoke.set_defaults(func=lambda args: browser_smoke(_repo_root(), list_only=args.list))
 
     args = parser.parse_args(argv)
-    return int(args.func(args))
+    try:
+        return int(args.func(args))
+    except (OSError, ValueError, TypeError, KeyError, subprocess.SubprocessError) as exc:
+        # Status 1 is reserved for a proven cache hit, never an input-discovery failure.
+        print(f"Gate input validation failed ({type(exc).__name__}); no PASS recorded.")
+        return 2
 
 
 if __name__ == "__main__":

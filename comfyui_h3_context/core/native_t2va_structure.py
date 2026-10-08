@@ -228,6 +228,13 @@ def _canonical(value: object) -> object:
         fields = []
         for name in value._fields:
             fields.append([name, _canonical(getattr(value, name, _ABSENT))])
+        # CRITICAL: Python <3.12 omits this empty field; dropping real type parameters
+        # or other fields would admit changed code, while omission alone breaks pinned hashes.
+        if (
+            type(value) in (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
+            and "type_params" not in value._fields
+        ):
+            fields.append(["type_params", _canonical(getattr(value, "type_params", []))])
         return ["node", type(value).__name__, fields]
     if type(value) is list:
         return ["list", [_canonical(item) for item in value]]

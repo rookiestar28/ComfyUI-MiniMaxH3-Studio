@@ -10,6 +10,7 @@ from collections import Counter
 from pathlib import Path
 
 import tomli
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -489,7 +490,7 @@ class ToolingContractTests(unittest.TestCase):
             "python scripts/security_audit.py",
             "pnpm --dir frontend run test",
             "pnpm --dir frontend run build",
-            "pnpm --dir frontend run test:e2e:ci",
+            "${{ matrix.python }} scripts/browser_ci.py",
         ):
             self.assertIn(command, workflow)
         self.assertNotIn("run_full_tests_windows", workflow)
@@ -520,8 +521,15 @@ class ToolingContractTests(unittest.TestCase):
         windows = (ROOT / "scripts/run_full_tests_windows.ps1").read_text(encoding="utf-8")
         linux = (ROOT / "scripts/run_full_tests_linux.sh").read_text(encoding="utf-8")
         workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-        for subject in (package, workflow):
-            self.assertIn("test:e2e:ci", subject)
+        self.assertIn("test:e2e:ci", package)
+        browser = yaml.safe_load(workflow)["jobs"]["browser"]
+        self.assertEqual(
+            {row["python"] for row in browser["strategy"]["matrix"]["include"]},
+            {".venv/bin/python", ".venv/Scripts/python.exe"},
+        )
+        commands = [step.get("run", "") for step in browser["steps"]]
+        self.assertIn("${{ matrix.python }} scripts/browser_ci.py", commands)
+        self.assertFalse(any("playwright.host.config.ts" in command for command in commands))
         for subject in (windows, linux):
             self.assertIn("browser-smoke", subject)
         self.assertIn("playwright.host.config.ts", package)

@@ -536,6 +536,33 @@ def test_a_parent_relative_typescript_import_resolves(tmp_path: Path) -> None:
     assert rows["frontend/src/host/reached.ts"]["class"] == "product"
 
 
+@pytest.mark.parametrize(
+    "specifier", ["../src/host/Reached", "./host/Reached.ts", "./host/Reached.tsx"]
+)
+def test_typescript_code_imports_keep_the_lexical_graph(tmp_path: Path, specifier: str) -> None:
+    suffix = ".ts" if specifier.endswith(".ts") else ".tsx"
+    target = tmp_path / f"frontend/src/host/Reached{suffix}"
+    _write(tmp_path / "frontend/src/entry.tsx", f'import {{ value }} from "{specifier}";\n')
+    _write(target, "export const value = 1;\n")
+    rows = FITNESS._typescript_modules(tmp_path)
+    entry = next(row for row in rows if row["path"] == "frontend/src/entry.tsx")
+    assert entry["imports"] == [target.relative_to(tmp_path).as_posix()]
+
+
+@pytest.mark.parametrize(
+    "specifier",
+    ["./host/Reached.css", "./host/Reached.css?inline", "./host/Reached.json", "./host/reached"],
+)
+def test_non_code_and_wrong_case_imports_do_not_fabricate_tsx_edges(
+    tmp_path: Path, specifier: str
+) -> None:
+    _write(tmp_path / "frontend/src/entry.tsx", f'import "{specifier}";\n')
+    _write(tmp_path / "frontend/src/host/Reached.tsx", "export const value = 1;\n")
+    rows = FITNESS._typescript_modules(tmp_path)
+    entry = next(row for row in rows if row["path"] == "frontend/src/entry.tsx")
+    assert entry["imports"] == []
+
+
 def test_a_bare_relative_import_outside_core_is_not_hub_evidence(tmp_path: Path) -> None:
     # `from . import X` means "from my own package", and only inside `core/` is that the hub.
     # Rewriting every level-1 relative import to the hub over-credits every other package: an

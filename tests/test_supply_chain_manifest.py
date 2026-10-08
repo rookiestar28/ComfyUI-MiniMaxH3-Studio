@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # IMPORTANT: move this pin only with the rebuilt bundle and supply-chain manifest; otherwise HEAD
 # fails its own deterministic runtime-parity contract.
 RUNTIME_BUNDLE_SHA256 = (
-    "7a800097e9b9972ec264f5fdfe477d904dd1fdfecdf445f8faba237e20081082"  # pragma: allowlist secret
+    "c2ff921e035a9f943862d1cf8ae7f36ff07950a052cd27c8d129590a58c416f6"  # pragma: allowlist secret
 )
 RUNTIME_BUNDLE_SIZE = 1883569
 

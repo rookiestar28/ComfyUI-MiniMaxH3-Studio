@@ -1897,7 +1897,7 @@
     "module_level": 1733,
     "type_checking": 128
   },
-  "fingerprint": "sha256:c06a68b8c90f75fe1fef0247adf8e040c13376bb6612c842e169c749cc04d501",
+  "fingerprint": "sha256:661d1fb76fda2d47df819eed2f181a93d37461be060f2c9046355ca132dd135c",
   "forbidden_imports": [],
   "layer_inversions": [],
   "modules": [
@@ -1969,6 +1969,7 @@
         "tests/test_native_composition.py",
         "tests/test_native_source_admission_producer.py",
         "tests/test_native_source_compatibility.py",
+        "tests/test_platform_native_api_access.py",
         "tests/test_production_import.py",
         "tests/test_project_document_route.py",
         "tests/test_provider_connection.py",
@@ -2199,14 +2200,16 @@
       "disposition": "movable",
       "inbound": 2,
       "layer": "adapters",
-      "lines": 307,
+      "lines": 320,
       "module": "adapters.authoring_output_preview",
       "outbound": 8,
       "owning_rules": [
-        "direct_module"
+        "direct_module",
+        "submodule_as_name"
       ],
       "owning_tests": [
-        "tests/test_m25_authoring_output_service.py"
+        "tests/test_m25_authoring_output_service.py",
+        "tests/test_platform_native_api_access.py"
       ],
       "reasons": []
     },
@@ -3338,7 +3341,7 @@
       "disposition": "movable",
       "inbound": 4,
       "layer": "adapters",
-      "lines": 610,
+      "lines": 615,
       "module": "adapters.managed_artifact_scopes",
       "outbound": 5,
       "owning_rules": [
@@ -3639,17 +3642,19 @@
       "reasons": []
     },
     {
-      "disposition": "need_evidence",
+      "disposition": "movable",
       "inbound": 1,
       "layer": "adapters",
-      "lines": 138,
+      "lines": 140,
       "module": "adapters.perception_process",
       "outbound": 0,
-      "owning_rules": [],
-      "owning_tests": [],
-      "reasons": [
-        "no test imports this module directly or through a hub symbol"
-      ]
+      "owning_rules": [
+        "submodule_as_name"
+      ],
+      "owning_tests": [
+        "tests/test_platform_native_api_access.py"
+      ],
+      "reasons": []
     },
     {
       "disposition": "need_evidence",
@@ -4544,7 +4549,8 @@
         "tests/test_m25_authoring_output_preview.py",
         "tests/test_m25_authoring_output_routes.py",
         "tests/test_m25_authoring_output_schema.py",
-        "tests/test_m25_authoring_output_service.py"
+        "tests/test_m25_authoring_output_service.py",
+        "tests/test_platform_native_api_access.py"
       ],
       "reasons": []
     },
@@ -6417,7 +6423,7 @@
       "disposition": "movable",
       "inbound": 2,
       "layer": "core",
-      "lines": 770,
+      "lines": 777,
       "module": "core.native_t2va_structure",
       "outbound": 1,
       "owning_rules": [
@@ -8012,6 +8018,7 @@
         "direct_module"
       ],
       "owning_tests": [
+        "tests/test_conformance_privacy.py",
         "tests/test_m25_20_conformance_cases.py",
         "tests/test_m25_20_conformance_expect.py",
         "tests/test_m25_20_conformance_join.py",
@@ -8052,13 +8059,14 @@
       "disposition": "movable",
       "inbound": 2,
       "layer": "core",
-      "lines": 1352,
+      "lines": 1363,
       "module": "core.semantic_conformance_compare",
       "outbound": 1,
       "owning_rules": [
         "direct_module"
       ],
       "owning_tests": [
+        "tests/test_conformance_privacy.py",
         "tests/test_m25_20_conformance_expect.py",
         "tests/test_m25_20_conformance_join.py",
         "tests/test_m25_77_clip_audio_corpus.py",

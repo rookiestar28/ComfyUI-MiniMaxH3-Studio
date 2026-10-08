@@ -37,7 +37,7 @@ const processAudioObserverPath = resolve(
 const processAudioObserverSha256 =
   // IMPORTANT: keep this exact content pin aligned with the reviewed observer; mismatch must fail
   // before process launch so an unreviewed process cannot capture the test browser's audio.
-  "39923ffe21e1c19d78d61f167941cd65f181f0f4e86f4acbaa972d3983aff9f2"; // pragma: allowlist secret
+  "b7a6eb2454d800fac0072ce445cf6f4a263aa7157cbb11207e5455be50ae815c"; // pragma: allowlist secret
 const audioContextPcmFixturePath = resolve(
   repositoryRoot,
   "tests/fixtures/m25_56_audio_48khz_stereo_pcm.wav",

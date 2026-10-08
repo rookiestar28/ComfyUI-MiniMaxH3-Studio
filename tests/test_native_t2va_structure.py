@@ -59,6 +59,36 @@ def _census(content: bytes) -> tuple[int, int]:
     return nodes, depth
 
 
+@pytest.mark.parametrize(
+    "source", ["def sample(): pass", "async def sample(): pass", "class Sample: pass"]
+)
+def test_missing_older_ast_type_params_matches_only_the_empty_field(source: str) -> None:
+    node = ast.parse(source).body[0]
+    old_fields = tuple(name for name in node._fields if name != "type_params")
+    vars(node)["_fields"] = (*old_fields, "type_params")
+    vars(node)["type_params"] = []
+    empty_digest = definition_digest(node)
+    vars(node)["_fields"] = old_fields
+    del vars(node)["type_params"]
+    assert definition_digest(node) == empty_digest
+    vars(node)["type_params"] = [ast.Name(id="T", ctx=ast.Load())]
+    assert definition_digest(node) != empty_digest
+    vars(node)["_fields"] = (*old_fields, "type_params")
+    assert definition_digest(node) != empty_digest
+    vars(node)["type_params"] = []
+    vars(node)["_fields"] = (*node._fields, "future_field")
+    vars(node)["future_field"] = []
+    assert definition_digest(node) != empty_digest
+
+
+def test_type_params_normalization_is_not_applied_to_other_ast_types() -> None:
+    node = ast.parse("value = 1").body[0]
+    before = definition_digest(node)
+    vars(node)["_fields"] = (*node._fields, "type_params")
+    vars(node)["type_params"] = []
+    assert definition_digest(node) != before
+
+
 def test_synthetic_surface_is_admitted_against_its_own_manifest() -> None:
     manifest = synthetic_manifest()
     assert [name for name, _digest in manifest.definitions] == list(SYNTHETIC_DEFINITIONS)

@@ -456,7 +456,8 @@ def test_the_scan_reports_only_plain_parked_trees_with_named_members(tmp_path: P
     elsewhere = tmp_path / "elsewhere"
     write_tree(elsewhere)
     (staging / THIRD_JOB).mkdir()
-    _winapi.CreateJunction(str(elsewhere), str(staging / THIRD_JOB / "retired"))
+    # Windows-only fixture APIs are absent from POSIX stubs, but must stay real junctions.
+    getattr(_winapi, "CreateJunction")(str(elsewhere), str(staging / THIRD_JOB / "retired"))  # noqa: B009
 
     assert parked_runtime_trees(layout, MANIFEST) == (staging / JOB,)
 
@@ -471,7 +472,7 @@ def test_a_junctioned_member_directory_is_not_a_parked_member(tmp_path: Path) ->
     retired.mkdir(parents=True)
     elsewhere = tmp_path / "elsewhere"
     write_tree(elsewhere)
-    _winapi.CreateJunction(str(elsewhere / "bin"), str(retired / "bin"))
+    getattr(_winapi, "CreateJunction")(str(elsewhere / "bin"), str(retired / "bin"))  # noqa: B009
 
     assert parked_runtime_trees(layout, MANIFEST) == ()
     assert reclaim_parked_runtimes(layout, MANIFEST) == 0
@@ -523,12 +524,13 @@ def test_reclaim_waits_for_nobody_and_deletes_nothing_while_another_holds_the_lo
     retired = park(root)
     publish(root)
     holder = os.open(layout.media_runtime / "staging" / "install.lock", os.O_RDWR | os.O_CREAT)
-    msvcrt.locking(holder, msvcrt.LK_NBLCK, 1)
+    locking = cast(Callable[[int, int, int], None], getattr(msvcrt, "locking"))  # noqa: B009
+    locking(holder, int(getattr(msvcrt, "LK_NBLCK")), 1)  # noqa: B009
     try:
         with pytest.raises(InstallerError, match="^setup_busy$"):
             reclaim_parked_runtimes(layout, MANIFEST)
     finally:
-        msvcrt.locking(holder, msvcrt.LK_UNLCK, 1)
+        locking(holder, int(getattr(msvcrt, "LK_UNLCK")), 1)  # noqa: B009
         os.close(holder)
 
     assert files(retired) == ["LICENSE.txt", "bin/ffmpeg.exe", "bin/ffprobe.exe"]

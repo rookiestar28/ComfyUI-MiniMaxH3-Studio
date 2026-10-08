@@ -40,7 +40,8 @@ const PROCESS_AUDIO_OBSERVER = resolve(
   "scripts/process_audio_observer.py",
 );
 const PROCESS_AUDIO_OBSERVER_SHA256 =
-  "39923ffe21e1c19d78d61f167941cd65f181f0f4e86f4acbaa972d3983aff9f2"; // pragma: allowlist secret
+  // IMPORTANT: capture only the reviewed observer bytes; do not derive admission at launch.
+  "b7a6eb2454d800fac0072ce445cf6f4a263aa7157cbb11207e5455be50ae815c"; // pragma: allowlist secret
 const OUTPUT_REGION = { name: "Final video", exact: true } as const;
 const LAUNCHER = '[data-h3-nle-entry="open"]';
 

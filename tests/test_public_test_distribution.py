@@ -77,6 +77,7 @@ def test_complete_developer_inputs_are_required_independently_of_projection() ->
         "governance/contracts/example.json",
         "compatibility/example.json",
         ".pre-commit-config.yaml",
+        ".gitattributes",
         "requirements/secret-scan-baseline.json",
     ],
 )

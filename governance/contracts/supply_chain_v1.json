@@ -17,8 +17,8 @@
     },
     {
       "path": "MANIFEST.in",
-      "sha256": "sha256:5c5329a67925af8e690fe52c6b312f82448d1cf9fc59f9e3527414afe447b1cd",
-      "size": 1432
+      "sha256": "sha256:0c3dfe7851bacd67479b470fa4c3cef1a909bda767b5f3a548b25f41a27bbaeb",
+      "size": 1557
     },
     {
       "path": "NOTICE",
@@ -27,7 +27,7 @@
     },
     {
       "path": "comfyui_h3_context/contracts/build_provenance_v1.json",
-      "sha256": "sha256:550011b565072261298935fd20782d01e53221ac0d04a9f835473723f3d6fb3b",
+      "sha256": "sha256:8b49d4fb9a99680e5ccb1ba87d25a388470014ba22f8956adf3556d5c950649d",
       "size": 1712
     },
     {
@@ -1377,8 +1377,8 @@
     },
     {
       "path": "scripts/public_source_policy.py",
-      "sha256": "sha256:d860a89d0ab4b7ee91ea378052278b33fc7569be4de9e3883c4714fbcbddaf86",
-      "size": 2550
+      "sha256": "sha256:f1d760c9edba6e6fde9aff99cbe17342bef1784b8943cad2d971967e81630933",
+      "size": 2576
     }
   ],
   "frontend_lock_package_count": 156,
@@ -1390,7 +1390,7 @@
   "runtime_entries": [
     {
       "path": "comfyui_h3_context/web/h3-context-sidebar.js",
-      "sha256": "sha256:7a800097e9b9972ec264f5fdfe477d904dd1fdfecdf445f8faba237e20081082",
+      "sha256": "sha256:c2ff921e035a9f943862d1cf8ae7f36ff07950a052cd27c8d129590a58c416f6",
       "size": 1883569
     }
   ],

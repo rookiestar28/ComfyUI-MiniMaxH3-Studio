@@ -18,6 +18,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
+from media_pin_fixture import semantic_media_pin
 
 import comfyui_h3_context.adapters.authoring_derivative_generator as generator_module
 import comfyui_h3_context.adapters.av_reconstruction_media as media_module
@@ -269,6 +270,7 @@ def test_the_import_normalization_uses_the_thread_rule_and_keeps_its_preset(
         return ProcessCapture(status=ProcessStatus.SUCCEEDED, exit_code=0)
 
     monkeypatch.setattr(media_module, "_pin_exact_executable", _accepted_pin)
+    monkeypatch.setattr(media_module, "_pin_regular_media", semantic_media_pin)
     monkeypatch.setattr(SubprocessMediaRunner, "run", fake_run)
     adapter = QualifiedAVMediaAdapter(
         ffmpeg_path=ffmpeg,

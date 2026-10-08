@@ -24,7 +24,11 @@ import sys
 from pathlib import Path
 from typing import Any, Final
 
-import tomllib
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    # CRITICAL: scripts must import on the supported Python 3.10 lane using the declared backport.
+    import tomli as tomllib
 
 ROOT: Final = Path(__file__).resolve().parents[1]
 AUDIT_SCHEMA: Final = "h3.context.nle_hardening_dependency_audit.v1"

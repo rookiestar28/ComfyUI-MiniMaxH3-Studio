@@ -40,6 +40,9 @@ OUTPUT_SAMPLE_RATE: Final = 48_000
 _PRIVATE_PATTERNS: Final = (
     re.compile(r"[A-Za-z]:[\\/]"),
     re.compile(r"^[\\/]{1,2}"),
+    # CRITICAL: paths after prose or punctuation still disclose private data; start-only matching
+    # misses POSIX/UNC tokens. Keep numeric ratios and relative synthetic identifiers admissible.
+    re.compile(r"(?<!\w)[\\/]{1,2}(?=[^\s\\/])"),
     re.compile(r"\b[a-z][a-z0-9+.-]*://", re.IGNORECASE),
 )
 
@@ -471,6 +474,8 @@ class Mismatch:
         _reject_private(self.subject, "mismatch subject")
         _reject_private(self.expected, "mismatch expected value")
         _reject_private(self.observed, "mismatch observed value")
+        if self.bound is not None:
+            _reject_private(self.bound, "mismatch bound")
 
     def as_wire(self) -> dict[str, object]:
         return {
@@ -489,6 +494,12 @@ class Measurement:
     subject: str
     value: str
     bound: str | None = None
+
+    def __post_init__(self) -> None:
+        _reject_private(self.subject, "measurement subject")
+        _reject_private(self.value, "measurement value")
+        if self.bound is not None:
+            _reject_private(self.bound, "measurement bound")
 
     def as_wire(self) -> dict[str, object]:
         return {"subject": self.subject, "value": self.value, "bound": self.bound}

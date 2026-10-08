@@ -10,6 +10,7 @@ import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { expect, type Page, type Route } from "@playwright/test";
+import { fixturePython } from "../../../e2e/fixturePython";
 
 import { OUTPUT_CAPABILITY } from "../../../src/contracts/authoringOutputCodec";
 import { serveGenericFixtureMedia } from "./genericFixtureMedia";
@@ -141,11 +142,7 @@ export async function startImportFixture(
   options: ImportFixtureOptions = {},
 ): Promise<ImportFixture> {
   const root = fileURLToPath(new URL("../../../../", import.meta.url));
-  const python = join(
-    root,
-    ".venv",
-    process.platform === "win32" ? "Scripts/python.exe" : "bin/python",
-  );
+  const python = fixturePython(root);
   const child: ChildProcessWithoutNullStreams = spawn(
     python,
     [join(root, "scripts/m25_16_import_fixture.py")],

@@ -1,0 +1,102 @@
+[
+  {
+    "file": "journeys/m25_56AudioObserver.spec.ts",
+    "title": "M25-56 measures imported NLE preview audio against its known tone",
+    "reason": "windows_process_audio_and_qualified_media"
+  },
+  {
+    "file": "journeys/m25_56AudioObserver.spec.ts",
+    "title": "M25-56 measures prewarmed native PTS owner handoff across a split cut",
+    "reason": "windows_process_audio"
+  },
+  {
+    "file": "journeys/m25_56AudioObserver.spec.ts",
+    "title": "M25-56 evaluates bounded AudioContext decoded-buffer split scheduling",
+    "reason": "windows_process_audio"
+  },
+  {
+    "file": "journeys/m25_56AudioObserver.spec.ts",
+    "title": "heard cut tolerates an actually delayed primary callback",
+    "reason": "windows_process_audio"
+  },
+  {
+    "file": "journeys/m25_56AudioObserver.spec.ts",
+    "title": "heard cut confirms delayed native startup before scheduling PCM",
+    "reason": "windows_process_audio"
+  },
+  {
+    "file": "journeys/m25_56AudioObserver.spec.ts",
+    "title": "heard cut refuses an invalid output clock with completed cleanup",
+    "reason": "windows_process_audio"
+  },
+  {
+    "file": "journeys/m25_56AudioObserver.spec.ts",
+    "title": "heard cut refuses a frozen output clock within its progress bound",
+    "reason": "windows_process_audio"
+  },
+  {
+    "file": "journeys/m25_56AudioObserver.spec.ts",
+    "title": "heard cut refuses an expired release deadline without switching owner",
+    "reason": "windows_process_audio"
+  },
+  {
+    "file": "journeys/m25_56AudioObserver.spec.ts",
+    "title": "held native startup rejects load resetting its held playback rate",
+    "reason": "windows_process_audio"
+  },
+  {
+    "file": "journeys/m25_56AudioObserver.spec.ts",
+    "title": "M25-56 process loopback resolves a known 440 Hz tone and silence",
+    "reason": "windows_process_audio"
+  },
+  {
+    "file": "journeys/integratedEditorAcceptance.spec.ts",
+    "title": "public editor completes the imported two-clip edit, recovery, and render journey",
+    "reason": "windows_process_audio_and_qualified_renderer"
+  },
+  {
+    "file": "journeys/m25_77ClipAudioParity.spec.ts",
+    "title": "M25-77 preview and final render state the same clip audio envelope",
+    "reason": "windows_process_audio_and_qualified_renderer"
+  },
+  {
+    "file": "journeys/nleHardeningActions.spec.ts",
+    "title": "M25-58 true editor emits continuous bounded AudioContext output while native video stays muted",
+    "reason": "windows_process_audio"
+  },
+  {
+    "file": "journeys/nleProductionImport.spec.ts",
+    "title": "AC11 causal import journeys M25-56 serves imported playback bytes only through the live timeline source lease",
+    "reason": "qualified_windows_media"
+  },
+  {
+    "file": "journeys/nleProductionImport.spec.ts",
+    "title": "AC11 causal import journeys M25-56 classifies the two-source duration, ruler zoom, and clip-selection baseline",
+    "reason": "qualified_windows_media"
+  },
+  {
+    "file": "journeys/nleSemanticImportIntegration.spec.ts",
+    "title": "pointer: explicit import then a separate insertion, effects counted separately",
+    "reason": "qualified_windows_media"
+  },
+  {
+    "file": "journeys/nleSemanticImportIntegration.spec.ts",
+    "title": "keyboard: explicit import then a separate insertion, effects counted separately",
+    "reason": "qualified_windows_media"
+  },
+  {
+    "file": "journeys/realMediaSourceLeases.spec.ts",
+    "title": "three exact-ceiling real-route proxies decode, seek, dissolve and release",
+    "reason": "qualified_windows_media_loopback"
+  },
+  {
+    "file": "journeys/realMediaSourceLeases.spec.ts",
+    "title": "asset scope round-trips through the real route and invalid rows retain no authority",
+    "reason": "qualified_windows_media_loopback"
+  },
+  {
+    "file": "journeys/mediaSourceLeases.spec.ts",
+    "title": "a 1280 px proxy above the old ceiling is read, decoded and presented",
+    "reason": "authorized_media_encoder"
+  }
+]

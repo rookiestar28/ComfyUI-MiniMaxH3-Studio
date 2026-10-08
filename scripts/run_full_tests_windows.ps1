@@ -22,6 +22,8 @@ function Invoke-CheckedStep {
             return
         }
         if ($LASTEXITCODE -ne 0) { throw "Gate cache lookup failed: $LASTEXITCODE" }
+        $Expected = & $Python scripts\gate_stages.py before-run $Name
+        if ($LASTEXITCODE -ne 0) { throw "Gate checkpoint start failed: $LASTEXITCODE" }
     }
 
     Write-Host "`n==> $Name"
@@ -30,7 +32,7 @@ function Invoke-CheckedStep {
         throw "$Name failed with exit code $LASTEXITCODE"
     }
     if ($script:Resume) {
-        & $Python scripts\gate_stages.py record $Name
+        & $Python scripts\gate_stages.py record $Name --expected $Expected
         if ($LASTEXITCODE -ne 0) { throw "Gate cache record failed: $LASTEXITCODE" }
     }
 }
@@ -58,6 +60,9 @@ $env:PLAYWRIGHT_OUTPUT_DIR = Join-Path $RepoRoot ".tmp\playwright-output"
 
 Invoke-CheckedStep "workspace link guard" {
     & $Python scripts\workspace_link_guard.py check
+}
+Invoke-CheckedStep "CI prerequisite contracts" {
+    & $Python scripts\ci_preflight.py
 }
 # Frontend evidence-policy fixtures create bounded children here, including in a fresh worktree.
 [void](New-Item -ItemType Directory -Force -Path (Join-Path $RepoRoot ".planning"))

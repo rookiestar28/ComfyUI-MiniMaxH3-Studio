@@ -323,7 +323,8 @@ def process_is_running(pid: int) -> bool:
         except PermissionError:  # pragma: no cover -- alive and owned by someone else
             return True
         return True
-    kernel32 = ctypes.windll.kernel32
+    # IMPORTANT: native access stays after the POSIX return; Linux stubs omit windll.
+    kernel32 = getattr(ctypes, "windll").kernel32  # noqa: B009
     handle = kernel32.OpenProcess(_PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
     if not handle:
         return False

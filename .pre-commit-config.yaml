@@ -21,6 +21,9 @@ repos:
     rev: 41e691678310dfd3833f7ab4e180ddb014310356  # v2.3.0  # pragma: allowlist secret
     hooks:
       - id: mypy
+        name: mypy (Python 3.10 / Linux)
+        # CRITICAL: native-only stubs miss the other OS's absent APIs; keep both views pinned.
+        args: ["--ignore-missing-imports", "--scripts-are-modules", "--python-version", "3.10", "--platform", "linux"]
         files: ^(?:comfyui_h3_context|tests|scripts)/.*\.py$
         additional_dependencies:
           - jsonschema==4.26.0
@@ -31,6 +34,17 @@ repos:
           # IMPORTANT: the hook environment is isolated, so a test-only library the suite subclasses
           # must be listed here too. Without it `RuleBasedStateMachine` resolves to `Any` and the
           # stateful model silently stops being type-checked at all.
+          - hypothesis==6.167.1
+      - id: mypy
+        alias: mypy-windows
+        name: mypy (Python 3.10 / Windows)
+        args: ["--ignore-missing-imports", "--scripts-are-modules", "--python-version", "3.10", "--platform", "win32"]
+        files: ^(?:comfyui_h3_context|tests|scripts)/.*\.py$
+        additional_dependencies:
+          - jsonschema==4.26.0
+          - types-jsonschema==4.26.0.20260518
+          - pytest==9.1.1
+          - coverage==7.15.4
           - hypothesis==6.167.1
 
   - repo: https://github.com/Yelp/detect-secrets
