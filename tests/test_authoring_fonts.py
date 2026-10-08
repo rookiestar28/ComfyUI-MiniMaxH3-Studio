@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -22,6 +24,106 @@ EXPECTED_FACE_KEYS = {
     (700, "normal"),
     (700, "italic"),
 }
+
+
+@pytest.mark.parametrize("crlf", ["license", "manifest", "both"])
+def test_checkout_newlines_preserve_verified_font_package_identity(
+    tmp_path: Path, crlf: str
+) -> None:
+    source = Path(__file__).resolve().parents[1] / "comfyui_h3_context"
+    baseline = load_packaged_font_manifest()
+    shutil.copytree(source / "fonts", tmp_path / "fonts")
+    for name, selected in (
+        ("LICENSE-OFL-1.1.txt", crlf in {"license", "both"}),
+        ("font_manifest_v1.json", crlf in {"manifest", "both"}),
+    ):
+        if selected:
+            path = tmp_path / "fonts" / name
+            original = path.read_bytes()
+            assert b"\r" not in original and b"\n" in original
+            path.write_bytes(original.replace(b"\n", b"\r\n"))
+    manifest = _load_packaged_font_manifest_from_root(tmp_path)
+    assert manifest == baseline
+    for face, original_face in zip(manifest.faces, baseline.faces, strict=True):
+        assert face.read_verified_bytes() == original_face.read_verified_bytes()
+
+
+@pytest.mark.parametrize("name", ["LICENSE-OFL-1.1.txt", "font_manifest_v1.json"])
+def test_raw_checkout_size_is_bounded_before_newline_normalization(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, name: str
+) -> None:
+    from comfyui_h3_context.adapters import authoring_fonts
+
+    source = Path(__file__).resolve().parents[1] / "comfyui_h3_context" / "fonts"
+    shutil.copytree(source, tmp_path / "fonts")
+    path = tmp_path / "fonts" / name
+    original = path.read_bytes()
+    path.write_bytes(original.replace(b"\n", b"\r\n"))
+    assert path.stat().st_size > len(original)
+    limit = "_MAX_LICENSE_BYTES" if name.endswith(".txt") else "_MAX_MANIFEST_BYTES"
+    monkeypatch.setattr(authoring_fonts, limit, len(original))
+    with pytest.raises(AuthoringFontError):
+        _load_packaged_font_manifest_from_root(tmp_path)
+
+
+@pytest.mark.parametrize("mutation", ["lone_cr", "space", "content", "extra_lf"])
+def test_license_accepts_only_checkout_crlf_equivalence(tmp_path: Path, mutation: str) -> None:
+    source = Path(__file__).resolve().parents[1] / "comfyui_h3_context" / "fonts"
+    shutil.copytree(source, tmp_path / "fonts")
+    path = tmp_path / "fonts" / "LICENSE-OFL-1.1.txt"
+    body = path.read_bytes()
+    if mutation == "lone_cr":
+        body = body.replace(b"\n", b"\r", 1)
+    elif mutation == "space":
+        body = body.replace(b"\n", b" \n", 1)
+    elif mutation == "content":
+        body = body.replace(b"Copyright", b"copyright", 1)
+    else:
+        body += b"\n"
+    path.write_bytes(body)
+    with pytest.raises(AuthoringFontError) as raised:
+        _load_packaged_font_manifest_from_root(tmp_path)
+    assert raised.value.code == "font_license_hash_mismatch"
+
+
+def test_non_eol_manifest_change_still_changes_the_package_identity(tmp_path: Path) -> None:
+    source = Path(__file__).resolve().parents[1] / "comfyui_h3_context" / "fonts"
+    baseline = load_packaged_font_manifest()
+    shutil.copytree(source, tmp_path / "fonts")
+    path = tmp_path / "fonts" / "font_manifest_v1.json"
+    path.write_bytes(path.read_bytes() + b" ")
+    manifest = _load_packaged_font_manifest_from_root(tmp_path)
+    assert manifest.manifest_fingerprint == baseline.manifest_fingerprint
+    assert manifest.package_fingerprint != baseline.package_fingerprint
+
+
+def test_default_windows_git_filters_preserve_both_pinned_font_texts(tmp_path: Path) -> None:
+    root = Path(__file__).resolve().parents[1]
+    names = (
+        "comfyui_h3_context/fonts/LICENSE-OFL-1.1.txt",
+        "comfyui_h3_context/fonts/font_manifest_v1.json",
+    )
+    env = {key: value for key, value in os.environ.items() if not key.upper().startswith("GIT_")}
+
+    def git(*args: str) -> bytes:
+        return subprocess.check_output(
+            ["git", "-C", str(tmp_path), *args], env=env, stderr=subprocess.PIPE, timeout=30
+        )
+
+    git("init", "--quiet")
+    shutil.copyfile(root / ".gitattributes", tmp_path / ".gitattributes")
+    for name in names:
+        target = tmp_path / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((root / name).read_bytes())
+    git("-c", "core.autocrlf=false", "add", "--", ".gitattributes", *names)
+    tree = git("write-tree").decode().strip()
+    for name in names:
+        exported = git(
+            "-c", "core.autocrlf=true", "cat-file", "--filters", f"--path={name}", f"{tree}:{name}"
+        )
+        assert exported == (root / name).read_bytes()
+        assert b"\r" not in exported
 
 
 def test_real_packaged_manifest_verifies_artifacts_license_build_and_cmaps() -> None:

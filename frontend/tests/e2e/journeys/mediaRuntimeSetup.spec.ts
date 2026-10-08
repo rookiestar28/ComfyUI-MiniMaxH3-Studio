@@ -14,6 +14,7 @@ import {
 } from "../helpers/mediaRuntimeDouble";
 import {
   startImportFixture,
+  expectImportBootstrap,
   type ImportFixture,
 } from "../helpers/nleImportFixture";
 import { openExportPanel } from "../helpers/nleExport";
@@ -300,6 +301,7 @@ test.describe("import install-and-continue", () => {
       refuse: (kind, index) => (kind === "import" && index === 0 ? 503 : null),
     });
     await openShell(page, double, { import: "1", target: "ready", ...params });
+    await expectImportBootstrap(fixture);
     await openImportPane(page);
     await expect(page.locator(importButton)).toBeEnabled();
     await page.locator(importButton).click();

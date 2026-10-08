@@ -222,7 +222,12 @@ class RegistryPublicationWorkflowTests(unittest.TestCase):
         self.assertEqual(jobs["publish"]["environment"], "registry-production")
         self.assertIn("needs.preflight.outputs.should_publish == 'true'", jobs["publish"]["if"])
         for job in jobs.values():
-            self.assertEqual(job["permissions"], {"contents": "read"})
+            self.assertEqual(
+                job["permissions"],
+                {"contents": "read", "actions": "read"}
+                if job is jobs["preflight"]
+                else {"contents": "read"},
+            )
         guards = [
             step
             for step in jobs["preflight"]["steps"]
@@ -314,6 +319,24 @@ class RegistryPublicationWorkflowTests(unittest.TestCase):
 
 
 class RegistryPublicationLockTests(unittest.TestCase):
+    def test_publication_requires_exact_hosted_ci_before_any_publish_job(self) -> None:
+        workflow = _workflow()
+        preflight = workflow["jobs"]["preflight"]
+        self.assertEqual(preflight["permissions"].get("actions"), "read")
+        guards = [
+            step
+            for step in preflight["steps"]
+            if "scripts/public_ci_gate.py" in step.get("run", "")
+        ]
+        self.assertEqual(len(guards), 1)
+        guard = guards[0]
+        self.assertEqual(guard["if"], "steps.publish_guard.outputs.should_publish == 'true'")
+        self.assertNotIn("continue-on-error", guard)
+        self.assertIn('--candidate "$CANDIDATE_COMMIT"', guard["run"])
+        self.assertEqual(
+            guard["env"]["CANDIDATE_COMMIT"], "${{ steps.publish_guard.outputs.candidate_commit }}"
+        )
+
     def test_linux_python310_lock_is_exact_closed_and_hashed(self) -> None:
         lines = [
             line
@@ -354,9 +377,7 @@ class RegistryPublishGuardTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0, result.stderr)
 
-    @unittest.skipIf(sys.version_info < (3, 11), "stdlib-only tomllib requires Python 3.11+")
-    def test_guard_help_runs_without_site_packages_under_stdlib_tomllib_python(self) -> None:
-        self.assertGreaterEqual(sys.version_info, (3, 11))
+    def test_guard_isolated_parser_dependency_matches_the_runtime(self) -> None:
         result = subprocess.run(
             [
                 sys.executable,
@@ -371,7 +392,13 @@ class RegistryPublishGuardTests(unittest.TestCase):
             text=True,
             timeout=15,
         )
-        self.assertEqual(result.returncode, 0, result.stderr)
+        if sys.version_info >= (3, 11):
+            self.assertEqual(result.returncode, 0, result.stderr)
+        else:
+            # Python 3.10 has no stdlib TOML reader; -S must refuse its missing installed
+            # fallback. The preceding supported-interpreter test proves that fallback works.
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("No module named 'tomli'", result.stderr)
 
     def test_same_version_skips_and_increased_version_publishes(self) -> None:
         self.assertEqual(

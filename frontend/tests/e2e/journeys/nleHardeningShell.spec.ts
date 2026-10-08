@@ -10,6 +10,7 @@ import { EXPORT_BUTTON, openExportPanel } from "../helpers/nleExport";
 import { Checks, hardeningEvidence } from "../helpers/nleHardeningEvidence";
 import {
   startImportFixture,
+  expectImportBootstrap,
   type ImportFixture,
 } from "../helpers/nleImportFixture";
 import {
@@ -358,6 +359,7 @@ test.afterEach(async () => {
     await page.goto(
       "/nleShell.html?import=1&target=ready&segments=2&viewDestroy=1",
     );
+    await expectImportBootstrap(importFixture);
     await productionPage(page);
     // The relation control needs exactly one selected segment. Selection is a backend
     // `set_selection` action (setup, before the effect counters start); the controlled checkbox

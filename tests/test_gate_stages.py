@@ -498,6 +498,14 @@ def test_python_fixture_changes_invalidate_smoke(repo: Path) -> None:
     assert before["frontend hermetic smoke"] != fingerprints(repo)["frontend hermetic smoke"]
 
 
+def test_unexpected_lookup_error_is_not_a_cache_hit(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fail(args: object) -> int:
+        raise RuntimeError("unexpected discovery failure")
+
+    monkeypatch.setattr(gate_stages, "_cmd_should_run", fail)
+    assert main(["should-run", "package import", "--resume"]) == 2
+
+
 def test_observer_changes_invalidate_frontend_units(repo: Path) -> None:
     _write(repo, "scripts/process_audio_observer.py", "value = 1\n")
     before = fingerprints(repo)

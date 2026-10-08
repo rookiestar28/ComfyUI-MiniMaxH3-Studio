@@ -76,6 +76,8 @@ export type ImportFixture = Readonly<{
   bootstrapReply: () => Readonly<{
     status: number;
     error: string | null;
+    operation: string | null;
+    code: string | null;
   }> | null;
   /** Real product render traffic and the exact verified bytes served by its download route. */
   output: Readonly<{
@@ -265,6 +267,8 @@ export async function startImportFixture(
       bootstrapReply = Object.freeze({
         status: reply.status,
         error: typeof reply.error === "string" ? reply.error : null,
+        operation: typeof reply.operation === "string" ? reply.operation : null,
+        code: typeof reply.code === "string" ? reply.code : null,
       });
       if (reply.status === 200) {
         bootstrap = Object.freeze({
@@ -547,10 +551,8 @@ export async function startImportFixture(
  *
  * IMPORTANT: a refused bootstrap makes the shell throw while its module loads, so the page stays
  * empty and the journey's first locator waits out the whole test timeout with an error that names
- * a missing button. Every media mode except "synthetic" probes real media with the qualified
- * adapter, which admits the tool pair by digest: an unset variable answers 503 and a pair that is
- * not the qualified one answers 500. Do not turn this into a skip -- a journey that did not run
- * reads as green.
+ * a missing button. Report the actual content-free operation/code before diagnosing the cause.
+ * Do not turn a refusal into a skip: a journey that did not run must fail.
  */
 export async function expectImportBootstrap(
   fixture: ImportFixture,
@@ -565,8 +567,7 @@ export async function expectImportBootstrap(
   const reply = fixture.bootstrapReply()!;
   expect(
     reply.status,
-    `import fixture bootstrap answered ${reply.status} (${reply.error ?? "no code"}). ` +
-      'Media modes other than "synthetic" probe real media: supply the qualified ffmpeg and ' +
-      "ffprobe pair in H3_CONTEXT_AUTHORIZED_FFMPEG_PATH and H3_CONTEXT_AUTHORIZED_FFPROBE_PATH.",
+    `import fixture bootstrap answered ${reply.status} (${reply.error ?? "no error"}; ` +
+      `operation=${reply.operation ?? "bootstrap"}; code=${reply.code ?? "unavailable"}).`,
   ).toBe(200);
 }

@@ -9,6 +9,7 @@ PUBLICATION_FILES = frozenset(
         ".github/workflows/publish.yml",
         ".github/workflows/ci.yml",
         "scripts/registry_publish_guard.py",
+        "scripts/public_ci_gate.py",
         "scripts/registry_payload.py",
         "scripts/validate_comfy_registry_metadata.py",
         "scripts/public_projection.py",

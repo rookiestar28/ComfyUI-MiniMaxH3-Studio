@@ -1897,7 +1897,7 @@
     "module_level": 1733,
     "type_checking": 128
   },
-  "fingerprint": "sha256:661d1fb76fda2d47df819eed2f181a93d37461be060f2c9046355ca132dd135c",
+  "fingerprint": "sha256:734ae624e98541aae924718a4c05ea246b401acf6367cf19d431305bb3e97038",
   "forbidden_imports": [],
   "layer_inversions": [],
   "modules": [
@@ -1934,6 +1934,7 @@
       ],
       "owning_tests": [
         "tests/test_architecture_inventory.py",
+        "tests/test_authoring_fonts.py",
         "tests/test_authoring_workspace.py",
         "tests/test_av_reconstruction_transport.py",
         "tests/test_comfyui_media_runtime.py",
@@ -2087,15 +2088,17 @@
       "disposition": "movable",
       "inbound": 6,
       "layer": "adapters",
-      "lines": 729,
+      "lines": 732,
       "module": "adapters.authoring_fonts",
       "outbound": 1,
       "owning_rules": [
         "direct_module",
-        "qualification_subject"
+        "qualification_subject",
+        "submodule_as_name"
       ],
       "owning_tests": [
         "tests/test_authoring_fonts.py",
+        "tests/test_import_fixture_diagnostics.py",
         "tests/test_m25_20_conformance_cases.py",
         "tests/test_m25_74_derivative_rework_counts.py",
         "tests/test_m25_74_workspace_retention.py",
@@ -2416,7 +2419,7 @@
       "disposition": "movable",
       "inbound": 3,
       "layer": "adapters",
-      "lines": 120,
+      "lines": 122,
       "module": "adapters.authoring_renderer_qualification",
       "outbound": 6,
       "owning_rules": [
@@ -2694,6 +2697,7 @@
         "tests/test_authoring_workspace.py",
         "tests/test_editor_recovery.py",
         "tests/test_editor_recovery_service.py",
+        "tests/test_import_fixture_diagnostics.py",
         "tests/test_m23_47_route_seam.py",
         "tests/test_m25_20_render_stage_rules.py",
         "tests/test_m25_29_production_authoring_import.py",
@@ -3609,7 +3613,7 @@
       "disposition": "movable",
       "inbound": 1,
       "layer": "adapters",
-      "lines": 2469,
+      "lines": 2481,
       "module": "adapters.ollama_native",
       "outbound": 9,
       "owning_rules": [

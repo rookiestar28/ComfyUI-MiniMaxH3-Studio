@@ -9,6 +9,7 @@ import json
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import tarfile
@@ -130,6 +131,75 @@ def _single_artifact(directory: Path, suffix: str) -> Path:
     return candidates[0]
 
 
+def _extract_plain_members(
+    archive: tarfile.TarFile, members: list[tarfile.TarInfo], destination: Path
+) -> None:
+    """Admit the entire plain-data archive before writing into owned staging."""
+
+    def linked(path: Path) -> bool:
+        try:
+            info = path.lstat()
+        except FileNotFoundError:
+            return False
+        return stat.S_ISLNK(info.st_mode) or bool(getattr(info, "st_file_attributes", 0) & 0x400)
+
+    if linked(destination):
+        raise BuildGateReportError("archive destination is a link or reparse point")
+    base = destination.resolve()
+    planned: list[tuple[tarfile.TarInfo, Path]] = []
+    kinds: dict[str, bool] = {}
+    spellings: dict[str, str] = {}
+    for member in members:
+        parts = member.name.rstrip("/").split("/")
+        if "\\" in member.name or any(part in {"", ".", ".."} or ":" in part for part in parts):
+            raise BuildGateReportError("archive contains an unsafe path")
+        if not (member.isdir() or member.isreg()):
+            raise BuildGateReportError("archive contains an unsafe member type")
+        name = "/".join(parts)
+        key = name.casefold()
+        if key in kinds:
+            raise BuildGateReportError("archive contains duplicate paths")
+        kinds[key] = member.isdir()
+        for index in range(1, len(parts) + 1):
+            prefix = "/".join(parts[:index])
+            previous = spellings.setdefault(prefix.casefold(), prefix)
+            if previous != prefix:
+                raise BuildGateReportError("archive contains case-colliding paths")
+        target = destination.joinpath(*parts)
+        for index in range(1, len(parts) + 1):
+            existing = destination.joinpath(*parts[:index])
+            if linked(existing):
+                raise BuildGateReportError("archive destination contains a link or reparse point")
+            if index < len(parts) and existing.exists() and not existing.is_dir():
+                raise BuildGateReportError("archive path has a file ancestor")
+        if not target.resolve().is_relative_to(base):
+            raise BuildGateReportError("archive path leaves its destination")
+        if target.exists() and not (member.isdir() and target.is_dir()):
+            raise BuildGateReportError("archive would overwrite an existing file")
+        planned.append((member, target))
+    for member, _target in planned:
+        parts = member.name.rstrip("/").split("/")
+        if any(
+            kinds.get("/".join(parts[:index]).casefold()) is False for index in range(1, len(parts))
+        ):
+            raise BuildGateReportError("archive path has a file ancestor")
+    if callable(getattr(tarfile, "data_filter", None)):
+        archive.extractall(destination, members=members, filter="data")
+        return
+    # CRITICAL: 3.10.11 lacks extraction filters. A raw extractall fallback would replay links
+    # and archive metadata; keep this writer limited to validated plain bytes and directories.
+    for member, target in planned:
+        if member.isdir():
+            target.mkdir(parents=True, exist_ok=True)
+            continue
+        source = archive.extractfile(member)
+        if source is None:
+            raise BuildGateReportError("archive member has no readable plain data")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with source, target.open("xb") as output:
+            shutil.copyfileobj(source, output)
+
+
 def _safe_extract_sdist(sdist: Path, destination: Path) -> Path:
     suffix = ".tar.gz"
     if not sdist.name.endswith(suffix):
@@ -149,7 +219,7 @@ def _safe_extract_sdist(sdist: Path, destination: Path) -> Path:
             raise BuildGateReportError("sdist contains an unsafe member type")
         if {name.split("/", 1)[0] for name in normalized if name} != {sdist_root}:
             raise BuildGateReportError("sdist root is unexpected")
-        archive.extractall(destination, members=members, filter="data")
+        _extract_plain_members(archive, members, destination)
     source = destination / sdist_root
     if not source.is_dir():
         raise BuildGateReportError("sdist extraction did not produce its source root")

@@ -10,6 +10,7 @@ import { openExportPanel } from "../helpers/nleExport";
 import { Checks, hardeningEvidence } from "../helpers/nleHardeningEvidence";
 import {
   startImportFixture,
+  expectImportBootstrap,
   type ImportFixture,
   type ImportFixtureOptions,
 } from "../helpers/nleImportFixture";
@@ -1513,6 +1514,7 @@ async function openImportShell(
 ): Promise<ImportFixture> {
   const fixture = await startImportFixture(page, options);
   await page.goto(`/nleShell.html?import=1&${query}`);
+  await expectImportBootstrap(fixture);
   await productionStage(page);
   await expect(page.locator(IMPORT_BUTTON)).toBeEnabled();
   return fixture;

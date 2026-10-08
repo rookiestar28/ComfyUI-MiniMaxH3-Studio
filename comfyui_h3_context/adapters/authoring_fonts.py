@@ -446,7 +446,9 @@ def _load_packaged_font_manifest_from_root(package_root: Path) -> PackagedFontMa
         raise _fail("font_manifest_invalid", "the packaged font license artifact is invalid")
     license_payload = _read_bounded(license_path, _MAX_LICENSE_BYTES, "font_license_missing")
     license_hash = _sha256_value(license_wire["file_sha256"], "license.file_sha256")
-    if _sha256(license_payload) != license_hash:
+    # CRITICAL: Git for Windows can check these bounded text bytes out as CRLF. Hash only
+    # CRLF -> LF equivalence; raw hashes reject valid installs, broader cleanup hides tampering.
+    if _sha256(license_payload.replace(b"\r\n", b"\n")) != license_hash:
         raise _fail("font_license_hash_mismatch", "the packaged font license hash differs")
     license_revision = _git_oid(license_wire["upstream_revision"], "license.upstream_revision")
     if (
@@ -642,7 +644,8 @@ def _load_packaged_font_manifest_from_root(package_root: Path) -> PackagedFontMa
     package_fingerprint = canonical_fingerprint(
         {
             "schema_version": FONT_MANIFEST_SCHEMA,
-            "manifest_sha256": _sha256(payload),
+            # Keep the package identity stable across Git's text checkout conversion, as above.
+            "manifest_sha256": _sha256(payload.replace(b"\r\n", b"\n")),
             "license_sha256": license_hash,
             "font_files": [
                 {

@@ -143,6 +143,18 @@ def _endpoint_parts(endpoint: str) -> tuple[SplitResult, str, int]:
         raise ModelTransportError("Ollama endpoint syntax is invalid")
     if parsed.scheme != "http" or parsed.username is not None or parsed.password is not None:
         raise ModelTransportError("Ollama endpoint must be credential-free loopback HTTP")
+    if "[" in parsed.netloc or "]" in parsed.netloc:
+        # CRITICAL: older urlsplit accepts stray brackets and invalid enclosed literals.
+        # Validate the whole IPv6 authority here; a modern parser exception is not the boundary.
+        bracketed = re.fullmatch(r"\[([^\[\]]+)\](?::[^\[\]]*)?", parsed.netloc)
+        literal = None
+        if bracketed is not None:
+            try:
+                literal = ipaddress.IPv6Address(bracketed.group(1))
+            except ValueError:
+                pass
+        if literal is None:
+            raise ModelTransportError("Ollama endpoint syntax is invalid")
     if parsed.query or parsed.fragment:
         raise ModelTransportError("Ollama endpoint must not contain query or fragment data")
     if parsed.path not in {"", "/", "/api"}:

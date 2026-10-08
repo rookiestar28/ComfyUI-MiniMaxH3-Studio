@@ -476,6 +476,7 @@ for (const shape of ["smoke", "virtualized"] as const) {
     const editCommits: number[] = [];
     const editRenders: number[] = [];
     const editHandlers: number[] = [];
+    const editStates: string[] = [];
     const seriesStarted = await page.evaluate(() => performance.now());
     for (let index = 0; index < 10; index++) {
       await expect(
@@ -506,6 +507,7 @@ for (const shape of ["smoke", "virtualized"] as const) {
       const measurements = await snapshot(page);
       editCommits.push(measurements.nleCommits);
       editRenders.push(...measurements.commitDurationsMs);
+      editStates.push(...measurements.commitStates);
       const clickHandlers = measurements.handlerSamples.filter(
         (sample) =>
           sample.eventType === "click" && sample.control === "visual.transform",
@@ -524,6 +526,25 @@ for (const shape of ["smoke", "virtualized"] as const) {
       editCommits,
       renderP95Ms: p95(editRenders),
       handlerP95Ms: p95(editHandlers),
+      renderSamplesSortedMs: [...editRenders]
+        .sort((a, b) => a - b)
+        .map((value) => Math.round(value * 10) / 10),
+      renderMedianMs:
+        ([...editRenders].sort((a, b) => a - b)[
+          Math.floor((editRenders.length - 1) / 2)
+        ]! +
+          [...editRenders].sort((a, b) => a - b)[
+            Math.floor(editRenders.length / 2)
+          ]!) /
+        2,
+      handlerSamplesSortedMs: [...editHandlers]
+        .sort((a, b) => a - b)
+        .map((value) => Math.round(value * 10) / 10),
+      slowCommitPhases: editRenders
+        .map((duration, index) => ({ duration, state: editStates[index] }))
+        .sort((a, b) => b.duration - a.duration)
+        .slice(0, 3)
+        .map(({ state }) => state?.split(":")[0] ?? "unknown"),
       sampleCounts: {
         renders: editRenders.length,
         handlers: editHandlers.length,

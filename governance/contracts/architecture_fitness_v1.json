@@ -49,7 +49,7 @@
       "path": "frontend/src/entry.tsx"
     }
   ],
-  "fingerprint": "sha256:2e4c6c33b65c720df97bc78af73e7a98239b5101920701158bf241dd908c1704",
+  "fingerprint": "sha256:d067e0d7e02907f234c51687c19b46d49660974dd7592589ee82a7d11907ffc8",
   "known_violations": [],
   "modules": [
     {
@@ -266,7 +266,7 @@
         "comfyui_h3_context/core/canonical.py"
       ],
       "language": "python",
-      "lines": 729,
+      "lines": 732,
       "path": "comfyui_h3_context/adapters/authoring_fonts.py",
       "source_reachability": {
         "class": "product",
@@ -709,7 +709,7 @@
         "comfyui_h3_context/core/render_planner.py"
       ],
       "language": "python",
-      "lines": 120,
+      "lines": 122,
       "path": "comfyui_h3_context/adapters/authoring_renderer_qualification.py",
       "source_reachability": {
         "class": "product",
@@ -2352,7 +2352,7 @@
         "comfyui_h3_context/core/semantic_proposal_producer.py"
       ],
       "language": "python",
-      "lines": 2469,
+      "lines": 2481,
       "path": "comfyui_h3_context/adapters/ollama_native.py",
       "source_reachability": {
         "class": "product",

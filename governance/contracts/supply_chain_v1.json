@@ -7,8 +7,8 @@
     },
     {
       "path": ".github/workflows/publish.yml",
-      "sha256": "sha256:2aa83370502ea6d9b9e024670db9ed67a2d3f34149c3cf6c5199231b951dfd9b",
-      "size": 6421
+      "sha256": "sha256:dd182c3f764ac22e9d7afad91ca6bc2caa770931bafd946e8523363f060fbaf4",
+      "size": 6855
     },
     {
       "path": "LICENSE",
@@ -27,7 +27,7 @@
     },
     {
       "path": "comfyui_h3_context/contracts/build_provenance_v1.json",
-      "sha256": "sha256:8b49d4fb9a99680e5ccb1ba87d25a388470014ba22f8956adf3556d5c950649d",
+      "sha256": "sha256:e9d79e94976478bb2f440c4f61e0400477ef8a55454f9bfecd9cdcf6ae084041",
       "size": 1712
     },
     {
@@ -1377,8 +1377,8 @@
     },
     {
       "path": "scripts/public_source_policy.py",
-      "sha256": "sha256:f1d760c9edba6e6fde9aff99cbe17342bef1784b8943cad2d971967e81630933",
-      "size": 2576
+      "sha256": "sha256:55f7447092c0f9a9d0b441b4225d0848a6c0f135774426c569345edb24daad11",
+      "size": 2613
     }
   ],
   "frontend_lock_package_count": 156,
@@ -1390,7 +1390,7 @@
   "runtime_entries": [
     {
       "path": "comfyui_h3_context/web/h3-context-sidebar.js",
-      "sha256": "sha256:c2ff921e035a9f943862d1cf8ae7f36ff07950a052cd27c8d129590a58c416f6",
+      "sha256": "sha256:3b3fd1da1812b41e6ff974628df2843cb52f69658396924e5eb2696836e0426d",
       "size": 1883569
     }
   ],

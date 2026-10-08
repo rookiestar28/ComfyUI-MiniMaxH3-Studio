@@ -15,4 +15,5 @@ export default defineConfig({
   forbidOnly: true,
   workers: 1,
   retries: 0,
+  globalTimeout: 80 * 60 * 1_000,
 });

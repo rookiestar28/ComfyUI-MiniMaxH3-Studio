@@ -1,2 +1,5 @@
 # Exact native observer admission hashes checkout bytes, not only the Git blob.
 scripts/process_audio_observer.py text eol=lf
+# Runtime font authority pins LF text; keep default Windows checkouts usable.
+comfyui_h3_context/fonts/LICENSE-OFL-1.1.txt text eol=lf
+comfyui_h3_context/fonts/font_manifest_v1.json text eol=lf

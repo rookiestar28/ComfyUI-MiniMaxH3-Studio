@@ -15,6 +15,16 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+from scripts.browser_ci_evidence import (  # noqa: E402 - direct script invocation needs ROOT first
+    evidence_directory,
+    publish_evidence,
+    require_owned_path,
+    sanitize_report,
+    validate_media_config,
+)
+
+__all__ = ["evidence_directory", "publish_evidence", "sanitize_report"]
+
 INVENTORY = "frontend/tests/fixtures/browserNativeCases.json"
 PROFILE = "playwright.hermetic-ci.config.ts"
 Case = tuple[str, str]
@@ -104,6 +114,7 @@ def collect(config: str, env: dict[str, str], *, root: Path = ROOT) -> Counter[C
         text=True,
         encoding="utf-8",
         check=True,
+        timeout=120,
     )
     return collected(json.loads(value.stdout))
 
@@ -128,6 +139,9 @@ def collection_environment(source: dict[str, str]) -> dict[str, str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--list-only", action="store_true")
+    parser.add_argument(
+        "--evidence-dir", help="retain sanitized failure evidence in a fresh ignored directory"
+    )
     args = parser.parse_args()
     try:
         python = require_interpreter(ROOT)
@@ -140,6 +154,7 @@ def main() -> int:
             ],
             cwd=ROOT,
             check=True,
+            timeout=120,
         )
         env = collection_environment(dict(os.environ))
         env["H3_CONTEXT_E2E_PYTHON"] = str(python)
@@ -154,14 +169,27 @@ def main() -> int:
         )
         if args.list_only:
             return 0
+        destination = evidence_directory(ROOT, args.evidence_dir) if args.evidence_dir else None
+        if destination is not None:
+            validate_media_config(ROOT)
         scratch = ROOT / ".tmp"
+        require_owned_path(ROOT, scratch)
         scratch.mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(prefix="browser-ci-", dir=scratch) as directory:
             report_path = Path(directory) / "results.json"
             env["PLAYWRIGHT_JSON_OUTPUT_FILE"] = str(report_path)
+            if destination is not None:
+                env["H3_CONTEXT_PLAYWRIGHT_OUTPUT"] = str(Path(directory) / "test-results")
             result = subprocess.run(
-                [*command(PROFILE), "--reporter=line,json"], cwd=ROOT, env=env, check=False
+                [*command(PROFILE), "--reporter=line,json"],
+                cwd=ROOT,
+                env=env,
+                check=False,
+                timeout=85 * 60,
             )
+            if destination is not None and report_path.exists():
+                require_owned_path(ROOT, destination)
+                publish_evidence(report_path, Path(directory) / "test-results", destination)
             if result.returncode:
                 return result.returncode
             executed = collected(json.loads(report_path.read_text(encoding="utf-8")), executed=True)
@@ -169,7 +197,7 @@ def main() -> int:
                 raise ValueError("executed cases differ from verified collection")
         print("Hermetic browser: PASS; explicit native qualification: NOT_RUN")
         return 0
-    except (OSError, ValueError, KeyError, TypeError, subprocess.CalledProcessError) as error:
+    except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
         print(
             f"Hermetic browser preflight/result: FAIL ({type(error).__name__}: {error})",
             file=sys.stderr,

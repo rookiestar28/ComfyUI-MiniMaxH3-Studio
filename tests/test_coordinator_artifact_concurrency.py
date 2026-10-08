@@ -257,6 +257,9 @@ def test_heavy_artifact_phases_leave_the_coordinator_lock_available(
 
         monkeypatch.setattr(store, "commit", commit)
     else:
+        # CRITICAL: prepare the real store before measuring preview-phase lock availability;
+        # lazy durable setup can exhaust the entry latch on mounted filesystems before preview.
+        coordinator._store()
         original_preview = coordinator._production.prepare_generated_preview_sources
 
         def preview(*args: object, **kwargs: object) -> object:

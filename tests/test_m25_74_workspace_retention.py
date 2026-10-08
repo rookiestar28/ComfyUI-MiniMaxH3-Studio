@@ -466,6 +466,13 @@ def _replace_keeping_identity(path: Path) -> None:
     metadata = path.stat()
     path.write_bytes(b"x" * metadata.st_size)
     os.utime(path, ns=(metadata.st_atime_ns, metadata.st_mtime_ns))
+    replaced = path.stat()
+    assert (replaced.st_dev, replaced.st_ino, replaced.st_size, replaced.st_mtime_ns) == (
+        metadata.st_dev,
+        metadata.st_ino,
+        metadata.st_size,
+        metadata.st_mtime_ns,
+    ), "same-stat replacement fixture must preserve the admitted source identity"
 
 
 def test_a_replaced_file_withdraws_the_probe_and_a_moved_workspace_keeps_it(

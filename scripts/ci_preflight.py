@@ -8,6 +8,7 @@ import os
 import re
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -17,6 +18,76 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 PYTHON_ENV = "H3_CONTEXT_E2E_PYTHON"
+JOB_BOUNDS = {
+    "import-smoke": 10,
+    "quality": 20,
+    "backend": 120,
+    "conformance": 120,
+    "frontend": 30,
+    "browser": 90,
+}
+BROWSER_EVIDENCE_DIR = "frontend/test-results/browser-ci"
+UPLOAD_ARTIFACT_SHA = (
+    "cf430e030ddbb5b0abf93d22962f4752f3646cd9"  # pragma: allowlist secret - public action commit
+)
+
+
+def validate_browser_upload(jobs: dict[str, Any]) -> dict[str, Any]:
+    """Only the complete failure-only evidence step may be conditional."""
+    matches = [
+        (name, i, step)
+        for name, job in jobs.items()
+        for i, step in enumerate(job["steps"])
+        if step.get("uses", "").startswith("actions/upload-artifact@")
+    ]
+    if len(matches) != 1 or matches[0][0] != "browser":
+        raise ValueError("browser evidence needs exactly one owned upload")
+    _, position, matched = matches[0]
+    upload: dict[str, Any] = matched
+    settings = upload.get("with", {})
+    paths = (
+        f"{BROWSER_EVIDENCE_DIR}/results.json\n"
+        f"{BROWSER_EVIDENCE_DIR}/test-results/**/error-context.md"
+    )
+    consumers = [
+        i
+        for i, step in enumerate(jobs["browser"]["steps"])
+        if "scripts/browser_ci.py" in step.get("run", "")
+    ]
+    # CRITICAL: exempt only this closed upload shape. A generic conditional-step exception
+    # would let runtime/bootstrap steps skip execution or upload raw/private output.
+    if (
+        set(upload) != {"name", "if", "uses", "with"}
+        or upload["if"] != "failure()"
+        or upload["uses"] != f"actions/upload-artifact@{UPLOAD_ARTIFACT_SHA}"
+        or not isinstance(settings, dict)
+        or set(settings) != {"name", "path", "if-no-files-found", "retention-days"}
+        or settings["name"] != "hermetic-browser-failure-${{ matrix.os }}"
+        or not isinstance(settings["path"], str)
+        or settings["path"].strip() != paths
+        or settings["if-no-files-found"] != "ignore"
+        or type(settings["retention-days"]) is not int
+        or not 1 <= settings["retention-days"] <= 7
+        or len(consumers) != 1
+        or position <= consumers[0]
+    ):
+        raise ValueError("browser evidence upload contract invalid")
+    return upload
+
+
+def policy_compare_command(*, push: bool) -> str:
+    compare = 'python scripts/acceptance_baseline.py compare --base-ref "$POLICY_BASE_SHA"'
+    if not push:
+        return compare
+    # CRITICAL: first-push before is zero; the strict comparator needs a resolved SHA, not a ref.
+    return "\n".join(
+        (
+            'if [ "$POLICY_BASE_SHA" = "0000000000000000000000000000000000000000" ]; then',
+            '  POLICY_BASE_SHA="$(git rev-parse --verify "${POLICY_DEFAULT_REF}^{commit}")"',
+            "fi",
+            compare,
+        )
+    )
 
 
 def fixture_python(root: Path, *, environ: dict[str, str] | None = None) -> Path:
@@ -49,6 +120,32 @@ def validate_workflow(workflow: dict[str, Any], package_manager: str = "pnpm@11.
     """Check bootstrap ordering against the actual jobs, not prose or step names."""
     try:
         jobs = workflow["jobs"]
+        if set(jobs) != set(JOB_BOUNDS):
+            raise ValueError("job population")
+        upload = validate_browser_upload(jobs)
+        for name, bound in JOB_BOUNDS.items():
+            job = jobs[name]
+            if type(job.get("timeout-minutes")) is not int or job["timeout-minutes"] != bound:
+                raise ValueError("job time bound")
+            if "if" in job or job.get("continue-on-error", False) or "defaults" in job:
+                raise ValueError("job execution must be unconditional at repository root")
+            for step in job["steps"]:
+                # Quality policy comparisons are intentionally event-specific; all runtime
+                # bootstrap/consumer steps must execute and propagate failure from this root.
+                if (
+                    "if" in step
+                    and step is not upload
+                    and not (
+                        name == "quality"
+                        and step["if"]
+                        in {"github.event_name == 'pull_request'", "github.event_name == 'push'"}
+                        and step.get("run", "").strip()
+                        == policy_compare_command(push=step["if"] == "github.event_name == 'push'")
+                    )
+                ):
+                    raise ValueError("conditional bootstrap/consumer")
+                if step.get("continue-on-error", False) or "working-directory" in step:
+                    raise ValueError("bootstrap/consumer failure or directory override")
         node_versions = []
         for name in ("frontend", "backend", "browser"):
             steps = jobs[name]["steps"]
@@ -59,7 +156,8 @@ def validate_workflow(workflow: dict[str, Any], package_manager: str = "pnpm@11.
             pnpm = next(
                 i
                 for i, row in enumerate(steps)
-                if f"corepack prepare {package_manager} --activate" in row.get("run", "")
+                if row.get("run")
+                == f"corepack enable && corepack prepare {package_manager} --activate"
             )
             frozen = next(
                 i
@@ -72,7 +170,7 @@ def validate_workflow(workflow: dict[str, Any], package_manager: str = "pnpm@11.
                 if (
                     "scripts/browser_ci.py" in row.get("run", "")
                     if name == "browser"
-                    else "-m pytest" in row.get("run", "")
+                    else row.get("run") == coverage_command()
                     if name == "backend"
                     else "pnpm --dir frontend run check" == row.get("run")
                 )
@@ -88,7 +186,16 @@ def validate_workflow(workflow: dict[str, Any], package_manager: str = "pnpm@11.
                 install = next(
                     i
                     for i, row in enumerate(steps)
-                    if '-e ".[dev,host-tests]"' in row.get("run", "")
+                    if row.get("run", "").strip()
+                    == (
+                        "python -m venv .venv\n${{ matrix.python }} -m pip install "
+                        '--disable-pip-version-check -e ".[dev,host-tests]"'
+                        if name == "browser"
+                        else (
+                            "python -m pip install --disable-pip-version-check "
+                            '-e ".[dev,host-tests]"'
+                        )
+                    )
                 )
                 if (
                     steps[python]["with"]["python-version"] != "3.10"
@@ -104,7 +211,10 @@ def validate_workflow(workflow: dict[str, Any], package_manager: str = "pnpm@11.
                         or "${{ matrix.python }} -m pip install" not in steps[install]["run"]
                     ):
                         raise ValueError("browser interpreter bootstrap")
-                    if steps[consumer]["run"] != "${{ matrix.python }} scripts/browser_ci.py":
+                    if steps[consumer]["run"] != (
+                        "${{ matrix.python }} scripts/browser_ci.py --evidence-dir "
+                        + BROWSER_EVIDENCE_DIR
+                    ):
                         raise ValueError("browser consumer interpreter")
                 else:
                     minimum = next(
@@ -124,6 +234,28 @@ def validate_workflow(workflow: dict[str, Any], package_manager: str = "pnpm@11.
                     )
                     if not max(install, frozen, cpu, process) < minimum < consumer:
                         raise ValueError("public minimum bootstrap must precede full pytest")
+                    partition = next(
+                        i
+                        for i, row in enumerate(steps)
+                        if row.get("run") == "python scripts/ci_preflight.py --backend-partition"
+                    )
+                    if not minimum < partition < consumer:
+                        raise ValueError("backend partition must be verified before execution")
+        conformance = jobs["conformance"]["steps"]
+        setup = next(
+            i for i, row in enumerate(conformance) if "actions/setup-python@" in row.get("uses", "")
+        )
+        install = next(
+            i
+            for i, row in enumerate(conformance)
+            if row.get("run")
+            == 'python -m pip install --disable-pip-version-check -e ".[dev,host-tests]"'
+        )
+        consumer = next(
+            i for i, row in enumerate(conformance) if row.get("run") == conformance_command()
+        )
+        if conformance[setup]["with"]["python-version"] != "3.10" or not setup < install < consumer:
+            raise ValueError("conformance bootstrap")
         if len(set(node_versions)) != 1 or not re.fullmatch(r"24\.\d+\.\d+", node_versions[0]):
             raise ValueError("Node bootstrap identity")
     except (KeyError, TypeError, StopIteration, ValueError) as error:
@@ -132,7 +264,14 @@ def validate_workflow(workflow: dict[str, Any], package_manager: str = "pnpm@11.
 
 def checked(args: list[str], root: Path, *, env: dict[str, str] | None = None) -> str:
     return subprocess.run(
-        args, cwd=root, env=env, check=True, capture_output=True, text=True, encoding="utf-8"
+        args,
+        cwd=root,
+        env=env,
+        check=True,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        timeout=120,
     ).stdout.strip()
 
 
@@ -214,6 +353,7 @@ def require_minimum_python(version: tuple[int, int]) -> None:
 
 
 def validate_public_checkout(root: Path) -> None:
+    """Validate public source boundaries; a shallow/squashed checkout does not prove provenance."""
     from scripts.public_source_policy import allowed
 
     if Path(checked(["git", "rev-parse", "--show-toplevel"], root)).resolve() != root.resolve():
@@ -244,6 +384,8 @@ def minimum_command(root: Path) -> list[str]:
         "--capture=sys",
         "--basetemp",
         str(root / ".tmp/ci-public-minimum"),
+        "--junitxml",
+        str(root / ".tmp/ci-public-minimum.xml"),
         "tests/test_native_t2va_structure.py",
         "tests/test_registry_publish_guard.py::RegistryPublishGuardTests",
         "tests/test_m19_closeout.py::GeneratedMatrixTests",
@@ -255,12 +397,103 @@ def minimum_command(root: Path) -> list[str]:
     ]
 
 
+CONFORMANCE_FILES = (
+    "tests/test_m25_20_conformance_cases.py",
+    "tests/test_m25_20_conformance_expect.py",
+    "tests/test_m25_20_conformance_join.py",
+)
+
+
+def coverage_command() -> str:
+    return (
+        "python -m pytest --cov=comfyui_h3_context --cov-report=term-missing "
+        + " ".join(f"--ignore={path}" for path in CONFORMANCE_FILES)
+        + " --cov-fail-under=75"
+    )
+
+
+def conformance_command() -> str:
+    return "python -m pytest " + " ".join(CONFORMANCE_FILES) + " --no-cov --durations=10"
+
+
+def validate_backend_partition(root: Path) -> None:
+    inventories = []
+    for selection in (
+        [],
+        [f"--ignore={path}" for path in CONFORMANCE_FILES],
+        list(CONFORMANCE_FILES),
+    ):
+        output = checked(
+            [sys.executable, "-m", "pytest", "--collect-only", "-q", "--capture=sys", *selection],
+            root,
+        )
+        rows = Counter(
+            line.strip()
+            for line in output.splitlines()
+            if line.startswith("tests/") and "::" in line
+        )
+        if not rows or any(count != 1 for count in rows.values()):
+            raise ValueError("backend collection is empty or ambiguous")
+        inventories.append(rows)
+    full, coverage, conformance = inventories
+    if coverage & conformance or full != coverage + conformance:
+        raise ValueError("backend lanes do not conserve actual full collection")
+    if {name.split("::", 1)[0] for name in conformance} != set(CONFORMANCE_FILES):
+        raise ValueError("conformance file population changed")
+    print(
+        f"Backend collection: {sum(full.values())} = {sum(coverage.values())} coverage + "
+        f"{sum(conformance.values())} untraced conformance; execution NOT_RUN"
+    )
+
+
+def validate_minimum_report(report: Path) -> None:
+    required = {
+        "tests.test_native_t2va_structure",
+        "tests.test_registry_publish_guard.RegistryPublishGuardTests",
+        *(
+            f"tests.{module}.{name}"
+            for module in ("test_m19_closeout", "test_closeout_matrix")
+            for name in ("GeneratedMatrixTests", "SyntheticHistoryTests")
+        ),
+    }
+    executed: set[str] = set()
+    identities: set[tuple[str, str]] = set()
+    # The receipt is generated by our just-completed pytest child; reject entity declarations
+    # and oversized input before parsing so even a replaced receipt fails closed.
+    raw = report.read_bytes()
+    if len(raw) > 2_000_000 or b"<!DOCTYPE" in raw.upper() or b"<!ENTITY" in raw.upper():
+        raise ValueError("unsafe public minimum receipt")
+    for case in ET.fromstring(raw).iter("testcase"):  # noqa: S314 - bounded, entity-free owned XML
+        classname, name = case.get("classname", ""), case.get("name", "")
+        identity = (classname, name)
+        if not classname or not name or identity in identities:
+            raise ValueError("missing or duplicate public minimum identity")
+        identities.add(identity)
+        if case.find("failure") is not None or case.find("error") is not None:
+            raise ValueError("public minimum execution failed")
+        if case.find("skipped") is not None:
+            if classname not in {
+                "tests.test_m19_closeout.HistoricalReplayTests",
+                "tests.test_closeout_matrix.HistoricalReplayTests",
+            }:
+                raise ValueError("unexpected public minimum skip")
+        else:
+            executed.add(classname)
+    if not required <= executed:
+        raise ValueError("required public minimum classes did not execute")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--public-minimum", action="store_true")
+    parser.add_argument("--backend-partition", action="store_true")
     args = parser.parse_args()
     try:
-        if args.public_minimum:
+        if args.public_minimum and args.backend_partition:
+            raise ValueError("select one preflight mode")
+        if args.backend_partition:
+            validate_backend_partition(ROOT)
+        elif args.public_minimum:
             require_minimum_python(sys.version_info[:2])
             validate_public_checkout(ROOT)
             checked(
@@ -274,7 +507,11 @@ def main() -> int:
                 ],
                 ROOT,
             )
-            subprocess.run(minimum_command(ROOT), cwd=ROOT, check=True)
+            report = ROOT / ".tmp/ci-public-minimum.xml"
+            report.parent.mkdir(exist_ok=True)
+            report.unlink(missing_ok=True)
+            subprocess.run(minimum_command(ROOT), cwd=ROOT, check=True, timeout=600)
+            validate_minimum_report(report)
             print(
                 "Public Python 3.10 bounded contracts: PASS; "
                 "private historical replay NOT_RUN; full backend NOT_RUN"
@@ -282,7 +519,14 @@ def main() -> int:
         else:
             browser_collection(ROOT, runtime_preflight(ROOT))
         return 0
-    except (OSError, ValueError, KeyError, TypeError, subprocess.CalledProcessError) as error:
+    except (
+        OSError,
+        ValueError,
+        KeyError,
+        TypeError,
+        ET.ParseError,
+        subprocess.SubprocessError,
+    ) as error:
         print(f"CI preflight: FAIL ({type(error).__name__}: {error})", file=sys.stderr)
         return 1
 

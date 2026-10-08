@@ -6,6 +6,7 @@ on:
     branches:
       - dev
       - main
+      - release-candidate/**
   workflow_dispatch:
 
 permissions:
@@ -17,6 +18,7 @@ concurrency:
 
 jobs:
   import-smoke:
+    timeout-minutes: 10
     name: Import smoke (${{ matrix.os }})
     strategy:
       fail-fast: false
@@ -39,6 +41,7 @@ jobs:
         run: python -c "import comfyui_h3_context"
 
   quality:
+    timeout-minutes: 20
     name: Supply and quality
     runs-on: ubuntu-latest
     steps:
@@ -65,13 +68,19 @@ jobs:
         if: github.event_name == 'push'
         env:
           POLICY_BASE_SHA: ${{ github.event.before }}
-        run: python scripts/acceptance_baseline.py compare --base-ref "$POLICY_BASE_SHA"
+          POLICY_DEFAULT_REF: ${{ format('refs/remotes/origin/{0}', github.event.repository.default_branch) }}
+        run: |
+          if [ "$POLICY_BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            POLICY_BASE_SHA="$(git rev-parse --verify "${POLICY_DEFAULT_REF}^{commit}")"
+          fi
+          python scripts/acceptance_baseline.py compare --base-ref "$POLICY_BASE_SHA"
       - name: Validate supply manifest
         run: python scripts/supply_chain_manifest.py --emit validate
       - name: Run pinned hooks once
         run: python -m pre_commit run --all-files --show-diff-on-failure
 
   backend:
+    timeout-minutes: 120
     name: Backend tests and security
     runs-on: ubuntu-latest
     steps:
@@ -100,15 +109,38 @@ jobs:
         run: corepack enable && corepack prepare pnpm@11.3.0 --activate
       - name: Install exact frontend dependencies
         run: pnpm --dir frontend install --frozen-lockfile
-      # CRITICAL: a populated private checkout cannot prove minimum-runtime public bootstrap.
+      # CRITICAL: minimum-runtime proof must execute in a clean public-source checkout.
       - name: Check public minimum-runtime contracts before the long suite
         run: python scripts/ci_preflight.py --public-minimum
+      - name: Verify actual backend partition conservation
+        run: python scripts/ci_preflight.py --backend-partition
       - name: Run backend tests with coverage
-        run: python -m pytest --cov=comfyui_h3_context --cov-report=term-missing --cov-fail-under=75
+        run: python -m pytest --cov=comfyui_h3_context --cov-report=term-missing --ignore=tests/test_m25_20_conformance_cases.py --ignore=tests/test_m25_20_conformance_expect.py --ignore=tests/test_m25_20_conformance_join.py --cov-fail-under=75
       - name: Run offline security audit
         run: python scripts/security_audit.py
 
+  conformance:
+    name: Untraced semantic conformance
+    timeout-minutes: 120
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: "3.10"
+          cache: pip
+      - name: Install development dependencies
+        run: python -m pip install --disable-pip-version-check -e ".[dev,host-tests]"
+      # CRITICAL: tracing multiplies exhaustive Python sweeps; keep their full population untraced.
+      - name: Run complete conformance sweeps without coverage
+        run: python -m pytest tests/test_m25_20_conformance_cases.py tests/test_m25_20_conformance_expect.py tests/test_m25_20_conformance_join.py --no-cov --durations=10
+
   frontend:
+    timeout-minutes: 30
     name: Frontend check, unit and build
     runs-on: ubuntu-latest
     steps:
@@ -135,6 +167,7 @@ jobs:
         run: pnpm --dir frontend run build
 
   browser:
+    timeout-minutes: 90
     name: Hermetic browser (${{ matrix.os }})
     strategy:
       fail-fast: false
@@ -173,6 +206,16 @@ jobs:
         run: pnpm --dir frontend exec playwright install --with-deps chromium
       - name: Run hermetic browser lane
         shell: bash
-        run: ${{ matrix.python }} scripts/browser_ci.py
+        run: ${{ matrix.python }} scripts/browser_ci.py --evidence-dir frontend/test-results/browser-ci
+      - name: Upload hermetic browser failure evidence
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: hermetic-browser-failure-${{ matrix.os }}
+          path: |
+            frontend/test-results/browser-ci/results.json
+            frontend/test-results/browser-ci/test-results/**/error-context.md
+          if-no-files-found: ignore
+          retention-days: 7
 
   # The live supported-host suite remains an explicit compatibility/release lane and is not CI.

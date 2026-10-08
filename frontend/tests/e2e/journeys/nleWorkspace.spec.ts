@@ -986,6 +986,7 @@ test("decoded discrete edits stay within the frozen render and handler budgets",
   const commits: number[] = [];
   const renders: number[] = [];
   const handlers: number[] = [];
+  const states: string[] = [];
   for (let index = 0; index < 10; index++) {
     await expect(
       page.getByRole("button", { name: "Play", exact: true }),
@@ -1015,16 +1016,37 @@ test("decoded discrete edits stay within the frozen render and handler budgets",
       );
     commits.push(measurements.commitDurationsMs.length);
     renders.push(...measurements.commitDurationsMs);
+    states.push(...measurements.commitStates);
     handlers.push(...measurements.handlerDurationsMs);
   }
   const p95 = (values: number[]) =>
     [...values].sort((a, b) => a - b)[Math.ceil(values.length * 0.95) - 1]!;
+  const report = {
+    commits,
+    renderP95: p95(renders),
+    handlerP95: p95(handlers),
+    renderSamplesSortedMs: [...renders]
+      .sort((a, b) => a - b)
+      .map((value) => Math.round(value * 10) / 10),
+    renderMedianMs:
+      ([...renders].sort((a, b) => a - b)[
+        Math.floor((renders.length - 1) / 2)
+      ]! +
+        [...renders].sort((a, b) => a - b)[Math.floor(renders.length / 2)]!) /
+      2,
+    handlerSamplesSortedMs: [...handlers]
+      .sort((a, b) => a - b)
+      .map((value) => Math.round(value * 10) / 10),
+    slowCommitStates: renders
+      .map((duration, index) => ({ duration, state: states[index] }))
+      .sort((a, b) => b.duration - a.duration)
+      .slice(0, 3)
+      .map(({ state }) => state ?? "unknown"),
+    sampleCounts: { renders: renders.length, handlers: handlers.length },
+  };
+  console.log(JSON.stringify(report));
   await testInfo.attach("discrete-edit-budgets", {
-    body: JSON.stringify({
-      commits,
-      renderP95: p95(renders),
-      handlerP95: p95(handlers),
-    }),
+    body: JSON.stringify(report),
     contentType: "application/json",
   });
   expect(renders.length).toBeGreaterThan(0);

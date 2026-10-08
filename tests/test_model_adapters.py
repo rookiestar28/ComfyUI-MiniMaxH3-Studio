@@ -557,6 +557,26 @@ class OllamaAdapterTests(unittest.TestCase):
                 self.assertIsNone(captured.exception.__cause__)
                 self.assertIsNone(captured.exception.__context__)
 
+    def test_loopback_authority_validates_brackets_without_parser_version_assumptions(self) -> None:
+        for endpoint in (
+            "http://[::1]]/api",
+            "http://[[::1]/api",
+            "http://prefix[::1]/api",
+            "http://[::1]suffix/api",
+            "http://[::1]:11434]/api",
+            "http://[127.0.0.1]/api",
+            "http://[gggg::1]/api",
+        ):
+            with self.subTest(endpoint=endpoint):
+                with self.assertRaises(ModelTransportError) as captured:
+                    LoopbackOllamaTransport(endpoint)
+                self.assertEqual(str(captured.exception), "Ollama endpoint syntax is invalid")
+                self.assertIsNone(captured.exception.__cause__)
+                self.assertIsNone(captured.exception.__context__)
+        for endpoint in ("http://[::1]/api", "http://[0:0:0:0:0:0:0:1]:11434/api"):
+            with self.subTest(endpoint=endpoint):
+                LoopbackOllamaTransport(endpoint)
+
     def test_concrete_loopback_transport_owns_headers_limits_timeout_cancel_and_cleanup(
         self,
     ) -> None:

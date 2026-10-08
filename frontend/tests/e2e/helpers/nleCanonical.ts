@@ -26,6 +26,43 @@ export type Interleave = (
   history: unknown[],
 ) => void;
 
+type CanonicalDiagnostics = {
+  fixtureCalls: { durationMs: number; outcome: "ok" | "timeout" | "error" }[];
+  fixtureCallsOmitted: number;
+  bootstrapCompletedMs?: number;
+  schemaCompletedMs?: number;
+  pageErrors: number;
+};
+const diagnosticsByPage = new WeakMap<Page, CanonicalDiagnostics>();
+
+export async function canonicalFailureDiagnostics(page: Page) {
+  const diagnostics = diagnosticsByPage.get(page);
+  if (!diagnostics) return undefined;
+  let facts = { surface: "unknown", launcherAttached: false };
+  try {
+    facts = await page.evaluate(() => {
+      const value = document.querySelector(
+        '[data-h3-harness="surface"]',
+      )?.textContent;
+      return {
+        surface:
+          value === undefined
+            ? "absent"
+            : ["collapsed", "opening", "expanded", "closing"].includes(
+                  value ?? "",
+                )
+              ? value!
+              : "unknown",
+        launcherAttached:
+          document.querySelector('[data-h3-nle-entry="open"]') !== null,
+      };
+    });
+  } catch {
+    // A crashed/closed page must not replace the original test failure with a diagnostic error.
+  }
+  return { ...diagnostics, ...facts };
+}
+
 export async function canonicalWorkspace(
   page: Page,
   configure?: (wire: Record<string, unknown>) => void,
@@ -57,6 +94,16 @@ async function canonicalWorkspaceMode(
   suffix: string,
   v2: boolean,
 ) {
+  const started = performance.now();
+  let diagnostics = diagnosticsByPage.get(page);
+  if (!diagnostics) {
+    diagnostics = { fixtureCalls: [], fixtureCallsOmitted: 0, pageErrors: 0 };
+    diagnosticsByPage.set(page, diagnostics);
+    page.on("pageerror", () => {
+      diagnostics!.pageErrors += 1;
+    });
+  }
+  const elapsed = () => Math.round((performance.now() - started) * 10) / 10;
   const root = fileURLToPath(new URL("../../../../", import.meta.url));
   const python = fixturePython(root);
   const transactions: unknown[] = [];
@@ -100,19 +147,42 @@ async function canonicalWorkspaceMode(
       interleave?.(transaction, transactions);
       transactions.push(transaction);
     }
-    const result = JSON.parse(
-      execFileSync(python, [join(root, "scripts/m25_16_timeline_fixture.py")], {
-        input: JSON.stringify({
-          [v2 ? "authoring" : "snapshot"]: initial,
-          transactions,
-        }),
-        encoding: "utf8",
-        timeout: 15_000,
-        maxBuffer: 2_097_152,
-      }),
-    );
+    const callStarted = performance.now();
+    let outcome: "ok" | "timeout" | "error" = "ok";
+    let raw: string;
+    try {
+      raw = execFileSync(
+        python,
+        [join(root, "scripts/m25_16_timeline_fixture.py")],
+        {
+          input: JSON.stringify({
+            [v2 ? "authoring" : "snapshot"]: initial,
+            transactions,
+          }),
+          encoding: "utf8",
+          timeout: 15_000,
+          maxBuffer: 2_097_152,
+        },
+      );
+    } catch (error) {
+      outcome =
+        (error as { code?: string }).code === "ETIMEDOUT" ? "timeout" : "error";
+      throw error;
+    } finally {
+      // Keep invocation facts bounded and payload-free; stderr/arguments contain fixture state.
+      if (diagnostics.fixtureCalls.length < 64)
+        diagnostics.fixtureCalls.push({
+          durationMs: Math.round((performance.now() - callStarted) * 10) / 10,
+          outcome,
+        });
+      else diagnostics.fixtureCallsOmitted += 1;
+    }
+    const result = JSON.parse(raw);
     await route.fulfill({ json: result });
-    if (route.request().url().endsWith("/bootstrap")) bootstrapped?.();
+    if (route.request().url().endsWith("/bootstrap")) {
+      diagnostics.bootstrapCompletedMs = elapsed();
+      bootstrapped?.();
+    }
   });
   await page.goto(`/nleWorkspace.html?canonical=1${suffix}`);
   if (v2) {
@@ -120,6 +190,7 @@ async function canonicalWorkspaceMode(
     await expect
       .poll(async () => (await snapshot(page)).authoringStateV2?.schema)
       .toBe(NLE_AUTHORING_SCHEMA);
+    diagnostics.schemaCompletedMs = elapsed();
   }
   await page.getByRole("button", { name: "Open full editor" }).click();
   await expect(page.locator(surface)).toBeVisible();

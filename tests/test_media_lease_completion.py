@@ -37,6 +37,7 @@ def test_completion_wakes_each_worker_request_without_fixed_sleep(
         original_wrap = asyncio.wrap_future
         waits: list[float | None] = []
         loop_errors: list[dict[str, Any]] = []
+        handler_finished = asyncio.Event()
         asyncio.get_running_loop().set_exception_handler(
             lambda _loop, detail: loop_errors.append(detail)
         )
@@ -68,8 +69,18 @@ def test_completion_wakes_each_worker_request_without_fixed_sleep(
 
         monkeypatch.setattr(service, "_work", work)
         app = web.Application()
-        app.router.add_post(routes.LEASE_ROUTE, service.control)
-        app.router.add_post(routes.LEASE_ROUTE + "/open", service.open)
+
+        def completing(handler: Any) -> Any:
+            async def wrapped(request: Any) -> Any:
+                try:
+                    return await handler(request)
+                finally:
+                    handler_finished.set()
+
+            return wrapped
+
+        app.router.add_post(routes.LEASE_ROUTE, completing(service.control))
+        app.router.add_post(routes.LEASE_ROUTE + "/open", completing(service.open))
         try:
             async with http_test.TestClient(http_test.TestServer(app)) as client:
                 headers = same_origin(client)
@@ -99,6 +110,9 @@ def test_completion_wakes_each_worker_request_without_fixed_sleep(
                     assert response.status == (500 if worker_fails else 200)
                     await response.read()
                 assert waits and set(waits) == {0.05}
+                # IMPORTANT: client EOF can precede server write_eof/finally cleanup.
+                # Observe actual handler completion before asserting its claim was released.
+                await asyncio.wait_for(handler_finished.wait(), timeout=1)
                 assert not service.claimed()
                 assert loop_errors == []
         finally:

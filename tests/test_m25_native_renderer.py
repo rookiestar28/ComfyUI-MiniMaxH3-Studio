@@ -18,6 +18,47 @@ from comfyui_h3_context.adapters.authoring_render_service import RenderServiceEr
 from comfyui_h3_context.core.authoring_render_jobs import RenderJobLimits
 
 
+@pytest.mark.parametrize(
+    "code",
+    [
+        "font_manifest_invalid",
+        "font_artifact_missing",
+        "font_artifact_hash_mismatch",
+        "font_license_missing",
+        "font_license_hash_mismatch",
+        "font_asset_unsupported",
+        "font_style_unsupported",
+        "font_glyph_unsupported",
+    ],
+)
+def test_font_refusal_maps_to_closed_qualification_failure(
+    monkeypatch: pytest.MonkeyPatch, code: str
+) -> None:
+    from comfyui_h3_context.adapters import authoring_renderer_qualification as qualification
+    from comfyui_h3_context.adapters.authoring_fonts import AuthoringFontError
+
+    # Reach the font predicate independently of a pending native implementation reissue.
+    implementation = json.loads(qualification._EVIDENCE.read_bytes())["implementation"]
+    monkeypatch.setattr(
+        qualification, "renderer_implementation_fingerprints", lambda: implementation
+    )
+    called = False
+
+    def refuse() -> None:
+        nonlocal called
+        called = True
+        raise AuthoringFontError(code, "private supplied font details")
+
+    monkeypatch.setattr(qualification, "load_packaged_font_manifest", refuse)
+    with pytest.raises(RenderServiceError) as raised:
+        qualification.load_renderer_qualification()
+    assert called
+    assert raised.value.code == "runtime_unavailable"
+    assert "private supplied font details" not in str(raised.value)
+    assert raised.value.__cause__ is None
+    assert raised.value.__suppress_context__
+
+
 @pytest.mark.parametrize("failure", [None, "probe", "cleanup"])
 @pytest.mark.skipif(
     sys.platform != "win32", reason="native output-store lifetime uses Windows pins"

@@ -12,7 +12,12 @@
 import { expect, test, type Page } from "@playwright/test";
 
 import { routeGenericFixtureMedia } from "../helpers/genericFixtureMedia";
-import { canonicalWorkspace, snapshot, surface } from "../helpers/nleCanonical";
+import {
+  canonicalFailureDiagnostics,
+  canonicalWorkspace,
+  snapshot,
+  surface,
+} from "../helpers/nleCanonical";
 import {
   playheadFrame,
   playheadSlider,
@@ -25,6 +30,13 @@ import {
 } from "../helpers/nleTargets";
 
 test.use({ viewport: { width: 1402, height: 868 }, deviceScaleFactor: 1 });
+
+test.afterEach(async ({ page }, testInfo) => {
+  if (testInfo.status === testInfo.expectedStatus) return;
+  const diagnostics = await canonicalFailureDiagnostics(page);
+  if (diagnostics)
+    console.log(JSON.stringify({ canonicalWorkspaceDiagnostics: diagnostics }));
+});
 
 const timeline = (page: Page) =>
   page.locator(surface).locator('[data-h3-nle-region="timeline"]');

@@ -21,12 +21,12 @@ from ..core.render_planner import (
     RENDERER_QUALIFICATION_ROW_IDS,
     required_unqualified_renderer_profile,
 )
-from .authoring_fonts import load_packaged_font_manifest
+from .authoring_fonts import AuthoringFontError, load_packaged_font_manifest
 from .authoring_render_service import RenderExecutionIdentity, RenderServiceError
 
 # Exact executed corpus evidence; item acceptance still requires the native gate and review.
 _ACCEPTED_EVIDENCE: Final[str | None] = (
-    "sha256:ad225dec772b348e4a2235a9bcabcd54e7cc0f350161c785c4563f7f66f1ada5"
+    "sha256:e024882e2a508ff07da7f65a6d883d06dab4ba0a6b1fe5917f978cafba6ca8f2"
 )
 _PACKAGE = Path(__file__).resolve().parents[1]
 _EVIDENCE = _PACKAGE / "contracts" / "authoring_renderer_qualification_v1.json"
@@ -116,5 +116,7 @@ def load_renderer_qualification() -> RenderExecutionIdentity:
             qualification_fingerprint=accepted_evidence,
             profile_fingerprint=report["profile"],
         )
-    except (OSError, ValueError, TypeError, KeyError):
+    # CRITICAL: font authority refusals must revoke capability through this closed boundary;
+    # allowing the typed runtime exception to escape exposes a different failure to callers.
+    except (OSError, ValueError, TypeError, KeyError, AuthoringFontError):
         raise RenderServiceError("runtime_unavailable") from None

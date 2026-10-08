@@ -62,6 +62,8 @@ def _fixture(root: Path) -> tuple[str, str]:
         "registry_payload.py",
         "registry_publication_capsule.py",
         "registry_publish_guard.py",
+        # IMPORTANT: the copied publish workflow requires this real guard in every positive fixture.
+        "public_ci_gate.py",
         "validate_comfy_registry_metadata.py",
     ):
         target = root / "scripts" / name
@@ -253,6 +255,7 @@ def test_projected_publication_guard_runs_without_development_checkout(repositor
         "scripts/__init__.py",
         ".github/workflows/publish.yml",
         "scripts/registry_publish_guard.py",
+        "scripts/public_ci_gate.py",
         "scripts/registry_payload.py",
         "scripts/validate_comfy_registry_metadata.py",
         "scripts/public_projection.py",
@@ -261,6 +264,14 @@ def test_projected_publication_guard_runs_without_development_checkout(repositor
     assert required <= set(entries(public, str(receipt["public_commit"])))
     assert (public / "scripts/registry_release_controller.py").is_file()
     assert not (public / ".github/workflows/fixture.yml").exists()
+    hosted_guard = subprocess.run(
+        [sys.executable, "-I", "-S", str(public / "scripts/public_ci_gate.py"), "--help"],
+        cwd=public,
+        capture_output=True,
+        check=False,
+        timeout=30,
+    )
+    assert hosted_guard.returncode == 0, hosted_guard.stdout + hosted_guard.stderr
     result = subprocess.run(
         [
             sys.executable,
@@ -397,6 +408,7 @@ def test_controller_transfers_one_exact_audited_archive(repository: Any) -> None
         packed.append(command)
         assert command[2] == str(root / "scripts/registry_pack_entry.py")
         assert (cwd / "scripts/registry_publish_guard.py").is_file()
+        assert (cwd / "scripts/public_ci_gate.py").is_file()
         assert (cwd / ".github/workflows/publish.yml").is_file()
         assert (cwd / "scripts/registry_release_controller.py").is_file()
         with zipfile.ZipFile(cwd / "node.zip", "w", zipfile.ZIP_DEFLATED) as archive:

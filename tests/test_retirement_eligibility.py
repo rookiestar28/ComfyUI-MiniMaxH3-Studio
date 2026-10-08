@@ -25,6 +25,9 @@ import unittest
 from pathlib import Path
 from typing import Any
 
+from history_fixture import commit as commit_history
+from history_fixture import git, git_history, require_history, write_json
+
 from comfyui_h3_context.core.contract_inventory import (
     CompatibilityDisposition as Compat,
 )
@@ -515,6 +518,9 @@ class RetirementTests(unittest.TestCase):
     def test_every_retired_schema_is_recoverable_from_its_rollback_commit(self) -> None:
         """A stable `$id` may stop shipping; it may not stop being recoverable."""
 
+        # IMPORTANT: a public projection has no maintainer rollback objects. Report only that
+        # exact replay NOT_RUN; available commits must still contain every asserted schema blob.
+        require_history(REPO_ROOT, [item["rollback_commit"] for item in self.document["retired"]])
         for item in self.document["retired"]:
             with self.subTest(contract=item["contract_id"]):
                 result = subprocess.run(
@@ -524,6 +530,27 @@ class RetirementTests(unittest.TestCase):
                     check=False,
                 )
                 self.assertEqual(result.returncode, 0, result.stderr.decode("utf-8", "ignore"))
+
+    def test_real_synthetic_rollback_recovers_each_blob_and_refuses_missing_content(self) -> None:
+        with git_history() as root:
+            payloads = {
+                item["schema_path"]: {"$id": item["contract_id"], "type": "object"}
+                for item in self.document["retired"]
+            }
+            for path, payload in payloads.items():
+                write_json(root, path, payload)
+            rollback = commit_history(root)
+            for path in payloads:
+                (root / path).unlink()
+            commit_history(root)
+            require_history(root, [rollback])
+            for path, payload in payloads.items():
+                with self.subTest(path=path):
+                    self.assertEqual(json.loads(git(root, "show", f"{rollback}:{path}")), payload)
+                    with self.assertRaises(subprocess.CalledProcessError):
+                        git(root, "cat-file", "-e", f"HEAD:{path}")
+            with self.assertRaises(unittest.SkipTest):
+                require_history(root, ["1" * 40])
 
     def test_no_dangling_reference_to_a_retired_schema_survives(self) -> None:
         """AC-M18-05-05. The three discovery rules the inventory uses, applied in reverse.

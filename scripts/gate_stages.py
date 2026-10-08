@@ -502,7 +502,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         return int(args.func(args))
-    except (OSError, ValueError, TypeError, KeyError, subprocess.SubprocessError) as exc:
+    except Exception as exc:  # noqa: BLE001 - exit 1 is exclusively a verified cache hit
         # Status 1 is reserved for a proven cache hit, never an input-discovery failure.
         print(f"Gate input validation failed ({type(exc).__name__}); no PASS recorded.")
         return 2

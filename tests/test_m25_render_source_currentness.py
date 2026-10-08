@@ -146,6 +146,9 @@ def _video_source(
 ]:
     path = root / "source.bin"
     path.write_bytes(body)
+    # IMPORTANT: DrvFS drops fractional seconds on utime; fix mtime before identity admission
+    # so same-stat replacement tests reach the real hash check instead of metadata rejection.
+    os.utime(path, ns=(1_700_000_000_000_000_000,) * 2)
     registry = build_reference_registry(
         (ReferenceAsset("video_1", MediaKind.VIDEO, AssetRole.REFERENCE, 1),)
     )

@@ -48,6 +48,9 @@ sys.path.insert(0, str(ROOT / "tests"))
 
 import test_m25_29_production_authoring_import as accepted  # noqa: E402
 
+from comfyui_h3_context.adapters.authoring_fonts import (  # noqa: E402
+    _ERROR_CODES as FONT_ERROR_CODES,
+)
 from comfyui_h3_context.adapters.authoring_generated_source import (  # noqa: E402
     GeneratedAuthoringVideoSource,
 )
@@ -611,6 +614,58 @@ class _Service:
             return {"status": error.status, "body": error.to_wire()}
 
 
+def unexpected_reply(operation: object, error: Exception) -> dict[str, Any]:
+    # CRITICAL: bootstrap refusals must identify the operation without logging exception text,
+    # payloads or paths. A regex alone still allows sensitive data disguised as a code.
+    operations = {
+        "bootstrap",
+        "authoring",
+        "production",
+        "import",
+        "media_source",
+        "output_create",
+        "output_status",
+        "output_cancel",
+        "output_media",
+        "touch_production",
+    }
+    codes = {
+        "request_invalid",
+        "initialization_unavailable",
+        "initialization_revision_conflict",
+        "initialization_currentness_conflict",
+        "timeline_history_profile_mismatch",
+        "timeline_history_already_bound",
+        "timeline_initialization_busy",
+        "source_stale",
+        "source_not_found",
+        "source_unsupported",
+        "registry_mismatch",
+        "generation_mismatch",
+        "render_sources_unavailable",
+        "internal_invariant",
+        "font_unavailable",
+        "font_manifest_changed",
+        "initialization_projection_invalid",
+        "source_not_bound",
+        "audio_editing_deferred",
+    } | FONT_ERROR_CODES
+    code = getattr(error, "code", None)
+    return {
+        "status": 500,
+        "body": None,
+        "error": "AuthoringWorkbenchError"
+        if isinstance(error, AuthoringWorkbenchError)
+        else "UnexpectedError",
+        "operation": operation
+        if isinstance(operation, str) and operation in operations
+        else "decode",
+        "code": code
+        if isinstance(error, AuthoringWorkbenchError) and code in codes
+        else "unexpected_error",
+    }
+
+
 def _serve() -> None:
     service = _Service()
     out = sys.stdout.buffer
@@ -619,6 +674,7 @@ def _serve() -> None:
             if len(raw) > MAX_LINE_BYTES:
                 reply: dict[str, Any] = {"status": 413, "body": None}
             else:
+                op: object = None
                 try:
                     message = json.loads(raw)
                     op = message.get("op")
@@ -653,7 +709,7 @@ def _serve() -> None:
                     else:
                         reply = {"status": 400, "body": None}
                 except Exception as error:  # noqa: BLE001 - keep the line protocol alive
-                    reply = {"status": 500, "body": None, "error": type(error).__name__}
+                    reply = unexpected_reply(op, error)
             out.write(json.dumps(reply, separators=(",", ":")).encode() + b"\n")
             out.flush()
     finally:
