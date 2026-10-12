@@ -3,7 +3,7 @@ import { expect, type Page } from "@playwright/test";
 import { NLE_REFERENCE_UI_CONTRACT_V1 } from "../../../src/contracts/nleReferenceUiContract";
 
 /**
- * M25-61: the editor's control floor depends on the page's primary pointer. A coarse pointer
+ * the editor's control floor depends on the page's primary pointer. A coarse pointer
  * (Playwright `hasTouch: true` in Chromium) keeps the 44 px touch floor; a fine pointer admits the
  * 30 px icon target and never less than the 24 px minimum. Specs read the floor from the page and
  * the contract, never from a literal, so each mode is measured against its own rule.
@@ -33,7 +33,7 @@ export async function nleLaneOrigin(page: Page): Promise<number> {
 }
 
 /**
- * M25-62 (R7, B-M2562-05): the one pinned exception to the fine-pointer floor. A selected clip's
+ *  (R7, B-M2562-05): the one pinned exception to the fine-pointer floor. A selected clip's
  * edge grips are 8 px wide by design, the thin trim handles of a desktop editor. WCAG 2.2 AA 2.5.8
  * admits them under its "Equivalent" exception: the same edit is available through 30 px
  * toolbar controls (Trim start and Trim end to the playhead, with the ruler placing the

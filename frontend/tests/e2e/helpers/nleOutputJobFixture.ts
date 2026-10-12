@@ -1,4 +1,4 @@
-// M25-21 `action.output.*`: a real M25-19 render job for the integrated shell. The shell harness
+//  `action.output.*`: a real render job for the integrated shell. The shell harness
 // forwards the job and media paths to the network under `?outputJob=1`, so the product's own
 // output client, preview owner and `AuthoringOutput` leaf run unchanged against these replies --
 // which carry exactly the headers, declared length and monotonic state the client requires.
@@ -128,7 +128,7 @@ export async function installOutputJobFixture(
           ...HEADERS,
           "Content-Type": "video/mp4",
           "Content-Length": String(bytes.length),
-          // `createOutputPreview` requires both of these exactly; they are the accepted M25-19
+          // `createOutputPreview` requires both of these exactly; they are the accepted
           // media contract, not a convenience of this fixture.
           "Accept-Ranges": "bytes",
           "Content-Disposition": `${preview ? "inline" : "attachment"}; filename="authoring-${preview ? "preview" : "final"}.mp4"`,

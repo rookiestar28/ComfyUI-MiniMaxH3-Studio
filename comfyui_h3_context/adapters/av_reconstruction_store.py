@@ -1,4 +1,4 @@
-"""Private receipt-last store for M17-11 reconstruction outputs.
+"""Private receipt-last store for reconstruction outputs.
 
 The store owns one explicit caller-supplied root.  Filesystem locators never enter
 portable receipts or public inspection projections.  Immutable member files are
@@ -358,7 +358,7 @@ class AVStoreReceipt(Protocol):
 class AVStoreReceiptCodec:
     """Injected receipt contract for one store root.
 
-    The default codec is the exact M17-11 v1 receipt; the M20-09 seam path
+    The default codec is the exact v1 receipt; the seam path
     instantiates the same store mechanics over its own root with the seam
     receipt codec.  Two stores over one root must agree on the codec.
     """
@@ -482,7 +482,7 @@ def _hash_regular_file(path: Path, *, maximum_bytes: int) -> tuple[int, str]:
 
 
 class PrivateAVReconstructionStore:
-    """One bounded M17-11 store with receipt-last visibility and exact retry."""
+    """One bounded store with receipt-last visibility and exact retry."""
 
     def __init__(
         self,
@@ -1311,7 +1311,7 @@ class PrivateAVReconstructionStore:
             return retired
 
     def recover(self) -> AVStoreRecoveryReport:
-        """Remove only bounded, verified M17-11 crash state and unreachable members."""
+        """Remove only bounded, verified crash state and unreachable members."""
 
         with self._lock:
             if self._coordination.active_execution_transactions:

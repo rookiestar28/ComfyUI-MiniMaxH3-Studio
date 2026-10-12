@@ -1,4 +1,4 @@
-"""Explicit ComfyUI-native model adapter seam for M10-03.
+"""Explicit ComfyUI-native model adapter seam for.
 
 The adapter consumes a host-owned ``CLIP`` object supplied by a node/host integration. It never
 loads a checkpoint, scans model directories, imports ComfyUI, or claims capability from a filename.

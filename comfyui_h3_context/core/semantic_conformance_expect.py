@@ -27,15 +27,17 @@ every real artifact for a reason that has nothing to do with conformance.
 
 from __future__ import annotations
 
+import copy
 import dataclasses
 import math
 import struct
-from collections.abc import Collection, Iterator, Mapping, Sequence
+from collections.abc import Callable, Collection, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 from fractions import Fraction
-from typing import Any, Final
+from functools import wraps
+from typing import Any, Final, TypeVar, cast
 
 from .clip_audio import SAMPLES_PER_FRAME, clip_audio_factor
 from .composition_contract import IDENTITY_CLIP_AUDIO, ClipAudio
@@ -82,6 +84,96 @@ CODEC_FRAME_SAMPLES: Final[dict[str, int]] = {"aac": 1024}
 
 class ExpectationError(ValueError):
     """The composition does not declare enough to state an expectation."""
+
+
+@dataclass(slots=True)
+class _SamplingMemo:
+    wire: dict[str, Any]
+    owned: frozenset[int]
+    tables: dict[int, tuple[tuple[int, int, int], ...]] = dataclasses.field(default_factory=dict)
+    indices: dict[tuple[int, int, bool, int], int] = dataclasses.field(default_factory=dict)
+    bands: dict[int, tuple[tuple[float, float], ...]] = dataclasses.field(default_factory=dict)
+
+
+_SAMPLING_MEMO: ContextVar[_SamplingMemo | None] = ContextVar("sampling_memo", default=None)
+_Derivation = TypeVar("_Derivation", bound=Callable[..., Any])
+
+
+def _plain_graph_ids(value: object) -> frozenset[int] | None:
+    """Recognize an acyclic built-in graph without invoking custom copy/access behavior."""
+    active: set[int] = set()
+    done: set[int] = set()
+    stack = [(value, False)]
+    visited = 0
+    while stack:
+        current, leaving = stack.pop()
+        visited += 1
+        if visited > 100_000:
+            return None
+        kind = type(current)
+        if kind in (str, int, float, bool, type(None)):
+            continue
+        if kind not in (dict, list, tuple):
+            return None
+        identity = id(current)
+        if leaving:
+            active.remove(identity)
+            done.add(identity)
+            continue
+        if identity in active:
+            return None
+        if identity in done:
+            continue
+        active.add(identity)
+        stack.append((current, True))
+        if kind is dict:
+            mapping = cast(dict[object, object], current)
+            if any(type(key) is not str for key in mapping):
+                return None
+            stack.extend((child, False) for child in mapping.values())
+        else:
+            stack.extend(
+                (child, False) for child in cast(list[object] | tuple[object, ...], current)
+            )
+    return frozenset(done)
+
+
+def _sampling_scope(wire_position: int) -> Callable[[_Derivation], _Derivation]:
+    def decorate(function: _Derivation) -> _Derivation:
+        @wraps(function)
+        def scoped(*args: Any, **kwargs: Any) -> Any:
+            if len(args) <= wire_position and "wire" not in kwargs:
+                # Preserve the wrapped signature's TypeError before looking up an absent wire.
+                return function(*args, **kwargs)
+            wire = args[wire_position] if len(args) > wire_position else kwargs["wire"]
+            current = _SAMPLING_MEMO.get()
+            if current is not None and wire is current.wire:
+                return function(*args, **kwargs)
+            # CRITICAL: identity alone is not a cross-call cache key. Own one plain graph per
+            # synchronous call, preserving aliases/types; custom graphs retain lazy old behavior.
+            # A fresh call sees changed source facts, and finally releases every memo on refusal.
+            if type(wire) is not dict or _plain_graph_ids(wire) is None:
+                return function(*args, **kwargs)
+            try:
+                snapshot = copy.deepcopy(wire)
+            except RecursionError:
+                return function(*args, **kwargs)
+            owned = _plain_graph_ids(snapshot)
+            if owned is None:
+                return function(*args, **kwargs)
+            token = _SAMPLING_MEMO.set(_SamplingMemo(snapshot, owned))
+            try:
+                if len(args) > wire_position:
+                    replaced = list(args)
+                    replaced[wire_position] = snapshot
+                    return function(*replaced, **kwargs)
+                return function(*args, **{**kwargs, "wire": snapshot})
+            finally:
+                _SAMPLING_MEMO.reset(token)
+
+        return cast(_Derivation, scoped)
+
+    return decorate
 
 
 def _int(section: Mapping[str, Any], field: str) -> int:
@@ -300,6 +392,10 @@ SOURCE_FRAME_FOLLOWS_THE_LANDMARK_TABLE: Final = (
 def _landmark_table(asset: Mapping[str, Any]) -> tuple[tuple[int, int, int], ...]:
     """`(frame_index, pts, duration_ticks)` rows of a video asset's declared table, in order."""
 
+    memo = _SAMPLING_MEMO.get()
+    cache = memo.tables if memo is not None and id(asset) in memo.owned else None
+    if cache is not None and id(asset) in cache:
+        return cache[id(asset)]
     table = asset.get("landmarks")
     if not isinstance(table, Sequence):
         return ()
@@ -308,7 +404,10 @@ def _landmark_table(asset: Mapping[str, Any]) -> tuple[tuple[int, int, int], ...
         for entry in table
         if isinstance(entry, Mapping)
     ]
-    return tuple(sorted(rows, key=lambda row: row[1]))
+    result = tuple(sorted(rows, key=lambda row: row[1]))
+    if cache is not None and len(cache) < 64:
+        cache[id(asset)] = result
+    return result
 
 
 def source_start_tick(wire: Mapping[str, Any], clip: Mapping[str, Any]) -> int | None:
@@ -535,6 +634,7 @@ def identity_reads(wire: Mapping[str, Any]) -> tuple[IdentityRead, ...]:
     return tuple(reads[frame] for frame in sorted(reads))
 
 
+@_sampling_scope(0)
 def derive_source_mapping(wire: Mapping[str, Any]) -> tuple[SourceLandmark, ...]:
     """Which source frame each of the declared landmark output frames must resolve to.
 
@@ -864,6 +964,7 @@ def alpha_targets(wire: Mapping[str, Any]) -> tuple[AlphaTarget, ...]:
     return tuple(targets)
 
 
+@_sampling_scope(0)
 def derive_alphas(wire: Mapping[str, Any]) -> tuple[AlphaSample, ...]:
     """The opacity each enabled clip must present, at every frame its own case is about.
 
@@ -1561,16 +1662,30 @@ def _source_index(wire: Mapping[str, Any], layer: VisualLayer, output_frame: int
     instead of describing the picture that was actually produced.
     """
 
+    memo = _SAMPLING_MEMO.get()
+    cache = (
+        memo.indices
+        if memo is not None and wire is memo.wire and id(layer.clip) in memo.owned
+        else None
+    )
+    key = (id(layer.clip), layer.profile.frame_count, layer.profile.carries_frame_id, output_frame)
+    if cache is not None and key in cache:
+        return cache[key]
     if not layer.profile.carries_frame_id:
         # A still has one frame and states no identity, so every output frame reads the same one.
-        return 0
-    shown = source_frame_at(wire, layer.clip, output_frame)
-    if shown is not None:
-        return max(0, min(layer.profile.frame_count - 1, shown[0]))
-    index = _int(layer.clip, "source_start_frame") + (
-        output_frame - _int(layer.clip, "start_frame")
-    )
-    return max(0, min(layer.profile.frame_count - 1, index))
+        result = 0
+    else:
+        shown = source_frame_at(wire, layer.clip, output_frame)
+        index = (
+            shown[0]
+            if shown is not None
+            else _int(layer.clip, "source_start_frame")
+            + (output_frame - _int(layer.clip, "start_frame"))
+        )
+        result = max(0, min(layer.profile.frame_count - 1, index))
+    if cache is not None and len(cache) < 8192:
+        cache[key] = result
+    return result
 
 
 def _text_occlusion_bands(
@@ -1597,6 +1712,10 @@ def _text_occlusion_bands(
     stop sampling there, not to claim the oracle can see it.
     """
 
+    memo = _SAMPLING_MEMO.get()
+    cache = memo.bands if memo is not None and wire is memo.wire else None
+    if cache is not None and output_frame in cache:
+        return cache[output_frame]
     output = _output(wire)
     height = _int(output, "height")
     bands: list[tuple[float, float]] = []
@@ -1616,7 +1735,10 @@ def _text_occlusion_bands(
         # The leading may fall outside the line box rather than inside it, so it is the margin.
         margin = box - lines * size * scale_y
         bands.append((centre - box / 2 - margin, centre + box / 2 + margin))
-    return tuple(bands)
+    result = tuple(bands)
+    if cache is not None and len(cache) < 1024:
+        cache[output_frame] = result
+    return result
 
 
 def _text_occluded(wire: Mapping[str, Any], output_frame: int, canvas_y: float) -> bool:
@@ -2014,6 +2136,7 @@ def _points_at_frame(
     return tuple(points)
 
 
+@_sampling_scope(0)
 def patch_sample_points(wire: Mapping[str, Any]) -> tuple[SamplePoint, ...]:
     """Where a colour comparison samples, for both the expectation and the observers.
 
@@ -2098,6 +2221,7 @@ def quiet_sample_frame(wire: Mapping[str, Any]) -> int:
     return quietest
 
 
+@_sampling_scope(0)
 def derive_patch_samples(wire: Mapping[str, Any]) -> tuple[PatchSample, ...]:
     """The colour each declared sample point must show once the composition is composited."""
 
@@ -2135,7 +2259,7 @@ def _audio_clips(wire: Mapping[str, Any]) -> tuple[Mapping[str, Any], ...]:
     Stating only the first clip's bursts is not a wrong expectation, it is a silent partial one: the
     intervals nobody claims are never judged, so an onset or a signal there passes unexamined.
 
-    A tone source (M25-77) has no bursts to place, so its clips are not among these: its sound is
+    A tone source has no bursts to place, so its clips are not among these: its sound is
     stated as window levels (`derive_audio_levels`), and the render stage prescribes no onset scan
     for it either (`scripts/nle_semantic_render.py`'s `_audio_owner_windows`).
     """
@@ -2258,7 +2382,7 @@ def derive_silences(wire: Mapping[str, Any]) -> tuple[SilenceInterval, ...]:
         # 3072 for the burst placed at output sample 0, B-45; the same source-start burst placed
         # at output sample 24000 by a second owner rang to 4 inside an interior that began at
         # 26304, B-61). A burst with run-up in its source is confined wherever it lands. The gap
-        # after a source-start burst therefore begins at the owner's source origin on the output
+        # after a source-start burst therefore begins at the source origin on the output
         # plus one codec frame, never at the *stream's* first frame -- the earlier rule keyed on
         # the output position and was right only for the first owner. Never move the gap start
         # for a burst that has run-up, and never widen the exclusion.
@@ -2279,7 +2403,7 @@ def derive_silences(wire: Mapping[str, Any]) -> tuple[SilenceInterval, ...]:
 
 
 # ---------------------------------------------------------------------------------------------
-# M25-77: the level a clip's audio adjustments put on each owner run of a tone source
+# the level a clip's audio adjustments put on each owner run of a tone source
 # ---------------------------------------------------------------------------------------------
 
 #: Where a window's level is measured: 960 samples, twenty whole periods of the tone
@@ -2467,6 +2591,7 @@ def _output(wire: Mapping[str, Any]) -> Mapping[str, Any]:
     return output
 
 
+@_sampling_scope(1)
 def derive_expectation(recipe: CaseRecipe, wire: Mapping[str, Any]) -> Expectation:
     """State what one row expects, from the composition its recipe produced.
 
@@ -2543,7 +2668,7 @@ FAMILY_LANDMARKS: Final[dict[str, tuple[str, ...]]] = {
     "history_currentness": ("patches",),
     "command": (),
     "import_integration": (),
-    # M25-77: what a clip's gain, mute and fades change is the level of its sound, window by window.
+    # what a clip's gain, mute and fades change is the level of its sound, window by window.
     "clip_audio": ("audio_levels",),
 }
 
@@ -2564,7 +2689,7 @@ FAMILY_LANDMARKS: Final[dict[str, tuple[str, ...]]] = {
 #: closed, because the identity row is the primary's and the overlay's absence changes nothing the
 #: identity states. The commands absent from this table with a rendered consequence of their own
 #: are pinned, with the reason each cannot move the picture, in
-#: `tests/test_m25_20_conformance_cases.py::COMMANDS_INVISIBLE_BY_CONSTRUCTION`.
+#: `tests/test__conformance_cases.py::COMMANDS_INVISIBLE_BY_CONSTRUCTION`.
 COMMAND_LANDMARKS: Final[dict[str, tuple[str, ...]]] = {
     "set_track_enabled": ("patches",),
     "insert_asset_clip": ("patches",),
@@ -2592,14 +2717,14 @@ COMMAND_LANDMARKS: Final[dict[str, tuple[str, ...]]] = {
 }
 
 #: The product's own bounds on the preview surface (`frontend/src/runtime/visualCompositor.ts`,
-#: `computePreviewSize`). Before M25-45 there was one bound: the output scaled so that neither
-#: side exceeded 320 px and the area did not exceed 102,400 px, never scaled up. M25-45 keeps that
+#: `computePreviewSize`). Before there was one bound: the output scaled so that neither
+#: side exceeded 320 px and the area did not exceed 102,400 px, never scaled up. keeps that
 #: as the floor -- an unmeasured picture box still presents exactly it -- and adds the ceiling its
 #: measured matrix froze. Mirrored here, from the same four numbers, so the join can say from the
 #: declared output and the prescribed picture box alone what surface the preview presents.
 #:
 #: GUARD: these four numbers and the rule below are one contract with the TypeScript native path,
-#: and `tests/test_m25_45_preview_size_parity.py` holds them together. Do not copy the lower
+#: and `tests/test__preview_size_parity.py` holds them together. Do not copy the lower
 #: software-rung ceiling here: this mirror decides whether native browser landmarks are observable.
 #: A drift silently labels a row "not browser observable" and drops the checks that would catch a
 #: native-resolution regression.
@@ -2627,7 +2752,7 @@ def preview_scale(
 ) -> float:
     """The factor the product scales the output by to present it on the monitor canvas.
 
-    Without a prescribed picture box this is the pre-M25-45 bound, which is also the product's
+    Without a prescribed picture box this is the pre- bound, which is also the product's
     floor, so every row whose output the legacy surface already held presents unchanged.
     """
 
@@ -2781,6 +2906,7 @@ BROWSER_UNOBSERVABLE: Final = {
 }
 
 
+@_sampling_scope(1)
 def required_landmarks(recipe: CaseRecipe, wire: Mapping[str, Any]) -> tuple[str, ...]:
     """Every landmark this row has to observe before it may be judged.
 

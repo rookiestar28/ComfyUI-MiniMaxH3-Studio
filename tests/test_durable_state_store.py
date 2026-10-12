@@ -204,8 +204,9 @@ class DurableStateStoreTests(unittest.TestCase):
         self.assertFalse(manifest.enabled)
         self.assertIsNone(own.read()[1])
         self.assertEqual(foreign.read(), before)
+        # IMPORTANT: directory enumeration has no portable order; keep exact owned membership.
         self.assertEqual(
-            [p.name for p in own.owner_directory.iterdir()], [".owner.lock", "manifest.json"]
+            sorted(p.name for p in own.owner_directory.iterdir()), [".owner.lock", "manifest.json"]
         )
 
     def test_unknown_entry_is_preserved_and_refuses_new_writes_not_valid_readback(self) -> None:

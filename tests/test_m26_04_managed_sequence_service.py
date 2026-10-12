@@ -1,4 +1,4 @@
-"""M26-04 parent application service and short-lived child authority."""
+"""parent application service and short-lived child authority."""
 
 from __future__ import annotations
 

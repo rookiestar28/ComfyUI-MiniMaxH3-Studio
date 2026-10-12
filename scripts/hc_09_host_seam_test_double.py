@@ -1,7 +1,7 @@
 """Fixture-backed Python doubles for governed ComfyUI host seams.
 
 Tests may provide synthetic return payloads, but the module/member containers are
-created only after the tracked HC-09 census and shape fixture validate.  This is
+created only after the tracked census and shape fixture validate. This is
 test support: it never imports or contacts a ComfyUI host.
 """
 

@@ -1,4 +1,4 @@
-"""M25-45: the derivative byte and edge tables are one contract across the lease route.
+"""the derivative byte and edge tables are one contract across the lease route.
 
 Three copies of the same numbers exist by design -- the backend that generates and admits a body,
 the codec that decodes the wire in the browser, and the host lease that reads the body -- because

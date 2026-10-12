@@ -1,4 +1,4 @@
-"""Offline M11-05 detection/segmentation/tracking/re-ID fixture.
+"""Offline detection/segmentation/tracking/re-ID fixture.
 
 The fixture injects source-owned metadata only.  It never opens media, loads a detector or
 embedding model, launches a process, contacts ComfyUI/Ollama, or claims live perception quality.

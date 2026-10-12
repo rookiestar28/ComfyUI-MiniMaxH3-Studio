@@ -1,9 +1,9 @@
-"""M23-31: the cross-registry invariants the four registries could not hold between them.
+"""the cross-registry invariants the four registries could not hold between them.
 
 `release_workspace` used to remove a production workspace unconditionally. Nothing asked whether a
 generation sequence still depended on it, because nothing could: the production registry has no run
 identity, and the coordinator that does was never consulted. A release under a live run stranded the
-sequence -- the M23-19 class of defect, one join over.
+sequence -- the class of defect, one join over.
 
 The aggregate now answers the question and the production registry enforces the answer, so the rule
 `comfyui_h3_context.core.managed_run.NO_LIVE_SEQUENCE_GUARD` names has exactly one definition.
@@ -82,11 +82,11 @@ def test_a_workspace_is_released_once_its_run_has_been_released(tmp_path: Path) 
     # The other half: the guard must not become a workspace that can never be released. Releasing
     # the sequence releases the aggregate, and the workspace is then free.
     #
-    # M23-51: this case used to submit the run first and then release it with the legacy V1
+    # this case used to submit the run first and then release it with the legacy V1
     # payload, which is exactly the unconditional removal of a host-owned prompt that item
     # removed. It now exercises the release that remained legitimate -- a prepared, unsubmitted
     # child -- and the submitted case has its own coverage in
-    # `tests/test_m23_51_release_route_contract.py`, where the refusal and the terminal-proof route
+    # `tests/test__release_route_contract.py`, where the refusal and the terminal-proof route
     # out are both asserted.
     registry, production = _production_workspace()
     output_root = tmp_path / "output"
@@ -193,7 +193,7 @@ def test_a_cold_start_race_binds_the_liveness_authority_exactly_once() -> None:
 
     saved_registry = composition_root.installed(composition_root.PRODUCTION_WORKSPACE)
     saved_coordinator = composition_root.installed(composition_root.SEQUENCE_COORDINATOR)
-    # A real, empty registry of the exact type the coordinator requires. Built through the M23-15
+    # A real, empty registry of the exact type the coordinator requires. Built through the
     # helper so this fixture cannot drift from the one the rest of the suite uses.
     registry, _unused = _production_workspace()
     entered = threading.Event()

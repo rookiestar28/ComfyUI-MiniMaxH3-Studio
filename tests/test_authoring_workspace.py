@@ -1,8 +1,8 @@
-"""M20-03 focused tests for the authoring-workspace adapter.
+"""focused tests for the authoring-workspace adapter.
 
 The rows here hold apart what the adapter must keep apart:
 
-* the domains stay canonical -- every wire mutation maps onto one M20-00/M20-02 command and a
+* the domains stay canonical -- every wire mutation maps onto one / command and a
   domain rejection returns 409 with the untouched projection and the machine-readable code;
 * seeding is honest -- accepted registry assets admit in connection order with canonical
   labels, pairings seed as included-but-blocked-unknown, and a source the domain cannot hold
@@ -416,7 +416,7 @@ class DecodeBoundaryTests(unittest.TestCase):
 
 
 class SeedingTests(unittest.TestCase):
-    """AC-M20-03-06/07: canonical labels, explicit soundtrack state, honest inadmissibility."""
+    """AC--06/07: canonical labels, explicit soundtrack state, honest inadmissibility."""
 
     def test_create_seeds_canonical_labels_pairing_and_blocked_unknown(self) -> None:
         harness = _Harness()
@@ -424,7 +424,7 @@ class SeedingTests(unittest.TestCase):
         self.assertEqual(body["schema"], AUTHORING_PROJECTION_SCHEMA)
         self.assertEqual(body["task_mode"], "t2va")
         # Pairing is seeded as included intent, availability is unknown, so the bound audio
-        # projects no label and the queue is blocked -- exactly the M20-00 derivation.
+        # projects no label and the queue is blocked -- exactly the derivation.
         self.assertEqual(
             canonical_labels(body),
             [("img-1", "<Picture 1>"), ("vid-1", "<Video 1>"), ("aud-2", "<Audio 1>")],
@@ -485,7 +485,7 @@ class SeedingTests(unittest.TestCase):
 
 
 class AvailabilityAuthorityTests(unittest.TestCase):
-    """AC-M20-03-08: the UI cannot set availability; the one producer moves it monotonically."""
+    """AC--08: the UI cannot set availability; the one producer moves it monotonically."""
 
     def test_producer_facts_unblock_and_stale_producer_revision_rejects(self) -> None:
         harness = _Harness()
@@ -539,7 +539,7 @@ class AvailabilityAuthorityTests(unittest.TestCase):
 
 
 class ReferenceCommandTests(unittest.TestCase):
-    """AC-M20-03-02/06: backend revision canonical; bounded commands; visible state."""
+    """AC--02/06: backend revision canonical; bounded commands; visible state."""
 
     def test_stale_revision_returns_409_with_projection_and_code(self) -> None:
         harness = _Harness()
@@ -617,7 +617,7 @@ class ReferenceCommandTests(unittest.TestCase):
 
 
 class TimelineCommandTests(unittest.TestCase):
-    """AC-M20-03-01/06: timeline commands map one-to-one; drift is a visible blocker."""
+    """AC--01/06: timeline commands map one-to-one; drift is a visible blocker."""
 
     def _created(self) -> tuple[_Harness, str, dict[str, object]]:
         harness = _Harness()
@@ -765,7 +765,7 @@ class TimelineCommandTests(unittest.TestCase):
 
 
 class TimelineHistoryRouteTests(unittest.TestCase):
-    """M25-11: trusted snapshot binding and the closed transaction route stay backend-owned."""
+    """trusted snapshot binding and the closed transaction route stay backend-owned."""
 
     def test_history_is_unavailable_until_a_backend_snapshot_is_bound(self) -> None:
         harness = _Harness()
@@ -1348,7 +1348,7 @@ class TransportLifecycleTests(unittest.TestCase):
 
 
 class PrivacyTests(unittest.TestCase):
-    """AC-M20-03: no media locator or private content in any wire value."""
+    """AC-: no media locator or private content in any wire value."""
 
     def test_projection_and_snap_wires_carry_no_content_tokens(self) -> None:
         harness = _Harness()

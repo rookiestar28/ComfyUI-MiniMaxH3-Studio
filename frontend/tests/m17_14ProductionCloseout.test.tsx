@@ -1,10 +1,10 @@
 /**
- * M17-14 production acceptance closeout, browser half.
+ *  production acceptance closeout, browser half.
  *
  * These rows join accepted surfaces into the flows a user performs. They do not restate what each
  * per-item suite already proves; each row asserts a seam that only exists when two accepted items
  * meet. Every fixture value is frozen by
- * `.planning/260818-M17-14_PRODUCTION_CLOSEOUT_PLAN.md` section 3.2.1 and follows from the single
+ * `` section 3.2.1 and follows from the single
  * authored duration of 8 000 ms.
  */
 import { cleanup, render, screen } from "@testing-library/react";

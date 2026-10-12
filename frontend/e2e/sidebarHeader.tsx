@@ -1,4 +1,4 @@
-// M25-21 B3-D61: focused reproduction of the supplied-host layout-matrix cell that failed
+//  B3-D61: focused reproduction of the supplied-host layout-matrix cell that failed
 // `metadataHorizontalContained`. The host row measures the sidebar inside a 422 CSS px panel at a
 // 480 px viewport (the `constrained-floor` variant) with zh-TW copy, reduced motion and forced
 // colours, after a remount. This harness reproduces exactly that geometry hermetically, because the

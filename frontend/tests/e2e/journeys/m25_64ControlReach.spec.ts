@@ -1,6 +1,6 @@
-// M25-64 A64-5 (B-M2564-02): every primary control stays reachable beside the splitters.
+//  A64-5 (B-M2564-02): every primary control stays reachable beside the splitters.
 //
-// Each separator is a 44 px target centred on its 4 px gutter (M25-21), so it overlaps each
+// Each separator is a 44 px target centred on its 4 px gutter, so it overlaps each
 // neighbouring region by 20 px, and it is the element under the pointer there. A control inside
 // that band loses the part it overlaps: a press there starts a splitter drag, and a double press
 // resets the layout. This journey holds every enabled control of the editor, at each size of the
@@ -13,7 +13,7 @@
 // centred on the layer's edge and only its inner half lies inside the clipped picture.
 //
 // One pinned exception to rule 1: the transform move surface is the whole layer and the handles
-// lie on it by design (M25-53 D-3), so a small layer's centre can be a handle. Rule 2 still holds
+// lie on it by design ( D-3), so a small layer's centre can be a handle. Rule 2 still holds
 // for it, and `nleTransformOverlay.spec.ts` drags it.
 
 import { expect, test, type Page } from "@playwright/test";

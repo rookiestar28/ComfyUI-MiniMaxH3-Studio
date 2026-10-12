@@ -1,6 +1,6 @@
 """The final render's program applies a clip's audio adjustments at the definition's level.
 
-`tests/test_m25_77_clip_audio_render.py` holds the filters to the definition through the per-sample
+`tests/test__clip_audio_render.py` holds the filters to the definition through the per-sample
 gains the pinned build's filters were measured to apply. Here the whole product program runs on the
 pinned pair: a real encoded source with a steady tone is imported and placed, and one clip of it is
 rendered through `run_prepared_render` without adjustments and with each member below. In windows

@@ -1,4 +1,4 @@
-"""M17-12 optional Production route ownership and empty-error-body checks."""
+"""optional Production route ownership and empty-error-body checks."""
 
 from __future__ import annotations
 

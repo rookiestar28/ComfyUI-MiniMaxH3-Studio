@@ -192,7 +192,7 @@ describe("B-M2564-02 handles beside the picture's sides", () => {
     expect(handleInsets(start.layer, start.picture).size).toBe(0);
     // Height-limited: the canvas is 100 px in from each side of its area.
     expect(handleInsets(full, { ...area, left: 100 }).size).toBe(0);
-    // Narrower than three handles (132 area px): the move body keeps priority (M25-53 D-3).
+    // Narrower than three handles (132 area px): the move body keeps priority ( D-3).
     const small = { ...full, centerX: 1920 - 120, width: 240 };
     expect(overlayGeometry(small, area).width).toBe(120);
     expect(handleInsets(small, area).size).toBe(0);

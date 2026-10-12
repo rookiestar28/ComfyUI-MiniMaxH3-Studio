@@ -539,7 +539,7 @@ def _host_locator(value: object, *, os_name: str) -> Path:
     # CRITICAL: this port is not media-runtime-only. The coordinator's App Mode closure stores every
     # verified copy under `private_root()` on every platform, so POSIX hosts must be judged by the
     # POSIX grammar. Sending them through the Windows drive-path grammar is what refused every
-    # Linux root and failed the closure with `host_storage_unavailable` (M23-67, defect D1).
+    # Linux root and failed the closure with `host_storage_unavailable` (, defect D1).
     if os_name == "nt":
         locator: object = lexical_local_directory(value)
     elif os_name == "posix":

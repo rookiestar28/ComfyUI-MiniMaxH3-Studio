@@ -147,7 +147,7 @@ IMAGE_ASSET: Final = "img-overlay"
 #: (B-30, B-58). One source rather than two because a composition carries at most three video
 #: assets (`registry.MAX_REFERENCE_VIDEOS`), and the fixture already composites two.
 TIMING_ASSET: Final = "vid-timing"
-#: The tone source (M25-77): the primary's picture with its own patch labels and, in place of the
+#: The tone source: the primary's picture with its own patch labels and, in place of the
 #: bursts, one steady tone for its whole length. A clip's audio adjustments scale a level, and a
 #: burst-and-silence source has a level for 256 samples in every 48,000, so the `clip_audio` rows
 #: play this source instead. It is the only source of the `clip_audio` base, which keeps the
@@ -228,7 +228,7 @@ class SourceProfile:
     #: How many real source pixels one described pixel occupies, as a whole multiplier on every
     #: coordinate this profile states -- patches, the field sample and its span, and the identity
     #: row's origin, pitch and cell size. `1` is the corpus's original 128-square source and is
-    #: what every row written before M25-45 uses; the high-resolution rows declare `4`, which is a
+    #: what every row written before uses; the high-resolution rows declare `4`, which is a
     #: 512-square placed 1:1 and centred in a 1280 x 720 composition -- exactly the base corpus's
     #: geometry at four times the size, since 320 x 180 times four is 1280 x 720 -- so their
     #: landmarks carry real detail at the backing they are sampled at rather than an upscaled
@@ -478,7 +478,7 @@ _COMPOSITED_PROFILES: Final[tuple[SourceProfile, ...]] = (
 #: from source frame 36 runs exactly to the source's end.
 TIMING_VFR_START_FRAME: Final = 36
 
-#: M25-45 AC45-05: the same three composited sources at four times the size, for the high-resolution
+#: AC45-05: the same three composited sources at four times the size, for the high-resolution
 #: rows whose composition is 1280 x 720. Four, because 320 x 180 times four is exactly 1280 x 720:
 #: the composite is the base corpus's own geometry zoomed, so every clearance the module docstring
 #: reasons about holds unchanged and every basis-point transform in the base lands on the same
@@ -567,10 +567,10 @@ def source_colour(profile: SourceProfile, frame_index: int, x: int, y: int) -> t
     return profile.field
 
 
-#: The generated source the two `import_integration` rows import through the real M25-29
+#: The generated source the two `import_integration` rows import through the real
 #: service (B-65). It is the primary's picture and sound with its own patch labels and a constant
-#: 24 fps timing, at exactly the frame count the accepted M25-29 fixture declares for a segment
-#: (`scripts/m25_16_import_fixture.py`'s `FRAME_COUNT`): the shipped frontend codec refuses a
+#: 24 fps timing, at exactly the frame count the accepted fixture declares for a segment
+#: (`scripts/_import_fixture.py`'s `FRAME_COUNT`): the shipped frontend codec refuses a
 #: ready output whose delivered frame count differs from its segment's declared duration, so a
 #: source of any other length would never be offered for import. It is deliberately NOT in
 #: `SOURCE_PROFILES`: no corpus base composition declares it, and no row reaches it except by

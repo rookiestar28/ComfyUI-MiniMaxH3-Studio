@@ -1,4 +1,4 @@
-"""Focused tests for the M19-07 pre-M20 qualification harness.
+"""Focused tests for the pre-M20 qualification harness.
 
 The tests deliberately run against synthetic source fixtures rather than the pinned host file. A
 harness that only ever sees one input cannot demonstrate that it derives anything: it might be
@@ -76,8 +76,10 @@ def video_latent_t(frame_count):
 
 def temporal_shape(length):
     frame_count = align_frame_count(max(3, length))
-    duration = frame_count / FPS
-    return frame_count, video_latent_t(frame_count), round(duration * AUDIO_LATENT_FPS)
+    duration_seconds = frame_count / FPS
+    audio_positions = round(duration_seconds * AUDIO_LATENT_FPS)
+    geometry = (frame_count, video_latent_t(frame_count), audio_positions)
+    return geometry
 
 
 def _empty_av_latent(width, height, length, batch_size=1):

@@ -1,4 +1,4 @@
-// M20-03 test fixture: raw wire builders run through the real decoder, so every
+//  test fixture: raw wire builders run through the real decoder, so every
 // test that uses them also proves wire validity (house convention).
 
 import {

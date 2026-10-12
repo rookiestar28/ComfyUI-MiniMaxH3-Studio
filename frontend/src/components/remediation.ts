@@ -1,5 +1,5 @@
 /**
- * M21-03 AC-09 — the one remediation mechanism.
+ *  AC-09 — the one remediation mechanism.
  *
  * A remediation is declared against a backend-owned diagnostic *identity*, never
  * derived from its message. Message text is prose: it is localised, it changes
@@ -12,7 +12,7 @@
  * effect is simply absent from the table, and the surface renders no action for
  * it -- which is the required behaviour, not a gap.
  *
- * `M22-06` adds provider-specific actions on top of this mechanism. There is
+ * `` adds provider-specific actions on top of this mechanism. There is
  * exactly one such mechanism in the frontend, and this is it.
  */
 

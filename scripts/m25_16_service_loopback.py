@@ -1,6 +1,6 @@
-"""M25-16 evidence layer 2: an authorized loopback real-application-service host.
+"""evidence layer 2: an authorized loopback real-application-service host.
 
-The M25-16 plan (Section 9, "Two complementary evidence layers") requires a *causal*
+The plan (Section 9, "Two complementary evidence layers") requires a *causal*
 browser-to-real-application-service path for the M26 planning integration: planning-context
 preparation, admission/proposal, explicit review and atomic import, then explicit
 readiness/currentness, before a separately authorized start -- all through the accepted service
@@ -8,11 +8,11 @@ code and routes, not injected fixtures.
 
 This script hosts that real service on ``127.0.0.1`` only. It:
 
-* installs the fixture-backed HC-09 host doubles from ``scripts/hc_09_host_seam_test_double.py``
+* installs the fixture-backed host doubles from ``scripts/_host_seam_test_double.py``
   (``server.PromptServer.instance.routes``, ``folder_paths``, ``nodes``) so the real adapter modules
   import and register exactly as they do under a real ComfyUI host;
 * registers every owned adapter route through the same registrar walk
-  ``tests/test_m23_47_route_seam.py`` uses (``ensure_*_route_registered``), against a real
+  ``tests/test__route_seam.py`` uses (``ensure_*_route_registered``), against a real
   ``aiohttp.web.RouteTableDef`` and the real ``aiohttp`` module already imported by this process;
 * seeds exactly one synthetic, content-free Sidebar (H3 context) workspace through the identical
   pure-core call chain the real H3 context nodes use, so the Production-workspace-creation and
@@ -29,7 +29,7 @@ controlled provider/model transport boundaries count and refuse execution attemp
 planning, import and readiness services remain real. Optional media/render runtimes stay disabled;
 their defensive scratch setting points inside the repository without allocating a per-run tree.
 
-M25-45 adds one bounded exception, and only when ``H3_CONTEXT_E2E_SERVICE_LOOPBACK_MEDIA`` is
+ adds one bounded exception, and only when ``H3_CONTEXT_E2E_SERVICE_LOOPBACK_MEDIA`` is
 exactly ``"1"`` and both executables are supplied explicitly: the media runner may execute the
 FFmpeg/FFprobe pair whose digests the packaged renderer qualification pins, so a journey can prove
 a real derivative through the real route and the real codec rather than a route double. Nothing
@@ -72,8 +72,8 @@ from scripts.hc_09_host_seam_test_double import (  # noqa: E402
     host_prompt_server_module,
 )
 
-#: The only two adapter modules the HC-09 census permits to fail import outside a real host.
-#: Mirrors tests/test_m23_47_route_seam.py's IMPORT_MAY_FAIL exactly -- widening this here would
+#: The only two adapter modules the census permits to fail import outside a real host.
+#: Mirrors tests/test__route_seam.py's IMPORT_MAY_FAIL exactly -- widening this here would
 #: let a route silently disappear from the loopback surface without the shared test noticing.
 _IMPORT_MAY_FAIL = frozenset({"comfyui", "comfyui_execution"})
 
@@ -335,7 +335,7 @@ def _is_pinned_media_invocation(
         return False
     if candidate not in pair:
         return False
-    # CRITICAL: M25-52's bounded decoder writes only to the final stdout destination `pipe:1`.
+    # CRITICAL: 's bounded decoder writes only to the final stdout destination `pipe:1`.
     # Remove exactly that terminal token before the scheme scan; allowing any other pipe spelling,
     # a non-terminal pipe or a second pipe would admit stdin/extra stream authority to loopback.
     marker_text = text
@@ -1070,7 +1070,7 @@ def _build_app(
     routes = web.RouteTableDef()
     # CRITICAL: `register_owned_route` looks up `sys.modules["server"]` and `sys.modules["aiohttp"]`
     # lazily rather than importing either -- see comfyui_route_seam.host_web_and_routes. The real
-    # `aiohttp` module is already installed above; only `server` needs the HC-09 double.
+    # `aiohttp` module is already installed above; only `server` needs the double.
     installed = InstalledHostModules(
         server=host_prompt_server_module(routes),
         folder_paths=host_folder_paths_module(inventory={}),
@@ -1125,7 +1125,7 @@ def _build_app(
         # would let a test observe a false "planning caused generation" causality, so this handler
         # never queues anything -- it only counts the attempt and refuses. Do not wire this to the
         # real ComfyUI prompt queue even for a "just this one case" journey; that is exactly the
-        # boundary M25-16 Section 9 requires to stay controlled/unavailable.
+        # boundary Section 9 requires to stay controlled/unavailable.
         counters["queue_calls"] += 1
         return web.json_response({"error": "queue_disabled_in_loopback"}, status=503)
 

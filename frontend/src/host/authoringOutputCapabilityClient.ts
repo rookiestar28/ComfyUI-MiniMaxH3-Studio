@@ -1,4 +1,4 @@
-// M25-16: the read-only capability projection for the accepted M25-19 final-output leaf.
+// the read-only capability projection for the accepted final-output leaf.
 //
 // The expanded workspace reads it once per open and passes the decoded value, unchanged, to
 // `AuthoringOutput`. A refusal, a malformed body or a transport failure yields an unsupported

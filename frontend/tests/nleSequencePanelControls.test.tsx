@@ -1,4 +1,4 @@
-// M25-16 sequence pane at the component seam: every planning, readiness, B1 and assembly
+//  sequence pane at the component seam: every planning, readiness, B1 and assembly
 // control is wired to exactly one explicit binding action, and its `disabled` gate follows the
 // typed state (unavailable Production/Context, busy, stale, missing admission/proposal/plan,
 // readiness status, B1 UI state, Production allowed actions). The session semantics behind the
@@ -66,7 +66,7 @@ function subject(overrides: Overrides = {}) {
   const editor = view.container.querySelector<HTMLElement>(
     '[data-h3-nle-region="sequence"]',
   )!;
-  // M25-63 (A63-4): in every state below the editor's Sequence tab has no planning control; the
+  //  (A63-4): in every state below the editor's Sequence tab has no planning control; the
   // planning form is Production's.
   expect(editor.querySelector('[data-h3-nle-control^="planning."]')).toBeNull();
   return { binding, view, control, editor };

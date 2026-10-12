@@ -1799,7 +1799,7 @@ def build_managed_sequence_authorization(
     compiler_fingerprint: str,
     host_capability_fingerprint: str,
 ) -> ManagedSequenceAuthorizationV1:
-    """Translate exactly one retained M26-03 authority into a content-free parent."""
+    """Translate exactly one retained authority into a content-free parent."""
 
     if type(authority) is not ProductionAutomaticPlanAuthorityV2:
         raise ManagedSequenceServiceError("automatic_plan_semantic_authority_stale", 409)
@@ -3161,7 +3161,7 @@ class ManagedSequenceService:
                 request_id=authority.request_id,
                 candidate=candidate,
             )
-            # CRITICAL: compile/validation refusal must destroy the exact M26-03 Context before
+            # CRITICAL: compile/validation refusal must destroy the exact Context before
             # publishing the parent pause. Reversing this order exposes a FAILED parent while its
             # supposedly compile-only mutable workspace is still live and no longer addressable.
             try:

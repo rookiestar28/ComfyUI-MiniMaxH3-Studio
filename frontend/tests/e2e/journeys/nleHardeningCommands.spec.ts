@@ -1,4 +1,4 @@
-// M25-21 per-command hardening on the REAL integrated shell (`frontend/e2e/nleShell.tsx`): the
+//  per-command hardening on the REAL integrated shell (`frontend/e2e/nleShell.tsx`): the
 // same real session, binding and overlay a user drives, answered by the real canonical core.
 // Every one of the 34 canonical commands gets its own accessibility case and its own recovery
 // case; the coverage manifest (`governance/contracts/nle_hardening_coverage_manifest_v1.json`,
@@ -305,7 +305,7 @@ for (const recipe of recipes) {
       const status = page.locator(TIMELINE_STATUS);
       await expect(status).toHaveAttribute("role", "status");
       await expect(status).toHaveAttribute("aria-live", "polite");
-      // M25-63 (R9): the revision is an attribute, never text; the live region says "Saved.".
+      //  (R9): the revision is an attribute, never text; the live region says "Saved.".
       await expect(status).toHaveAttribute(
         "data-h3-nle-timeline-revision",
         String(revision),
@@ -440,7 +440,7 @@ for (const recipe of recipes) {
     });
     await checks.step("next_command_uses_the_reconciled_base", async () => {
       // By keyboard: choose an unselected semantic clip. Re-activating the accepted selected clip
-      // is intentionally a no-op under M25-46 and therefore cannot prove the reconciled CAS base.
+      // is intentionally a no-op under and therefore cannot prove the reconciled CAS base.
       const freshSelection = page
         .locator(
           `${shellSurface} [data-h3-nle-control="selection.set"][aria-pressed="false"]`,
@@ -715,7 +715,7 @@ test("hardening a11y clip.trim edge grips are separate 44px touch targets with k
         "data-h3-nle-trim-phase",
         "keyboard_draft",
       );
-      // M25-62 (R7): the grip is an icon; the rail label carries the live edge as a timecode.
+      //  (R7): the grip is an icon; the rail label carries the live edge as a timecode.
       await expect(
         page.locator(`${shellSurface} .h3-nle-rail-label`),
       ).toContainText(timecode24(before.start + before.frames - 1));

@@ -1,4 +1,4 @@
-"""Generate and verify the deterministic contract-surface inventory for M18-01.
+"""Generate and verify the deterministic contract-surface inventory for.
 
 The generator reads files as data. It imports exactly two repository authorities that resolve names
 at runtime -- the node contract registry and the declared workflow fixtures -- because a contract
@@ -53,7 +53,7 @@ ARTIFACT_PATH = Path("comfyui_h3_context/contracts/contract_inventory_v1.json")
 #: contract has no reader would become that contract's reader -- so both are excluded and the
 #: surface stays a measurement of the repository rather than of itself.
 #:
-#: The M18-02 fingerprint-domain record is excluded for exactly that reason and no other: it names
+#: The fingerprint-domain record is excluded for exactly that reason and no other: it names
 #: every identity in this inventory in order to assign each one a domain.  Indexed, it would become
 #: the sole discovered reader of every contract nothing else reads, silently clearing the
 #: `unknown_consumer` blockers that are this inventory's only honest answer for them.  The
@@ -64,7 +64,7 @@ SELF_DESCRIBING_PATHS = frozenset(
         ARTIFACT_PATH.as_posix(),
         "tests/test_contract_inventory.py",
         "governance/contracts/fingerprint_domain_v1.json",
-        # M18-05's eligibility record names every inventoried schema, so leaving it indexed
+        # 's eligibility record names every inventoried schema, so leaving it indexed
         # would give every one of them one more apparent reader -- and the reader would be
         # the record deciding whether they have readers.  Third artifact to need this
         # exclusion; the shape is always the same: a record *about* the contracts is not a
@@ -76,7 +76,7 @@ SELF_DESCRIBING_PATHS = frozenset(
         "governance/contracts/architecture_fitness_v1.json",
         "scripts/architecture_fitness.py",
         "tests/test_architecture_fitness.py",
-        # Fourth instance, from M23-48, and the broadest: the readership record lists *every*
+        # Fourth instance,, and the broadest: the readership record lists *every*
         # packaged artifact by path, so indexing it would hand a fresh consumer to all of them at
         # once -- including the schemas whose only question is whether anyone consumes them. Its
         # test pins the two retained classes by path for the same reason, and is excluded on the
@@ -85,7 +85,7 @@ SELF_DESCRIBING_PATHS = frozenset(
         "tests/test_m23_48_packaged_readership.py",
     }
 )
-#: Both contracts roots. M23-55 moved every artifact with no runtime or bundle reader out
+#: Both contracts roots. moved every artifact with no runtime or bundle reader out
 #: of the installed package, and the inventory indexes repository authorities rather than
 #: shipped files, so it scans both. Rows already carry full paths, so the record's shape is
 #: unchanged; dropping the second root would silently un-inventory 134 contracts.
@@ -538,7 +538,7 @@ def _carries_a_route(candidate: _Candidate, referencing: Iterable[str]) -> bool:
 
     Both sides count. The VLM observation wire is declared in `core/` and only reaches ComfyUI
     through `adapters/comfyui_vlm.py`; looking at authority sites alone would drop the claim for
-    precisely the route whose unreachability M21-02 established and this inventory must preserve.
+    precisely the route whose unreachability established and this inventory must preserve.
     """
 
     if candidate.kind in {

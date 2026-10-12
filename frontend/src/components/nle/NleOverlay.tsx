@@ -1,4 +1,4 @@
-// M25-16 overlay root: the extension-owned `overlay_v1` dialog.
+//  overlay root: the extension-owned `overlay_v1` dialog.
 //
 // It portals into one element this component appends to `document.body`, carries the `h3c`
 // token class and its own inline stylesheet, traps Tab inside the dialog, treats Escape
@@ -77,7 +77,7 @@ function nearestUsable(
 /**
  * Put the owned root in the browser's top layer, above every z-index on the page.
  *
- * IMPORTANT (M25-44 B-M2544-09): the dialog opens at the viewport's edges, where installed packs
+ * IMPORTANT ( B-M2544-09): the dialog opens at the viewport's edges, where installed packs
  * float their own toolbars. One on the supplied host sets `z-index: 9999999999` (clamped to
  * 2147483647) at the top right and covered Export and Close, so no z-index this root chooses can
  * be trusted to win. A manual popover renders in the top layer without making the host inert,
@@ -112,7 +112,7 @@ type FocusKeeper = Readonly<{ restore(): void; release(): void }>;
  *
  * IMPORTANT: every command disables the control that issued it while its transaction is pending,
  * and Chromium's focus fixup then synchronously moves focus to `<body>` -- outside this modal
- * dialog, where neither the Tab trap nor Escape can reach it (M25-21 B3-D4). A virtualized or
+ * dialog, where neither the Tab trap nor Escape can reach it ( B3-D4). A virtualized or
  * settled removal of the focused control does the same. So: remember the last focused element
  * inside the dialog. While its own command is pending, hold focus on the heading (inside the
  * dialog, reached by the Tab trap and Escape) and return it once the settle re-enables the
@@ -156,7 +156,7 @@ function keepFocusInside(
       parked = false;
     }
   };
-  // IMPORTANT (M25-21 B3-D46): a Tab is the user moving focus, exactly like the pointer press
+  // IMPORTANT ( B3-D46): a Tab is the user moving focus, exactly like the pointer press
   // above, so forget the element it is leaving. Without this the keeper repairs a departure
   // nobody asked it to repair: Tab away from a trim grip cancels the keyboard draft, the
   // cancellation re-renders the grips, and the resulting mutation makes the keeper pull focus
@@ -371,7 +371,7 @@ export function NleOverlay({ binding }: { binding: NleWorkspaceBinding }) {
   }, [status, generation, actions]);
 
   // The same pending test the inspector disables its commands with, plus the dialog's other two
-  // request channels. IMPORTANT (M25-53, D-8): M25-48 placed the import control inside this
+  // request channels. IMPORTANT (, D-8): placed the import control inside this
   // dialog. It is `disabled` for the whole import request and again while the production
   // projection reloads after the reply (a refusal reloads it). The keeper parks focus the DOM
   // takes away only while the dialog is busy and hands it back when busy ends; when it is not
@@ -408,10 +408,10 @@ export function NleOverlay({ binding }: { binding: NleWorkspaceBinding }) {
     if (!busy) focusKeeper.current?.restore();
   }, [busy]);
 
-  // M25-44: every open generation starts with the Export popover closed.
+  // every open generation starts with the Export popover closed.
   useEffect(() => setExportOpen(false), [generation]);
 
-  // M25-44: a press outside the open Export popover and its button closes the popover. Capture
+  // a press outside the open Export popover and its button closes the popover. Capture
   // phase, so a press that also activates another control still closes it first.
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -448,7 +448,7 @@ export function NleOverlay({ binding }: { binding: NleWorkspaceBinding }) {
 
   const onKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Escape") {
-      // M25-45: owned full screen is the first edge. Most engines consume Escape themselves and
+      // owned full screen is the first edge. Most engines consume Escape themselves and
       // never deliver it here, but one that does must leave full screen rather than close the
       // workspace underneath it -- the user pressed Escape against the thing filling the screen.
       const filling = document.fullscreenElement;
@@ -460,7 +460,7 @@ export function NleOverlay({ binding }: { binding: NleWorkspaceBinding }) {
       }
       // Edge-first: an active trim gesture owns Escape and cancels itself.
       if (edgeGestureActive.current) return;
-      // M25-44: then the open Export popover, which returns focus to its button.
+      // then the open Export popover, which returns focus to its button.
       if (exportOpenRef.current) {
         event.preventDefault();
         event.stopPropagation();
@@ -554,7 +554,7 @@ export function NleOverlay({ binding }: { binding: NleWorkspaceBinding }) {
     <div
       className="h3-nle-backdrop"
       data-h3-nle-generation={generation}
-      // IMPORTANT (M25-21 B3-D12): a press that lands on the modal backdrop itself must not move
+      // IMPORTANT ( B3-D12): a press that lands on the modal backdrop itself must not move
       // focus. With no focusable ancestor, Chromium otherwise focuses `<body>`, outside the Tab
       // trap and Escape. Presses inside the dialog keep their default: see `tabIndex` below.
       onMouseDown={(event) => {
@@ -581,7 +581,7 @@ export function NleOverlay({ binding }: { binding: NleWorkspaceBinding }) {
         }}
         onKeyDown={onKeyDown}
       >
-        {/* M25-63: the top bar -- title, save indicator, Export, Close -- one 40 px row. The
+        {/* the top bar -- title, save indicator, Export, Close -- one 40 px row. The
             surface status is still announced but not shown, and the monitor and audio statuses
             stay in the DOM with their attributes for diagnostics, neither shown nor announced. */}
         <header className="h3-nle-header">

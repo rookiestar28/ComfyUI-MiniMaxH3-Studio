@@ -38,7 +38,7 @@ function validateDouble(row: HostSeamContractRow, value: unknown): void {
 /**
  * Bind the canonical hermetic host double to every tracked frontend seam.
  * Specialized tests may still override behavior, but the shared host cannot
- * silently invent or omit a shape outside the recorded HC-09 fixture.
+ * silently invent or omit a shape outside the recorded fixture.
  */
 export function bindFrontendHostSeamFixture(
   values: Readonly<Record<FrontendSeamId, unknown>>,

@@ -1,4 +1,4 @@
-"""M18-05 schema retirement eligibility and removal tests.
+"""schema retirement eligibility and removal tests.
 
 Deleting a shipped file is the one thing in this chain that cannot be undone by regenerating an
 artifact, so the tests that matter here are the ones that would have stopped the deletion.
@@ -24,6 +24,9 @@ import sys
 import unittest
 from pathlib import Path
 from typing import Any
+
+from history_fixture import commit as commit_history
+from history_fixture import git, git_history, require_history, write_json
 
 from comfyui_h3_context.core.contract_inventory import (
     CompatibilityDisposition as Compat,
@@ -72,7 +75,7 @@ GENERATOR: Any = _load_generator()
 
 
 def _disposition(base: dict[str, object]) -> ContractDisposition:
-    """M18-01 refuses a row that claims a disposition with no consumer behind it.
+    """refuses a row that claims a disposition with no consumer behind it.
 
     Retirement eligibility is a question *about* consumer-free rows, so nearly every fixture
     here has an empty consumer tuple and must fail closed the way the real inventory does.
@@ -141,10 +144,10 @@ class EligibilityRuleTests(unittest.TestCase):
         self.assertEqual(verdict.described_wires, ("h3.example.v1",))
 
     def test_a_wire_behind_an_aggregation_surface_is_still_paired_with_its_schema(self) -> None:
-        """M19-06: the stem convention has to be read through a re-exporting surface.
+        """the stem convention has to be read through a re-exporting surface.
 
         `described_wires` pairs `X_v1.schema.json` with wires whose authority module is `X.py`.
-        M19-05 split three large modules into layers behind an aggregation surface, so a wire
+         split three large modules into layers behind an aggregation surface, so a wire
         constant that lived in `X.py` moved to `X_primitives.py` while the schema is still named
         after `X`. Without the map the pairing silently empties and the schema reports having no
         redundancy to remove -- conservative, but false.
@@ -172,7 +175,7 @@ class EligibilityRuleTests(unittest.TestCase):
     def test_a_hidden_reader_is_counted_exactly_like_a_visible_one(self) -> None:
         """The blind spot that reported a used schema as safe to delete, now closed.
 
-        M18-01 keeps a few files out of its scan so the inventory cannot supply its own evidence.
+         keeps a few files out of its scan so the inventory cannot supply its own evidence.
         A schema those files read shows zero consumers, and zero consumers is what this record calls
         eligible. The first generated draft said `contract_inventory_v1.schema.json` was eligible
         while `tests/test_contract_inventory.py` was reading it.
@@ -423,7 +426,7 @@ class GeneratedRecordTests(unittest.TestCase):
                     self.assertTrue(item["reasons"])
 
     def test_the_record_carries_identities_and_paths_and_nothing_else(self) -> None:
-        """Field by field, the way M18-01 checks its own record.
+        """Field by field, the way checks its own record.
 
         A whole-file scan is the wrong instrument here: one shipped `$id` is spelled
         `https://comfyui-h3-context.invalid/...`, which is a repository-owned identity admitted by
@@ -470,7 +473,7 @@ class GeneratedRecordTests(unittest.TestCase):
 
 
 class RetirementTests(unittest.TestCase):
-    """AC-M18-05-03/04/05: nothing lost, nothing dangling, nothing silent."""
+    """AC--03/04/05: nothing lost, nothing dangling, nothing silent."""
 
     document: dict[str, Any]
 
@@ -515,6 +518,9 @@ class RetirementTests(unittest.TestCase):
     def test_every_retired_schema_is_recoverable_from_its_rollback_commit(self) -> None:
         """A stable `$id` may stop shipping; it may not stop being recoverable."""
 
+        # IMPORTANT: a public projection has no maintainer rollback objects. Report only that
+        # exact replay NOT_RUN; available commits must still contain every asserted schema blob.
+        require_history(REPO_ROOT, [item["rollback_commit"] for item in self.document["retired"]])
         for item in self.document["retired"]:
             with self.subTest(contract=item["contract_id"]):
                 result = subprocess.run(
@@ -525,8 +531,29 @@ class RetirementTests(unittest.TestCase):
                 )
                 self.assertEqual(result.returncode, 0, result.stderr.decode("utf-8", "ignore"))
 
+    def test_real_synthetic_rollback_recovers_each_blob_and_refuses_missing_content(self) -> None:
+        with git_history() as root:
+            payloads = {
+                item["schema_path"]: {"$id": item["contract_id"], "type": "object"}
+                for item in self.document["retired"]
+            }
+            for path, payload in payloads.items():
+                write_json(root, path, payload)
+            rollback = commit_history(root)
+            for path in payloads:
+                (root / path).unlink()
+            commit_history(root)
+            require_history(root, [rollback])
+            for path, payload in payloads.items():
+                with self.subTest(path=path):
+                    self.assertEqual(json.loads(git(root, "show", f"{rollback}:{path}")), payload)
+                    with self.assertRaises(subprocess.CalledProcessError):
+                        git(root, "cat-file", "-e", f"HEAD:{path}")
+            with self.assertRaises(unittest.SkipTest):
+                require_history(root, ["1" * 40])
+
     def test_no_dangling_reference_to_a_retired_schema_survives(self) -> None:
-        """AC-M18-05-05. The three discovery rules the inventory uses, applied in reverse.
+        """AC--05. The three discovery rules the inventory uses, applied in reverse.
 
         `examples/` is in the sweep even though it holds no contract: `MANIFEST.in` ships it
         and the contract inventory's own scan roots stop short of it, so a dangling reference
@@ -545,7 +572,7 @@ class RetirementTests(unittest.TestCase):
             REPO_ROOT / "subgraphs",
         )
         # The record and its generator name the retired identities on purpose -- that naming *is*
-        # the deprecation notice AC-M18-05-04 requires. This test file is deliberately not exempt:
+        # the deprecation notice AC--04 requires. This test file is deliberately not exempt:
         # it reads the identities from the record rather than repeating them, so if a literal ever
         # appears here the assertion below should fail like anywhere else.
         allowed = {
@@ -572,7 +599,7 @@ class RetirementTests(unittest.TestCase):
         self.assertEqual(offenders, [])
 
     def test_each_retired_schemas_shape_is_still_enforced_by_its_typed_authority(self) -> None:
-        """AC-M18-05-02. The schema enforced nothing; the typed module always did, and still does.
+        """AC--02. The schema enforced nothing; the typed module always did, and still does.
 
         One concrete refusal per retired authority, chosen to be the kind of malformed value the
         deleted schema was nominally there to catch: a wrong enum, an unbounded identifier, a value
@@ -621,7 +648,7 @@ class RetirementTests(unittest.TestCase):
                 )
 
     def test_the_one_invariant_the_typed_authority_was_missing_is_restored(self) -> None:
-        """AC-M18-05-02 was not free: one retired schema stated something the module did not.
+        """AC--02 was not free: one retired schema stated something the module did not.
 
         The retired UI-projection schema required `severity` to be one of four values. The
         typed authority only bounded its length, so any 32-character string crossed the UI

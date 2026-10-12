@@ -35,7 +35,7 @@ export type ProductionSegment = Readonly<{
   segmentId: string;
   ordinal: number;
   taskMode: "t2va" | "i2va" | "fl2va" | "l2va" | "ref2va";
-  // M17-25: the authored value is a duration in integer milliseconds; the frame
+  // the authored value is a duration in integer milliseconds; the frame
   // count and the delivered duration are derived by the backend from the single
   // alignment authority. The frontend renders them and never recomputes them.
   duration: Readonly<{
@@ -275,7 +275,7 @@ function exactInteger(value: unknown, min: number, max: number, name: string) {
   return value as number;
 }
 
-// M17-25. The frontend validates structure and internal consistency, never the
+// . The frontend validates structure and internal consistency, never the
 // lattice: the accepted range and the 17k+5 rule live in `core.length` alone, and
 // restating either here would recreate the second authority this item removed.
 // What is checkable without them is that the snapped flag agrees with the two

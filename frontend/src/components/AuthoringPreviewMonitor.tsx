@@ -183,7 +183,7 @@ export function AuthoringPreviewMonitor({
   requestedFrame?: number;
   outsideSelectedClip?: boolean;
   onFrameObserved?(frame: number): void;
-  /** M25-33: the shared Media tools entry shown when the runtime blocks this preview. */
+  /** the shared Media tools entry shown when the runtime blocks this preview. */
   mediaTools?: MediaToolsBinding;
   mediaPlacement?: Exclude<MediaToolsPlacement, "settings">;
   /** The expanded editor generation this monitor belongs to; `null` in the sidebar. */
@@ -197,7 +197,7 @@ export function AuthoringPreviewMonitor({
   const restoreCloseOnFailure = useRef(false);
   const audioArmed = useRef(false);
   const lastObservedFrame = useRef<number | undefined>(undefined);
-  // M25-33: bumped once when a media setup continues exactly this preview; it reopens it.
+  // bumped once when a media setup continues exactly this preview; it reopens it.
   const [reopened, reopen] = useState(0);
   const coordinator = useMemo(
     () =>

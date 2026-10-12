@@ -1,4 +1,4 @@
-"""Offline M12-03 speaker diarization and voice-reference fixture."""
+"""Offline speaker diarization and voice-reference fixture."""
 
 from __future__ import annotations
 

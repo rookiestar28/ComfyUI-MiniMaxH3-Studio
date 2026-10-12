@@ -1,4 +1,4 @@
-"""Explicit injected temporal-visual adapter seam for M11-06.
+"""Explicit injected temporal-visual adapter seam for.
 
 This is a qualification fixture boundary, not an action, motion, camera, edit, or style model.
 It accepts caller-injected source-owned claims and never launches a process or contacts a provider.

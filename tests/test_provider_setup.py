@@ -1,4 +1,4 @@
-"""M15-06 operational provider setup, consent, preflight, and redaction tests."""
+"""operational provider setup, consent, preflight, and redaction tests."""
 
 from __future__ import annotations
 

@@ -1,4 +1,5 @@
 import {
+  memo,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -55,7 +56,7 @@ import {
 import type { TimelineMenuTarget } from "./NleTimelineMenus";
 import { useNleBinCardDrag } from "./useNleBinCardDrag";
 
-// M25-63 (R7): a card pitch of 148 px (a 140 px card plus the 8 px gap), so
+//  (R7): a card pitch of 148 px (a 140 px card plus the 8 px gap), so
 // `columns = max(1, floor((inner + 8) / 148))`: two columns at the default share of a 1600 px
 // overlay, one at the 160 px bin minimum. Each virtual row is 128 px: an 84 px thumbnail box, the
 // name and the thumbnail status line, and the space before the next row. The grid's CSS
@@ -255,6 +256,84 @@ function BitmapCanvas({ bitmap }: { bitmap: ImageBitmap | undefined }) {
   );
 }
 
+// IMPORTANT: the toolbar row depends on none of what an accepted edit changes (busy, snapshot,
+// handler identities), so it is its own memoized view and skips both renders of an edit. Its
+// handlers come from the bin as stable callbacks that read only refs and state setters.
+const MediaBinToolbar = memo(function MediaBinToolbar({
+  locale,
+  lead,
+  query,
+  sort,
+  filter,
+  view,
+  onQuery,
+  onSort,
+  onFilter,
+  onView,
+}: {
+  locale: Locale;
+  lead: ReactNode;
+  query: string;
+  sort: MediaSort;
+  filter: MediaFilter;
+  view: "grid" | "list";
+  onQuery(value: string): void;
+  onSort(next: MediaSort): void;
+  onFilter(next: MediaFilter): void;
+  onView(next: "grid" | "list"): void;
+}) {
+  const text = nleCopy(locale).assets;
+  return (
+    <div className="h3-nle-media-toolbar">
+      {lead}
+      <label className="h3-nle-media-search">
+        <NleActionIcon name="search" size={14} />
+        <input
+          type="search"
+          data-h3-nle-control="media.search"
+          aria-label={text.search}
+          placeholder={text.search}
+          value={query}
+          onChange={(event) => onQuery(event.currentTarget.value)}
+        />
+      </label>
+      <NleMediaSortFilterMenu
+        locale={locale}
+        sort={sort}
+        filter={filter}
+        onSort={onSort}
+        onFilter={onFilter}
+      />
+      <span className="h3-nle-media-views" role="group" aria-label={text.view}>
+        <button
+          type="button"
+          className="h3-nle-bin-icon"
+          data-h3-plain
+          data-h3-nle-control="media.view.grid"
+          aria-label={text.gridView}
+          title={text.gridView}
+          aria-pressed={view === "grid"}
+          onClick={() => onView("grid")}
+        >
+          <NleActionIcon name="grid" />
+        </button>
+        <button
+          type="button"
+          className="h3-nle-bin-icon"
+          data-h3-plain
+          data-h3-nle-control="media.view.list"
+          aria-label={text.listView}
+          title={text.listView}
+          aria-pressed={view === "list"}
+          onClick={() => onView("list")}
+        >
+          <NleActionIcon name="list" />
+        </button>
+      </span>
+    </div>
+  );
+});
+
 export function NleMediaBin({
   locale,
   snapshot,
@@ -271,7 +350,7 @@ export function NleMediaBin({
   lead,
   onIntent,
 }: {
-  /** M25-63: the control that leads the bin's toolbar row (the editor's Import). */
+  /** the control that leads the bin's toolbar row (the editor's Import). */
   lead?: ReactNode;
   locale: Locale;
   snapshot: PublicCompositionSnapshot;
@@ -362,15 +441,32 @@ export function NleMediaBin({
       }),
     [projected, query, filter, sort, addedAssetIds, text.card],
   );
-  const changeView = (next: "grid" | "list") => {
-    root.current?.scrollTo({ top: 0 });
-    setViewport((current) => ({ ...current, scrollTop: 0 }));
-    setView(next);
-  };
-  const resetScroll = () => {
-    root.current?.scrollTo({ top: 0 });
-    setViewport((current) => ({ ...current, scrollTop: 0 }));
-  };
+  // Stable for the bin's life: scrolling to the top and the state setters are all they touch.
+  const toolbarActions = useMemo(
+    () => ({
+      query: (value: string) => {
+        root.current?.scrollTo({ top: 0 });
+        setViewport((current) => ({ ...current, scrollTop: 0 }));
+        setQuery(value);
+      },
+      sort: (next: MediaSort) => {
+        root.current?.scrollTo({ top: 0 });
+        setViewport((current) => ({ ...current, scrollTop: 0 }));
+        setSort(next);
+      },
+      filter: (next: MediaFilter) => {
+        root.current?.scrollTo({ top: 0 });
+        setViewport((current) => ({ ...current, scrollTop: 0 }));
+        setFilter(next);
+      },
+      view: (next: "grid" | "list") => {
+        root.current?.scrollTo({ top: 0 });
+        setViewport((current) => ({ ...current, scrollTop: 0 }));
+        setView(next);
+      },
+    }),
+    [],
+  );
   const [menuTarget, setMenuTarget] = useState<TimelineMenuTarget | null>(null);
   const range = virtualMediaRange({
     itemCount: selectedProjection.length,
@@ -644,67 +740,19 @@ export function NleMediaBin({
   return (
     <section className="h3-nle-media-bin" data-h3-nle-region="asset-bin">
       <div className="h3-nle-media-controls">
-        {/* M25-63: one toolbar row -- Import, search, sort and filter, and the view pair (D-8). */}
-        <div className="h3-nle-media-toolbar">
-          {lead}
-          <label className="h3-nle-media-search">
-            <NleActionIcon name="search" size={14} />
-            <input
-              type="search"
-              data-h3-nle-control="media.search"
-              aria-label={text.search}
-              placeholder={text.search}
-              value={query}
-              onChange={(event) => {
-                resetScroll();
-                setQuery(event.currentTarget.value);
-              }}
-            />
-          </label>
-          <NleMediaSortFilterMenu
-            locale={locale}
-            sort={sort}
-            filter={filter}
-            onSort={(next) => {
-              resetScroll();
-              setSort(next);
-            }}
-            onFilter={(next) => {
-              resetScroll();
-              setFilter(next);
-            }}
-          />
-          <span
-            className="h3-nle-media-views"
-            role="group"
-            aria-label={text.view}
-          >
-            <button
-              type="button"
-              className="h3-nle-bin-icon"
-              data-h3-plain
-              data-h3-nle-control="media.view.grid"
-              aria-label={text.gridView}
-              title={text.gridView}
-              aria-pressed={view === "grid"}
-              onClick={() => changeView("grid")}
-            >
-              <NleActionIcon name="grid" />
-            </button>
-            <button
-              type="button"
-              className="h3-nle-bin-icon"
-              data-h3-plain
-              data-h3-nle-control="media.view.list"
-              aria-label={text.listView}
-              title={text.listView}
-              aria-pressed={view === "list"}
-              onClick={() => changeView("list")}
-            >
-              <NleActionIcon name="list" />
-            </button>
-          </span>
-        </div>
+        {/* one toolbar row -- Import, search, sort and filter, and the view pair (D-8). */}
+        <MediaBinToolbar
+          locale={locale}
+          lead={lead}
+          query={query}
+          sort={sort}
+          filter={filter}
+          view={view}
+          onQuery={toolbarActions.query}
+          onSort={toolbarActions.sort}
+          onFilter={toolbarActions.filter}
+          onView={toolbarActions.view}
+        />
         <p
           className="h3-nle-media-count"
           data-h3-nle-media-count={selectedProjection.length}
@@ -803,7 +851,7 @@ export function NleMediaBin({
                     if (!cardDrag.consumeClick(event)) dispatch(asset, "asset");
                   }}
                   onKeyDown={(event) => {
-                    // M25-63: the card's commands menu (APG: Shift+F10 and the ContextMenu key).
+                    // the card's commands menu (APG: Shift+F10 and the ContextMenu key).
                     if (
                       event.key === "ContextMenu" ||
                       (event.shiftKey && event.key === "F10")
@@ -861,7 +909,7 @@ export function NleMediaBin({
                       : ""}
                   </span>
                 </button>
-                {/* M25-63: "+" over the thumbnail, shown on hover, on focus within the card and
+                {/* "+" over the thumbnail, shown on hover, on focus within the card and
                     always under a coarse pointer. Its tooltip states today's Add (D-6). */}
                 <button
                   type="button"

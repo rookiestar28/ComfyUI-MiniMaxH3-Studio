@@ -1,5 +1,5 @@
 // App Mode template and media sources: the pinned template loader and the resolution of
-// visible loader outputs and duration sources for a splice (M23-28 split).
+// visible loader outputs and duration sources for a splice ( split).
 
 import type { LoaderSource, SpliceMedia } from "./templateMaterialization";
 import {
@@ -21,7 +21,7 @@ import { probeFileUrl } from "./hostSeams";
  * How the shell reaches the pinned template bytes.
  *
  * This is a seam rather than a bundled copy on purpose. The host serves the same
- * template package the backend generation profile digests for drift (M17-20
+ * template package the backend generation profile digests for drift (
  * D12), so a second copy inside this bundle would be a second thing that can go
  * stale, and the drift check would then be comparing the host against a copy
  * nobody re-pinned.

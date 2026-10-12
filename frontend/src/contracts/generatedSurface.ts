@@ -11,7 +11,7 @@
  * handwritten in the codec that owns it -- those are refinements this file has no
  * authority over.
  *
- * Surface fingerprint: sha256:8e824af612c2551bf1f7d4853a64fc9c0448fb66997066d37a98a3be7bf48460
+ * Surface fingerprint: sha256:9cf245c43ad004246615d70297a2d01442b7a9ce70c718146dd7bbe0cb65039c
  */
 
 /** comfyui_h3_context/core/assisted_authoring_scope.py :: AssistedAuthoringState */
@@ -533,15 +533,28 @@ export const sidebarWorkspaceProjectionKeys: readonly string[] = [
   "workspace_id",
 ];
 
+/** comfyui_h3_context/core/composition_contract.py :: TextShadow */
+export const textShadowKeys: readonly string[] = [
+  "offset_x_px",
+  "offset_y_px",
+  "rgba",
+];
+
+/** comfyui_h3_context/core/composition_contract.py :: TextStroke */
+export const textStrokeKeys: readonly string[] = ["rgba", "width_px"];
+
 /** comfyui_h3_context/core/composition_contract.py :: TextStyle */
 export const textStyleKeys: readonly string[] = [
   "align",
+  "background_padding_px",
   "background_rgba",
   "content",
   "fill_rgba",
   "font_asset_id",
   "line_height_bp",
+  "shadow",
   "size_px",
+  "stroke",
   "style",
   "weight",
 ];

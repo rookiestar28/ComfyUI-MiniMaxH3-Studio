@@ -230,7 +230,7 @@ def test_workspace_is_bounded_and_public_projection_is_content_free() -> None:
 
 
 def test_duration_is_authored_once_and_never_holds_a_non_producible_length() -> None:
-    """M17-25 / AC-M17-25-04. Duration is the only authored member and the length
+    """/ AC--04. Duration is the only authored member and the length
     it derives is always producible, so the previous contract's defect -- any
     positive frame count accepted, including the fixtures' own 100, 300 and 180 --
     is unrepresentable rather than merely unused."""

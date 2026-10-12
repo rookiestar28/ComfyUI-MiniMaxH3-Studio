@@ -1,4 +1,4 @@
-"""M19-05 guard for the one-way import direction of the decomposed pure-core cohorts.
+"""guard for the one-way import direction of the decomposed pure-core cohorts.
 
 Each cohort is a module that was split into layers behind an aggregation surface. Two properties
 make that split worth having, and neither is self-enforcing:
@@ -10,7 +10,7 @@ make that split worth having, and neither is self-enforcing:
 
 `scripts/governance/architecture_inventory.py` reports cycles across the whole package, which
 catches the worst case after the fact, but nothing asserted the intended direction of a particular
-cohort or the privacy of its layers. M19-04's review found exactly this gap on the TypeScript side;
+cohort or the privacy of its layers. 's review found exactly this gap on the TypeScript side;
 `tests/test_frontend_host_layering.py` is this module's counterpart there.
 
 Imports are read with `ast`, so the edges are exact rather than inferred from name occurrences.

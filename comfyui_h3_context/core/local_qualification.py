@@ -1478,7 +1478,7 @@ def evaluate_local_qualification(
 
 
 def build_default_local_qualification_plan() -> QualificationPlan:
-    """Return the preregistered M14-04 plan reflecting currently unqualified live profiles."""
+    """Return the preregistered plan reflecting currently unqualified live profiles."""
 
     from .audio_acceptance import evaluate_audio_acceptance
     from .audio_perception_benchmark import build_default_audio_benchmark_plan

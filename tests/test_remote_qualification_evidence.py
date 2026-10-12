@@ -1,4 +1,4 @@
-"""M22-14 typed, content-free evidence for later remote catalog promotion."""
+"""typed, content-free evidence for later remote catalog promotion."""
 
 from __future__ import annotations
 

@@ -1,0 +1,62 @@
+{
+  "schema": "h3.context.host_seam_census_transition_perception_host.v1",
+  "item": "PERCEPTION-HOST",
+  "source": {
+    "commit_parts": [
+      "5b4c0097",
+      "f89b7c59",
+      "13dfabc3",
+      "0d2e8890",
+      "08906192"
+    ],
+    "tree_parts": ["af7eb748", "336be278", "73accaaa", "6b2c832f", "5bcea778"]
+  },
+  "artifacts": {
+    "from_census_sha256_parts": [
+      "5eb83e32",
+      "2e9b2907",
+      "0220c994",
+      "699601ea",
+      "5cdb0c4d",
+      "b0fc234e",
+      "5035b133",
+      "d68b8062"
+    ],
+    "to_census_sha256_parts": [
+      "6590a79a",
+      "997dc397",
+      "3867f479",
+      "996e8cd6",
+      "90d6ee61",
+      "7cdf0826",
+      "e9974e5c",
+      "1633f74d"
+    ],
+    "fixture_sha256_parts": [
+      "ff152fbb",
+      "78ca29b4",
+      "4a0c439e",
+      "9281a0ef",
+      "5bafc89c",
+      "943a3965",
+      "41f8478e",
+      "763e6ad7"
+    ],
+    "seam_contract_sha256_parts": [
+      "40132e41",
+      "d71efd79",
+      "5a853ecc",
+      "1d6e0eef",
+      "572a207c",
+      "8460dfe8",
+      "d4b0edff",
+      "01336a12"
+    ]
+  },
+  "changes": [
+    {
+      "seam_id": "frontend.api.fetch_api",
+      "added_source_paths": ["frontend/src/host/perceptionHostClient.ts"]
+    }
+  ]
+}

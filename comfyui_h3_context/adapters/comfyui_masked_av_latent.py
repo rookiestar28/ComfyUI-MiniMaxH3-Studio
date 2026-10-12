@@ -1,11 +1,11 @@
-"""Torch boundary for dual-domain AV mask attachment (M20-06).
+"""Torch boundary for dual-domain AV mask attachment.
 
 Builds the two dense per-domain mask tensors an admitted :class:`NestedAVMaskPlan` describes
 -- video ``(1, 1, T, H, W)`` and audio ``(1, 1, 2, L)`` at the exact latent grid, float32,
 values only ``MASK_PRESERVE``/``MASK_GENERATE`` -- assembles the host pair value
 ``comfy.nested_tensor.NestedTensor((video_mask, audio_mask))``, and returns a NEW latent
 dict with ``noise_mask`` attached.  The input latent is never mutated; the sampler consumes
-``noise_mask`` verbatim and applies one mask per domain (the M19-08-measured mechanism).
+``noise_mask`` verbatim and applies one mask per domain (the -measured mechanism).
 
 The mask tensors carry the full spatial extent of their domain: the plan is temporal-only
 (suffix form), so every spatial position within a preserved step is preserved and within a

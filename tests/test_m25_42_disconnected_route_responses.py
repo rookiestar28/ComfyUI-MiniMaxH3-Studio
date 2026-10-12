@@ -1,4 +1,4 @@
-"""M25-42: hand-written owned routes answer a client that has gone with a response object.
+"""hand-written owned routes answer a client that has gone with a response object.
 
 Every middleware in a ComfyUI host receives a handler's return value. A supplied host carries
 foreign packs whose middleware reads it (LoRA-Manager's CSP relaxation calls
@@ -113,7 +113,7 @@ async def send_then_close(
 
 
 def post(server: Any, path: str, body: bytes, *, declared: int | None = None) -> bytes:
-    # M23-57: a same-origin request names the listener it is sent to, in both Host and Origin.
+    # a same-origin request names the listener it is sent to, in both Host and Origin.
     authority = f"{server.host}:{server.port}"
     length = len(body) if declared is None else declared
     lines = [

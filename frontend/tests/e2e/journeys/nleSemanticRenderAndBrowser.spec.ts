@@ -1,4 +1,4 @@
-// M25-20 F1 corrective, browser half: the 151 `render_and_browser` corpus rows
+//  F1 corrective, browser half: the 151 `render_and_browser` corpus rows
 // (`comfyui_h3_context/core/semantic_conformance_cases.py`'s `build_recipes()`). Each row's exact
 // composition wire is produced by `scripts/nle_semantic_browser_wires.py` -- a read-only caller of
 // `semantic_conformance_drive.initial_state`/`resolve_payload`/`transact`, the SAME primitives
@@ -148,7 +148,7 @@ const FRAME_BUDGET_MS = 4_000;
 /**
  * The backing the per-frame budget above was measured against: the accepted base's own 320 x 180.
  *
- * GUARD (M25-45): a row's per-frame cost is not a constant, because presenting and reading back a
+ * GUARD: a row's per-frame cost is not a constant, because presenting and reading back a
  * frame is work over the whole backing. Measured on this machine, one 1280 x 720 row took 1,098 s
  * for 48 frames -- about 23 s a frame against 4 s at 320 x 180 -- so the cost grows with the
  * picture's edge rather than its area (16x the pixels, 5.75x the time). The allowance below scales
@@ -517,7 +517,7 @@ async function captureImage(page: Page): Promise<{
  * by `waitForPresentedFrame` against the compositor's own receipt; do not put a settle loop back
  * here.
  *
- * GUARD (M25-45): the fill carries its own bound, and that bound is one frame's work on the
+ * GUARD: the fill carries its own bound, and that bound is one frame's work on the
  * backing being presented -- not the config's 15 s `actionTimeout`. That 15 s exists to fail a
  * control that is *permanently* disabled in seconds instead of hanging the sweep, and it is right
  * for a 320 x 180 row where a frame costs about four seconds. At 1280 x 720 a frame costs about
@@ -542,7 +542,7 @@ async function seekTransport(
  *
  * GUARD (B-M2545-30): a row's first delivered paint is not the moment its measurement may begin.
  * Every row after the first enters a monitor that restores the retained playhead of the row before
- * it (M25-21: a remount comes back paused at the user's position), and that restore seek is issued
+ * it (: a remount comes back paused at the user's position), and that restore seek is issued
  * by the product and settles asynchronously. So the sequence at row entry is: `open` paints frame
  * 0, the identity readiness above is satisfied by that paint, and the restore seek to the previous
  * row's last frame is still in flight. A frame walk begun there has its first seek superseded by
@@ -554,7 +554,7 @@ async function seekTransport(
  *
  * The condition is the product's own projection rather than a quiet period: `NleMonitor`
  * deliberately shows `requestedFrame` on the seek control while a seek settles and the presented
- * frame once it has (M25-21 B3-D10), so "requested equals presented" is exactly "nothing is in
+ * frame once it has ( B3-D10), so "requested equals presented" is exactly "nothing is in
  * flight". Do not replace this with "no new paint for N ms" -- the gap between `open`'s paint and
  * the restore's paint is a source acquisition wide, so any N small enough to be affordable is also
  * small enough to fall inside it, and the check would pass while the restore was still coming.
@@ -798,7 +798,7 @@ test("presents every render_and_browser composition and records its observation"
           control.setComposition(row.wire as Record<string, unknown>);
           const expectedFingerprint = String(row.wire.public_fingerprint);
           if (!loadedOnce) {
-            // M25-44: the first explicit open initializes the timeline history, which this mode
+            // the first explicit open initializes the timeline history, which this mode
             // answers with the composition just set.
             await page.locator(LAUNCHER).click();
             loadedOnce = true;

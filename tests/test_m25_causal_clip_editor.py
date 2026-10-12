@@ -1,4 +1,4 @@
-"""M25-08 cross-seam causal acceptance for the selected VIDEO editor path."""
+"""cross-seam causal acceptance for the selected VIDEO editor path."""
 
 from __future__ import annotations
 

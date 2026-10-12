@@ -54,8 +54,8 @@ from .reachability import ReachabilityManifest, build_default_reachability_manif
 PUBLIC_MANIFEST_V2_SCHEMA = "h3.context.public.manifest.v2"
 
 #: Node types a packaged fixture may contain that this repository does not own.  Two are the pinned
-#: native H3 anchors M18-01 inventories as `host_core`; the other four are the ComfyUI-core media
-#: loaders the M17-20 native templates bring with them.  The list is deliberately closed: a fixture
+#: native H3 anchors inventories as `host_core`; the other four are the ComfyUI-core media
+#: loaders the native templates bring with them. The list is deliberately closed: a fixture
 #: node type in neither this set nor the canonical registry is unknown, and unknown fails.
 HOST_CORE_NODE_TYPES: tuple[str, ...] = (
     "GetVideoComponents",

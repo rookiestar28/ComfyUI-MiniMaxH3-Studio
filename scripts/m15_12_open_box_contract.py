@@ -1,4 +1,4 @@
-"""Validate and run the M15-12 open-box RED acceptance contract.
+"""Validate and run the open-box RED acceptance contract.
 
 The RED lane is deliberately isolated from the ordinary Vitest include.  A non-zero Vitest exit
 is evidence that the accepted predecessor still exhibits the contract defect; setup failures and
@@ -334,7 +334,7 @@ _REPORT_KEYS = frozenset(
 
 
 class ContractError(ValueError):
-    """Raised when the closed M15-12 contract or report is invalid."""
+    """Raised when the closed contract or report is invalid."""
 
 
 def _duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -526,7 +526,7 @@ def _validate_criterion(entry: Any, index: int) -> None:
 
 
 def validate_contract(contract: Mapping[str, Any]) -> None:
-    """Validate the closed public M15-12 fixture."""
+    """Validate the closed public fixture."""
 
     _require_keys(contract, _CONTRACT_KEYS, "contract")
     if contract["schema"] != CONTRACT_SCHEMA:

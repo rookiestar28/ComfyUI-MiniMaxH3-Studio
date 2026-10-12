@@ -1,4 +1,4 @@
-"""M17-15 lazy route ownership, empty-error and bounded response checks."""
+"""lazy route ownership, empty-error and bounded response checks."""
 
 from __future__ import annotations
 
@@ -255,7 +255,7 @@ def test_transport_close_while_body_read_is_pending_stops_before_lookup_or_worke
         patch.object(adapter, "admit_media_preview_source") as admit,
     ):
         response = asyncio.run(exercise())
-    # M25-42: a client that has gone still receives the owned bodiless response object.
+    # a client that has gone still receives the owned bodiless response object.
     assert isinstance(response, _StreamResponse)
     assert (response.status, response.body, response.prepared) == (499, b"", False)
     assert stalled.cancelled
@@ -437,7 +437,7 @@ def test_empty_response_prepare_and_eof_share_the_request_deadline() -> None:
 
     with patch.object(asyncio, "wait_for", side_effect=timeout):
         response = asyncio.run(exercise())
-    # M25-42: the aborted attempt is returned to the host rather than nothing.
+    # the aborted attempt is returned to the host rather than nothing.
     assert isinstance(response, _StreamResponse)
     assert (response.status, response.body, response.eof) == (403, b"", False)
     assert aborted == [True]
@@ -573,7 +573,7 @@ def test_success_response_failure_aborts_transport_and_releases_claim(phase: str
         patch.object(_StreamResponse, phase, fail_phase),
     ):
         response = asyncio.run(handler(request))
-    # M25-42: the aborted success attempt is returned to the host rather than nothing.
+    # the aborted success attempt is returned to the host rather than nothing.
     assert isinstance(response, _StreamResponse)
     assert (response.status, response.eof) == (200, False)
     assert aborted == [True]

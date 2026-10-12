@@ -1,6 +1,6 @@
-"""M19-04 guard for the one-way import direction of the frontend host graph modules.
+"""guard for the one-way import direction of the frontend host graph modules.
 
-The M19-04 decomposition cut `frontend/src/host/graphAdapter.ts` into layered modules and
+The decomposition cut `frontend/src/host/graphAdapter.ts` into layered modules and
 rests on two structural claims: the layers only ever import downward, and the modules below the
 aggregation surface are private to `frontend/src/host/`. Nothing in the repository enforced either
 one.
@@ -10,7 +10,7 @@ The Rolldown/oxc bundler behind `vite build` does not: it builds a cyclic module
 `scripts/governance/architecture_inventory.py` does not: it walks `*.py` only. There is no
 ESLint configuration under `frontend/`. So the invariant was true by construction on the day it was
 written and unprotected from that day forward, which is what this module fixes -- the same role
-`tests/test_node_surface.py::HostIndependenceTests` plays for the Python node modules M19-03 split.
+`tests/test_node_surface.py::HostIndependenceTests` plays for the Python node modules split.
 
 Import specifiers are read with a regular expression rather than a TypeScript parser, which is the
 only option available in the Python lane. Every relative specifier it finds is resolved to a real
@@ -28,7 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 FRONTEND = ROOT / "frontend"
 HOST = FRONTEND / "src" / "host"
 
-# The frozen layer order from the M19-04 plan section 4. A module may import from the modules above
+# The frozen layer order from the plan section 4. A module may import from the modules above
 # it in this tuple and from nothing below it.
 GRAPH_LAYERS: tuple[str, ...] = (
     "graphSerialization",

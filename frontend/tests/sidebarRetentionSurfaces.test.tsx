@@ -1,4 +1,4 @@
-// M25-21 section 14.4: per-surface editing-state retention for the Production workbench. Each
+//  section 14.4: per-surface editing-state retention for the Production workbench. Each
 // case edits through real user interactions, releases the view
 // (unmount), remounts against the same session store and reads the restored controls back, then
 // proves the declared invalidation, truthful-notice and no-replay rules.

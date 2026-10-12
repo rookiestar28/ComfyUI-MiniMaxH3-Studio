@@ -36,7 +36,7 @@ const describeViolation = (violation: TemporaryViolation): string =>
     : String(violation.pattern);
 
 /**
- * M17-26 — the rendered-output locale sweep.
+ * the rendered-output locale sweep.
  *
  * `validateCatalog` proves the declared keys are complete. It cannot prove that
  * everything displayed was declared, because it only sees `catalog.ts`. This
@@ -204,7 +204,7 @@ const productionProjection = decodeProductionWorkbenchProjection({
   limits: { max_segments: 64, max_outputs: 65 },
 }) as never;
 
-// M21-03 closed the last `M17-26` coverage gap. The review needs a handle and a
+//  closed the last `` coverage gap. The review needs a handle and a
 // projection, which is the reason it was pending; both are built here from the
 // same decoders the product uses, so the surface is swept as it really renders.
 const proposalHandle = decodeSemanticProposalReviewHandle({
@@ -387,7 +387,7 @@ function userFacingStrings(root: HTMLElement): ReadonlySet<string> {
 }
 
 /**
- * The locales compared against `en`. `M21-03` added `zh-CN`: a key can be
+ * The locales compared against `en`. `` added `zh-CN`: a key can be
  * translated in `zh-TW` and left English in `zh-CN`, and comparing only one
  * Chinese locale would never see it.
  */

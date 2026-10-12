@@ -402,7 +402,7 @@ describe("M17-12 Production workbench UI", () => {
     for (const name of ["Segment", "Segment overview", "Run", "Outputs"])
       expect(screen.getByRole("region", { name })).not.toBeNull();
     const bars = screen.getAllByTestId("production-timeline-segment");
-    // M17-25: the track is proportional in derived frames, which are producible
+    // the track is proportional in derived frames, which are producible
     // by construction. The first fixture segment requests 4.167 s and is
     // delivered 107 frames.
     expect(bars[0]?.style.flexGrow).toBe("107");
@@ -414,7 +414,7 @@ describe("M17-12 Production workbench UI", () => {
       action: "set_selection",
       segmentIds: ["segment_2"],
     });
-    // M21-03 AC-02: exactly one row is expanded at a time, and the reorder
+    //  AC-02: exactly one row is expanded at a time, and the reorder
     // controls belong to it. Selecting is what expands a row, so the projection
     // is re-rendered with the single selection the click above asked for rather
     // than reaching for a control on a collapsed row.
@@ -461,7 +461,7 @@ describe("M17-12 Production workbench UI", () => {
       segmentIds: ["segment_2", "segment_1"],
     });
     expect(screen.queryByRole("button", { name: /duration/i })).toBeNull();
-    // M17-21: canonical codes stay inspectable in data-state while the visible
+    // canonical codes stay inspectable in data-state while the visible
     // text is the locale-mapped label, so no raw enum reaches the user.
     for (const state of ["dirty_self", "planned", "complete", "unavailable"])
       expect(
@@ -1463,7 +1463,7 @@ describe("M17-12 Production workbench UI", () => {
     const boundary = screen.getByRole("button", {
       name: "Boundary before segment 2",
     });
-    // M17-25: boundaries are placed by delivered duration, not by an authored
+    // boundaries are placed by delivered duration, not by an authored
     // frame count. The two fixture segments deliver 4458 ms and 12958 ms.
     expect(boundary.parentElement?.style.left).toBe(
       `${(4458 / (4458 + 12958)) * 100}%`,
@@ -1591,7 +1591,7 @@ describe("M17-12 Production workbench UI", () => {
 });
 
 describe("M17-21 labelled Production presentation", () => {
-  // M21-03 moved run state and progress into the status band, where they are
+  //  moved run state and progress into the status band, where they are
   // stated once instead of twice. What stays under Run is the state that is
   // about the run rather than about the workspace.
   const runKeys = {
@@ -1621,7 +1621,7 @@ describe("M17-21 labelled Production presentation", () => {
         );
         expect(row.querySelector("dd")?.textContent?.trim()).not.toBe("");
       });
-      // The M17-12 defect rendered runState, progress and reconstruction as
+      // The defect rendered runState, progress and reconstruction as
       // three adjacent unlabelled values that read as one unbroken string.
       expect(container.textContent).not.toContain("ready0/2unavailable");
       unmount();
@@ -1680,7 +1680,7 @@ describe("M17-21 labelled Production presentation", () => {
         onIntent={vi.fn()}
       />,
     );
-    // M21-03 order 6: one quiet line that recedes, not a bordered box that
+    //  order 6: one quiet line that recedes, not a bordered box that
     // reads as a disabled input. It is still designed copy -- the row's point --
     // and it still says what has to happen for an output to appear.
     const empty = container.querySelector('[data-known="false"]');

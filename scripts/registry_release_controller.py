@@ -30,11 +30,40 @@ from scripts.registry_publication_capsule import (  # noqa: E402
     verify_capsule_sha256,
 )
 from scripts.registry_publish_guard import decide_publish, parse_project_version  # noqa: E402
+from scripts.release_push_guard import (  # noqa: E402
+    VERSION_PATHS,
+    push_release,
+    validate_version_authorities,
+)
 from scripts.validate_comfy_registry_metadata import validate_metadata  # noqa: E402
 
 
 class ReleaseControllerError(ValueError):
     """The release subject or token-free prepare chain could not be proven."""
+
+
+def guarded_push(
+    *,
+    root: Path,
+    candidate: str,
+    expected_version: str,
+    operation: str,
+    receipt: Path,
+    runner: Any = subprocess.run,
+    reader: Any = None,
+    expected_origin: str | None = None,
+) -> dict[str, Any]:
+    """Explicit publication boundary; the prepare-only CLI never invokes this operation."""
+    return push_release(
+        root=root,
+        candidate=candidate,
+        expected_version=expected_version,
+        operation=operation,
+        receipt=receipt,
+        runner=runner,
+        reader=reader,
+        expected_origin=expected_origin,
+    )
 
 
 def _environment(output: Path) -> dict[str, str]:
@@ -92,6 +121,8 @@ def prepare(
         "registry_payload.py",
         "registry_publication_capsule.py",
         "registry_publish_guard.py",
+        "release_push_guard.py",
+        "public_ci_gate.py",
         "validate_comfy_registry_metadata.py",
     ):
         relative = "scripts/" + name
@@ -157,6 +188,11 @@ def prepare(
     output.mkdir()
     projection = project(root, source=source, parent=parent, output=output / "projection")
     public_commit = str(projection["public_commit"])
+    # CRITICAL: version admission reads the projected Git blobs, never the mutable checkout
+    # or candidate Python imports; a checkout decoy must not authorize a mismatched payload.
+    validate_version_authorities(
+        {name: git(root, "show", public_commit + ":" + name) for name in VERSION_PATHS}, version
+    )
     payload = output / "payload"
     payload.mkdir()
     git(payload, "init", "--quiet")

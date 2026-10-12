@@ -1,4 +1,4 @@
-"""Generate the M19-03 node surface record by asking the classes what a ComfyUI host would ask.
+"""Generate the node surface record by asking the classes what a ComfyUI host would ask.
 
 This generator imports the package and calls ``INPUT_TYPES()``, which is deliberate and is the only
 honest way to build this record: the point is to capture what a host receives, and a host receives

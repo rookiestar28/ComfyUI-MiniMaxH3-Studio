@@ -1,10 +1,10 @@
-"""Generate the M18-06 closeout matrix: what the chain changed, and whether the domains held.
+"""Generate the closeout matrix: what the chain changed, and whether the domains held.
 
 No number here is remembered, but they are not all sourced the same way and the difference is worth
 stating.  Four metrics are read out of an accepted checkpoint's own committed artifact with `git
 show`.  The two manifest byte counts have no machine-readable artifact to read -- the manifests
 never persist their own section sizes -- so they are *measured here* off the shipped manifests
-instead of being copied out of M18-04's prose.  Copying was the original implementation and it
+instead of being copied out of 's prose. Copying was the original implementation and it
 shipped a wrong number: the recomputable-bytes metric was written as the whole v1-to-v2 residual
 while its own evidence line said "bindings and reachability", two figures that differ by 400 bytes.
 
@@ -66,14 +66,16 @@ from scripts.governance.closeout_matrix import (  # noqa: E402
 ARTIFACT_PATH = Path("governance/contracts/closeout_matrix_v1.json")
 
 #: The accepted M18 checkpoints. Baselines are read from the first, finals from the last.
-# IMPORTANT: mapped after message-only history cleanup; each accepted tree is unchanged.
-M18_01 = "add8a535bca3769a91291fb31012b7447e1682b8"  # pragma: allowlist secret
-M18_04 = "aea047c471e3cc87654fc67e64c6b9db6f216cfd"  # pragma: allowlist secret
-M18_05 = "48c0bcb23265827f77be59b334d27effe9199844"  # pragma: allowlist secret
+# IMPORTANT: sanitized checkpoint identities retain byte-identical public probe artifacts.
+# CRITICAL: pin the public checkpoint identities; falling back to old refs or HEAD
+# changes the historical subject and can hide a real checkpoint regression.
+M18_01 = "4e378352656d55fd9a9b37ae561ab77d5a46b0a2"  # pragma: allowlist secret
+M18_04 = "15db3061b5d1c386db46551196a6d164f114baff"  # pragma: allowlist secret
+M18_05 = "b7d276045f74b0d3f4c523f8257d4ae06fb12bd6"  # pragma: allowlist secret
 
 # CRITICAL: three packaged paths in this module address the M18 checkpoint *trees*, not the
 # working tree, and they are not all packaged for the same reason. `DOMAIN` below, and the
-# `retirement_eligibility_v1.json` literal in `build_metrics`, name artifacts M23-55 moved out of
+# `retirement_eligibility_v1.json` literal in `build_metrics`, name artifacts moved out of
 # the installed package: they must keep the packaged spelling because `git show <commit>:<path>`
 # resolves inside a commit where that is where they lived, and re-pathing either one turns a probe
 # into ABSENT, which reads as a real regression rather than as a broken path.
@@ -127,9 +129,9 @@ def _record_at(commit: str, path: str) -> dict[str, object]:
 def _manifest_wire_bytes() -> dict[str, int]:
     """Manifest section sizes, measured from the shipped manifests rather than transcribed.
 
-    M18-04 sized these with sorted compact JSON, and the repository's own `canonical_bytes`
+     sized these with sorted compact JSON, and the repository's own `canonical_bytes`
     refuses the manifest, so the same encoding is used here. Measuring rather than copying the
-    numbers out of M18-04's prose is the point: a closeout metric that is a literal cannot fail
+    numbers out of 's prose is the point: a closeout metric that is a literal cannot fail
     when the thing it describes changes.
     """
 

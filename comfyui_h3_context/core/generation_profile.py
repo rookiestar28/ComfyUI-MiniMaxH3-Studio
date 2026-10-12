@@ -1,6 +1,6 @@
 """Backend-owned qualification of a directly generation-capable App Mode workflow.
 
-`M17-20` `D1`: the browser must not decide whether generation is possible. It
+`` `D1`: the browser must not decide whether generation is possible. It
 receives a content-free capability projection produced here, and gates on it; it
 never derives eligibility, because deriving it in the browser is how a shell ends
 up queueing a graph the host cannot run.
@@ -13,7 +13,7 @@ is a contract rather than a convenience.
 
 Privacy is a design constraint, not a review note. A projection names **slots**
 -- `video_unet`, `text_encoder` and so on -- and never a filename, a path or the
-host's model inventory. `M17-20` `D2` requires exactly this: when a template's
+host's model inventory. `` `D2` requires exactly this: when a template's
 published default weight is absent, the user is told which slot is unsatisfied
 and resolves it on the canvas widget, and no part of that exchange needs to name
 what else the host happens to have installed.
@@ -59,7 +59,7 @@ class AssetSlot(str, Enum):
 class ModeFamily(str, Enum):
     """The two native anchors, and therefore the two sets of slots.
 
-    `M17-20` section 8.3: the four frame-driven task modes instantiate the same
+    `` section 8.3: the four frame-driven task modes instantiate the same
     subgraph and the same `MiniMaxH3ImageToVideo` anchor, so they share a family;
     only `ref2va` is separate. A family is **not** a materialization basis --
     `t2va` and `i2va` share this family and load different template bytes -- so
@@ -73,7 +73,7 @@ class ModeFamily(str, Enum):
 class SlotDisposition(str, Enum):
     """What one required model role looks like on the host.
 
-    `M17-28` split the old two-state answer. "The weight is installed" and "the
+    `` split the old two-state answer. "The weight is installed" and "the
     weight the materialized workflow will name is installed" are different facts,
     and collapsing them is what let a fully provisioned host be told its weights
     were missing.
@@ -90,7 +90,7 @@ class SlotDisposition(str, Enum):
 
 class FamilyDisposition(str, Enum):
     AVAILABLE = "available"
-    #: `M17-28`. Every required role is installed, but at least one is not the name
+    #: ``. Every required role is installed, but at least one is not the name
     #: the template materializes with. Not a missing weight and not a ready graph:
     #: the user picks the installed official file on the canvas widget.
     ASSET_RELOCATED = "asset_relocated"
@@ -179,7 +179,7 @@ def materialization_bases() -> tuple[tuple[str, ModeFamily, tuple[str, ...]], ..
     return tuple((template, family, tuple(modes)) for template, (family, modes) in bases.items())
 
 
-#: Historical SHA-256 provenance for `PINNED_TEMPLATE_REVISION`. M23-01 keeps
+#: Historical SHA-256 provenance for `PINNED_TEMPLATE_REVISION`. keeps
 #: these exported for persisted consumers but never compares them for admission.
 # Template content digests, not credentials.
 PINNED_TEMPLATE_DIGESTS: tuple[tuple[str, str], ...] = (  # pragma: allowlist secret
@@ -229,7 +229,7 @@ def _bounded_name(value: object, field: str) -> str:
 class SlotObservation:
     """How one required model role resolves on the host.
 
-    `M17-28` widened this from a single boolean. The adapter now reports which of
+    `` widened this from a single boolean. The adapter now reports which of
     the three `SlotDisposition` states it observed; what the repository still never
     does is *choose* a weight. A relocated role is reported and remediated on the
     canvas, never silently substituted.
@@ -462,7 +462,7 @@ def qualify_generation_profile(
 
     if type(observation) is not HostObservation:
         raise GenerationProfileError("invalid_observation")
-    # Compatibility-only provenance input. M23-01 deliberately validates but
+    # Compatibility-only provenance input. deliberately validates but
     # does not compare these identities: admission is based on the observed
     # anchor and prompt socket below.
     for name, digest in expected_template_digests:
@@ -503,7 +503,7 @@ def qualify_generation_profile(
         elif absent:
             disposition = FamilyDisposition.MISSING_ASSET
             remediation = Remediation.SELECT_INSTALLED_ASSET_ON_CANVAS
-            # M17-29: one remediation round names every role the materialized
+            # one remediation round names every role the materialized
             # template has to resolve. Dropping relocated roles merely because
             # another role is absent made the notice incomplete and left those
             # widgets carrying unusable defaults.
@@ -513,7 +513,7 @@ def qualify_generation_profile(
                 if slots.get(slot, SlotDisposition.ABSENT) is not SlotDisposition.PRESENT
             )
         elif relocated:
-            # M17-28. Everything is installed; the materialized graph would just
+            # . Everything is installed; the materialized graph would just
             # name the wrong file. Reported apart from `missing_asset` because the
             # two send the user to different actions, and because telling someone
             # with a provisioned host that a weight is missing is what this item

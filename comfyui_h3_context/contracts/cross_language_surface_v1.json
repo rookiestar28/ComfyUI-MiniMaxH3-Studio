@@ -1,5 +1,5 @@
 {
-  "fingerprint": "sha256:8e824af612c2551bf1f7d4853a64fc9c0448fb66997066d37a98a3be7bf48460",
+  "fingerprint": "sha256:9cf245c43ad004246615d70297a2d01442b7a9ce70c718146dd7bbe0cb65039c",
   "schema": "h3-context-cross-language-surface/1",
   "shapes": [
     {
@@ -653,9 +653,33 @@
       ]
     },
     {
+      "class_name": "TextShadow",
+      "export_name": "textShadowKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "offset_x_px",
+        "offset_y_px",
+        "rgba"
+      ]
+    },
+    {
+      "class_name": "TextStroke",
+      "export_name": "textStrokeKeys",
+      "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "required_keys": [
+        "rgba",
+        "width_px"
+      ]
+    },
+    {
       "class_name": "TextStyle",
       "export_name": "textStyleKeys",
       "module_path": "comfyui_h3_context/core/composition_contract.py",
+      "optional_keys": [
+        "background_padding_px",
+        "shadow",
+        "stroke"
+      ],
       "required_keys": [
         "align",
         "background_rgba",

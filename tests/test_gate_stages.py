@@ -1,4 +1,4 @@
-"""M23-02 fingerprint-gated stage caching regressions.
+"""fingerprint-gated stage caching regressions.
 
 The property under test is not "resume is fast". It is that a resumed PASS still means every stage
 passed against the current content of what it reads, and that the ways of getting that wrong --
@@ -39,14 +39,30 @@ from scripts.gate_stages import (
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_script_entry_resolves_fixture_helper_without_pythonpath() -> None:
+def test_script_entry_resolves_fixture_helper_without_pythonpath(tmp_path: Path) -> None:
+    prefix = tmp_path / ".venv"
+    launcher = prefix / ("Scripts/python.exe" if sys.platform == "win32" else "bin/python")
+    launcher.parent.mkdir(parents=True)
+    launcher.write_bytes(b"not-executed")
+    (prefix / "pyvenv.cfg").write_text("include-system-site-packages = false\n")
+    # IMPORTANT: test script lookup with a controlled local prefix; Hosted backend uses global
+    # Python, which the production fixture selector must continue to refuse. Never run this stub.
     code = (
-        "import runpy,sys; from pathlib import Path; root=Path.cwd(); "
-        "sys.path[:]=[p for p in sys.path if Path(p or '.').resolve()!=root]; "
-        "module=runpy.run_path(str(root/'scripts/gate_stages.py')); "
-        "assert module['browser_environment'](root)['H3_CONTEXT_E2E_PYTHON']"
+        "import os,runpy,sys; from pathlib import Path; source=Path(sys.argv[1]); "
+        "root=Path(sys.argv[2]); sys.prefix=str(root/'.venv'); "
+        "os.environ.pop('H3_CONTEXT_E2E_PYTHON',None); "
+        "sys.path[:]=[p for p in sys.path if Path(p or '.').resolve()!=source]; "
+        "module=runpy.run_path(str(source/'scripts/gate_stages.py')); "
+        "selected=module['browser_environment'](root)['H3_CONTEXT_E2E_PYTHON']; "
+        "assert Path(selected)==Path(sys.argv[3])"
     )
-    subprocess.run([sys.executable, "-c", code], cwd=ROOT, check=True, capture_output=True)
+    subprocess.run(
+        [sys.executable, "-c", code, str(ROOT), str(tmp_path), str(launcher)],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        timeout=60,
+    )
 
 
 def test_browser_smoke_missing_spec_fails_before_execution(
@@ -258,7 +274,7 @@ def test_a_commit_without_changed_inputs_preserves_cached_results(repo: Path) ->
 def test_without_resume_every_stage_runs_even_when_the_cache_would_permit_skipping(
     repo: Path,
 ) -> None:
-    """AC-M23-02-05. Opt-in must mean opt-in, not opt-in-by-default."""
+    """AC--05. Opt-in must mean opt-in, not opt-in-by-default."""
     for name in STAGE_NAMES:
         _record_success(name, repo)
     recorded = load_state(repo)
@@ -312,13 +328,13 @@ def test_state_lives_under_the_worktree_that_produced_it(repo: Path) -> None:
 
 
 def test_no_flag_reaches_position_based_resume() -> None:
-    """AC-M23-02-07. The unsafe variant must not be constructible through the CLI."""
+    """AC--07. The unsafe variant must not be constructible through the CLI."""
     with pytest.raises(SystemExit):
         main(["should-run", "backend product tests", "--from-stage", "5"])
 
 
 def test_stage_table_matches_both_runners() -> None:
-    """AC-M23-02-06. One table; the runners may not drift from it or from each other."""
+    """AC--06. One table; the runners may not drift from it or from each other."""
     windows = (ROOT / "scripts/run_full_tests_windows.ps1").read_text(encoding="utf-8")
     linux = (ROOT / "scripts/run_full_tests_linux.sh").read_text(encoding="utf-8")
     for name in STAGE_NAMES:
@@ -496,6 +512,14 @@ def test_python_fixture_changes_invalidate_smoke(repo: Path) -> None:
     before = fingerprints(repo)
     _write(repo, "scripts/helper.py", "y = 3\n")
     assert before["frontend hermetic smoke"] != fingerprints(repo)["frontend hermetic smoke"]
+
+
+def test_unexpected_lookup_error_is_not_a_cache_hit(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fail(args: object) -> int:
+        raise RuntimeError("unexpected discovery failure")
+
+    monkeypatch.setattr(gate_stages, "_cmd_should_run", fail)
+    assert main(["should-run", "package import", "--resume"]) == 2
 
 
 def test_observer_changes_invalidate_frontend_units(repo: Path) -> None:

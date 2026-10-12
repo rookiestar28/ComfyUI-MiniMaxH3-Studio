@@ -128,7 +128,7 @@ def test_production_factory_refuses_private_root_overlapping_any_served_root(
         coordinator._host_private_root()
     assert failure.value.code == "host_storage_unavailable"
     assert failure.value.status == 503
-    # Pin the cause: on Linux before M23-67 this refusal came from the locator grammar, so the
+    # Pin the cause: on Linux before this refusal came from the locator grammar, so the
     # outer code alone passed while the overlap check never ran.
     cause = failure.value.__cause__
     assert isinstance(cause, ArtifactStoreError) and cause.code == "unsafe_private_root"

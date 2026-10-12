@@ -3,10 +3,10 @@ import type { Page } from "@playwright/test";
 /**
  * The WCAG sweep, extracted so more than one spec can run it.
  *
- * It was written for `M17-22`, where a light palette had shipped for three
+ * It was written for ``, where a light palette had shipped for three
  * items without ever rendering and none of its values had been measured. The
  * arithmetic is unchanged; only the root it sweeps is now a parameter, because
- * `M22-06` needs the same measurement over a surface that only exists after a
+ * `` needs the same measurement over a surface that only exists after a
  * provider has been selected and consented to, and copying fifty lines of
  * colour maths into a second spec would let the two drift apart.
  */

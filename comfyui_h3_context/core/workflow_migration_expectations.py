@@ -197,7 +197,7 @@ _EXPECTED_SUBGRAPH_INPUT_PROJECTIONS = {
 # deterministic renderer's output text changes on purpose, all three -- this table, that subgraph's
 # `output_fingerprint_projection`, and `tests/fixtures/m7_01_base_assistant_migration.json` -- move
 # together, or the subgraph is refused at migration with `invalid_fixture_contract`. Repinned by
-# M24-05, which replaced the label-stack prose and the unauthorized `overall_soundscape: N/A`.
+# , which replaced the label-stack prose and the unauthorized `overall_soundscape: N/A`.
 _EXPECTED_SUBGRAPH_OUTPUT_FINGERPRINTS = {
     "prompt": [
         "sha256:86eb6bd0",

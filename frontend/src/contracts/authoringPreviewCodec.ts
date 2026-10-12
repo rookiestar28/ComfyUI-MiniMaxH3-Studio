@@ -1,4 +1,4 @@
-// M25-00: content-free Authoring source-preview protocol. Transport and media ownership are
+// content-free Authoring source-preview protocol. Transport and media ownership are
 // deliberately absent; this module validates only logical currentness and closed dispositions.
 
 export const AUTHORING_PREVIEW_REQUEST_SCHEMA =

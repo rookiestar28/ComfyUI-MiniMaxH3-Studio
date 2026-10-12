@@ -2,7 +2,7 @@ import { act, cleanup } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 /**
- * M23-36. The supplied host (ComfyUI 0.34.0, frontend 1.51.9) evaluates extension modules
+ * . The supplied host (ComfyUI 0.34.0, frontend 1.51.9) evaluates extension modules
  * before it creates its root graph: `app.graph` is `undefined` at that moment and exists by
  * the time `setup()` runs. App Mode capability must be decided when the sidebar is rendered
  * and when a run starts, never once at module evaluation -- otherwise a fully capable host is

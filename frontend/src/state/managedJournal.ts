@@ -1,6 +1,7 @@
 import type { QueueSeamObservation } from "../host/queueSeam";
 import type { ShellState } from "./shellState";
 import type { SurroundingsDiffReport } from "../host/surroundingsDiff";
+import { decodePerceptionHostStatus } from "../contracts/perceptionHostCodec";
 import {
   APP_MODE_EFFECT_OWNERS,
   APP_MODE_EFFECT_TYPES,
@@ -262,6 +263,7 @@ export type ManagedDiagnosticsMetadata = Readonly<{
   packageVersion: string;
   locale: unknown;
   hostFrontendVersion?: string;
+  perceptionHost?: unknown;
   buildProvenance?: Readonly<{
     sourceCommit: string;
     bundleSha256: string;
@@ -1124,6 +1126,18 @@ export function createManagedJournal(options: JournalOptions = {}) {
       for (const [name, value] of fingerprintRows) {
         const safe = safeFingerprint(value);
         lines.push(`fingerprint.${name}=${safe ?? "unavailable"}`);
+      }
+      try {
+        const perception = decodePerceptionHostStatus(metadata.perceptionHost);
+        lines.push(
+          `perception.state=${perception.state}`,
+          `perception.visual=${perception.visual}`,
+          `perception.audio=${perception.audio}`,
+          `perception.reason=${perception.reason}`,
+          `perception.cancellation_observed=${perception.cancellation_observed}`,
+        );
+      } catch {
+        // Optional metadata is revalidated at copy time and never retained in the run journal.
       }
       lines.push("entries:");
       for (const entry of entries) {

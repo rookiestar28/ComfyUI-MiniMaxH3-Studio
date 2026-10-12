@@ -1,4 +1,4 @@
-"""M25-17 exact file-backed authoring VIDEO fact qualification."""
+"""exact file-backed authoring VIDEO fact qualification."""
 
 from __future__ import annotations
 

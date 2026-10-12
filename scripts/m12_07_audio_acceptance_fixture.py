@@ -1,4 +1,4 @@
-"""Offline M12-07 audio-perception acceptance gate fixture.
+"""Offline audio-perception acceptance gate fixture.
 
 The fixture evaluates frozen M12 metadata only.  It intentionally returns a bounded
 ``unsupported_research`` result because no live audio profile was admitted or qualified.

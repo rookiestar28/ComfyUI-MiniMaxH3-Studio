@@ -27,7 +27,7 @@ MAX_STANDALONE_AUDIO = 3
 MAX_CONNECTION_ORDER = 1000
 MAX_WIDTH = 1_048_576
 MAX_HEIGHT = 1_048_576
-# M17-25: a media-side sanity bound on a declared source frame count, not the
+# a media-side sanity bound on a declared source frame count, not the
 # H3 output range. It carried the H3 name and invited exactly the confusion the
 # single alignment authority exists to prevent.
 MAX_MEDIA_FRAME_COUNT = 10_000_000

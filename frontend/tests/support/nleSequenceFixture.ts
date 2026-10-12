@@ -92,7 +92,7 @@ export function proposedProjection() {
       fingerprint: fp("6"),
       importable: true,
       blocker_codes: [],
-      // A real planning context is always pending managed qualification (M26-04); only the
+      // A real planning context is always pending managed qualification; only the
       // exact-plan readiness resolves this hold. A hold-free fixture hid B-M2522-START-01.
       start_hold_codes: ["managed_execution_qualification_pending"],
       segments: [1, 2].map((ordinal) => ({

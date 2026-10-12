@@ -1,6 +1,6 @@
 """Which redundant schemas could be retired, which were, and why the rest were not.
 
-M18-05's rule was written as "retire entries proven to be process-local".  A JSON Schema can never
+'s rule was written as "retire entries proven to be process-local". A JSON Schema can never
 be proven process-local, because `scripts/contract_inventory.py::_boundary` classifies every schema
 `public` before it reaches the process-local branch.  That is a correct conservative default -- a
 schema shipped in a wheel is readable by anyone -- but it makes the literal rule unsatisfiable, and
@@ -141,7 +141,7 @@ class SchemaVerdict:
     described_wires: tuple[str, ...]
     internal_consumers: tuple[str, ...]
     external_consumers: tuple[str, ...]
-    #: Readers the inventory cannot see.  M18-01 excludes a few files from its scan so the inventory
+    #: Readers the inventory cannot see. excludes a few files from its scan so the inventory
     #: never supplies its own evidence, and a schema those files read would otherwise show zero
     #: consumers -- a blind spot arriving as a green light.  They are looked at separately and
     #: recorded here, because "the scan found nothing" and "nothing reads it" are different claims.
@@ -396,7 +396,7 @@ def described_wires(
 
     ``reexported_by`` maps a defining module to the aggregation surfaces that re-export it.  Like
     ``hidden_consumers`` it is supplied by the caller because this module reads no file.  It exists
-    because M19-05 split three large modules into layers behind a surface, which moved the wire
+    because split three large modules into layers behind a surface, which moved the wire
     constants off the module the schema is named after and silently emptied one schema's wire list.
     The stem convention still holds -- it just now has to be read through the surface.
     """
@@ -422,7 +422,7 @@ def assess_schema(
 ) -> SchemaVerdict:
     """Decide one schema's verdict, counting readers the inventory scan cannot see.
 
-    ``hidden_consumers`` are readers found in files M18-01 deliberately excludes from its scan. They
+    ``hidden_consumers`` are readers found in files deliberately excludes from its scan. They
     are counted exactly like ordinary consumers, because a reader is a reader; the caller supplies
     them because this module reads no file.  Omitting them would let a deliberate blind spot report
     a used schema as safe to delete, which is the one mistake this record must not make.

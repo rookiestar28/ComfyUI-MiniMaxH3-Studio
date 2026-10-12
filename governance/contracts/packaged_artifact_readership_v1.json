@@ -1,12 +1,22 @@
 {
-  "artifact_count": 18,
+  "artifact_count": 19,
   "artifacts": [
     {
-      "disposition": "retain: the installed package opens it at run time",
+      "disposition": "movable: no runtime or bundle reader",
       "path": "comfyui_h3_context/contracts/authoring_renderer_qualification_v1.json",
       "readers": [
-        "comfyui_h3_context/adapters/authoring_renderer_qualification.py",
+        "scripts/governance/relocate_packaged_artifacts.py",
         "scripts/nle_semantic_conformance.py",
+        "tests/test_m23_55_relocation.py",
+        "tests/test_renderer_qualification_subjects.py"
+      ],
+      "readership": "tooling_or_evidence_only"
+    },
+    {
+      "disposition": "retain: the installed package opens it at run time",
+      "path": "comfyui_h3_context/contracts/authoring_renderer_qualification_v2.json",
+      "readers": [
+        "comfyui_h3_context/adapters/authoring_renderer_qualification.py",
         "tests/test_m23_48_packaged_readership.py"
       ],
       "readership": "runtime_read"
@@ -20,6 +30,7 @@
         "frontend/e2e/sidebarHeader.tsx",
         "frontend/tests/buildProvenance.test.ts",
         "scripts/architecture_fitness.py",
+        "scripts/change_lane.py",
         "scripts/derived_artifacts.py",
         "scripts/frontend_build_report.py",
         "scripts/supply_chain_manifest.py",
@@ -39,6 +50,7 @@
         "comfyui_h3_context/core/node_contracts_registry.py",
         "scripts/architecture_fitness.py",
         "scripts/build_provenance.py",
+        "scripts/change_lane.py",
         "scripts/closeout_matrix.py",
         "scripts/contract_inventory.py",
         "scripts/derived_artifacts.py",
@@ -62,6 +74,7 @@
         "frontend/src/contracts/generatedSurface.ts",
         "frontend/tests/generatedSurface.test.ts",
         "scripts/architecture_fitness.py",
+        "scripts/change_lane.py",
         "scripts/cross_language_surface.py",
         "scripts/derived_artifacts.py",
         "tests/fixtures/m23_48_derived_artifact_graph_v1.json",
@@ -130,9 +143,11 @@
         "comfyui_h3_context/core/installation_profiles.py",
         "frontend/buildMetadata.ts",
         "frontend/tests/buildMetadata.test.ts",
+        "scripts/release_push_guard.py",
         "scripts/supply_chain_manifest.py",
         "tests/test_installation_profiles.py",
-        "tests/test_m23_48_packaged_readership.py"
+        "tests/test_m23_48_packaged_readership.py",
+        "tests/test_release_push_guard.py"
       ],
       "readership": "runtime_read"
     },
@@ -245,7 +260,8 @@
   ],
   "counts": {
     "frontend_source_read": 4,
-    "runtime_read": 14
+    "runtime_read": 14,
+    "tooling_or_evidence_only": 1
   },
   "dispositions": {
     "frontend_source_read": "retain: the bundle compiles it in",
@@ -253,6 +269,8 @@
     "runtime_read": "retain: the installed package opens it at run time",
     "tooling_or_evidence_only": "movable: no runtime or bundle reader"
   },
-  "movable": [],
+  "movable": [
+    "comfyui_h3_context/contracts/authoring_renderer_qualification_v1.json"
+  ],
   "schema": "h3.context.packaged_artifact_readership.v1"
 }

@@ -1,4 +1,4 @@
-"""M22-17. A provider's catalog spelling of a model is not always its request spelling.
+""". A provider's catalog spelling of a model is not always its request spelling.
 
 Google's OpenAI-compatibility surface takes the bare `gemini-3.7-flash` on its chat route and
 answers `models/gemini-3.7-flash` on its listing route. Comparing the two by exact string equality
@@ -184,7 +184,7 @@ class ReadinessCensusJoinTests(unittest.TestCase):
         self.assertEqual({DiscoveryRejection.UNPINNED}, self._reasons(judged, "gemini-2.5-flash"))
 
     def test_without_the_join_the_same_listing_reports_the_model_as_unpinned(self) -> None:
-        # The pre-M22-17 behavior, kept as an explicit statement of what the defect looked like.
+        # The pre- behavior, kept as an explicit statement of what the defect looked like.
         judged = self._judge([{"id": f"models/{GEMINI_MODEL}"}], None)
         self.assertEqual(
             {DiscoveryRejection.UNPINNED}, self._reasons(judged, f"models/{GEMINI_MODEL}")

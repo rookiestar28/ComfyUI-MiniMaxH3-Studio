@@ -142,7 +142,7 @@ test("M17-17 pinned host resolves the paired soundtrack socket", async ({
 });
 
 /**
- * M22-16 closeout: exact candidate frontend on the user-supplied pinned host.
+ *  closeout: exact candidate frontend on the user-supplied pinned host.
  *
  * The candidate adds declarative compatibility files that this read-only lane is forbidden to
  * copy into the running host, so the accepted harness binds the exact candidate bundle to a closed

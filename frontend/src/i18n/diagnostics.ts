@@ -2,7 +2,7 @@ import { diagnosticCopy } from "./catalog";
 import type { SidebarMessage } from "../contracts/sidebarWorkspaceCodec";
 
 /**
- * M21-03 AC-14 — compose a diagnostic sentence from its identity and its typed
+ *  AC-14 — compose a diagnostic sentence from its identity and its typed
  * parameters instead of rendering the backend's English `message`.
  *
  * The rules this module holds are all fail-visible in the same direction: when

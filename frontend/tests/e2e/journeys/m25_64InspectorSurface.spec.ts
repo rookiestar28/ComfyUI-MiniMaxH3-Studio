@@ -1,8 +1,8 @@
-// M25-64 A64-3 and A64-6 in the browser: the inspector's Project settings and clip header, the
+//  A64-3 and A64-6 in the browser: the inspector's Project settings and clip header, the
 // rendered type and fields the canvas specifies (B-M2564-06), the region framing, and the
 // timeline toolbar's unavailable state (B-M2564-07).
 //
-// The expected facts are the reference fixture's own output (`m25_20_semantic_corpus_base_v1.json`:
+// The expected facts are the reference fixture's own output (`_semantic_corpus_base_v1.json`:
 // 320 x 180, 24/1, AAC 48 kHz mono in MP4/H.264; the preload shape sets 144 frames), not values
 // read back from the page.
 

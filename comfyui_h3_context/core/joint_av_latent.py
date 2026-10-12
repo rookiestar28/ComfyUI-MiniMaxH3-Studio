@@ -1,6 +1,6 @@
-"""Typed identity for the joint audiovisual latent checkpoint artifact (M20-04).
+"""Typed identity for the joint audiovisual latent checkpoint artifact.
 
-This pure module owns descriptor and receipt truth for the one latent family the M19-08
+This pure module owns descriptor and receipt truth for the one latent family the
 requalification measured: the native H3 joint AV latent, a NestedTensor pair whose two dense
 domains are video ``[B, 24, T, H/16, W/16]`` and audio ``[B, 32, 2, T40]`` at 40 latent fps.
 Native ``SaveLatent`` persistence is unavailable on the qualified subject, so this repository
@@ -11,7 +11,7 @@ The serialized payload is deliberately not a container format: one blob per chec
 domains' raw C-contiguous little-endian bytes concatenated video-then-audio.  Offsets derive
 from the validated descriptor, and ``byte_length == prod(shape) * itemsize`` is exact integer
 arithmetic this module verifies without any tensor library.  A parser-bearing container inside
-the private root would add untrusted-input surface for no consumer: the only reader is M20-05,
+the private root would add untrusted-input surface for no consumer: the only reader is,
 in-repo.
 
 Nothing here may promote a qualification row.  Every descriptor and receipt is constructed
@@ -28,7 +28,7 @@ from enum import Enum
 
 from .canonical import canonical_bytes, canonical_fingerprint
 from .fingerprint_domain import IdentityDomain, domain_fingerprint
-from .length import MAX_FRAME_COUNT
+from .length import MAX_FRAME_COUNT, is_producible
 from .segment_artifacts import (
     ArtifactLifecycleState,
     redact_segment_artifact_fingerprint,
@@ -40,7 +40,7 @@ JOINT_AV_LATENT_RECEIPT_SCHEMA = "h3.context.joint_av_latent_receipt.v1"
 JOINT_AV_LATENT_PUBLIC_SCHEMA = "h3.context.joint_av_latent_public.v1"
 JOINT_AV_LATENT_AUTHORITY_SCHEMA = "h3.context.joint_av_latent_authority.v1"
 
-#: The M19-08 row this artifact family is bound to; the only row it may consume.
+#: The row this artifact family is bound to; the only row it may consume.
 JOINT_AV_LATENT_CAPABILITY = "joint_av_latent_descriptor"
 
 MAX_JOINT_AV_LATENT_RECEIPT_BYTES = 32_768
@@ -48,7 +48,7 @@ MAX_JOINT_AV_LATENT_TTL_MILLISECONDS = 30 * 24 * 60 * 60 * 1_000
 MAX_JOINT_AV_LATENT_PAYLOAD_BYTES = 2 * 1024 * 1024 * 1024
 MAX_JOINT_AV_LATENT_DIMENSION = 1_000_000
 
-#: Measured layout pins (M19-08 `joint_av_latent_descriptor`, `descriptor_measured_live`).
+#: Measured layout pins ( `joint_av_latent_descriptor`, `descriptor_measured_live`).
 #: The pinned source allocates video `[B, 24, T, H/16, W/16]` and audio `[B, 32, 2, T40]`;
 #: the two domains do not share a rank.  A shape that does not carry these axes is not a
 #: value this family measured, whatever produced it.
@@ -256,6 +256,9 @@ class JointAVLatentDescriptor:
         if self.video.shape[0] != self.audio.shape[0]:
             raise JointAVLatentError("descriptor_batch_mismatch")
         _positive_integer(self.requested_frames, "requested_frames", MAX_FRAME_COUNT)
+        # CRITICAL: requested extent uses the frame lattice; partial completion may be off-grid.
+        if not is_producible(self.requested_frames):
+            raise JointAVLatentError("requested_frames_off_lattice")
         _positive_integer(self.completed_frames, "completed_frames", self.requested_frames)
         _fingerprint(self.authority_fingerprint, "authority")
         if self.video.byte_length + self.audio.byte_length > MAX_JOINT_AV_LATENT_PAYLOAD_BYTES:

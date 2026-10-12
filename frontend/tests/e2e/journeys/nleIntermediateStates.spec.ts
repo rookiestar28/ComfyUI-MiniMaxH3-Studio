@@ -1,4 +1,4 @@
-// M25-16 Section 6 intermediate states, exercised on the real overlay component tree with
+//  Section 6 intermediate states, exercised on the real overlay component tree with
 // decoded media and the real Python core behind every transaction (`canonical=1&media=1`):
 //
 // - an accepted receipt whose history refresh is still pending keeps the monitor on the

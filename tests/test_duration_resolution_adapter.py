@@ -1,4 +1,4 @@
-"""M23-04 deterministic duration-resolution adapter regressions."""
+"""deterministic duration-resolution adapter regressions."""
 
 from __future__ import annotations
 
@@ -62,10 +62,10 @@ class _Headers:
         return self._origins if name == "Origin" else default
 
 
-# M23-47: this route reached the seam with no origin check of its own, so every request built here
+# this route reached the seam with no origin check of its own, so every request built here
 # now has to carry the same header its nine siblings already required. The header below is the
 # visible evidence of that fix; the invariant itself is asserted once, over every owned registered
-# route, in tests/test_m23_47_route_seam.py.
+# route, in tests/test__route_seam.py.
 def _request(
     body: bytes,
     *,

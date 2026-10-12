@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+# coding: utf-8
+# fmt: off # M99-11: Preserve formatting.
+value = missing  # type: ignore[name-defined] # M99-11: Preserve typing.
+from os import path  # noqa: F401 # M99-11: Preserve linting.
+if False:  # pragma: no cover # M99-11: Preserve coverage.
+    pass
+# fmt: on # M99-11: Preserve formatting.

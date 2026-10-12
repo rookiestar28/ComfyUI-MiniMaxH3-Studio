@@ -1003,7 +1003,7 @@ _AGGREGATE_ENDED = frozenset(
 #: step. CRITICAL: `OUTPUT_VERIFICATION_FAILED` belongs here. It has no trigger of its own -- the
 #: run has not ended -- but omitting it from *both* places left the aggregate saying `submitted`
 #: while the coordinator said verification had failed, which made the `output_verification_failed`
-#: row of `tests/test_m23_31_coordinator_projection.py::_CONSISTENT` false. Nothing caught it,
+#: row of `tests/test__coordinator_projection.py::_CONSISTENT` false. Nothing caught it,
 #: because that row was the one the projection tests never drove.
 #: The job states in which the host may still be executing the prompt, and therefore the states a
 #: cancel must answer with `unknown_ownership` rather than `cancelled`. CRITICAL: this is the only
@@ -1012,11 +1012,11 @@ _AGGREGATE_ENDED = frozenset(
 #: It is deliberately *not* claimed to be the same object as
 #: `core.managed_run.HOST_MAY_HOLD_THE_PROMPT`, and an earlier comment here said so wrongly. The two
 #: answer one question over two vocabularies related many-to-many by
-#: `tests/test_m23_31_coordinator_projection.py::_CONSISTENT`, and no choice of either set makes
+#: `tests/test__coordinator_projection.py::_CONSISTENT`, and no choice of either set makes
 #: them agree row for row: job `running` also covers aggregate `artifact_recorded`, while job
 #: `output_verification_failed` covers `running` and `artifact_recorded` yet is not a state in which
 #: the host may still hold the prompt -- verification failing proves it already ran. What is true,
-#: and what `tests/test_m23_31_cancel_predicate.py` pins, is the one-way implication: every
+#: and what `tests/test__cancel_predicate.py` pins, is the one-way implication: every
 #: aggregate state consistent with a job state in this set is in `HOST_MAY_HOLD_THE_PROMPT`.
 HOST_MAY_HOLD_JOB_STATES = frozenset(
     {
@@ -2160,9 +2160,9 @@ class SequenceCoordinatorRegistry:
 
         CRITICAL: this is called from `_publish`, which is the coordinator's only state mutation
         point, so a new handler cannot forget to mirror. The aggregate is a second record of the
-        same run, which is only safe because `test_m23_31_coordinator_projection.py` asserts the two
+        same run, which is only safe because `test__coordinator_projection.py` asserts the two
         never disagree; if that check is ever removed, this becomes exactly the divergent-authority
-        defect M23-31 exists to remove.
+        defect exists to remove.
 
         CRITICAL: stay after Production publication (legacy) or validated private child projection
         (managed parent), and before entry mutation. Mirroring before a refused CAS/projection
@@ -2198,7 +2198,7 @@ class SequenceCoordinatorRegistry:
             # name. `record_submission` without `prompt_id` leaves the aggregate in `submitted`
             # holding no prompt, and the aggregate is what a detached run is retained *as* -- a
             # returning client would then have no exact prompt id to read `/history/{prompt_id}`
-            # with, and the M23-51 terminal proof would be computed over an absent field for every
+            # with, and the terminal proof would be computed over an absent field for every
             # run alike. The missing prompt id raises rather than defaulting: a submission the
             # coordinator recorded without one is a coordinator defect, and silently storing
             # `None` is how it would stay invisible.
@@ -2401,7 +2401,7 @@ class SequenceCoordinatorRegistry:
         # the two joins it has already made are recorded with the authoritative values `_prepare`
         # holds. The context and production facts predate the run handle, so recording them later
         # would mean reconstructing them from a second source -- which is the class of defect
-        # M23-19 was.
+        #  was.
         self._managed.create(run_handle)
         self._managed.advance(
             run_handle, ManagedRunTrigger.STAGE_CONTEXT, context_revision=workspace.revision
@@ -3963,7 +3963,7 @@ def build_coordinator(
     """Construct the process coordinator. Called only by the composition root.
 
     CRITICAL: the production registry arrives as an argument rather than being reached for here.
-    Since M23-31 this constructor binds the process's live-sequence authority onto that registry
+    Since this constructor binds the process's live-sequence authority onto that registry
     and binding twice is refused, so the coordinator and the production route must be handed the
     same instance. The composition root is what guarantees that, and it is also what makes the
     construction happen exactly once under one lock -- two route handlers run on `asyncio.to_thread`

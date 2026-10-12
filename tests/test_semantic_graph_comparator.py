@@ -1,4 +1,4 @@
-"""M14-03 semantic prompt graph, typed comparator, and behavior-profile tests."""
+"""semantic prompt graph, typed comparator, and behavior-profile tests."""
 
 from __future__ import annotations
 

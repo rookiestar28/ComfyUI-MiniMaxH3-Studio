@@ -1,4 +1,4 @@
-"""M22-01 prompt-model provider contract and single egress chokepoint tests."""
+"""prompt-model provider contract and single egress chokepoint tests."""
 
 from __future__ import annotations
 
@@ -557,10 +557,10 @@ class PromptModelCatalogTests(unittest.TestCase):
                 PromptModelDialect.ANTHROPIC_MESSAGES,
             ),
         )
-        # M22-15: only rows with reduced evidence from an executed qualification are runnable.
-        # M22-18 added the reachability basis and OpenAI qualified on it -- a real exchange the
+        # only rows with reduced evidence from an executed qualification are runnable.
+        #  added the reachability basis and OpenAI qualified on it -- a real exchange the
         # service answered with a quota refusal, which proves the route without buying a completion.
-        # M22-21 then qualified Gemini on the ordinary completion basis, after two earlier attempts
+        #  then qualified Gemini on the ordinary completion basis, after two earlier attempts
         # were answered 503 by an upstream that was simply unavailable at the time. Every shipped
         # row is now runnable, which is a statement about evidence and not about ambition: each one
         # names the exchange it was obtained from.
@@ -720,7 +720,7 @@ class PromptModelSchemaTests(unittest.TestCase):
             outcome.severity = ValidationSeverity.INFO  # type: ignore[misc]
 
 
-# --- M22-13: reading a local runtime strictly enough to call a model qualified ----------------
+# --- : reading a local runtime strictly enough to call a model qualified ----------------
 
 LICENSE_TEXT = "Fixture licence notice. Not the real one, and never stored beyond its digest."
 LICENSE_SHA = "sha256:" + sha256(LICENSE_TEXT.encode("utf-8")).hexdigest()
@@ -1006,7 +1006,7 @@ class ReadinessEvidenceTests(unittest.TestCase):
 
 
 class ShippedSurfaceReconciliationTests(unittest.TestCase):
-    """M22-13 section 2.6: the shipped surfaces agree, and none of them over-claims."""
+    """section 2.6: the shipped surfaces agree, and none of them over-claims."""
 
     CONTRACTS = Path(__file__).resolve().parents[1] / "governance" / "contracts"
 
@@ -1027,7 +1027,7 @@ class ShippedSurfaceReconciliationTests(unittest.TestCase):
     def test_activating_the_prompt_model_did_not_claim_the_evaluation_lane_passed(self) -> None:
         """Two different qualifications, and only one of them was earned by this item.
 
-        M22-13 qualifies one local prompt model for drafting. It says nothing about the M14
+         qualifies one local prompt model for drafting. It says nothing about the M14
         evaluation lane, whose `product_scope` reports whether an assisted profile has been
         qualified through candidate receipts, ablations and a Pareto set. Those surfaces stay
         `MANUAL_ONLY_SCOPED`, and this test exists so that flipping one is a deliberate act.

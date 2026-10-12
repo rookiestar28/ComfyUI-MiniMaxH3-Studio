@@ -1,4 +1,4 @@
-// M25-33: the same-origin client for the M25-31/M25-32 media runtime status, setup and job routes.
+// the same-origin client for the / media runtime status, setup and job routes.
 //
 // Nothing here throws. Every outcome is typed: a decoded status or job, or a closed failure code.
 // A POST whose response is lost or unreadable carries `outcomeUnknown`, because the server may have

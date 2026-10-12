@@ -1,5 +1,5 @@
 // Provider session: the opaque provider session-storage handle, provider intents and release
-// (M23-28 split of entry.tsx).
+// ( split of entry.tsx).
 
 import type {
   ProviderIntent,

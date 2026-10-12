@@ -1,4 +1,4 @@
-"""Thin ComfyUI node boundary for the private M17-16 producer authority."""
+"""Thin ComfyUI node boundary for the private producer authority."""
 
 from __future__ import annotations
 

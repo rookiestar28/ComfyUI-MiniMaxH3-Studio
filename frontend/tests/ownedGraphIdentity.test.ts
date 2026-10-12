@@ -143,7 +143,7 @@ describe("D12 repository-owned graph identity", () => {
 });
 
 /**
- * M23-37 (D13 host behaviour, observed on ComfyUI frontend 1.51.9). After the one candidate
+ *  (D13 host behaviour, observed on ComfyUI frontend 1.51.9). After the one candidate
  * write the host re-serializes the repository-owned nodes from their node definitions: optional
  * inputs the splice never carried are appended unlinked, link inputs are ordered before widget
  * inputs (which renumbers link target slots), empty `widgets_values` arrays disappear and

@@ -140,7 +140,7 @@ describe("Production exact M17-08 join", () => {
         },
       });
 
-    // M24-07 preserves the existing Request's own task mode, so the executed workspace is the
+    //  preserves the existing Request's own task mode, so the executed workspace is the
     // authority and the retained inputs carry it for any later submission of the same command.
     const existing = bind({ useExisting: true });
     expect(existing).toMatchObject({

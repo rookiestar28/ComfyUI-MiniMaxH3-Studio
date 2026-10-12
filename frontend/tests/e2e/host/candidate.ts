@@ -181,7 +181,7 @@ export function candidateBundleResourceUrl(requiredHostUrl: string): string {
 // registered only by the first spec file that imports the module in a worker; every later
 // file in that worker reuses the cached module and gets no hook, so the candidate bundle is
 // never routed and assertCandidateBundleInjection fails with an undefined state (observed
-// 2026-09-03 on the first multi-file supplied-host row after the M23-26 split).
+// 2026-09-03 on the first multi-file supplied-host row after the split).
 export async function registerCandidateInjection(
   context: BrowserContext,
   testInfo: TestInfo,
@@ -267,7 +267,7 @@ export async function assertCandidateBundleInjection(
   // false missing-candidate failure. The route count/hash/path above plus the live registry are
   // the authoritative request-byte and execution-effect proof.
 }
-// M23-26 registration phase One.
+//  registration phase One.
 // prettier-ignore
 import type { LayoutState, AppModePhase, LayoutGridKind, LayoutVariant, LayoutPlacement, LayoutWidthMode, LayoutLocale, LayoutTheme, LayoutLifecycle, HostPersistenceSnapshot, LayoutCaptureEvidence, LayoutEvidenceJoin, LayoutEvidenceRow, LayoutCell, LayoutStateContract, LayoutRect, LayoutOwnerStyle, LayoutControlGeometry, LayoutNavigationTab, LayoutHeaderGeometry, LayoutFocusTargetKind, LayoutMeasurement, SerializedGraph, ManagedRouteReceipt, HostAssetResolutionReceipt, SampleProgress, RealI2vaArtifactMetadata, RealI2vaEnvironment, FrontendPerformanceReceipt } from "./environment";
 export async function runRegistrationPhaseOne(state: {
@@ -280,9 +280,9 @@ export async function runRegistrationPhaseOne(state: {
   const { hostUrl, m23I2vaInputLocator, m23RealI2vaAuthorized, m23RealI2vaHostPython, m23RuntimeFailureAuthorized, m22ReadOnlyComposition, repositoryRoot, officialAssetManifest, candidateBackendMode, candidateBundle, candidateBackendRuntime, CANDIDATE_BUNDLE_RESOURCE_PATH, expectedCoInstallSidebarIds, repositoryUrl, candidateInjectionStates, candidateBundleResourceUrl, candidateInjectionCount, assertCandidateBundleInjection, setSupportedH3Language, HOST_PERSISTENCE_KEY_FAMILY, HOST_PERSISTENCE_SENTINEL_VALUE, layoutMatrix, layoutStateContracts, layoutStateCriteria, layoutDiagnostic, assertLayoutMeasurement, SAMPLE_AUTHORIZED, SAMPLE_UNET, SAMPLE_CLIP, instrumentHostGraphLoads, hostGraphLoads, resetHostGraphLoads, hostWorkflowAuthorityReceipt, supportedHostQueueCounts, monitorManagedRouteResponses, appModeQueueDiagnostic, waitForAppModeQueue, privateDiagnosticLeakReceipt, waitForHostGraphSettled, openH3AppModeTab, readVisibleGraph, subgraphNodes, compiledLoaderAssets, hostAssetResolutionReceipt, expectCompleteHostAssetResolution, watchHostExecution, sampleProgress, awaitHostExecution, reportedArtifactNames, preflightRealI2vaEnvironment, inspectRealI2vaArtifactUnsafe, inspectRealI2vaArtifact, monitorH3Network, monitorCandidateInitiatorNetwork, waitForH3Registration, beginSettledH3InteractionPhase, expectCandidateInteractionNetworkLocal, captureM17CanonicalIdentity } = state.shared;
   // prettier-ignore
   const { context, page, testInfo } = state;
-  // M23-40: this row's managed run executes the sidebar-default t2va path for
+  // this row's managed run executes the sidebar-default t2va path for
   // real (see the queuePrompt guard below), so it requires explicit sample
-  // authority and the M23-19 generation budget, but no private media source.
+  // authority and the generation budget, but no private media source.
   test.skip(
     !SAMPLE_AUTHORIZED,
     "the layout row's real managed run requires explicit weight-sample authority",
@@ -519,10 +519,10 @@ export async function runRegistrationPhaseOne(state: {
           .filter(
             (candidate) =>
               /splitter|sidebar|panel|h3-context/i.test(candidate) &&
-              // M23-21 discloses exactly one repository key: the bounded
+              //  discloses exactly one repository key: the bounded
               // managed-run journal mirror, written on every lifecycle
               // transition this row itself drives. Every other key must
-              // stay byte-identical across the row (M23-37).
+              // stay byte-identical across the row.
               candidate !== "h3-context.managed-journal.v1",
           )
           .sort())

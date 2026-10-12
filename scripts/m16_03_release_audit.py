@@ -1,4 +1,4 @@
-"""Build and validate the closed M16-03 release-audit result.
+"""Build and validate the closed release-audit result.
 
 The tool is deliberately fail-closed.  It can inventory an owned artifact root and create a
 candidate-bound skeleton, but it never promotes an audit row without explicit row evidence.  A

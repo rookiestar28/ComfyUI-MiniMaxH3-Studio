@@ -1,4 +1,4 @@
-"""M22-09 per-browser provider authority regressions."""
+"""per-browser provider authority regressions."""
 
 from __future__ import annotations
 

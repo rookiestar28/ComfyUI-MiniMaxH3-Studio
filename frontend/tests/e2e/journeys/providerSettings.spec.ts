@@ -8,7 +8,7 @@ import {
 } from "../helpers/contrast";
 
 /**
- * M22-06 — provider settings in a real layout engine.
+ * provider settings in a real layout engine.
  *
  * Every assertion here is about a transition: a control is clicked and the
  * surface says something different afterwards. Asserting that an element exists
@@ -508,7 +508,7 @@ test("the section is reachable and operable by keyboard alone", async ({
 /**
  * Everything below reaches the surface the way a user does -- select, supply,
  * consent, expand -- because the states that carry the consent text are the
- * ones the accepted `M17-22` sweep can never see: it measures the Settings page
+ * ones the accepted `` sweep can never see: it measures the Settings page
  * in its default state, where no provider is selected and neither the
  * disclosure nor the consent block exists.
  */

@@ -1,4 +1,4 @@
-"""Explicit injected contact-sheet composition seam for M21-02.
+"""Explicit injected contact-sheet composition seam for.
 
 Like `adapters/video_decode.py`, this adapter is a qualification fixture boundary rather than a
 compositor implementation.  A later caller may replace the producer with a bounded image pipeline

@@ -440,7 +440,7 @@ def _soundscape_text(plan: ContextPlan, values: list[str]) -> str:
     GUARD: the pinned guide permits `overall_soundscape: N/A` only when the user asked for a
     completely silent video. Rendering it because the audio tuple happened to be empty told the
     model "silent" on the strength of the author having said nothing at all -- the exact defect
-    M24-05 closes. An unspecified soundscape stays visibly unspecified.
+     closes. An unspecified soundscape stays visibly unspecified.
     """
 
     if plan.intent_graph.soundscape is SoundscapeDisposition.EXPLICIT_COMPLETE_SILENCE:

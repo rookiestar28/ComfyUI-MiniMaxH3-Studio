@@ -21,7 +21,7 @@ MAX_WORKSPACE_REFERENCES = 64
 MAX_WORKSPACE_SELECTIONS = 64
 MAX_WORKSPACE_ANCESTRY_DEPTH = 63
 MAX_WORKSPACE_REVISION = 1_000_000
-# M17-25: there is no separate workspace frame-count bound. The frame count is
+# there is no separate workspace frame-count bound. The frame count is
 # derived from the authored duration by `.length`, the single alignment
 # authority, so the only bound that can apply is that authority's own.
 MAX_WORKSPACE_DURATION_MILLISECONDS = 86_400_000
@@ -97,7 +97,7 @@ def _identifier_tuple(values: object, field: str, maximum: int) -> tuple[str, ..
 class SegmentDuration:
     """One authored duration in integer milliseconds, and the length it delivers.
 
-    M17-25: the authored member is a duration and nothing else. The frame count is
+    the authored member is a duration and nothing else. The frame count is
     derived through `.length`, so a segment cannot represent a length the model
     cannot produce -- the previous contract accepted any positive frame count and
     the repository's own fixtures held 100, 300 and 180, none of them producible.

@@ -1,7 +1,7 @@
 import { expect, test } from "../fixtures/h3Page";
 
 /**
- * M21-03 AC-12 and AC-17 — the evidence lane for the visual system.
+ *  AC-12 and AC-17 — the evidence lane for the visual system.
  *
  * Everything here is measured in a real layout engine, because that is the only
  * place these claims can be true or false: a static rule can say a control is
@@ -59,7 +59,7 @@ async function setLocale(
 test("the status band and the segment row hold in three locales at both widths", async ({
   page,
 }) => {
-  // AC-M21-03-17. Chinese renders the same content in noticeably fewer glyphs,
+  // AC--17. Chinese renders the same content in noticeably fewer glyphs,
   // so both failure directions are checked: overflow in `en`, and a band or row
   // that has collapsed to nothing in `zh-*`.
   for (const locale of LOCALES) {
@@ -104,7 +104,7 @@ test("the status band and the segment row hold in three locales at both widths",
 test("the CJK type variant activates and raises the floor it declares", async ({
   page,
 }) => {
-  // AC-M21-03-16. A variant nothing activates is a rule with no effect, so the
+  // AC--16. A variant nothing activates is a rule with no effect, so the
   // measurement is of rendered computed styles, not of the stylesheet.
   await page.getByRole("button", { name: PRODUCTION_TAB }).click();
   await setSidebarWidth(page, 704);
@@ -145,7 +145,7 @@ test("the CJK type variant activates and raises the floor it declares", async ({
 test("controls clear the target size, depress, and stand down for the platform", async ({
   page,
 }) => {
-  // AC-M21-03-07 and AC-M21-03-12.
+  // AC--07 and AC--12.
   await page.getByRole("button", { name: PRODUCTION_TAB }).click();
   await setSidebarWidth(page, 704);
   const boxes = await page.locator(".h3p button:visible").evaluateAll((nodes) =>
@@ -255,7 +255,7 @@ test("shared controls expose state-correct cursor semantics", async ({
 test("the sequence track selects, and the keyboard reaches every stage of it", async ({
   page,
 }) => {
-  // AC-M21-03-01 and AC-M21-03-12: navigation is real, and it is reachable
+  // AC--01 and AC--12: navigation is real, and it is reachable
   // without a pointer.
   await page.getByRole("button", { name: PRODUCTION_TAB }).click();
   await setSidebarWidth(page, 704);

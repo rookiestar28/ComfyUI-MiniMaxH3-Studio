@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// M25-20 F1 corrective, browser half: runs every semantic-conformance Playwright spec and gathers
+//  F1 corrective, browser half: runs every semantic-conformance Playwright spec and gathers
 // every `semantic_conformance.*` evidence attachment (written by `nleSemanticShellEvidence.ts`'s
 // `recordShellObservation`) into one JSON document matching the
 // `h3.context.nle_semantic_browser_stage.v1` schema that `scripts/nle_semantic_report.py` (the
-// M25-20 stage join) reads.
+//  stage join) reads.
 //
 // Usage (run from `frontend/`, matches `pnpm run test:e2e:ci`'s own working directory):
 //   node tests/e2e/helpers/nleSemanticBrowserStageGatherer.mjs <output-file> [--port <n>]
@@ -20,7 +20,7 @@
 // The output path is always supplied by the caller; this script never hardcodes one. Every row of
 // the closed browser corpus (11 `ui_invariant.*` + 2 `import_integration.*` + 3
 // `deferred_negative.surface_*` shell rows, plus every `render_and_browser` row the corpus
-// declares -- 154 since M25-45 added the four high-resolution ones) is always present in the output -- a case whose journey
+// declares -- 154 since added the four high-resolution ones) is always present in the output -- a case whose journey
 // never produced an attachment (crashed before recording, or the recording test did not pass) is
 // written as `executed: false` with a `missing` reason, never silently dropped, per TEST_SOP 3.6's
 // "a stage that cannot reach a row reports BLOCKED or NOT_RUN; the corpus is never shortened".
@@ -48,7 +48,7 @@ import { chromium } from "@playwright/test";
 
 const SCHEMA = "h3.context.nle_semantic_browser_stage.v1";
 
-// M25-20's frozen shell-invariant / import-integration / audio-surface-negative rows
+// 's frozen shell-invariant / import-integration / audio-surface-negative rows
 // (`comfyui_h3_context/core/semantic_conformance.py`'s `UI_INVARIANT_EVIDENCE` and
 // `IMPORT_INTEGRATION_GESTURES`). Kept here as a literal list -- unlike the
 // `render_and_browser` case IDs below, which are read from the corpus itself -- so a row whose
@@ -133,7 +133,7 @@ function frontendRoot() {
 /**
  * Replaces the machine's own absolute paths with stable placeholders.
  *
- * GUARD (M23-26 privacy review, D45-04): the retained diagnostics below are the only thing this
+ * GUARD ( privacy review, D45-04): the retained diagnostics below are the only thing this
  * lane keeps on failure, and a raw Playwright report carries native absolute source paths --
  * including the maintainer's home directory. Retention exists to say WHICH rows failed and why,
  * never to disclose where the repository lives. Extend the replacements rather than dropping them
@@ -290,7 +290,7 @@ function canvasDimensions(decoded) {
   };
 }
 
-// M25-20 F1 corrective (join-fixed contract): the `render_and_browser` rows' structured landmark
+//  F1 corrective (join-fixed contract): the `render_and_browser` rows' structured landmark
 // fields (`source_mapping`/`geometry`/`patches`/`color_patches`/`alphas`/`text`) pass through
 // verbatim -- the join reads these directly (`scripts/nle_semantic_report.py`'s `_source_landmarks`
 // etc.), so this gatherer must never drop, rename or reshape them. Only carried when the recording

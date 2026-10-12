@@ -1,4 +1,4 @@
-"""Hermetic M22-14 provider dialect, disclosure, cost and receipt fixtures."""
+"""Hermetic provider dialect, disclosure, cost and receipt fixtures."""
 
 from __future__ import annotations
 
@@ -146,8 +146,8 @@ class _FixtureFactory:
         )
 
 
-# M22-17. What each live service was observed to answer with on its listing route, recorded from the
-# retained M22-14 qualification artifacts and the providers' own published interfaces. This is
+# . What each live service was observed to answer with on its listing route, recorded from the
+# retained qualification artifacts and the providers' own published interfaces. This is
 # deliberately NOT derived from the adapter's `_CATALOG_IDENTIFIER_PREFIXES`: a fixture that returns
 # whatever the comparison happens to search for asserts the assumption under test instead of
 # exercising it, and that is exactly how the Gemini catalog spelling reached a live run undetected.

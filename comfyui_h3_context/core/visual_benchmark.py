@@ -1,9 +1,9 @@
-"""Frozen visual-perception benchmark and adapter-selection contracts for M11-01.
+"""Frozen visual-perception benchmark and adapter-selection contracts for.
 
 The values in this module are planning and evidence-boundary metadata.  They do not discover
 models, open media, call ComfyUI/Ollama, or turn a transport label into a capability claim.  A
 candidate is executable evidence only after its explicit profile has a ``qualified`` disposition;
-the default M11-01 plan intentionally contains no qualified live profile.
+the default plan intentionally contains no qualified live profile.
 """
 
 from __future__ import annotations
@@ -722,7 +722,7 @@ class VisualRoutingPolicy:
 
 @dataclass(frozen=True, slots=True)
 class VisualBenchmarkPlan:
-    """Complete frozen M11-01 plan; construction performs all gate checks."""
+    """Complete frozen plan; construction performs all gate checks."""
 
     plan_id: str
     plan_version: str
@@ -1004,7 +1004,7 @@ def _default_metrics() -> tuple[VisualMetricThreshold, ...]:
 
 
 def build_default_visual_benchmark_plan() -> VisualBenchmarkPlan:
-    """Build the frozen M11-01 offline plan used by tests and the research fixture."""
+    """Build the frozen offline plan used by tests and the research fixture."""
 
     fixtures = (
         _default_fixture(

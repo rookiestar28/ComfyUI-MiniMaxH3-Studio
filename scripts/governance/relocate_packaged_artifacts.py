@@ -1,4 +1,4 @@
-"""M23-55: move the governance-only packaged artifacts out of the installed package.
+"""move the governance-only packaged artifacts out of the installed package.
 
 `comfyui_h3_context/contracts/` ships every JSON this repository generates, but only nine of them
 have a reader inside the shipped product: five the installed package opens at run time and four the
@@ -12,7 +12,8 @@ CRITICAL: the move set is **read from the measured readership record**, never gu
 a governance census and `frontend/src` imports it, so moving it would silently break the bundle.
 `scripts/packaged_artifact_readership.py` computes the classification and this tool consumes it;
 a selected path that appears in `derived_artifacts.py bundle-inputs` or in a reading class is a
-refusal, not a case to whitelist around.
+refusal. The immutable legacy renderer qualification is explicitly retained for compatibility;
+this migration policy does not credit it with a shipped reader or retain arbitrary tooling JSON.
 
 Two reference forms have to be rewritten and both are load-bearing:
 
@@ -43,6 +44,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -53,6 +55,7 @@ if __package__ in (None, ""):  # pragma: no cover - direct script execution
 
 from scripts.derived_artifacts import _is_link  # noqa: E402
 from scripts.packaged_artifact_readership import ARTIFACT_PATH as _READERSHIP_ARTIFACT_PATH
+from scripts.packaged_artifact_readership import DISPOSITIONS
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -79,6 +82,15 @@ MOVED_DISPOSITIONS = ("movable", "retain pending retirement review")
 
 #: Readership classes that must never move. Both are proofs of a reader inside the shipped product.
 READING_CLASSES = ("runtime_read", "frontend_source_read")
+
+# The legacy qualification remains packaged when the live loader selects the newer envelope.
+# CRITICAL: retain this exact authority, never any same-named or merely tooling-read file.
+COMPATIBILITY_RETENTION = {
+    f"{PACKAGE_ROOT}/authoring_renderer_qualification_v1.json": (
+        30_932,
+        "2f6a3aec6662d9b2d9bf03db02bb92dbff322b2ebe17f405f2f26e98cf7d5d1a",  # noqa: E501  # pragma: allowlist secret
+    ),
+}
 
 #: Suffixes never scanned for references. Rewriting inside them would corrupt them.
 BINARY_SUFFIXES = frozenset(
@@ -130,12 +142,12 @@ MAX_SCAN_BYTES = 8 * 1024 * 1024
 #: focused check. Each entry is matched exactly once; a declaration that stops matching refuses,
 #: so this table cannot rot into a silent no-op.
 HISTORICAL_REFERENCES: dict[str, tuple[str, ...]] = {
-    # Reads the M18-01 and M18-05 checkpoint trees.
+    # Reads the and checkpoint trees.
     "scripts/closeout_matrix.py": (
         'DOMAIN = "comfyui_h3_context/contracts/fingerprint_domain_v1.json"',
         'git_show(M18_05, "comfyui_h3_context/contracts/retirement_eligibility_v1.json")',
     ),
-    # Probes each accepted M19-01..M19-05 checkpoint tree.
+    # Probes each accepted.. checkpoint tree.
     "scripts/m19_closeout.py": (
         'ARCHITECTURE = "comfyui_h3_context/contracts/architecture_inventory_v1.json"',
         'SURFACE = "comfyui_h3_context/contracts/public_surface_v1.json"',
@@ -210,6 +222,75 @@ def _bundle_inputs() -> frozenset[str]:
     return frozenset(line.strip() for line in result.stdout.splitlines() if line.strip())
 
 
+def compatibility_retained(path: str, *, readership: object, disposition: object) -> bool:
+    """Validate the sole immutable compatibility retention independently of reader credit."""
+
+    authority = COMPATIBILITY_RETENTION.get(path)
+    if authority is None:
+        return False
+    if (
+        readership != "tooling_or_evidence_only"
+        or disposition != DISPOSITIONS["tooling_or_evidence_only"]
+    ):
+        raise RelocationError("refusing: compatibility retention contradicts the readership record")
+    target = ROOT / path
+
+    def reject_links() -> None:
+        candidate = target
+        while True:
+            if _is_link(candidate):
+                raise RelocationError("refusing: compatibility authority has linked ancestry")
+            if candidate == ROOT:
+                break
+            candidate = candidate.parent
+
+    expected_size, expected_sha256 = authority
+    reject_links()
+    try:
+        before = target.stat()
+        if not stat.S_ISREG(before.st_mode) or before.st_size != expected_size:
+            raise RelocationError(
+                "refusing: compatibility authority is not the pinned regular file"
+            )
+        with target.open("rb") as stream:
+            opened = os.fstat(stream.fileno())
+            # CRITICAL: bound the read despite a path change after stat; never load arbitrary bytes.
+            body = stream.read(expected_size + 1)
+            after = target.stat()
+            reject_links()
+            # CRITICAL: observe the open descriptor last; final path checks can race a mutation.
+            finished = os.fstat(stream.fileno())
+    except OSError as exc:
+        raise RelocationError("refusing: compatibility authority is missing or unreadable") from exc
+    observations = (before, opened, finished, after)
+    identities = {
+        (
+            value.st_dev,
+            value.st_ino,
+            value.st_size,
+            value.st_mtime_ns,
+            getattr(value, "st_birthtime_ns", None),
+        )
+        for value in observations
+    }
+    # CRITICAL: Windows path ctime can be creation time while fd ctime is change time.
+    # Compare ctime within each API; dropping it entirely would miss metadata-only mutations.
+    stable_ctimes = (
+        before.st_ctime_ns == after.st_ctime_ns
+        and opened.st_ctime_ns == finished.st_ctime_ns
+        and (sys.platform == "win32" or before.st_ctime_ns == opened.st_ctime_ns)
+    )
+    if (
+        len(identities) != 1
+        or not stable_ctimes
+        or not all(stat.S_ISREG(value.st_mode) for value in observations)
+        or len(body) != expected_size
+        or hashlib.sha256(body).hexdigest() != expected_sha256
+    ):
+        raise RelocationError("refusing: compatibility authority bytes or read identity changed")
+    return True
+
+
 def selected_paths(record: dict[str, object] | None = None) -> tuple[str, ...]:
     """The relocation set, computed from the record at call time and cross-checked twice.
 
@@ -226,6 +307,7 @@ def selected_paths(record: dict[str, object] | None = None) -> tuple[str, ...]:
         raise RelocationError("the readership record carries no artifact rows")
 
     selected: list[str] = []
+    compatibility: set[str] = set()
     reading: set[str] = set()
     seen_paths: set[str] = set()
     for row in artifacts:
@@ -262,6 +344,9 @@ def selected_paths(record: dict[str, object] | None = None) -> tuple[str, ...]:
                     + path
                 )
             raise RelocationError(f"the record names {path}, which is outside {PACKAGE_ROOT}/")
+        if compatibility_retained(path, readership=readership, disposition=disposition):
+            compatibility.add(path)
+            continue
         if readership in READING_CLASSES:
             reading.add(path)
         if disposition.split(":")[0].strip() in MOVED_DISPOSITIONS:
@@ -274,6 +359,10 @@ def selected_paths(record: dict[str, object] | None = None) -> tuple[str, ...]:
             + ", ".join(overlap)
         )
     inputs = _bundle_inputs()
+    if compatibility & inputs:
+        raise RelocationError(
+            "refusing: compatibility retention contradicts declared bundle inputs"
+        )
     overlap = sorted(set(selected) & inputs)
     if overlap:
         raise RelocationError(
@@ -444,7 +533,7 @@ def _derived_sibling_names(text: str, names: frozenset[str]) -> frozenset[str]:
 
     CRITICAL: this is the hole that let the tool report a clean tree and ship a broken one.
     `_bare_moved_names` deliberately anchors on a surviving *directory* mention, and
-    `tests/test_hc_09_host_seam_contract.py` had none: its anchor was a complete path to a
+    `tests/test__host_seam_contract.py` had none: its anchor was a complete path to a
     *retained* artifact, which `_without_inline_paths` strips, and its two schemas were
     `CENSUS_PATH.with_name("host_seam_census_v1.schema.json")`. The relocation left both pointing
     into the emptied package and only the Full Gate found it, because the string

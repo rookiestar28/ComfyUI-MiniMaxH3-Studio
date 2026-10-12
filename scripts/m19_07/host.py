@@ -2,7 +2,7 @@
 
 Nothing here queues a prompt or loads a weight. The two endpoints used are informational, and the
 node inventory is cached to disk after the first read because `/object_info` is large and the
-supplied host is shared with the concurrent `M17-20` supported-host lane — re-reading it on every
+supplied host is shared with the concurrent `` supported-host lane — re-reading it on every
 run would tax a host that is busy generating.
 
 The host is never started, discovered or restarted. A supplied endpoint that does not answer is an

@@ -2,13 +2,13 @@
 
 Four backend registries each hold part of one run -- the sidebar context workspace, the production
 workspace, the sequence coordinator and the geometry receipt store -- and until this module existed
-the *client* kept them consistent by calling six routes in the right order. The M23-19 incident was
+the *client* kept them consistent by calling six routes in the right order. The incident was
 a join failure between two of them, which is a defect no single registry could have prevented,
 because no single registry could see the join.
 
 This module owns the run lifecycle and nothing else. The registries keep their own editing
 semantics: absorbing `reorder_segments` or `edit_assisted_proposal` into the run state would not
-prevent an M23-19-class defect and would turn one transition table into several thousand lines. Of
+prevent an -class defect and would turn one transition table into several thousand lines. Of
 the four registries' 33 actions, twelve are lifecycle transitions and live here; seventeen are
 sub-state transitions attached to a context revision, a workspace or a run; four are reads.
 
@@ -237,14 +237,14 @@ def single_segment_sequence(segment_count: int) -> bool:
 
 #: Triggers the machine declares but no production path fires, each with the reason it is modelled
 #: anyway. CRITICAL: this register exists so that a dead transition is a stated decision rather than
-#: a silent one, and `tests/test_m23_31_join_invariants.py` asserts it matches the triggers the
+#: a silent one, and `tests/test__join_invariants.py` asserts it matches the triggers the
 #: adapters actually reference. A shipped stategraph that advertises a lifecycle edge nothing takes
 #: is a contract making a promise the system does not keep; naming the exceptions is what keeps the
 #: rest of the graph trustworthy.
 #:
 #: Neither of these is enforcement, and for two different reasons. `release_workspace` refuses
 #: through the liveness probe before any transition is attempted, so its guarded transition is
-#: never reached. `release_sequence` *is* now enforced -- M23-51 made
+#: never reached. `release_sequence` *is* now enforced -- made
 #: `comfyui_h3_context.core.managed_run_release.decide_release` the single authority over it -- but
 #: enforcement happens there and in the service that applies it, not by firing this trigger. The
 #: rows below therefore still describe edges nothing takes.
@@ -298,7 +298,7 @@ class TransitionEvent:
     source state, target state, guard name -- or is an identifier already validated against
     `_HANDLE`. There is deliberately no free-text field, because a redaction filter can be bypassed
     by a future caller while a missing channel cannot. Never add a `detail`, `message` or
-    `reason_text` member here; the durable journal that M23-35 owns is the place for richer
+    `reason_text` member here; the durable journal that owns is the place for richer
     evidence, under its own separate review.
     """
 

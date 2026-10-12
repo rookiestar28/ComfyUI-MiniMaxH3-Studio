@@ -1,4 +1,4 @@
-"""M19-07 pre-M20 temporal and model capability qualification.
+"""pre-M20 temporal and model capability qualification.
 
 Produces one deterministic, content-free matrix of the five successor capability rows against one
 explicitly supplied, frozen subject. It never starts, discovers, upgrades or patches a host, never
@@ -7,10 +7,10 @@ reached or does not match the frozen identity is reported `BLOCKED`, never PASS.
 
 Usage:
 
-    python scripts/m19_07_temporal_qualification.py \
+    python scripts/_temporal_qualification.py \
         --source <supplied host root>/comfy_extras/nodes_minimax_h3.py \
         --host http://127.0.0.1:8188/ \
-        --output .planning/260818-M19-07_QUALIFICATION_MATRIX.json
+        --output.planning/260818-_QUALIFICATION_MATRIX.json
 
 The source path is supplied, never discovered: this item qualifies the subject the maintainer named
 and nothing else.

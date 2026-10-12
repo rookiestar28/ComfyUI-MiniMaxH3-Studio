@@ -1,4 +1,4 @@
-// M25-33: a stateful route double for the media runtime status, setup and job routes, shared by
+// a stateful route double for the media runtime status, setup and job routes, shared by
 // every page of one test so two pages observe the same single job exactly as the backend holds
 // one. Every wire it serves is a sample the backend suite regenerates from the service
 // (`frontend/tests/fixtures/media_runtime_wire_v3.json`), adjusted only in the fields a transition
@@ -45,7 +45,7 @@ export type RuntimeDoubleOptions = Readonly<{
   /** Start the job, then drop the install reply on the floor (a lost response). */
   loseInstallReply?: boolean;
   /**
-   * The host's first-use shape (M25-32): tools are present, but final output reports unsupported
+   * The host's first-use shape: tools are present, but final output reports unsupported
    * until the first status read activates the runtime in process.
    */
   activateOnStatusRead?: boolean;

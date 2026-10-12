@@ -1,4 +1,4 @@
-"""M26-04 pure managed serial-sequence authority and transition contract."""
+"""pure managed serial-sequence authority and transition contract."""
 
 from __future__ import annotations
 

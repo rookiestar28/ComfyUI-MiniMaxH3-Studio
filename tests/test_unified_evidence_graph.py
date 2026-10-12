@@ -1,4 +1,4 @@
-"""M13-01 unified multimodal evidence graph tests."""
+"""unified multimodal evidence graph tests."""
 
 from __future__ import annotations
 

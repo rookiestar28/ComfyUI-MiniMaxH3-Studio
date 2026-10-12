@@ -1,4 +1,4 @@
-"""M11-04 source-PTS decode, shot, keyframe, and frame-batch contracts."""
+"""source-PTS decode, shot, keyframe, and frame-batch contracts."""
 
 from __future__ import annotations
 

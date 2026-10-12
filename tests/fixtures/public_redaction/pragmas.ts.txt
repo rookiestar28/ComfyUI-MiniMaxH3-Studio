@@ -1,0 +1,8 @@
+/// <reference lib="dom" />
+// @ts-expect-error -- M99-11: Preserve the directive.
+const value: number = "synthetic";
+// eslint-disable-next-line no-unused-vars -- M99-11: Preserve linting.
+const unused = 1;
+// prettier-ignore -- M99-11: Preserve formatting.
+const layout = { value: 1 };
+const factory = /* @__PURE__ M99-11 */ (() => 7)();

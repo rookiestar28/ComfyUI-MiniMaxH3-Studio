@@ -1,0 +1,2 @@
+// M99-11: Preserve the rendered text.
+export const view = <div title="M99-11">M99-11{/* M99-11: Keep. */}</div>;

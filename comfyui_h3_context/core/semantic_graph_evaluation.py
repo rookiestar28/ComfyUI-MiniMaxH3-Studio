@@ -1,6 +1,6 @@
 """The frozen evaluation: cases, goldens, reports and the bundle that carries them.
 
-This layer is where M14-01's terminal disposition is enforced -- the frozen cluster counts, support
+This layer is where 's terminal disposition is enforced -- the frozen cluster counts, support
 totals, interval method and bundle fingerprint are checked here, not asserted in a test. A bundle
 that does not match the frozen design is rejected at construction.
 

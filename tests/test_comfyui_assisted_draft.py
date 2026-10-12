@@ -1,4 +1,4 @@
-"""M22-12 hermetic real budget/identity/session binding tests."""
+"""hermetic real budget/identity/session binding tests."""
 
 from __future__ import annotations
 
@@ -89,7 +89,7 @@ def _report() -> ContextReport:
 
 
 def _state() -> ProviderSettingsState:
-    # M22-13: the shipped local row arrives qualified, carrying the evidence that justifies it.
+    # the shipped local row arrives qualified, carrying the evidence that justifies it.
     # Re-stating `qualified` here would strip that evidence and the profile would refuse to build,
     # which is the point: the claim and its proof are one value.
     profile = load_prompt_model_catalog().profiles[0]

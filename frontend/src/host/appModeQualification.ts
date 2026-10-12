@@ -24,7 +24,7 @@ export function qualifyAppMode(
     return { status: "unavailable", reason: "missing_graph_to_prompt" };
   if (probeQueueCallable(api).status !== "ready")
     return { status: "unavailable", reason: "missing_queue_prompt" };
-  // M17-20 D11 option (b): materialization loads a spliced template workflow
+  //  D11 option (b): materialization loads a spliced template workflow
   // rather than expanding it into an API prompt, so the graph-load seam is now a
   // capability rather than only the rollback path. A host without it is
   // MANUAL_ONLY_SCOPED, which is an honest unavailable state -- the alternative

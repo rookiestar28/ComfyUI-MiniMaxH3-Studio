@@ -43,7 +43,11 @@ def stored(tmp_path: Path) -> Stored:
     clock = [100]
     root = tmp_path / "private-store"
     store = PrivateSegmentArtifactStore(root, policy=_policy(), clock_ms=lambda: clock[0])
-    return store, store.commit(store.begin(_partial()), BODY), root, clock
+    receipt = store.commit(store.begin(_partial()), BODY)
+    # IMPORTANT: admit a whole-second mtime so DrvFS replacement tests preserve stat identity
+    # and reach the real hash proof; fractional utime restoration changes the cheap identity.
+    os.utime(_artifact(root), ns=(1_700_000_000_000_000_000,) * 2)
+    return store, receipt, root, clock
 
 
 def _artifact(root: Path) -> Path:
@@ -59,6 +63,13 @@ def _rewrite_keeping_identity(path: Path, payload: bytes) -> None:
     assert len(payload) == before.st_size
     path.write_bytes(payload)
     os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+    after = path.stat()
+    assert (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns) == (
+        before.st_dev,
+        before.st_ino,
+        before.st_size,
+        before.st_mtime_ns,
+    ), "same-identity replacement must preserve the admitted metadata"
 
 
 @pytest.fixture
@@ -476,7 +487,7 @@ def test_a_generated_source_asks_about_its_artifact_with_its_lock_held(
     )
     lock = _OwnedLock(source._lock)
     source._lock = lock  # type: ignore[assignment]
-    # The owner's flag, the borrower count and the recorded identity change under this lock.
+    # The flag, the borrower count and the recorded identity change under this lock.
     # Every question that reads them and then the artifact is one locked section, the three
     # that prove as much as the one that answers from the identity.
     assert source.current() and source.verify_artifact()

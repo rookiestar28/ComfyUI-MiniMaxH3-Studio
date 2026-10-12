@@ -1,9 +1,9 @@
-// M25-16: NLE workspace performance budgets measured at the ACTUAL integrated
+// NLE workspace performance budgets measured at the ACTUAL integrated
 // H3Sidebar/shell boundary (frontend/e2e/nleShell.tsx mounts the real presentationBinding
 // EntrySidebar fragment via a real createShellSession/createNleWorkspaceSession), not only at
 // the bespoke harness-parent component nleWorkspace.spec.ts measures. See
 // frontend/e2e/nleShell.tsx for the two sibling Profilers and the authoring-action wire
-// translator that reuses the accepted scripts/m25_16_timeline_fixture.py oracle.
+// translator that reuses the accepted scripts/_timeline_fixture.py oracle.
 import { test, expect, type Page, type Request } from "@playwright/test";
 import { writeFile } from "node:fs/promises";
 
@@ -476,6 +476,7 @@ for (const shape of ["smoke", "virtualized"] as const) {
     const editCommits: number[] = [];
     const editRenders: number[] = [];
     const editHandlers: number[] = [];
+    const editStates: string[] = [];
     const seriesStarted = await page.evaluate(() => performance.now());
     for (let index = 0; index < 10; index++) {
       await expect(
@@ -487,7 +488,7 @@ for (const shape of ["smoke", "virtualized"] as const) {
         name: "Position X (%)",
         exact: true,
       });
-      // M25-64 (R10): 1 % is the 100 bp this series has always alternated with 0.
+      //  (R10): 1 % is the 100 bp this series has always alternated with 0.
       await input.fill(index % 2 === 0 ? "1" : "0");
       await page.waitForTimeout(100);
       await page.evaluate(() => window.nleShellHarness.resetMeasurements());
@@ -506,6 +507,7 @@ for (const shape of ["smoke", "virtualized"] as const) {
       const measurements = await snapshot(page);
       editCommits.push(measurements.nleCommits);
       editRenders.push(...measurements.commitDurationsMs);
+      editStates.push(...measurements.commitStates);
       const clickHandlers = measurements.handlerSamples.filter(
         (sample) =>
           sample.eventType === "click" && sample.control === "visual.transform",
@@ -524,6 +526,25 @@ for (const shape of ["smoke", "virtualized"] as const) {
       editCommits,
       renderP95Ms: p95(editRenders),
       handlerP95Ms: p95(editHandlers),
+      renderSamplesSortedMs: [...editRenders]
+        .sort((a, b) => a - b)
+        .map((value) => Math.round(value * 10) / 10),
+      renderMedianMs:
+        ([...editRenders].sort((a, b) => a - b)[
+          Math.floor((editRenders.length - 1) / 2)
+        ]! +
+          [...editRenders].sort((a, b) => a - b)[
+            Math.floor(editRenders.length / 2)
+          ]!) /
+        2,
+      handlerSamplesSortedMs: [...editHandlers]
+        .sort((a, b) => a - b)
+        .map((value) => Math.round(value * 10) / 10),
+      slowCommitPhases: editRenders
+        .map((duration, index) => ({ duration, state: editStates[index] }))
+        .sort((a, b) => b.duration - a.duration)
+        .slice(0, 3)
+        .map(({ state }) => state?.split(":")[0] ?? "unknown"),
       sampleCounts: {
         renders: editRenders.length,
         handlers: editHandlers.length,
@@ -657,7 +678,7 @@ test("integrated shell render affordance returns after close and remount while t
     capabilityDelayMs: 3_000,
   });
   const region = page.getByRole("region", { name: "Final video" });
-  // The render card lives in the Export popover (M25-44); with it open, an absent region means
+  // The render card lives in the Export popover; with it open, an absent region means
   // the capability read has not answered.
   await openExportPanel(page);
   await expect(region).toHaveCount(0);

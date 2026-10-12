@@ -1,4 +1,4 @@
-// M25-53: one final-tree, browser-layout observation of the rebuilt editor. This journey owns
+// one final-tree, browser-layout observation of the rebuilt editor. This journey owns
 // the reference geometry and single-editor facts; detailed gesture/command behavior remains in
 // the focused owner journeys and the complete 33-kind / 66-row command matrix.
 
@@ -45,7 +45,7 @@ test("M25-53 final editor preserves reference geometry, picture and one editing 
   await expect(
     overlay.locator('[data-h3-nle-control="media.search"]'),
   ).toBeVisible();
-  // M25-63: sort and filter are one menu; its two groups keep their controls.
+  // sort and filter are one menu; its two groups keep their controls.
   await expect(
     overlay.locator('[data-h3-nle-control="media.sort_filter"]'),
   ).toBeVisible();
@@ -323,7 +323,7 @@ test("M25-53 final editor preserves reference geometry, picture and one editing 
   );
 
   // Retain only the extension-owned shell under the synthetic hermetic fixture. This is the
-  // current candidate view for visual review, not the owner's original image or host evidence.
+  // current candidate view for visual review, not the original image or host evidence.
   await testInfo.attach("m25-53-hermetic-populated-owned-shell-1402x868", {
     contentType: "image/png",
     body: await overlay.screenshot(),
@@ -404,7 +404,7 @@ test("M25-53 final editor preserves reference geometry, picture and one editing 
         )
         .map((element) => {
           const box = element.getBoundingClientRect();
-          // M25-62 (B-M2562-05): only the pinned 8 px fine grip is excused its width.
+          //  (B-M2562-05): only the pinned 8 px fine grip is excused its width.
           const excused =
             grip !== null &&
             element.matches(grip.selector) &&
@@ -485,10 +485,10 @@ test("M25-53 final editor preserves reference geometry, picture and one editing 
   await oracle.close();
 });
 
-// M25-53 side-by-side finding: at the owner's 1402 x 868 reference size the timeline's help
+//  side-by-side finding: at the 1402 x 868 reference size the timeline's help
 // line and the workspace's timeline status were painted over each other at the bottom of R4.
-// The region is measured, not inspected. M25-62 (R6) removed the visible help line: the trim
-// instructions are a visually hidden description the grips reference. M25-63 (R9) moved the save
+// The region is measured, not inspected. (R6) removed the visible help line: the trim
+// instructions are a visually hidden description the grips reference. (R9) moved the save
 // state to the top bar: the timeline status is a visually hidden live region, so R4 holds only the
 // timeline section, without a footer, a visible status line or a scroller, and the top bar shows
 // the save indicator inside its own row.
@@ -592,7 +592,7 @@ test("M25-53 timeline footer lines stay inside R4 without overlapping", async ({
   await expect.poll(async () => (await shellSnapshot(page)).receipts).toBe(2);
   const selected = await measure();
   const selectedDetail = JSON.stringify(selected);
-  // M25-62 (R7): a selected clip this wide trims with its inline grips, so the selection adds no
+  //  (R7): a selected clip this wide trims with its inline grips, so the selection adds no
   // rail row and R4 still shows its whole content.
   expect(
     await overlay

@@ -1,4 +1,4 @@
-"""M22-12 process-memory assisted proposal and canonical CAS tests."""
+"""process-memory assisted proposal and canonical CAS tests."""
 
 from __future__ import annotations
 
@@ -72,7 +72,7 @@ def _report() -> ContextReport:
 
 
 def _provider_state() -> ProviderSettingsState:
-    # The shipped local row already arrives qualified with its evidence attached (M22-13); the
+    # The shipped local row already arrives qualified with its evidence attached; the
     # `replace` is kept only so this fixture keeps working if the shipped default ever changes.
     profile = replace(
         load_prompt_model_catalog().profiles[0],
@@ -239,7 +239,7 @@ class AssistedPromptProposalTests(unittest.TestCase):
         )
 
     def test_accept_uses_the_current_report_cas_and_publishes_exactly_once(self) -> None:
-        # M24-05: the manual skeleton now renders the user's own sentence instead of the
+        # the manual skeleton now renders the user's own sentence instead of the
         # former generic fallback, so the simulated edit anchors on that sentence.
         candidate = self.workspace.prompt_text.replace(
             "A safe operator-owned prompt.",
@@ -357,8 +357,8 @@ class AssistedPromptProposalTests(unittest.TestCase):
                 receipt=replace(execution.receipt, model_id="wrong-model"),
             ),
         )
-        for mismatch in mismatches:
-            with self.subTest(receipt=mismatch.receipt):
+        for receipt_case, mismatch in enumerate(mismatches):
+            with self.subTest(receipt_case=receipt_case):
 
                 def publish_mismatch(
                     authority: ProviderAuthorityClaim,

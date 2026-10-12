@@ -1,4 +1,4 @@
-"""M15-03 production bundle, schema, loader, and package-inventory contracts."""
+"""production bundle, schema, loader, and package-inventory contracts."""
 
 from __future__ import annotations
 

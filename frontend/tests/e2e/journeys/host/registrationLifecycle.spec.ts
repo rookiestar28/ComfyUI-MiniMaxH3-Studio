@@ -128,7 +128,7 @@ test("exact host registers, renders, updates, destroys, and stays network-local"
       { cause: error },
     );
   }
-  // Reconciled by M23-37: the decision copy for a canvas that already holds
+  // Reconciled by : the decision copy for a canvas that already holds
   // nodes is the keep-or-replace sentence; the retired copy said "ambiguous".
   await expect(
     page.getByText("This canvas contains nodes", { exact: false }),
@@ -673,7 +673,7 @@ test("exact host registers, renders, updates, destroys, and stays network-local"
       .filter((key) => /h3|provider|credential|ollama|minimax/i.test(key))
       .sort(),
   }));
-  // M23-37: the M23-21 journal mirror is the one key this repository may add
+  // the journal mirror is the one key this repository may add
   // during the row; nothing else may appear or disappear.
   const journalKey = "h3-context.managed-journal.v1";
   const sessionContinuityKeys = new Set([
@@ -686,7 +686,7 @@ test("exact host registers, renders, updates, destroys, and stays network-local"
   expect(addedLocalKeys.every((key) => key === journalKey)).toBe(true);
   expect({
     local: finalStorageKeys.local.filter((key) => key !== journalKey),
-    // IMPORTANT: compare after excluding bounded owned continuity keys; M25-36 persists the
+    // IMPORTANT: compare after excluding bounded owned continuity keys; persists the
     // workflow destination across reload, so treating every new session key as a leak is invalid.
     session: finalStorageKeys.session.filter(
       (key) => !sessionContinuityKeys.has(key),

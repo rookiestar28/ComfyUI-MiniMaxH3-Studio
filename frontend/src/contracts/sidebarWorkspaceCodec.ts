@@ -277,7 +277,7 @@ function messageArray(value: unknown, field: string): SidebarMessage[] {
     throw new Error(`${field} exceeds its bound`);
   return value.map((item, index) => {
     const wire = object(item, `${field}[${index}]`);
-    // M21-03: `parameters` is optional and additive, so a payload without it decodes exactly as
+    // `parameters` is optional and additive, so a payload without it decodes exactly as
     // it did before the field existed.
     const { parameters, ...rest } = wire;
     const fields = stringRecord(
@@ -561,7 +561,7 @@ export function decodeSidebarWorkspaceProjection(
     "timeline.effective_frame_count",
     3600,
   );
-  // M17-25: the delivered duration in integer milliseconds, so App Mode can
+  // the delivered duration in integer milliseconds, so App Mode can
   // author a duration without recomputing the frame grid. Bounds only; the
   // lattice belongs to `core.length`.
   const effectiveDurationMilliseconds = integer(

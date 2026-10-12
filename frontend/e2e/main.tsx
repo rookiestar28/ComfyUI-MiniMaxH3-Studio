@@ -239,10 +239,10 @@ const successorReviewHandle = decodeSemanticProposalReviewHandle({
   workspace_fingerprint: fp("6"),
 });
 
-// M17-23 Guard A needs a card carrying a fault tone, which the default states
+//  Guard A needs a card carrying a fault tone, which the default states
 // never produce. The flag decorates the second segment only, so every existing
 // row that counts or tones cards is untouched.
-// M17-25. Harness segments carry producible lengths, because a segment can no
+// . Harness segments carry producible lengths, because a segment can no
 // longer represent anything else. The table is written out rather than computed
 // so the harness cannot become a second copy of the alignment authority, and it
 // deliberately alternates exact and snapped requests: the delivered-duration
@@ -664,7 +664,7 @@ async function syntheticAuthoringPreview(signal: AbortSignal): Promise<Blob> {
 }
 
 /**
- * M22-06 provider settings, driven by a harness state machine rather than a
+ *  provider settings, driven by a harness state machine rather than a
  * fixture. Every intent changes what the next render shows, so the browser lane
  * asserts a transition instead of the presence of an element.
  */
@@ -1384,7 +1384,7 @@ function DurationAuthorityHarness() {
 }
 
 /**
- * M25-41: `?mode=production&planning=1` mounts the real sidebar planning section with inert
+ * `?mode=production&planning=1` mounts the real sidebar planning section with inert
  * actions and the storyboard review open, so its toolbar layout, hues and descriptions are measured
  * on the shipped stylesheet. Existing production journeys never pass the flag.
  */

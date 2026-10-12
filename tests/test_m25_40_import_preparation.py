@@ -1,4 +1,4 @@
-"""M25-40 original-owner preparation regressions on real Production registries."""
+"""original-owner preparation regressions on real Production registries."""
 
 from __future__ import annotations
 

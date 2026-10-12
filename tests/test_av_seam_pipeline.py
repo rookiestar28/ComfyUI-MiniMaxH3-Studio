@@ -1,4 +1,4 @@
-"""M20-09 focused tests: seamed pipeline integration and real-binary rows."""
+"""focused tests: seamed pipeline integration and real-binary rows."""
 
 from __future__ import annotations
 
@@ -632,7 +632,7 @@ def test_real_binary_crossfade_executes_with_exact_probed_totals() -> None:
         assert second.outputs[0].content_fingerprint == receipt.outputs[0].content_fingerprint
         assert second.execution_fingerprint == receipt.execution_fingerprint
 
-        # AC-M20-09-04: the all-direct seam path and the legacy path produce the
+        # AC--04: the all-direct seam path and the legacy path produce the
         # identical aggregate content.
         all_direct_plan = build_av_seam_plan(
             base_plan=plan,
@@ -773,7 +773,7 @@ def test_real_binary_hold_crossfades_execute_with_exact_probed_totals(
 
 
 def test_real_binary_interior_crossfade_holds_exact_totals_away_from_the_tail() -> None:
-    """M20-09 review finding 2: the crossfade boundary sits between two direct
+    """review finding 2: the crossfade boundary sits between two direct
     joins, so the blend region is nowhere adjacent to the final trim guard and a
     boundary miscount could not be absorbed by the tail crop without moving the
     probed frame/sample totals published in the receipt."""

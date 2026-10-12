@@ -1,5 +1,5 @@
 /**
- * M21-03 — the Production page is a column in a fixed order.
+ * the Production page is a column in a fixed order.
  *
  * AC-01, AC-02 and the presentation half of AC-03. The element budget itself is
  * measured in the browser lane, where a real layout exists; what is asserted

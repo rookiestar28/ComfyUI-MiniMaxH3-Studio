@@ -1,4 +1,4 @@
-"""M17-11 exact-capability media inspection adapter tests."""
+"""exact-capability media inspection adapter tests."""
 
 from __future__ import annotations
 
@@ -1217,7 +1217,7 @@ def test_exact_qualified_binary_executes_activated_profile_matrix() -> None:
                 assert derived.path.is_file()
                 derived.release()
 
-            # M20-08: the same real-binary case executed from an incremental source must be
+            # the same real-binary case executed from an incremental source must be
             # observationally identical to the whole-bytes execution just performed.
             source = _ReplaySource(payload)
             source_aggregate = create_output_lease(output_root, suffix=".mp4")
@@ -1901,7 +1901,7 @@ def test_scratch_cleanup_failure_releases_otherwise_successful_outputs(
 
 
 # ---------------------------------------------------------------------------
-# M20-08: incremental source-backed inputs and the rolling assembly
+# incremental source-backed inputs and the rolling assembly
 # ---------------------------------------------------------------------------
 
 

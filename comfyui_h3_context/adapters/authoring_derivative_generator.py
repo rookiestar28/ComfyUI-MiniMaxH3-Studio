@@ -115,7 +115,7 @@ class AuthoringDerivativeGeneratorError(RuntimeError):
 def _video_proxy_bitrate(facts: AuthoringVideoFacts, ceiling_bytes: int) -> int:
     """The proxy's video target in bits per second, in exact integer arithmetic.
 
-    IMPORTANT (M25-45): the ceiling is a byte budget for the WHOLE proxy, so the target has to
+    IMPORTANT: the ceiling is a byte budget for the WHOLE proxy, so the target has to
     fall as the source lengthens; a fixed rate that fits a five-second clip overruns a fifteen
     second one and the owned output lease refuses the result after paying for the encode. The
     duration comes from the source's own last landmark, never from a wall clock or a declared

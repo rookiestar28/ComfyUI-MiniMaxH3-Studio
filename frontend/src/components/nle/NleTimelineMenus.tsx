@@ -1,4 +1,4 @@
-// M25-50: non-property commands live beside the timeline subjects they mutate. These menus
+// non-property commands live beside the timeline subjects they mutate. These menus
 // shape commands only; the workspace-owned dispatcher remains the sole transaction authority.
 
 import {
@@ -28,7 +28,7 @@ export function timelineMenuLabels(locale: Locale) {
   return nleCopy(locale).timeline.menus;
 }
 
-// M25-63: exported for the bin's menus; `[role^="menuitem"]` also covers radio items.
+// exported for the bin's menus; `[role^="menuitem"]` also covers radio items.
 export function menuKeyDown(
   event: ReactKeyboardEvent<HTMLDivElement>,
   close: () => void,
@@ -120,7 +120,7 @@ export function useMenuFocus(
  * Closes an open menu when a press lands outside it and its trigger, or when focus leaves it for
  * something else (Tab). Escape and a chosen item close through `menuKeyDown` and the caller.
  *
- * IMPORTANT (M25-79, B-M2579-01): every floating editor menu registers this. The timeline's clip
+ * IMPORTANT (, B-M2579-01): every floating editor menu registers this. The timeline's clip
  * and track menus once had no dismissal at all -- it lived privately in the bin's menus -- so a
  * left or right press anywhere left them open while focus moved on, and Escape then closed the
  * whole editor around a menu that was still mounted. Keep these conditions together:

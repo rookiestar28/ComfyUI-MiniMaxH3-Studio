@@ -1,7 +1,7 @@
-"""M23-48: the regeneration order is derived from a declaration, not remembered from prose.
+"""the regeneration order is derived from a declaration, not remembered from prose.
 
-`tests/TEST_SOP.md` 3.3.4 is the prose that two items in one day failed to follow -- M23-46 put the
-contract inventory after the first provenance write, M23-47 hand-edited a contract JSON that
+`tests/TEST_SOP.md` 3.3.4 is the prose that two items in one day failed to follow -- put the
+contract inventory after the first provenance write, hand-edited a contract JSON that
 `frontend/src` compiles in. Neither mistake was visible to any generator's `--check`; both surfaced
 only in the offline rebuild parity inside the backend stage of the Full Gate.
 
@@ -537,7 +537,7 @@ class TheDryRunNamesWhatItImpliesTests(unittest.TestCase):
 
 
 class ABundleInputNoGeneratorOwnsIsStillWatchedTests(unittest.TestCase):
-    """The M23-47 case: a bundle input that is hand-maintained and has no `--write`.
+    """The case: a bundle input that is hand-maintained and has no `--write`.
 
     `dry_run`'s reason loop can only see declared outputs, and three of the four contracts
     `frontend/src` imports are owned by no generator at all. Without a separate comparison a hand
@@ -639,7 +639,7 @@ class ABundleInputNoGeneratorOwnsIsStillWatchedTests(unittest.TestCase):
                     self.assertIsNone(declaration._recorded_head())  # noqa: SLF001
 
     def test_a_changed_provenance_is_reported_even_though_no_module_imports_it(self) -> None:
-        # CRITICAL: M23-46's route, and the one that looks like an oversight rather than a rule.
+        # CRITICAL: 's route, and the one that looks like an oversight rather than a rule.
         # No `frontend/src` module imports the provenance, so neither the path prefix nor the
         # import scan reaches it, and `frontend/buildProvenance.ts` compiles it in regardless.
         # Dropping this branch passes every other assertion in this module.
@@ -720,7 +720,7 @@ class TheWorkspaceMirrorsTheTreeUnderTestTests(unittest.TestCase):
 
     def test_a_staged_deletion_is_not_carried_into_the_workspace(self) -> None:
         # CRITICAL: an overlay can add and replace but never remove, so a clone that checks out
-        # HEAD keeps every file the candidate deletes. M23-55 moves 129 files -- a delete plus an
+        # HEAD keeps every file the candidate deletes. moves 129 files -- a delete plus an
         # add each -- so every generator would run against a tree that still has all of them, and
         # `apply` would write that answer over the correct bytes.
         with temporary_repository(self.FILES) as root:

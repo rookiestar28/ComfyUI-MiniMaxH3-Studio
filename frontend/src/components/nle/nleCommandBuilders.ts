@@ -1,4 +1,4 @@
-// M25-16: pure builders that turn inspector form values into exact M25-11 command wires.
+// pure builders that turn inspector form values into exact command wires.
 //
 // Each builder produces one `TimelineCommandWire` whose payload keys are exactly the accepted
 // codec's closed key set for that kind. Builders never validate semantics the backend owns
@@ -10,6 +10,7 @@ import type {
   PublicCompositionSnapshot,
 } from "../../contracts/compositionCodec";
 import type { TimelineCommandWire } from "../../contracts/authoringWorkbenchCodec";
+import { textDecorationWire } from "../../contracts/compositionCodec";
 
 type Kind = TimelineCommandWire["kind"];
 
@@ -103,6 +104,16 @@ export type TextStyleWire = Readonly<{
   line_height_bp: number;
   fill_rgba: readonly [number, number, number, number];
   background_rgba: readonly [number, number, number, number] | null;
+  stroke?: Readonly<{
+    rgba: readonly [number, number, number, number];
+    width_px: number;
+  }>;
+  shadow?: Readonly<{
+    rgba: readonly [number, number, number, number];
+    offset_x_px: number;
+    offset_y_px: number;
+  }>;
+  background_padding_px?: number;
 }>;
 
 export const DEFAULT_TEXT_STYLE: Omit<TextStyleWire, "font_asset_id"> =
@@ -183,6 +194,7 @@ export function textStyleWire(
             number,
             number,
           ]),
+    ...textDecorationWire(text),
   });
 }
 

@@ -1,37 +1,37 @@
-"""M20-05 exact latent checkpoint resume qualification against the supplied host.
+"""exact latent checkpoint resume qualification against the supplied host.
 
 One invocation runs the whole frozen sequence: workflow A executes stage-1 of the qualified
 split schedule and persists its trajectory latent through the save canary (real codec, real
-M20-04 store, declared boundary); the harness re-inspects the checkpoint through the real
+ store, declared boundary); the harness re-inspects the checkpoint through the real
 store API and executes the REAL admission decision script-side; workflow B admits the same
 checkpoint through the load canary IN the host process and finishes generation through the
 pure `build_resume_composition` fragment; a negative workflow proves a settings-identity
 divergence refuses with its classified reason code instead of sampling.
 
-The resume oracle is STRUCTURAL, per the M19-08 row (`structural_resume_executes_no_bitexact
+The resume oracle is STRUCTURAL, per the row (`structural_resume_executes_no_bitexact
 oracle`): workflow B contains no stage-1 sampler at all, its only sampler consumes the split
 schedule's low tail (`total - completed` steps by sigma arithmetic), and the decoded extents
 must be exact (frames == requested; audio samples on the 800-sample boundary rule).
 Wall-clock is recorded as supporting evidence only. Bit-exact comparison is impossible on
 this subject and appears nowhere.
 
-Hygiene follows the M19-08 protocol: queue idle before every run, VRAM snapshots around it,
+Hygiene follows the protocol: queue idle before every run, VRAM snapshots around it,
 `/free` and host-output removal afterwards, and the harness-owned canary root is emptied at
 the end unless `--keep-root` asks to retain it. Evidence stays content-free: fingerprints,
 extents, node types and timings; never tensors, frames, audio, prompts beyond the repo's own
 probe constant, or private absolute paths.
 
-Authorization: the M19-08 weight designation and the 96 GB ceiling confirmation are STANDING
+Authorization: the weight designation and the 96 GB ceiling confirmation are STANDING
 per the maintainer directive of 2026-08-21; no per-run confirmation is collected.
 
 Usage:
 
-    python scripts/m20_05_resume_qualification.py \
+    python scripts/_resume_qualification.py \
         --host http://127.0.0.1:8188 \
         --host-output-root <supplied host root>/output \
         --canary-root <harness-owned directory> \
-        --matrix .planning/260820-M19-08_QUALIFICATION_MATRIX.json \
-        --evidence .planning/260821-M20-05_LIVE_EVIDENCE.json
+        --matrix.planning/260820-_QUALIFICATION_MATRIX.json \
+        --evidence.planning/260821-_LIVE_EVIDENCE.json
 
 The host must have been started by the maintainer with
 `H3_CONTEXT_HOST_LATENT_RESUME_CANARY=1` and `H3_CONTEXT_LATENT_RESUME_CANARY_ROOT` set to
@@ -104,7 +104,7 @@ from scripts.m19_08.runs import _request as host_request  # noqa: E402
 
 EVIDENCE_SCHEMA = "h3.m20_05.resume_qualification.v1"
 
-#: The M19-08 resume-row geometry, unchanged: same probe, same split, same length.
+#: The resume-row geometry, unchanged: same probe, same split, same length.
 PROBE_WIDTH = 384
 PROBE_HEIGHT = 256
 TOTAL_STEPS = 4

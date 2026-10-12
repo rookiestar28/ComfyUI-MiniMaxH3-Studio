@@ -1,4 +1,4 @@
-// M25-33: the one Media tools card, in Settings and where import, clip preview or final output is
+// the one Media tools card, in Settings and where import, clip preview or final output is
 // blocked by the backend media runtime.
 //
 // The card renders only the decoded status and the one setup job the session holds. Normal screens

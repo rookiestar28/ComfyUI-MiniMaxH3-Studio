@@ -1,4 +1,4 @@
-// M25-21 hardening observations. A journey runs its assertions through a `Checks` list, so every
+//  hardening observations. A journey runs its assertions through a `Checks` list, so every
 // assertion name recorded in an observation is one whose `expect` actually executed and passed
 // before the observation was attached; nothing is recorded ahead of the check it names. The
 // gatherer (`nleHardeningGatherer.mjs`) collects every `nle_hardening.*` attachment together with

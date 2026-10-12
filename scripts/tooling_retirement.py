@@ -1,4 +1,4 @@
-"""Build and verify the bounded HC-16 tooling-retirement census.
+"""Build and verify the bounded tooling-retirement census.
 
 The policy scans Git-tracked repository text as data. A name reference is evidence that a tool has
 a current reader, but the absence of one is never enough to delete it: every unreferenced retained
@@ -9,6 +9,7 @@ from Git history. The scanner opens no network and executes none of the files it
 from __future__ import annotations
 
 import argparse
+import ast
 import hashlib
 import json
 import re
@@ -59,7 +60,7 @@ TOKEN = re.compile(r"[A-Za-z][A-Za-z0-9_]{2,127}")
 SELF_DESCRIBING_PATHS = frozenset(
     {
         # CRITICAL: a record that *describes* which tool consumes what is not itself a consumer.
-        # M23-50 gave the fitness artifact a `source_reachability.owners` field naming the exact
+        #  gave the fitness artifact a `source_reachability.owners` field naming the exact
         # scripts that reach each module, which made every fixture script look referenced and
         # emptied the manual-retention population. A tool must not be kept alive by an artifact
         # whose only statement about it is that nothing else uses it.
@@ -67,22 +68,22 @@ SELF_DESCRIBING_PATHS = frozenset(
         "governance/contracts/architecture_inventory_v1.json",
         "comfyui_h3_context/contracts/contract_inventory_v1.json",
         "governance/contracts/fingerprint_domain_v1.json",
-        # The M23-50 review found the same defect already live here: an `internal_consumers`
-        # field names `scripts/m14_05_fixed_h3_fixture.py`, and it was that tool's *only* tracked
+        # The review found the same defect already live here: an `internal_consumers`
+        # field names `scripts/_fixed_h3_fixture.py`, and it was that tool's *only* tracked
         # mention, so the census silently called it referenced.
         "governance/contracts/retirement_eligibility_v1.json",
-        # Same shape again, from M23-48: the readership record lists, per packaged artifact, every
+        # Same shape again, the readership record lists, per packaged artifact, every
         # tracked file that mentions it. Those `readers` entries are script paths, so a fixture
         # generator whose only mention is "this record observed it" would count as referenced.
         "governance/contracts/packaged_artifact_readership_v1.json",
         "scripts/tooling_retirement.py",
-        # M25-45 found the same shape a fourth time, and this one is a test rather than a record.
+        #  found the same shape a fourth time, and this one is a test rather than a record.
         # `tests/test_script_modules_import.py` discovers every script by glob and names a module
         # literally only in `REFUSES_TO_IMPORT`, its exemption list -- whose entire statement about
         # a module is "this one refuses to import outside its host". That is a description, not a
         # consumption: an import-smoke test cannot establish that any entry point is still needed,
         # and counting it as a reader would let the census call a dead tool referenced. It broke
-        # exactly that way when `06eca16e` landed, taking `scripts/m17_10_supported_host_smoke.py`
+        # exactly that way when `06eca16e` landed, taking `scripts/_supported_host_smoke.py`
         # out of the manual-retention population and failing seven of this suite's cases.
         "tests/test_script_modules_import.py",
     }
@@ -292,6 +293,47 @@ def _safe_file(root: Path, relative: str) -> Path:
     return candidate
 
 
+def _reader_text(relative: str, text: str) -> str:
+    if relative != "scripts/change_lane.py":
+        return text
+    # CRITICAL: the risk-path tuple describes tools; it does not consume them. Omit only that
+    # literal value: excluding the whole module would also hide actual imports and future readers.
+    try:
+        tree = ast.parse(text)
+    except (SyntaxError, ValueError, RecursionError) as exc:
+        raise ToolingRetirementError("risk classification source cannot be parsed") from exc
+    definitions: list[ast.Assign | ast.AnnAssign] = []
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            targets = node.targets
+        elif isinstance(node, ast.AnnAssign):
+            targets = [node.target]
+        else:
+            continue
+        if any(isinstance(target, ast.Name) and target.id == "HEAVY_EXACT" for target in targets):
+            definitions.append(node)
+    if len(definitions) != 1 or not isinstance(definitions[0], ast.Assign):
+        raise ToolingRetirementError("risk classification declaration is missing or ambiguous")
+    definition = definitions[0]
+    value = definition.value
+    if (
+        len(definition.targets) != 1
+        or not isinstance(value, ast.Tuple)
+        or not all(
+            isinstance(item, ast.Constant) and isinstance(item.value, str) for item in value.elts
+        )
+        or value.end_lineno is None
+        or value.end_col_offset is None
+    ):
+        raise ToolingRetirementError("risk classification must be a literal string tuple")
+    # AST columns are UTF-8 byte offsets; keep trailing same-line imports and non-ASCII text intact.
+    raw = text.encode("utf-8")
+    lines = raw.splitlines(keepends=True)
+    start = sum(len(line) for line in lines[: value.lineno - 1]) + value.col_offset
+    end = sum(len(line) for line in lines[: value.end_lineno - 1]) + value.end_col_offset
+    return (raw[:start] + b"\n" + raw[end:]).decode("utf-8")
+
+
 def _reader_index(root: Path, paths: Sequence[str]) -> dict[str, set[str]]:
     index: dict[str, set[str]] = {}
     total = 0
@@ -309,9 +351,10 @@ def _reader_index(root: Path, paths: Sequence[str]) -> dict[str, set[str]]:
         if total > MAX_SCANNED_BYTES:
             raise ToolingRetirementError("tracked text exceeds the aggregate scan budget")
         try:
-            tokens = set(TOKEN.findall(raw.decode("utf-8")))
+            text = raw.decode("utf-8")
         except UnicodeDecodeError:
             continue
+        tokens = set(TOKEN.findall(_reader_text(relative, text)))
         for token in tokens:
             index.setdefault(token, set()).add(relative)
     return index
@@ -407,8 +450,8 @@ def is_nested_tool_path(path: str, root: Path = ROOT) -> bool:
     file rather than kept in a list, so a new nested tool is censused the day it is written.
 
     The gap this closes is real: `scripts/governance/relocate_packaged_artifacts.py` shipped in
-    M23-55 and sat outside a census that reports itself complete, because `path.count("/") == 1`
-    silently excluded it. M23-55 recorded that as a follow-up; this is it.
+     and sat outside a census that reports itself complete, because `path.count("/") == 1`
+    silently excluded it. recorded that as a follow-up; this is it.
     """
 
     if not path.startswith("scripts/") or path.count("/") < 2:

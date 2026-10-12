@@ -1,0 +1,22 @@
+{
+  "schema": "h3.host_queue_validation_expectations.v1",
+  "registered_class_count": 28,
+  "scenarios": ["all_links_connected", "required_links_only"],
+  "nodes": {
+    "H3ContextRequestNode": {"all_links_connected": "refuse", "required_links_only": "refuse", "reason": "An unset zero-duration control requires operator input."},
+    "H3ReferenceRegistryNode": {"all_links_connected": "admit", "required_links_only": "admit", "reason": "Unresolved list links and an empty registry are structurally admissible."},
+    "H3ContextPlanNode": {"all_links_connected": "admit", "required_links_only": "admit", "reason": "Typed request validation is deferred until execution."},
+    "H3ContextFullReferenceNode": {"all_links_connected": "admit", "required_links_only": "admit", "reason": "An unresolved timeline is validated at execution."},
+    "H3ContextCompilerNode": {"all_links_connected": "admit", "required_links_only": "admit", "reason": "An unresolved plan is validated at execution."},
+    "H3ContextValidatorNode": {"all_links_connected": "admit", "required_links_only": "admit", "reason": "Unresolved plan and document are validated at execution."},
+    "H3ContextPreviewNode": {"all_links_connected": "admit", "required_links_only": "admit", "reason": "Unresolved report is validated at execution."},
+    "H3ContextAuditOverrideNode": {"all_links_connected": "admit", "required_links_only": "admit", "reason": "An unresolved source report defers fingerprint and prompt validation to execution."},
+    "H3ContextProviderTransparencyNode": {"all_links_connected": "admit", "required_links_only": "admit", "reason": "Manual offline defaults cause no external execution."},
+    "H3ContextReliabilityNode": {"all_links_connected": "admit", "required_links_only": "admit", "reason": "Default local progress controls are structurally valid."},
+    "H3ContextNativeH3AdapterNode": {"all_links_connected": "admit", "required_links_only": "admit", "reason": "Unresolved validated report is checked at execution."},
+    "H3OfficialContextIRNode": {"all_links_connected": "refuse", "required_links_only": "refuse", "reason": "A missing configured provider composition remains unavailable."},
+    "H3VisualPerceptionProducerNode": {"all_links_connected": "refuse", "required_links_only": "refuse", "reason": "Default unqualified profile never grants local-process execution."},
+    "H3AudioPerceptionProducerNode": {"all_links_connected": "refuse", "required_links_only": "refuse", "reason": "Default unqualified profile never grants local-process execution."},
+    "H3FullReferenceTimelineProducerNode": {"all_links_connected": "admit", "required_links_only": "refuse", "reason": "A correctly connected visual socket must be admitted; absent qualified perception is refused."}
+  }
+}

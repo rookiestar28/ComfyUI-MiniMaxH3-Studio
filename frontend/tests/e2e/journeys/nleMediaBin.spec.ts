@@ -93,7 +93,7 @@ test("card, range and Text controls each submit their canonical command once", a
   await openZeroClipMediaBin(page);
 
   await page.locator('[data-h3-nle-control="asset.insert"]').first().click();
-  // M25-63: Insert and Overwrite at the playhead live in the card's menu.
+  // Insert and Overwrite at the playhead live in the card's menu.
   const card = page.locator('[data-h3-nle-card-index="1"]');
   await chooseAssetCommand(page, card, "range.insert", "pointer");
   await chooseAssetCommand(page, card, "range.overwrite", "keyboard");

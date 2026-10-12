@@ -1,4 +1,4 @@
-"""M11-02 strict native VLM source/region observation tests."""
+"""strict native VLM source/region observation tests."""
 
 from __future__ import annotations
 

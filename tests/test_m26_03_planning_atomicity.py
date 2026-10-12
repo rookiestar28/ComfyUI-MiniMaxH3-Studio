@@ -1,4 +1,4 @@
-"""Adverse real-broker tests for M26-03 source and Production atomicity."""
+"""Adverse real-broker tests for source and Production atomicity."""
 
 from __future__ import annotations
 

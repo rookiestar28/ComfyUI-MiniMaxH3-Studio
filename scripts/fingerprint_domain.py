@@ -1,11 +1,11 @@
-"""Generate and verify the M18-02 fingerprint-domain assignment over the M18-01 inventory.
+"""Generate and verify the fingerprint-domain assignment over the inventory.
 
-Every fingerprint consumer names exactly one versioned domain (AC-M18-02-01).  The assignment is a
+Every fingerprint consumer names exactly one versioned domain (AC--01). The assignment is a
 *record*: it does not recompute, reframe or migrate a single existing fingerprint.  Threading a
 domain tag through the repository's 289 fingerprint sites would change every fingerprint value it
-touched, which the M18-02 plan prohibits because it invalidates accepted artifacts, caches and
+touched, which the plan prohibits because it invalidates accepted artifacts, caches and
 receipts.  So existing identities gain a recorded domain here, and only identities introduced from
-M18-02 onward are produced through ``core.fingerprint_domain.domain_fingerprint``.
+ onward are produced through ``core.fingerprint_domain.domain_fingerprint``.
 
 Two rules run through everything.
 
@@ -181,13 +181,13 @@ DECLARED: Mapping[str, _Declared] = {
     ),
 }
 
-#: Identities assigned in their own right.  The first two are the consumers the M18-02 activation
+#: Identities assigned in their own right. The first two are the consumers the activation
 #: gate names explicitly, and neither is allowed to arrive at its domain by omission.
 IDENTITY_SITES: tuple[_Site, ...] = (
     _Site(
         consumer_id="frontend/appMode.graph_projection_identity",
         domain=IdentityDomain.PRESENTATION,
-        # M23-28: `graphFingerprint` lives in the App Mode contract module;
+        # `graphFingerprint` lives in the App Mode contract module;
         # `appMode.ts` remains the public door.
         authority_paths=("frontend/src/host/appModeContract.ts",),
         evidence=(
@@ -289,7 +289,7 @@ RULES: tuple[_Rule, ...] = (
 
 
 def read_inventory() -> tuple[_Row, ...]:
-    """Read the M18-01 artifact as data, refusing anything that is not that artifact."""
+    """Read the artifact as data, refusing anything that is not that artifact."""
 
     path = ROOT / INVENTORY_PATH
     try:

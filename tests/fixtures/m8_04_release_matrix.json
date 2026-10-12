@@ -2,13 +2,13 @@
   "schema": "h3-context-release-matrix/1",
   "package": {
     "name": "minimax-h3-studio",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "author": "rookiestar28",
     "dependencies": []
   },
   "artifact": {
     "required": ["wheel", "sdist"],
-    "prefix": "minimax_h3_studio-1.1.0",
+    "prefix": "minimax_h3_studio-1.2.0",
     "forbidden_path_markers": [
       "AGENTS.md",
       "ROADMAP.md",

@@ -1,6 +1,6 @@
-// M25-16 sequence pane: the M26 whole-video planning flow (prepare → admit → propose →
-// approve/import), the M26-04 readiness gate, the managed serial start with the B1
-// leave/return controls, and the M26-06 assembly actions. Every button is one explicit
+//  sequence pane: the M26 whole-video planning flow (prepare → admit → propose →
+// approve/import), the readiness gate, the managed serial start with the B1
+// leave/return controls, and the assembly actions. Every button is one explicit
 // accepted action; mount, remount and polling never plan, qualify, queue or assemble.
 
 import type { ProductionViewState } from "../ProductionWorkbench";
@@ -41,7 +41,7 @@ export function NleSequencePanel({
   const text = nleCopy(locale);
   const productionProjection =
     "projection" in production ? production.projection : undefined;
-  // M25-63: planning happens in Production only. The editor's Sequence tab keeps every run control
+  // planning happens in Production only. The editor's Sequence tab keeps every run control
   // and the readiness request, under one heading, and says where planning lives.
   return (
     <div className="h3-nle-inspector" data-h3-nle-region="sequence">

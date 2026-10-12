@@ -1,4 +1,4 @@
-"""M25-20 post-closeout corrective: the render stage observes each phase where both phases look.
+"""post-closeout corrective: the render stage observes each phase where both phases look.
 
 A command row is proved by its "after" artifact failing its "before" expectation on a measurement,
 and the two phases prescribe different points -- a trimmed primary states no identity at the frames
@@ -108,7 +108,7 @@ def test_the_timing_source_is_encoded_at_exactly_the_declared_tick_of_every_fram
 def test_the_audio_prescription_places_an_owner_s_source_origin_by_source_time() -> None:
     """An owner reading the timing source from frame 36 has its origin three seconds back.
 
-    The prescription's `shift_samples` is where the owner's source sample 0 lands on the output;
+    The prescription's `shift_samples` is where the source sample 0 lands on the output;
     the extractor labels onsets and measures a source-start burst's gap from it (B-58, B-61).
     Counting the start frame as output frames would put the origin at 1.5 s for a 12 fps source.
     """
@@ -179,7 +179,7 @@ def test_a_single_phase_row_is_observed_at_its_own_points_only() -> None:
 
 
 # ---------------------------------------------------------------------------------------------
-# The artifact reaches the extractor through the accepted M25-19 transport, and says so.
+# The artifact reaches the extractor through the accepted transport, and says so.
 # ---------------------------------------------------------------------------------------------
 
 

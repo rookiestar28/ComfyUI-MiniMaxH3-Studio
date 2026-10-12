@@ -3,7 +3,7 @@ import { acceptedQueueResponse } from "./queuePromptTestDouble";
 /**
  * A model-free stand-in for what the host does with a queued prompt.
  *
- * M17-20 plan section 5 lane 3 asks for hermetic execution adapters that prove
+ *  plan section 5 lane 3 asks for hermetic execution adapters that prove
  * topology, state, queue and edit/regenerate control flow "without claiming
  * weight-backed output". This is that adapter, and the second half of the
  * sentence is the important half: it walks the compiled prompt the way ComfyUI's
@@ -11,7 +11,7 @@ import { acceptedQueueResponse } from "./queuePromptTestDouble";
  * and it loads nothing, resolves no weight, reads no file and produces no pixels.
  * What it can prove is that the graph this repository queues is one an executor
  * can traverse to a real artifact sink; what it cannot prove is that the sink
- * would contain anything. AC-M17-20-08 keeps the second claim for the separately
+ * would contain anything. AC--08 keeps the second claim for the separately
  * authorized weight-backed sample, and nothing here may be read as standing in
  * for it.
  */

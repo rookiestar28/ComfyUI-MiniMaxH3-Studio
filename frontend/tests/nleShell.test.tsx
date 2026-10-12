@@ -1,4 +1,4 @@
-// M25-44: the reference shell renders exactly four regions and three separators, the separators
+// the reference shell renders exactly four regions and three separators, the separators
 // follow the window splitter pattern (values, keys, reset), a drag previews locally and commits
 // once, and the chrome bar's Export popover owns Escape before the dialog.
 

@@ -1,8 +1,8 @@
-// Shared integrated-shell helpers for the M25-16 NLE journeys that run the REAL shell
+// Shared integrated-shell helpers for the NLE journeys that run the REAL shell
 // (frontend/e2e/nleShell.tsx mounts the real presentationBinding through a real
 // createShellSession/createNleWorkspaceSession/createAuthoringSession). Timeline transactions
 // travel the unmodified authoring-action client into a translator that replays them through the
-// real Python core (`scripts/m25_16_timeline_fixture.py`), so receipts, conflicts and the
+// real Python core (`scripts/_timeline_fixture.py`), so receipts, conflicts and the
 // post-loss reconciliation observed here are the backend's, not a browser fixture's.
 
 import { expect, type Page, type Route } from "@playwright/test";
@@ -16,6 +16,7 @@ import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { fixturePython } from "../../../e2e/fixturePython";
+import { observeHarnessBoot, requireHarnessBoot } from "./harnessBoot";
 
 import {
   routeGenericFixtureMedia,
@@ -132,14 +133,14 @@ export type ShellOracle = Readonly<{
    */
   lastHistory: () => Readonly<Record<string, unknown>> | null;
   /**
-   * M25-21 `seam.backend_restart`: ends the persistent service process and starts a new one that
+   *  `seam.backend_restart`: ends the persistent service process and starts a new one that
    * is brought back to the same accepted state by re-applying the transactions it had already
    * accepted. A real restart with durable state, not a cleared core -- the browser must
    * reconcile read-only across it and replay nothing. Only for `service: true`.
    */
   restart(): Promise<void>;
   /**
-   * M25-21 B3-D57: commit another client's edit through the same canonical core, out of band and
+   *  B3-D57: commit another client's edit through the same canonical core, out of band and
    * before the browser acts.
    *
    * `concurrent` commits the competing edit inside the browser's own request, which puts a second
@@ -206,7 +207,7 @@ export type IntegratedShellOptions = Readonly<{
   /** Hold every capability reply this long (corrective F2 close/reopen race). */
   capabilityDelayMs?: number;
   /**
-   * Runs after the page loads and before the overlay is opened. M25-20's conformance journey has
+   * Runs after the page loads and before the overlay is opened. 's conformance journey has
    * to observe the global shell — three pages, one current page, the two production functions —
    * while the overlay is still closed, and has to activate `clip_editor` itself rather than
    * inheriting whichever function the harness happened to mount.
@@ -221,24 +222,24 @@ export type IntegratedShellOptions = Readonly<{
   open?: (page: Page) => Promise<void>;
   /**
    * Extra `nleShell.html` query parameters merged in alongside `shape`/`render`/
-   * `capabilityDelayMs`. M25-20's `view_destroy_cleanup` row needs `viewDestroy=1`, which mounts
+   * `capabilityDelayMs`. 's `view_destroy_cleanup` row needs `viewDestroy=1`, which mounts
    * the sidebar through the real extension-registration lifecycle instead of the raw mount every
    * other caller relies on; every existing caller is unaffected since this defaults to none.
    */
   extraParams?: Readonly<Record<string, string>>;
   /**
-   * M25-21: answer from one persistent canonical core (`m25_16_timeline_fixture.py --serve`)
+   * answer from one persistent canonical core (`_timeline_fixture.py --serve`)
    * instead of replaying every transaction per call. The replay oracle is bounded at 32
    * transactions; the NLE-STRESS-V1 edit workload issues hundreds.
    */
   service?: boolean;
   /**
-   * M25-21: another client's edit, committed by the same core immediately before the browser's
+   * another client's edit, committed by the same core immediately before the browser's
    * transaction, so the browser's base is stale and the core itself refuses it.
    */
   concurrent?: ConcurrentEdit;
   /**
-   * M25-21 shell rows start from the Sidebar with the overlay closed; `false` boots the shell
+   *  shell rows start from the Sidebar with the overlay closed; `false` boots the shell
    * and runs `beforeOpen` without opening the editor or waiting for its transport.
    */
   expandOverlay?: boolean;
@@ -265,7 +266,7 @@ function pythonPath(root: string): string {
   return fixturePython(root);
 }
 
-/** The stateless replay oracle every M25-16 journey uses: all transactions, every call. */
+/** The stateless replay oracle every journey uses: all transactions, every call. */
 function replayOracle(root: string): Oracle {
   const transactions: unknown[] = [];
   let initial: unknown;
@@ -295,7 +296,7 @@ function replayOracle(root: string): Oracle {
   };
 }
 
-/** One canonical core held in memory for the whole page (M25-21 stress workloads). */
+/** One canonical core held in memory for the whole page ( stress workloads). */
 function serviceOracle(root: string): Oracle {
   const spawnCore = (): ChildProcessWithoutNullStreams =>
     spawn(
@@ -333,7 +334,7 @@ function serviceOracle(root: string): Oracle {
           );
           waiters.push((line) => {
             clearTimeout(timer);
-            // M25-21 B3-D57: the service now answers `{timing, reply}`, where `timing` carries
+            //  B3-D57: the service now answers `{timing, reply}`, where `timing` carries
             // the core's own monotonic costs. The reply is unwrapped here so every existing
             // caller is unchanged, and the timing is recorded beside this process's measurement
             // of the whole round trip rather than subtracted from it -- different clock domains.
@@ -416,6 +417,7 @@ export async function openIntegratedShell(
     | "reference-preload",
   options: IntegratedShellOptions = {},
 ): Promise<ShellOracle> {
+  observeHarnessBoot(page);
   const root = fileURLToPath(new URL("../../../../", import.meta.url));
   if (
     shape === "reference" ||
@@ -448,7 +450,7 @@ export async function openIntegratedShell(
         await oracle.apply(concurrent);
       }
       transactions.push(transaction);
-      // M25-21 B3-D57: this process's own monotonic cost of the whole RPC, recorded beside the
+      //  B3-D57: this process's own monotonic cost of the whole RPC, recorded beside the
       // core's self-reported cost for the same call. The difference between them is the transport
       // and the queue, and it is reported as that rather than attributed to either side.
       const began = performance.now();
@@ -489,6 +491,7 @@ export async function openIntegratedShell(
   for (const [key, value] of Object.entries(options.extraParams ?? {}))
     params.set(key, value);
   await page.goto(`/nleShell.html?${params.toString()}`);
+  await requireHarnessBoot(page);
   await options.beforeOpen?.(page);
   if (options.expandOverlay !== false) {
     if (options.open) await options.open(page);
@@ -557,7 +560,7 @@ export type CompositionSeriesControl = Readonly<{
   setComposition(wire: Record<string, unknown>): void;
 }>;
 
-// The accepted semantic corpus is also M25-53's three-distinct-source visual fixture. Keep one
+// The accepted semantic corpus is also 's three-distinct-source visual fixture. Keep one
 // route table so the reference journey cannot accidentally serve a different video under an ID
 // whose timing/landmarks came from the corpus snapshot.
 async function routeCorpusFixtureMedia(
@@ -624,14 +627,14 @@ async function routeCorpusFixtureMedia(
 
 /**
  * Boots the real integrated shell on `?compositionSource=1`, media served content-free, for a
- * journey that presents a whole series of distinct compositions in the same page (M25-20's 151
+ * journey that presents a whole series of distinct compositions in the same page ('s 151
  * `render_and_browser` rows) rather than reloading once per composition.
  */
 export async function openCompositionSeriesShell(
   page: Page,
 ): Promise<CompositionSeriesControl> {
   const root = fileURLToPath(new URL("../../../../", import.meta.url));
-  // M25-20 F1 corrective: the three corpus source assets carry a real, spec-compliant picture
+  //  F1 corrective: the three corpus source assets carry a real, spec-compliant picture
   // (`semantic_conformance_media.SOURCE_PROFILES`) built once by
   // `scripts/nle_semantic_browser_media.py` (a read-only caller of the render stage's own
   // `_paint_frame`/`_build_source_video`, never a second re-implementation of the paint routine).

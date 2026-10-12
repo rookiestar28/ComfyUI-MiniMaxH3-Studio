@@ -4,7 +4,7 @@ type ForeignArrowHotkey = { count: number; remove: () => void };
 
 /**
  * Runs `body` while a document keydown listener cancels the default of every arrow key, as the
- * ComfyUI-Easy-Use hotkeys-js binding does on a supplied host (M26-05 runtime-18), and returns how
+ * ComfyUI-Easy-Use hotkeys-js binding does on a supplied host ( runtime-18), and returns how
  * many arrow keys reached that listener. A range left to its native step loses those keys; an
  * owned range steps itself and stops them, so the count stays zero.
  */

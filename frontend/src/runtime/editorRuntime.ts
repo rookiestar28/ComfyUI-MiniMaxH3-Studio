@@ -2015,7 +2015,7 @@ class HtmlMediaElementTransport implements MediaTransport {
     }
     try {
       // IMPORTANT: clear the source before releasing its private owner; omitting load() can leave
-      // the browser decoder holding the prior source after the M25-13 lease has been released.
+      // the browser decoder holding the prior source after the lease has been released.
       this.sourceOwner.element.removeAttribute("src");
       this.sourceOwner.element.load();
     } catch {

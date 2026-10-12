@@ -1,4 +1,4 @@
-"""M17-11 Phase D exact plan-to-private-receipt integration tests."""
+"""Phase D exact plan-to-private-receipt integration tests."""
 
 from __future__ import annotations
 
@@ -772,7 +772,7 @@ def test_exact_qualified_pipeline_commits_and_reads_private_output() -> None:
 
 
 # ---------------------------------------------------------------------------
-# M20-08: incremental source-backed inputs through the pipeline seam
+# incremental source-backed inputs through the pipeline seam
 # ---------------------------------------------------------------------------
 
 

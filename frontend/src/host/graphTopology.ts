@@ -140,7 +140,7 @@ export function validateCanonicalTopology(
       originType === "PrimitiveFloat" &&
       targetType === "comfyui_h3_context.H3Context.Request"
     )
-      // IMPORTANT: M23-04 materialization exposes one visible duration source.
+      // IMPORTANT: materialization exposes one visible duration source.
       // Admission recognizes only its exact Request socket; compiled-route
       // qualification still proves the value and shared native derivation.
       return (

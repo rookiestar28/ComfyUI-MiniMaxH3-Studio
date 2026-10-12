@@ -1,6 +1,6 @@
 """Generate the table both statements of the clip audio envelope are tested against.
 
-Writes `tests/fixtures/m25_77_clip_audio_envelope_v1.json` from `core/clip_audio.py`: for a fixed
+Writes `tests/fixtures/_clip_audio_envelope_v1.json` from `core/clip_audio.py`: for a fixed
 set of clips -- a duration and an audio member each -- and a fixed set of clip-relative output
 samples, the factor the definition gives. The browser's statement
 (`frontend/src/runtime/clipAudioEnvelope.ts`) and the final render's filters are each tested
@@ -9,7 +9,7 @@ against these rows; neither takes its expectation from the other.
 GUARD: derive, never hand-edit. A row typed by hand is a number nobody computed.
 
 Usage:
-    python scripts/m25_77_clip_audio_envelope_fixture.py [--check]
+    python scripts/_clip_audio_envelope_fixture.py [--check]
 
 `--check` recomputes and compares without writing, which is what the test suite calls.
 """

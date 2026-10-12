@@ -1,4 +1,4 @@
-"""M20-09 focused tests: pure seam policy, exact accounting and receipts."""
+"""focused tests: pure seam policy, exact accounting and receipts."""
 
 from __future__ import annotations
 

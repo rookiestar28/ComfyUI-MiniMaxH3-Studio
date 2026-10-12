@@ -1,4 +1,4 @@
-"""M20-01: the H3 temporal capability profile, over two declared provenance classes.
+"""the H3 temporal capability profile, over two declared provenance classes.
 
 Later timeline, latent-continuity and reconstruction items need one place to ask what the model and
 its adapter actually do with time.  This module is that place, and the single decision that shapes
@@ -8,7 +8,7 @@ it is that the answers do not all come from the same kind of evidence:
   pinned official source with no host, no weights and no execution, so it is bound to that source
   and to nothing else;
 * a **model capability claim** asserts what this model can *do* -- the trained range, whether a
-  continuation or bridge mode exists at all.  Nothing instantiates one except an accepted `M19-07`
+  continuation or bridge mode exists at all. Nothing instantiates one except an accepted ``
   row with status `supported`.
 
 Every declared member carries its class as a typed field, so a consumer branches on it and a test
@@ -16,7 +16,7 @@ asserts it.  A member with no class is a defect, and no adapter fact may be pres
 capability -- which is the failure this split exists to prevent, because the adapter's arithmetic is
 exactly the material that looks authoritative enough to be mistaken for a capability.
 
-**This module is not a second alignment authority.**  `M17-25` made
+**This module is not a second alignment authority.** `` made
 :mod:`comfyui_h3_context.core.length` the repository's single owner of the frame rate, the
 `5 + 17k` video-run lattice, the accepted and trained ranges and the seconds-to-frames convention.
 Everything here that touches those is imported from it and composed, never restated; the lattice
@@ -41,7 +41,7 @@ TEMPORAL_PROFILE_SCHEMA = "h3-context-temporal-profile/1"
 CURRENT_TEMPORAL_PROFILE_VERSION = 1
 
 #: The audio latent grid, in steps per second of delivered video.  This is the one temporal rate the
-#: repository did not already own: `core.length` is entirely video-side, and `M19-07` derived the
+#: repository did not already own: `core.length` is entirely video-side, and `` derived the
 #: audio side from the pinned source without writing it into the product package, precisely so that
 #: this item would place it once.
 AUDIO_LATENT_FPS = 40
@@ -72,7 +72,7 @@ CONTEXT_EXTENT_GRID_FRAMES = math.lcm(length.LATTICE_STEP, EXACT_AUDIO_PERIOD_FR
 #: The minimum real context extent on either side of a target interval: one grid unit.  Anything
 #: smaller cannot be a whole number of steps on both grids, so it is not expressible as latent
 #: context however the surrounding job is planned.  This is a floor on the *representation*; how
-#: much lookahead any particular job requests belongs to `M20-06` and `M20-07`.
+#: much lookahead any particular job requests belongs to `` and ``.
 MINIMUM_CONTEXT_EXTENT_FRAMES = CONTEXT_EXTENT_GRID_FRAMES
 
 
@@ -102,7 +102,7 @@ class ProvenanceClass(str, Enum):
 
 
 class CapabilityStatus(str, Enum):
-    """The `M19-07` row vocabulary, preserved exactly rather than translated.
+    """The `` row vocabulary, preserved exactly rather than translated.
 
     `unqualified` is the member that earns the enum.  It means "we have not established this", which
     a consumer must be able to tell apart from `unsupported` -- an exhaustively evidenced absence
@@ -133,7 +133,7 @@ class PinnedSource:
     that never enters a shipped record.
 
     `digest` and `byte_length` are optional because the two pinned sources are pinned differently
-    and pretending otherwise would be an invented fact.  The native node was hashed by `M19-07` and
+    and pretending otherwise would be an invented fact. The native node was hashed by `` and
     carries a content digest; the official templates were pinned by upstream revision, so their
     entry records the revision it actually has rather than a digest nobody computed.
     """
@@ -154,7 +154,7 @@ class PinnedSource:
         }
 
 
-#: The native node this repository integrates with, at the exact identity `M19-07` recorded and then
+#: The native node this repository integrates with, at the exact identity `` recorded and then
 #: reproduced after its distinct review.  The revision is public upstream repository metadata.
 NATIVE_NODE_SOURCE = PinnedSource(
     label="comfy_extras/nodes_minimax_h3.py",
@@ -164,7 +164,7 @@ NATIVE_NODE_SOURCE = PinnedSource(
     byte_length=15728,
 )
 
-#: The official workflow templates, which own the authored-duration convention `M17-25` adopted.
+#: The official workflow templates, which own the authored-duration convention `` adopted.
 #: Named separately because one adapter fact -- seconds to frames -- comes from the templates rather
 #: than from the node, and a profile recording a single source would be misattributing it.
 OFFICIAL_TEMPLATE_SOURCE = PinnedSource(
@@ -228,7 +228,7 @@ class ModelCapabilityClaim:
 
     A claim is always present as a member; what varies is its `status`.  That is the whole reason
     the class exists: dropping an uninstantiated claim would leave a consumer unable to distinguish
-    "not established" from "no such capability", and `M19-07` overturned an `unsupported` verdict
+    "not established" from "no such capability", and `` overturned an `unsupported` verdict
     for exactly one of these rows, so "absent" is not an honest state for any of them.
 
     `evidence_level` is `None` for everything except a qualified claim, and that is deliberate.
@@ -270,7 +270,7 @@ class ModelCapabilityClaim:
 class TrainedRangeReport:
     """The trained range as a member that is always present and sometimes uninstantiated.
 
-    The invariant enforced here is the one `AC-M20-01-09` turns on: a value exists exactly when the
+    The invariant enforced here is the one `AC--09` turns on: a value exists exactly when the
     status is `supported`.  A consumer cannot read an unqualified trained range as "no trained
     bound", because there is no shape in which the range is missing and the member is absent.
     """
@@ -296,7 +296,7 @@ class TrainedRangeReport:
 
 @dataclass(frozen=True, slots=True)
 class QualifiedRow:
-    """One row of an accepted `M19-07` matrix, in its content-free projection."""
+    """One row of an accepted `` matrix, in its content-free projection."""
 
     row: str
     status: CapabilityStatus
@@ -314,7 +314,7 @@ class QualifiedRow:
 
 @dataclass(frozen=True, slots=True)
 class AcceptedQualification:
-    """The accepted `M19-07` evidence this profile may join, and nothing else.
+    """The accepted `` evidence this profile may join, and nothing else.
 
     Live probes are not replayed and no other successor row is consulted: the projection carries
     statuses, reason codes and one opaque subject identity, which is everything a binding needs and
@@ -410,7 +410,7 @@ class CropPlan:
     """The shape of one continuation, stated as frames, before any of it is executed.
 
     This item owns the *constraint* only.  How much lookahead a given job asks for, how the crop is
-    performed and how it is recorded in a boundary receipt belong to `M20-06` and `M20-07`; they
+    performed and how it is recorded in a boundary receipt belong to `` and ``; they
     consume :func:`check_crop_conservation` rather than holding their own copy of the rule.
     """
 
@@ -677,7 +677,7 @@ ADAPTER_FACTS: tuple[AdapterFact, ...] = (
     ),
 )
 
-#: The `M19-07` row each model-level claim is instantiated by, with the summary it asserts.  Rows
+#: The `` row each model-level claim is instantiated by, with the summary it asserts. Rows
 #: appear here whether or not they were qualified, because a dropped claim is indistinguishable from
 #: a capability that was never considered.
 _CAPABILITY_SUBJECTS: tuple[tuple[str, str, str], ...] = (
@@ -814,7 +814,7 @@ class TemporalCapabilityProfile:
 def build_temporal_profile(
     accepted: AcceptedQualification | None = None,
 ) -> TemporalCapabilityProfile:
-    """Build the profile, joining accepted `M19-07` evidence when there is any.
+    """Build the profile, joining accepted `` evidence when there is any.
 
     With no accepted evidence the adapter facts are complete and every capability claim reports
     `unqualified` -- not absent, not defaulted, and never substituted for by an adapter fact.  With

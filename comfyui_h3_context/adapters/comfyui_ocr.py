@@ -1,4 +1,4 @@
-"""ComfyUI-native exact OCR adapter seam for M11-03.
+"""ComfyUI-native exact OCR adapter seam for.
 
 The adapter only consumes a host-owned CLIP supplied by the integration layer.  It does not scan
 model directories, load checkpoints, invoke OCR packages, or select Ollama implicitly.

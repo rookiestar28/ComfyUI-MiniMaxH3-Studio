@@ -161,7 +161,7 @@ def build_authoring_output_runtime(
 ) -> AuthoringOutputRuntime:
     """An output runtime with no registry, attached to the process media runtime manager.
 
-    CRITICAL: no environment reader and no registry built here. The M25-22 runtime read the
+    CRITICAL: no environment reader and no registry built here. The runtime read the
     environment once at construction and cached an absent registry for the life of the process, so
     an install or a local selection could never enable final output without a restart. The manager
     now calls `attach` when a binding becomes active, on its worker thread.

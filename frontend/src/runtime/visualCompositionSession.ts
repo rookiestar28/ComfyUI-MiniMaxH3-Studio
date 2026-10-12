@@ -426,7 +426,7 @@ export function createVisualCompositionSession(options: Options) {
       ++generation,
     );
     const paintDuration = performance.now() - paintStarted;
-    // IMPORTANT (M25-51): pointer previews are drafts, not delivered accepted-frame samples.
+    // IMPORTANT: pointer previews are drafts, not delivered accepted-frame samples.
     // Publishing one through the measurement harness rerenders the overlay during pointer capture,
     // replaces its owner node, and loses the single release/command boundary.
     const observer = observePresentation
@@ -720,7 +720,7 @@ export function createVisualCompositionSession(options: Options) {
                 );
                 // CRITICAL: when the receipt names the owner that ended and wall time has
                 // reached its end, move to that end frame -- the cut. The runtime can report
-                // the end before the owner's last frame was presented; "the next unpresented
+                // the end before the last frame was presented; "the next unpresented
                 // frame" is then still inside that owner, and the audio follower treats a seek
                 // there as a user seek and stops the audio it had scheduled across the cut
                 // (a 21-32 ms silence, then the successor restarts late). Do not simplify this
@@ -1053,7 +1053,7 @@ export function createVisualCompositionSession(options: Options) {
     /**
      * Adopt a newly measured picture box.
      *
-     * IMPORTANT (M25-45): the session owns this, not the observer. A `ResizeObserver` fires per
+     * IMPORTANT: the session owns this, not the observer. A `ResizeObserver` fires per
      * frame during a splitter drag, so the requests are coalesced to one per animation frame and
      * the last one wins. The repaint goes through `paint`, which already fences on ownership, the
      * runtime epoch, the presented frame, the public fingerprint and an exact paused observation
@@ -1107,7 +1107,7 @@ export function createVisualCompositionSession(options: Options) {
     /**
      * Repaint one paused resolved layer with an in-memory transform draft.
      *
-     * IMPORTANT (M25-51): this is a presentation draft, never a snapshot mutation. Keeping it
+     * IMPORTANT: this is a presentation draft, never a snapshot mutation. Keeping it
      * inside the session preserves the exact resolved frame/resources while the DOM overlay moves;
      * routing pointer motion through timeline commands would create an undo step per event.
      */

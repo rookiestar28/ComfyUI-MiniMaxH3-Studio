@@ -1,4 +1,4 @@
-"""Focused M17-10 tests for the single receipt and qualified native boundary."""
+"""Focused tests for the single receipt and qualified native boundary."""
 
 from __future__ import annotations
 

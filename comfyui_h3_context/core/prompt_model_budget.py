@@ -1,4 +1,4 @@
-"""M22-02 prompt-model runtime budget and admission planner.
+"""prompt-model runtime budget and admission planner.
 
 Nothing is sent to a prompt model until this module has said it fits. The planner resolves a context
 step from a declared ladder, estimates the input cost, reserves the requested output plus a margin,

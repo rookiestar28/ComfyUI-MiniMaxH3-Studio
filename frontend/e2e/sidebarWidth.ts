@@ -1,4 +1,4 @@
-// M25-43 B-M2543-01: the sidebar width controller inside a host-shaped PrimeVue splitter, laid out
+//  B-M2543-01: the sidebar width controller inside a host-shaped PrimeVue splitter, laid out
 // by a real engine. The panel opens at a stale narrow basis; a test widens and narrows it by
 // rewriting `flex-basis`, exactly as a gutter drag does, and measures whether the content wrapper
 // and the mount follow. jsdom cannot show this, because it lays nothing out.

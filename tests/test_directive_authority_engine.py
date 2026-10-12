@@ -1,4 +1,4 @@
-"""M13-04 directive authority, clarification, and abstention contract tests."""
+"""directive authority, clarification, and abstention contract tests."""
 
 from __future__ import annotations
 

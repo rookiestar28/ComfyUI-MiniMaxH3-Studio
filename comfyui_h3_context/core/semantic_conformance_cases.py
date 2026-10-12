@@ -58,7 +58,7 @@ from .semantic_conformance_media import TIMING_VFR_START_FRAME as _TIMING_VFR_ST
 #:   compared three ways.
 #: - `contract_refusal`: the accepted decoder refuses the composition with an exact code, the
 #:   runtime refuses the same edit with the same code, and no artifact exists.
-#: - `command_effect`: one M25-11 command is applied through the real history, and the before and
+#: - `command_effect`: one command is applied through the real history, and the before and
 #:   after compositions are rendered and presented separately.
 #: - `command_refusal`: the command is refused with an exact code and mutates nothing.
 #: - `shell_invariant`: a frozen `SidebarEditorUiInvariantV1` row, observed in the browser only --
@@ -77,7 +77,7 @@ OBSERVATION_KINDS: Final = (
 )
 
 #: The identifiers the accepted base composition actually uses, quoted from
-#: `tests/fixtures/m25_20_semantic_corpus_base_v1.json`. They are named once so a recipe can never
+#: `tests/fixtures/_semantic_corpus_base_v1.json`. They are named once so a recipe can never
 #: spell a clip the fixture does not contain -- a recipe naming an absent clip would be refused by
 #: the decoder for the wrong reason and would look like the refusal it was supposed to prove.
 PRIMARY_CLIP: Final = "clip-main"
@@ -118,7 +118,7 @@ SPLIT_TAIL_CLIP: Final = "clip-split-tail"
 #: that reason, and a recipe that combines a timing edit with a source-shifting setup would be
 #: again.
 TIMING_FAMILY_LANDMARKS: Final = (0, 12, 47)
-#: The accepted M25-10 fixture names its font asset `font-main`, which is a placeholder: the
+#: The accepted fixture names its font asset `font-main`, which is a placeholder: the
 #: render planner resolves a text clip's `font_asset_id` against the *packaged* font manifest
 #: (`comfyui_h3_context/fonts/font_manifest_v1.json`), and a composition naming a font that is
 #: not packaged cannot be rendered at all. Every text row would then be permanently BLOCKED for
@@ -179,15 +179,15 @@ REFUSAL_CODES: Final = (
 #: Which composition a row is a case of. A recipe names one of these; a stage resolves the name to
 #: a fixture, and a recipe never carries a path.
 #:
-#: - `corpus`: the accepted 320 x 180 base, `tests/fixtures/m25_20_semantic_corpus_base_v1.json`.
-#:   Every row written before M25-45 is one of these and none of them changed.
+#: - `corpus`: the accepted 320 x 180 base, `tests/fixtures/_semantic_corpus_base_v1.json`.
+#: Every row written before is one of these and none of them changed.
 #: - `high_resolution`: the same composition at 1280 x 720 with 512-square sources
-#:   (`tests/fixtures/m25_45_semantic_highres_base_v1.json`, derived by
-#:   `scripts/m25_45_highres_base_fixture.py`). M25-45's AC45-05 rows, which observe real detail at
+#: (`tests/fixtures/_semantic_highres_base_v1.json`, derived by
+#: `scripts/_highres_base_fixture.py`). 's AC45-05 rows, which observe real detail at
 #:   the shipped preview's own cap rather than a 128-pixel picture enlarged to fill it.
 #: - `clip_audio`: the accepted base's canvas and image layer over one 248-frame clip of the tone
-#:   source (`tests/fixtures/m25_77_semantic_clip_audio_base_v1.json`, derived by
-#:   `scripts/m25_77_clip_audio_base_fixture.py`). M25-77's rows, which measure a clip's audio
+#: source (`tests/fixtures/_semantic_clip_audio_base_v1.json`, derived by
+#: `scripts/_clip_audio_base_fixture.py`). 's rows, which measure a clip's audio
 #:   adjustments as levels of a steady tone, with room for the longest fade the contract admits.
 CORPUS_BASE: Final = "corpus"
 HIGH_RESOLUTION_BASE: Final = "high_resolution"
@@ -223,7 +223,7 @@ BASE_FIXTURE_NAMES: Final[Mapping[str, str]] = MappingProxyType(
 BASE_PRESENTATION: Final[Mapping[str, Mapping[str, float]]] = MappingProxyType(
     {
         # Unmeasured: 320 x 180 is inside the legacy floor, so the product presents it at output
-        # scale in any picture box and the corpus rows are unchanged by M25-45.
+        # scale in any picture box and the corpus rows are unchanged by.
         CORPUS_BASE: MappingProxyType(
             {"pane_css_width": 0.0, "pane_css_height": 0.0, "device_pixel_ratio": 1.0}
         ),
@@ -257,7 +257,7 @@ EDIT_TARGETS: Final = (
     #: literal fields in `value` written over it. The timing family needs it: a hard cut is two
     #: clips meeting at a frame, and no single-clip edit can be that case.
     "clips",
-    #: One field of the `subject` clip's audio member (M25-77). The member is optional on the wire
+    #: One field of the `subject` clip's audio member. The member is optional on the wire
     #: and its identity is its absence, so this target is applied by `_apply_clip_audio` rather
     #: than as a plain field write: an absent member is the identity to edit from, and an edit that
     #: lands back on the identity removes the member instead of writing it out, which the decoder
@@ -315,7 +315,7 @@ PAYLOAD_TOKENS: Final = (SETUP_CURSOR, TIMELINE_FINGERPRINT, STALE_FINGERPRINT)
 
 @dataclass(frozen=True, slots=True)
 class CommandStep:
-    """One M25-11 command, named by its accepted backend identifier and its payload."""
+    """One command, named by its accepted backend identifier and its payload."""
 
     kind: str
     payload: Mapping[str, object]
@@ -1037,7 +1037,7 @@ _SPLIT_PRIMARY_LATE: Final = CommandStep(
 #: expects, and that is the point of those three rather than an oversight: an overlay that carries
 #: audio, an overlay that reuses the primary's own source, and a visual-only edit must all leave the
 #: output audio bit-identical to the audible base, so their evidence is an unchanged expectation
-#: measured against a changed composition. `tests/test_m25_20_conformance_cases.py` pins that as a
+#: measured against a changed composition. `tests/test__conformance_cases.py` pins that as a
 #: named group; never satisfy it by inventing an audio difference those rows must not have.
 _EMBEDDED_AUDIO: Final[
     tuple[tuple[str, tuple[SnapshotEdit, ...], tuple[CommandStep, ...]], ...]
@@ -1891,7 +1891,7 @@ _COMMAND_ROWS: Final[
 }
 
 
-#: M25-45 AC45-05. Each row keeps the natural stack up to its own layer class and disables what
+#: AC45-05. Each row keeps the natural stack up to its own layer class and disables what
 #: sits above it, so the landmarks it is judged on are the ones that layer drew. The image overlay
 #: keeps the primary beneath it because `multiply` over an empty canvas is black and would erase
 #: the very marks the row exists to read; the video overlay keeps it because `screen` over the
@@ -1926,7 +1926,7 @@ def _clip_audio(field_name: str, value: object, subject: str = PRIMARY_CLIP) -> 
     return SnapshotEdit("clip.audio", field_name, value, subject)
 
 
-#: M25-77: the named `clip_audio` rows -- each leaf, its edits and the code a refusing leaf carries.
+#: : the named `clip_audio` rows -- each leaf, its edits and the code a refusing leaf carries.
 #: A boundary states one field at a time; these state what only a combination or a second clip can.
 #:
 #: GUARD: in the two hand-over rows the appended clip comes before the fade-out, so the copy of
@@ -2184,7 +2184,7 @@ def _section(
 def normalize_base(wire: MutableMapping[str, object]) -> None:
     """Rename the fixture's placeholder font asset to the packaged font, in place.
 
-    GUARD: the fixture is accepted M25-10 material and is not edited on disk; the rename happens on
+    GUARD: the fixture is accepted material and is not edited on disk; the rename happens on
     the copy every stage builds. Do not skip this and do not do it per stage -- a stage that renders
     with the real font while another decodes with the placeholder would be comparing two different
     compositions, and the difference would surface as an unexplained text mismatch rather than as a

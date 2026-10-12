@@ -1,4 +1,4 @@
-"""M15-05 current-report, graph-edge, and product-surface qualification tests."""
+"""current-report, graph-edge, and product-surface qualification tests."""
 
 from __future__ import annotations
 

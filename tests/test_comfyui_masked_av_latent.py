@@ -1,4 +1,4 @@
-"""M20-06 focused tests for the dual-domain mask attachment adapter.
+"""focused tests for the dual-domain mask attachment adapter.
 
 Fake seams only: the assertions are the codec contract -- exact binding gates every tensor
 construction, the suffix values and shapes handed to the factories are exactly the plan's,
@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import unittest
 
-from official_temporal_parity import NATIVE_NODE_SHA256
+from oracles.native_temporal import NATIVE_NODE_SHA256
 
 from comfyui_h3_context.adapters.comfyui_masked_av_latent import (
     MaskedAVLatentAdapterError,

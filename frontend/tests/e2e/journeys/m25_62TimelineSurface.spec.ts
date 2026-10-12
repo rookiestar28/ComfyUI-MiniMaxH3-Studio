@@ -1,5 +1,5 @@
 /**
- * M25-62 redesigned timeline surface, measured in the rendered editor:
+ *  redesigned timeline surface, measured in the rendered editor:
  *
  * - A62-1: the toolbar keeps its 12 controls in order, in an edit and a view group on one row at
  *   720 px, borderless at the icon target, with the shortcut in each description.
@@ -792,7 +792,7 @@ test("A62-7: an empty Main lane shows the dashed drop zone instead of a sentence
   await page.getByRole("button", { name: "Open full editor" }).click();
   await expect(page.locator(surface)).toBeVisible();
   const zone = page.locator(surface).locator("[data-h3-nle-empty-lane]");
-  // M25-63 updated the sentence for the bin's "+".
+  //  updated the sentence for the bin's "+".
   await expect(zone).toHaveText("Drag media here, or press + on a thumbnail");
   const lane = page
     .locator(surface)

@@ -226,7 +226,7 @@ def _census(
         )
         if not isinstance(raw, str) or _MODEL_IDENTIFIER.fullmatch(raw) is None or ".." in raw:
             raise PromptModelContractError("readiness_census")
-        # M22-17. Validate the wire value exactly as received, then join it to the spelling the
+        # . Validate the wire value exactly as received, then join it to the spelling the
         # profile pins. A provider whose listing route answers `models/<id>` while its chat route
         # takes the bare id would otherwise have every row judged UNPINNED, and the census would
         # report the selected model as absent from its own catalogue.
@@ -371,7 +371,7 @@ def probe_provider_readiness(
         # configuration fact, and `CORRECT_ENDPOINT` is what an operator can do about it.
         return _failed(PromptModelOutcomeId.EGRESS_REFUSED)
 
-    # M22-20. Whether the provider ever answered has to be observable from the handler below, so
+    # . Whether the provider ever answered has to be observable from the handler below, so
     # the recorder is bound before the block that can fail. A recorder that has heard nothing
     # carries `listing is None`, which is exactly the state "no response was received".
     recorder = _RecordingExchange(None)
@@ -453,7 +453,7 @@ def probe_provider_readiness(
         # listing returned before cancellation, its census must not become selection authority.
         if error.outcome_id is PromptModelOutcomeId.CANCELLED:
             return _failed(PromptModelOutcomeId.CANCELLED)
-        # M22-20. `_failed` says the provider could not be reached, and that is not what these
+        # . `_failed` says the provider could not be reached, and that is not what these
         # errors mean once a body has already come back. Every `MALFORMED_RESPONSE` raised inside
         # `resolve_live_identity` is a judgement about a response that was received and parsed: a
         # listing longer than the ceiling, a row that will not read, a digest that will not
@@ -463,7 +463,7 @@ def probe_provider_readiness(
         #
         # The recorder is the discriminator rather than the outcome id, because the exchange itself
         # can raise `MALFORMED_RESPONSE` for a body it could not decode, and that case is pinned at
-        # `reachable=False` by an M22-15 test. The recorder answers the question actually being
+        # `reachable=False` by an test. The recorder answers the question actually being
         # asked -- did the provider answer -- instead of a proxy for it. The outcome id is carried
         # through rather than relabelled, so a future outcome raised there is reported faithfully.
         #

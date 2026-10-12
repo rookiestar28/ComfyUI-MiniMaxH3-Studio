@@ -1,4 +1,4 @@
-"""M20-09 focused tests: seam filter-graph compilation and argv discipline."""
+"""focused tests: seam filter-graph compilation and argv discipline."""
 
 from __future__ import annotations
 

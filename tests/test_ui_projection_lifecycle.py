@@ -1,4 +1,4 @@
-"""M10-05 terminal Preview/UI projection and execution correlation tests."""
+"""terminal Preview/UI projection and execution correlation tests."""
 
 from __future__ import annotations
 
@@ -97,7 +97,7 @@ class UIProjectionLifecycleTests(unittest.TestCase):
             self.assertEqual(projection.to_wire()["state"], state.value)
 
     def test_a_diagnostic_severity_outside_the_known_set_is_refused(self) -> None:
-        """M18-05: the one invariant the retired UI-projection schema held and the module did not.
+        """the one invariant the retired UI-projection schema held and the module did not.
 
         The retired schema stated `severity` as an enum of four values; the typed authority only
         bounded its length, so any 32-character string reached the UI boundary as a severity. The

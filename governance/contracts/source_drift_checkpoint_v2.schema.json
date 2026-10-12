@@ -31,7 +31,7 @@
   "properties": {
     "schema": {"const": "h3.source_drift_checkpoint.v2"},
     "version": {"const": "2.0.0"},
-    "retrieved_at": {"const": "2026-08-10T00:39:00+08:00"},
+    "retrieved_at": {"const": "2026-10-09T14:00:10+08:00"},
     "disposition": {"const": "PASS_WITH_BLOCKED_DRIFT"},
     "product_scope": {"const": "MANUAL_ONLY_SCOPED"},
     "non_equivalence_preserved": {"const": true},
@@ -122,7 +122,7 @@
           ]
         },
         "official_url": {"type": "string", "format": "uri", "maxLength": 512},
-        "retrieved_at": {"const": "2026-08-10T00:39:00+08:00"},
+        "retrieved_at": {"enum": ["2026-08-10T00:39:00+08:00", "2026-10-09T14:00:10+08:00"]},
         "expected_identity": {
           "type": "string",
           "pattern": "^(git|gitblob):[0-9a-f]{40}$|^sha256:[0-9a-f]{64}$"

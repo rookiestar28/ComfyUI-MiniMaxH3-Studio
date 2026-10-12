@@ -16,12 +16,15 @@ from typing import cast
 
 from .assisted_authoring_scope import AssistedAuthoringState
 from .canonical import canonical_fingerprint
+from .compatibility import default_compatibility_matrix
 from .fidelity_scorecard import FROZEN_FIDELITY_SCORECARD_FINGERPRINT
+from .native_h3 import NATIVE_H3_SOURCE_BLOB
 from .prompt_model_provider import load_prompt_model_catalog
 
 SOURCE_DRIFT_CHECKPOINT_SCHEMA = "h3.source_drift_checkpoint.v2"
 SOURCE_DRIFT_CHECKPOINT_VERSION = "2.0.0"
-SOURCE_DRIFT_CHECKPOINT_RETRIEVED_AT = "2026-08-10T00:39:00+08:00"
+SOURCE_DRIFT_CHECKPOINT_RETRIEVED_AT = "2026-10-09T14:00:10+08:00"
+_HISTORICAL_RETRIEVED_AT = "2026-08-10T00:39:00+08:00"
 MAX_SOURCE_DRIFT_WIRE_BYTES = 65_536
 MAX_SOURCE_DRIFT_SURFACES = 64
 MAX_SOURCE_DRIFT_STRING_LENGTH = 512
@@ -115,8 +118,9 @@ class SourceSurface:
             or any(marker in self.official_url for marker in ("?", "#", "@", "\\"))
         ):
             raise SourceDriftCheckpointError("surface official_url is not allowlisted")
-        if type(self.retrieved_at) is not str or self.retrieved_at != (
-            SOURCE_DRIFT_CHECKPOINT_RETRIEVED_AT
+        if type(self.retrieved_at) is not str or self.retrieved_at not in (
+            SOURCE_DRIFT_CHECKPOINT_RETRIEVED_AT,
+            _HISTORICAL_RETRIEVED_AT,
         ):
             raise SourceDriftCheckpointError("surface retrieval time is not frozen")
         for value, field_name in (
@@ -170,12 +174,13 @@ def _surface(
     disposition: DriftDisposition = DriftDisposition.EXACT_MATCH,
     affected_seams: tuple[str, ...] = (),
     owners: tuple[str, ...] = (),
+    retrieved_at: str = _HISTORICAL_RETRIEVED_AT,
 ) -> SourceSurface:
     return SourceSurface(
         surface_id=surface_id,
         group=group,
         official_url=official_url,
-        retrieved_at=SOURCE_DRIFT_CHECKPOINT_RETRIEVED_AT,
+        retrieved_at=retrieved_at,
         expected_identity=expected_identity,
         observed_identity=expected_identity if observed_identity is None else observed_identity,
         material=material,
@@ -189,9 +194,11 @@ def _surface_inventory() -> tuple[SourceSurface, ...]:
     minimax_repo = (
         "https://github.com/MiniMax-AI/MiniMax-H3/tree/b7227fa6a6206e9fb30562383d39e53cf3866a48"
     )
-    comfy_supported = (
-        "https://github.com/Comfy-Org/ComfyUI/tree/c44dea18809e3ca0e12e25cbe6938c2c45a29c9d"
-    )
+    # CRITICAL: supported source follows its qualified profile; later observations grant no support.
+    profile = default_compatibility_matrix().profile("comfyui-reference-0.32.0")
+    if profile is None or profile.host_revision is None:
+        raise SourceDriftCheckpointError("supported source profile is unavailable")
+    comfy_supported = f"https://github.com/Comfy-Org/ComfyUI/tree/{profile.host_revision}"
     frontend_supported = (
         "https://github.com/Comfy-Org/ComfyUI_frontend/tree/"
         "f339c6b2ec0cc90e1c4fa717d9f7d6d565a8f6da"
@@ -245,25 +252,29 @@ def _surface_inventory() -> tuple[SourceSurface, ...]:
             "comfyui.supported.core",
             SourceSurfaceGroup.COMFYUI_CORE,
             comfy_supported,
-            "git:c44dea18809e3ca0e12e25cbe6938c2c45a29c9d",
+            f"git:{profile.host_revision}",
+            retrieved_at=SOURCE_DRIFT_CHECKPOINT_RETRIEVED_AT,
         ),
         _surface(
             "comfyui.supported.text_generate",
             SourceSurfaceGroup.COMFYUI_CORE,
             comfy_supported,
-            "gitblob:5a947d5c57b32e7e8d2ed1ef364064959d841cc4",
+            "gitblob:40004652cb43b1b39bec50089b61178695a27c7e",
+            retrieved_at=SOURCE_DRIFT_CHECKPOINT_RETRIEVED_AT,
         ),
         _surface(
             "comfyui.supported.clip_loader",
             SourceSurfaceGroup.COMFYUI_CORE,
             comfy_supported,
-            "gitblob:08529d8dc414138e56d0cc6e68367f95da70f038",
+            "gitblob:ec298e1de0bc21a0850b384fe8bed4e904351cfb",
+            retrieved_at=SOURCE_DRIFT_CHECKPOINT_RETRIEVED_AT,
         ),
         _surface(
             "comfyui.supported.native_h3",
             SourceSurfaceGroup.COMFYUI_NATIVE_H3,
             comfy_supported,
-            "gitblob:22bc91cd4570a071c664ec4848a5be748909e1e7",
+            f"gitblob:{NATIVE_H3_SOURCE_BLOB}",
+            retrieved_at=SOURCE_DRIFT_CHECKPOINT_RETRIEVED_AT,
         ),
         _surface(
             "comfyui.supported.frontend",
@@ -286,25 +297,27 @@ def _surface_inventory() -> tuple[SourceSurface, ...]:
         _surface(
             "comfyui.latest.core",
             SourceSurfaceGroup.COMFYUI_CORE,
-            "https://github.com/Comfy-Org/ComfyUI/tree/cbbc9dab1f03d0d9a6caa8a8be7d77a7e37e1e44",
-            "git:c44dea18809e3ca0e12e25cbe6938c2c45a29c9d",
-            "git:cbbc9dab1f03d0d9a6caa8a8be7d77a7e37e1e44",
+            "https://github.com/Comfy-Org/ComfyUI/tree/ace9172e95038ac25015c419713aa7755f739034",
+            f"git:{profile.host_revision}",
+            "git:ace9172e95038ac25015c419713aa7755f739034",
             disposition=DriftDisposition.ADDITIVE_NON_SUBSTITUTING,
             affected_seams=("latest_host_compatibility",),
             owners=("M16-01",),
+            retrieved_at=SOURCE_DRIFT_CHECKPOINT_RETRIEVED_AT,
         ),
         _surface(
             "comfyui.latest.native_h3",
             SourceSurfaceGroup.COMFYUI_NATIVE_H3,
             "https://github.com/Comfy-Org/ComfyUI/blob/"
-            "cbbc9dab1f03d0d9a6caa8a8be7d77a7e37e1e44/"
+            "ace9172e95038ac25015c419713aa7755f739034/"
             "comfy_extras/nodes_minimax_h3.py",
-            "gitblob:22bc91cd4570a071c664ec4848a5be748909e1e7",
-            "gitblob:0b1840e851c248f89e9920159c3c8237fa2e7186",
+            f"gitblob:{NATIVE_H3_SOURCE_BLOB}",
+            "gitblob:9ac827b0a6abba0f070a1924eddfb4aeb6788745",
             material=True,
             disposition=DriftDisposition.BLOCKED_PENDING_REQUALIFICATION,
             affected_seams=("native_sigma_sampler", "latest_native_workflow"),
             owners=("M15-05", "M16-01"),
+            retrieved_at=SOURCE_DRIFT_CHECKPOINT_RETRIEVED_AT,
         ),
         _surface(
             "comfyui.latest.frontend",

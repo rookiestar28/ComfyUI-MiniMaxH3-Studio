@@ -1,4 +1,4 @@
-"""M26-01 pure whole-video duration and deterministic partition contracts."""
+"""pure whole-video duration and deterministic partition contracts."""
 
 from __future__ import annotations
 

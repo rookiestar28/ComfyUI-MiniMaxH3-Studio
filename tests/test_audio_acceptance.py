@@ -1,4 +1,4 @@
-"""M12-07 audio-perception acceptance gate tests."""
+"""audio-perception acceptance gate tests."""
 
 from __future__ import annotations
 

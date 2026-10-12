@@ -1,4 +1,4 @@
-"""M18-06 closeout matrix tests.
+"""closeout matrix tests.
 
 A closeout record is only worth having if it can be wrong. These tests are mostly about the ways it
 must refuse to be written: a probe that claims an execution identity depends on a render, a mutation
@@ -412,9 +412,9 @@ class GeneratedMatrixTests(unittest.TestCase):
         self.assertEqual(fields & probe_ids, {"prompt_fingerprint", "report_fingerprint"})
 
     def test_no_execution_identity_follows_a_non_semantic_change(self) -> None:
-        """AC-M18-06-02, stated as the result rather than as the mechanism.
+        """AC--02, stated as the result rather than as the mechanism.
 
-        This is the whole point of M18-02 measured end to end: a render, a fixture or a bundle
+        This is the whole point of measured end to end: a render, a fixture or a bundle
         change must never move an identity a runtime would consume for execution or cache reuse.
         """
 
@@ -439,7 +439,7 @@ class GeneratedMatrixTests(unittest.TestCase):
                 self.assertEqual(sorted(semantic - set(row["moved"])), [])
 
     def test_the_headline_number_is_reported_as_unchanged(self) -> None:
-        """AC-M18-06-07. The number a reader reaches for first is the one that moved least."""
+        """AC--07. The number a reader reaches for first is the one that moved least."""
 
         metric = next(
             item for item in self.document["metrics"] if item["metric_id"] == "shipped_schema_files"
@@ -456,10 +456,10 @@ class GeneratedMatrixTests(unittest.TestCase):
 
 
 class ChainCloseoutTests(unittest.TestCase):
-    """AC-M18-06-01/03/04/05, asserted against the accepted chain rather than restated."""
+    """AC--01/03/04/05, asserted against the accepted chain rather than restated."""
 
     def test_no_retired_or_migrated_entry_is_left_undecided(self) -> None:
-        """AC-M18-06-01. The surviving NEED_EVIDENCE rows are live fail-closed states."""
+        """AC--01. The surviving NEED_EVIDENCE rows are live fail-closed states."""
 
         inventory = json.loads(
             (REPO_ROOT / "comfyui_h3_context/contracts/contract_inventory_v1.json").read_text(
@@ -570,7 +570,7 @@ class ChainCloseoutTests(unittest.TestCase):
         self.assertIsNone(optional[0].default)
 
     def test_every_generator_reproduces_byte_identically(self) -> None:
-        """AC-M18-06-03, run as the gate runs it rather than described."""
+        """AC--03, run as the gate runs it rather than described."""
 
         for script in (
             "contract_inventory.py",

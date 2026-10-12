@@ -1,5 +1,5 @@
 // Presentation binding: the EntrySidebar element, view-focus claims, page selection,
-// diagnostics recording and the single render binding (M23-28 split of entry.tsx).
+// diagnostics recording and the single render binding ( split of entry.tsx).
 
 import { H3_CONTEXT_VERSION } from "../buildMetadata";
 import { H3Sidebar, type SidebarNleBinding } from "../components/H3Sidebar";
@@ -226,18 +226,19 @@ export function createPresentationBinding(ctx: ShellRuntime) {
   function selectPage(id: PageId): void {
     const current = deps.pageRegistry.getSnapshot().selected;
     if (current === id) return;
-    // M25-16: programmatic or user navigation closes an expanded editor before the transition.
+    // programmatic or user navigation closes an expanded editor before the transition.
     actions.nleCloseOverlay("top_level_navigation");
     actions.mediaRuntimeLeaveContext("page");
     actions.workspaceStateLeave?.();
     actions.retainedAssetsLeave?.();
+    actions.perceptionHostLeave?.();
     if (
       current === "production" &&
       session.productionAbort !== undefined &&
       session.productionState.status === "loading"
     ) {
       // Only the projection-free entry flight is bounced on navigation; pending
-      // ordinary actions keep their accepted M17-12 background settlement.
+      // ordinary actions keep their accepted background settlement.
       const activeEnsure = session.productionEnsureActive;
       session.productionAbort.abort();
       session.productionAbort = undefined;
@@ -577,6 +578,7 @@ export function createPresentationBinding(ctx: ShellRuntime) {
         mediaTools={actions.mediaToolsBinding()}
         recoveryMetadata={actions.workspaceStateBinding?.()}
         retainedAssets={actions.retainedAssetsBinding?.()}
+        perceptionHost={actions.perceptionHostBinding?.()}
         projectFile={actions.projectFileBinding?.()}
         diagnostics={{
           compose: () =>
@@ -584,6 +586,7 @@ export function createPresentationBinding(ctx: ShellRuntime) {
               packageVersion: H3_CONTEXT_VERSION,
               locale,
               hostFrontendVersion: projection?.resources.frontend_version,
+              perceptionHost: actions.perceptionHostBinding?.()?.state.status,
               buildProvenance: session.buildProvenance,
               fingerprints: {
                 report: projection?.report_fingerprint,
@@ -630,7 +633,7 @@ export function createPresentationBinding(ctx: ShellRuntime) {
               binding={nleWorkspaceBinding(locale)}
             />
           ) : (
-            // M25-16 performance-harness hook only: wrapping only happens when a harness
+            //  performance-harness hook only: wrapping only happens when a harness
             // supplies the observer, so production's tree shape is unchanged (see ShellDeps).
             <Profiler
               id="nle-overlay"
@@ -678,7 +681,7 @@ export function createPresentationBinding(ctx: ShellRuntime) {
       });
   }
 
-  // M25-21 B3-D56: the monitor's replacement trigger, registered by `NleMonitor` while it is
+  //  B3-D56: the monitor's replacement trigger, registered by `NleMonitor` while it is
   // mounted. `deriveNleMonitorBinding` builds a public asset manifest, so it is memoized on the
   // snapshot reference exactly as `NleWorkspace` memoizes it; `renderCurrent` runs on every shell
   // update and must not rebuild a 128-clip manifest each time.
@@ -697,7 +700,7 @@ export function createPresentationBinding(ctx: ShellRuntime) {
    * Start the monitor's replacement for the current accepted composition, before the shell
    * re-renders.
    *
-   * IMPORTANT (M25-21 B3-D56): reacting to the binding prop inside `NleMonitor` can only start the
+   * IMPORTANT ( B3-D56): reacting to the binding prop inside `NleMonitor` can only start the
    * replacement *after* the commit that adopted the accepted revision, which makes the monitor's
    * `opening` state a second React commit for every accepted edit. Both states are truthful and
    * both are kept; publishing them together is what removes the surplus commit. The replacement
@@ -707,7 +710,7 @@ export function createPresentationBinding(ctx: ShellRuntime) {
   function beginMonitorReplacement(): void {
     if (monitorReplace === null) return;
     const authoring = session.authoringState;
-    // IMPORTANT (M25-21 B3-D56): only an *adopted* state may start the replacement. Measured:
+    // IMPORTANT ( B3-D56): only an *adopted* state may start the replacement. Measured:
     // starting it from every shell render also started it on the `pending` render that carries the
     // fresh receipt, while the surface still had no selection -- the monitor tore down mid-edit
     // (selected clip emptied, composition `no_primary`, audio `silent`) and the following commits

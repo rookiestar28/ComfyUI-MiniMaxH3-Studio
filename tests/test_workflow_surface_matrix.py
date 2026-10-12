@@ -1,4 +1,4 @@
-"""M15-17 public workflow, surface, and migration lifecycle authority."""
+"""public workflow, surface, and migration lifecycle authority."""
 
 from __future__ import annotations
 

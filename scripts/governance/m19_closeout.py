@@ -2,7 +2,7 @@
 
 Five items decomposed four large modules and added two structural guards. Each one wrote a record
 full of numbers. This type holds those numbers **re-derived from the committed artifacts** rather
-than restated, because a record's prose is not evidence -- M18-06's closeout log records the one
+than restated, because a record's prose is not evidence -- 's closeout log records the one
 metric it copied from prose being wrong, contradicted by its own evidence line by 400 bytes.
 
 A row is not just a reading. It carries an expectation, so the matrix is a check rather than a

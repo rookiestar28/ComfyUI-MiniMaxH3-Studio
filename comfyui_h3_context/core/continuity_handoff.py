@@ -1,4 +1,4 @@
-"""M17-10 process-local continuity controls and the sole portable boundary receipt.
+"""process-local continuity controls and the sole portable boundary receipt.
 
 Policy, limits, extraction evidence, binding evidence and runtime IMAGE values intentionally stay
 process-local.  Only :class:`ContinuityBoundaryReceipt` crosses a persistence boundary.  The pure
@@ -54,7 +54,7 @@ QUALIFIED_MINIMAX_H3_NODE_SOURCE_SHA256 = (
 QUALIFIED_DECODER_NAME = "pyav"
 QUALIFIED_DECODER_VERSION = "16.1.0"
 
-# Process-local acceptance fixture pinned from the accepted M17-08 sequence/graph contract.  These
+# Process-local acceptance fixture pinned from the accepted sequence/graph contract. These
 # identities are deliberately not part of ContinuityBoundaryReceipt v1 or any public projection.
 QUALIFIED_M17_08_SUCCESSOR_FIXTURE_ID = "fixture.m17.08.accepted.successor.host"
 QUALIFIED_M17_08_SUCCESSOR_JOB_ID = "job.m17.08.accepted.successor.host"
@@ -93,7 +93,7 @@ class ContinuityAdmissionError(ContinuityError):
 
 
 class ContinuityBindingError(ContinuityError):
-    """Raised when the exact accepted M17-08 job/graph/socket cannot be proven."""
+    """Raised when the exact accepted job/graph/socket cannot be proven."""
 
 
 class ContinuityTimeoutError(ContinuityError):
@@ -528,10 +528,10 @@ def assert_accepted_m17_08_successor_identity(
     visible_graph: VisibleGraph,
     anchor: GraphAnchor,
 ) -> None:
-    """Require the pinned accepted M17-08 successor fixture before host mutation.
+    """Require the pinned accepted successor fixture before host mutation.
 
     The generic pure binding function remains reusable for ordinary unit fixtures.  The qualified
-    host path calls this stricter process-local guard so a newly fabricated M17-08-looking graph
+    host path calls this stricter process-local guard so a newly fabricated -looking graph
     cannot be mistaken for the accepted successor sample.
     """
 
@@ -732,7 +732,7 @@ _RECEIPT_RESTART_FIELDS = {"restart_root_id"}
 
 @dataclass(frozen=True, slots=True)
 class ContinuityBoundaryReceipt:
-    """The sole M17-10 portable contract; native fields are conditionally present, never null."""
+    """The sole portable contract; native fields are conditionally present, never null."""
 
     boundary_id: str
     mode: ContinuityMode

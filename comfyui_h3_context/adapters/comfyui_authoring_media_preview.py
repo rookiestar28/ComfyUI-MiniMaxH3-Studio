@@ -1,4 +1,4 @@
-"""M25-02 bounded Authoring source-preview route and explicit runtime seam."""
+"""bounded Authoring source-preview route and explicit runtime seam."""
 
 from __future__ import annotations
 

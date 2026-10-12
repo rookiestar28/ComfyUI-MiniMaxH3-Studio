@@ -1,4 +1,4 @@
-"""M15-04 strict action decoding and bounded adapter-session tests."""
+"""strict action decoding and bounded adapter-session tests."""
 
 from __future__ import annotations
 
@@ -168,7 +168,7 @@ class SidebarWorkspaceAdapterTests(unittest.TestCase):
                     "action": "stage_prompt",
                     "payload": {
                         "reason": "Clarify motion",
-                        # M24-05: the manual skeleton renders the user's own sentence now.
+                        # the manual skeleton renders the user's own sentence now.
                         "prompt_text": initial.prompt_text.replace(
                             "A safe operator-owned prompt.",
                             "A safe operator-owned prompt, held in a slow pan.",

@@ -15,4 +15,7 @@ export default defineConfig({
   forbidOnly: true,
   workers: 1,
   retries: 0,
+  // Retain only classified server events in the driver's sanitized report.
+  webServer: { ...base.webServer, stdout: "pipe" },
+  globalTimeout: 80 * 60 * 1_000,
 });

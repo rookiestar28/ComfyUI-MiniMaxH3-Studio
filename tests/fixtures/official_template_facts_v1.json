@@ -1,0 +1,47 @@
+{
+  "schema": "h3.official_template_facts.v1",
+  "repository": "Comfy-Org/workflow_templates",
+  "revision": "5097de61ef09fe75466716ac0b200515f5ea078f",
+  "license": "MIT",
+  "attribution": "Copyright (c) 2023-present Comfy Org",
+  "source_url": "https://github.com/Comfy-Org/workflow_templates",
+  "retrieved": "2026-10-09",
+  "templates": [
+    {
+      "name": "video_minimax_h3_t2v",
+      "path": "templates/video_minimax_h3_t2v.json",
+      "file_sha256": "31ab33fdb053a7834cc866bd7aa08b887518fc656e4a796c89779c6b5e1786e6",
+      "model_filenames": [
+        "minimax_h3_audio_vae_fp32.safetensors",
+        "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+        "minimax_h3_video_vae_fp16.safetensors",
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors"
+      ],
+      "length_expression": "max(5, round(a * 24)) + (5 - (max(5, round(a * 24)) % 17)) % 17"
+    },
+    {
+      "name": "video_minimax_h3_i2v",
+      "path": "templates/video_minimax_h3_i2v.json",
+      "file_sha256": "bb71aecdd3c0b62e56eafe03acb14d1cfeabec7072eaed9cbdf473c2aaf73009",
+      "model_filenames": [
+        "minimax_h3_audio_vae_fp32.safetensors",
+        "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+        "minimax_h3_video_vae_fp16.safetensors",
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors"
+      ],
+      "length_expression": "max(5, round(a * 24)) + (5 - (max(5, round(a * 24)) % 17)) % 17"
+    },
+    {
+      "name": "video_minimax_h3_r2v",
+      "path": "templates/video_minimax_h3_r2v.json",
+      "file_sha256": "099d24eda6263854818975c7209db6f29ebfd0339936c928f12293d5ab029ffb",
+      "model_filenames": [
+        "minimax_h3_audio_vae_fp32.safetensors",
+        "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+        "minimax_h3_video_vae_fp16.safetensors",
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors"
+      ],
+      "length_expression": "max(5, round(a * 24)) + (5 - (max(5, round(a * 24)) % 17)) % 17"
+    }
+  ]
+}

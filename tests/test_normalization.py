@@ -66,7 +66,7 @@ class NormalizationTests(unittest.TestCase):
         assert seconds.request is not None
         self.assertEqual(seconds.request.duration_source, DurationSource.SECONDS)
         self.assertEqual(seconds.request.effective_frame_count, 124)
-        # M17-25 / AC-M17-25-05: one neutral movement code carrying the requested
+        #  / AC--05: one neutral movement code carrying the requested
         # value, the delivered value and the direction, compared against the
         # request rather than against the intermediate estimate.
         movement = [d for d in seconds.diagnostics if d.code == "duration_snapped"]

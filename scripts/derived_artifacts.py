@@ -2,9 +2,9 @@
 
 Nineteen scripts under `scripts/` regenerate something, and the order they must run in is real,
 load-bearing and, until now, written down only as prose in `tests/TEST_SOP.md` section 3.3.4. Two
-items got it wrong in one day despite that section existing: M23-46 regenerated the contract
+items got it wrong in one day despite that section existing: regenerated the contract
 inventory after the first provenance write, so the bundle embedded a `resolved_dependencies_sha256`
-that was already stale, and M23-47 hand-edited a contract JSON that `frontend/src` imports without
+that was already stale, and hand-edited a contract JSON that `frontend/src` imports without
 realising it was a bundle input. Both produced a tree that looked self-consistent -- every generator
 `--check` passed -- and both were caught only by the offline rebuild parity inside the backend stage
 of the Full Gate, hours later. A person cannot hold this graph, and prose cannot enforce it.
@@ -38,6 +38,19 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    # IMPORTANT: direct script execution starts at scripts/, so add the project root before
+    # importing shared tooling; otherwise the standard dry-run CLI fails before any seed exists.
+    sys.path.insert(0, str(ROOT))
+
+from scripts.public_redaction import (  # noqa: E402
+    TOOLCHAIN_ENV,
+    RedactionRefusal,
+    make_toolchain_binding,
+    validate_toolchain_binding,
+)
+
 #: Where a generator can run. `relocatable` needs only the tracked bytes and can therefore be run in
 #: a temporary tree and diffed, which is the only honest way to verify a candidate before it touches
 #: a final path. `in_repository` consults git history and cannot: giving a temporary work tree a
@@ -47,7 +60,7 @@ Locus = Literal["relocatable", "in_repository"]
 
 #: The two roots a generator can write a contract to. `CONTRACTS` is packaged and installed;
 #: `GOVERNANCE` sits outside `comfyui_h3_context*` and is excluded from the wheel, the sdist
-#: and the Registry archive. M23-55 moved every artifact with no runtime or bundle reader to
+#: and the Registry archive. moved every artifact with no runtime or bundle reader to
 #: the second one, so which prefix an output carries is a statement about who reads it.
 CONTRACTS = "comfyui_h3_context/contracts/"
 GOVERNANCE = "governance/contracts/"
@@ -341,7 +354,7 @@ GENERATORS: tuple[Generator, ...] = (
 #: the reason it converges is that `source_inputs_sha256` hashes `frontend/src` and the fixed build
 #: authorities but never the emitted bundle -- so the second provenance write is a fixed point
 #: rather than the start of a loop. Reordering these steps, or dropping the second provenance write,
-#: reintroduces the M23-46 defect exactly: a bundle carrying a dependency digest that is already
+#: reintroduces the defect exactly: a bundle carrying a dependency digest that is already
 #: stale, which nothing local reports and only the gate's offline rebuild parity sees.
 CYCLE: tuple[str, ...] = ("build_provenance", "contract_inventory", "supply_chain_manifest")
 
@@ -472,8 +485,6 @@ def describe() -> dict[str, object]:
     }
 
 
-ROOT = Path(__file__).resolve().parents[1]
-
 #: Where a dry-run builds its candidate tree. Ignored, and removed on both the success and the
 #: failure path.
 WORKSPACE = ROOT / ".tmp" / "derived-artifacts"
@@ -517,9 +528,21 @@ class Transaction:
         return not self.failures
 
 
-def _run(command: list[str], *, cwd: Path) -> subprocess.CompletedProcess[str]:
+def _run(
+    command: list[str], *, cwd: Path, toolchain_binding: str | None = None
+) -> subprocess.CompletedProcess[str]:
+    environment = dict(os.environ)
+    environment.pop(TOOLCHAIN_ENV, None)
+    if toolchain_binding is not None:
+        environment[TOOLCHAIN_ENV] = toolchain_binding
     return subprocess.run(
-        command, cwd=cwd, capture_output=True, text=True, encoding="utf-8", errors="replace"
+        command,
+        cwd=cwd,
+        env=environment,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
     )
 
 
@@ -550,7 +573,7 @@ def bundle_input_contracts() -> tuple[str, ...]:
     CRITICAL: this is computed, never listed. `host_seam_census_v1.json` reads like a governance
     record -- hand-maintained, no `--write` -- and `frontend/src/host/hostSeamContract.ts` imports
     it, so editing it changes the shipped bundle. Every heuristic short of reading the imports puts
-    it on the wrong side, which is precisely how M23-47 spent a gate run.
+    it on the wrong side, which is precisely how spent a gate run.
     """
 
     pattern = re.compile(r"contracts/([A-Za-z0-9_.-]+\.json)")
@@ -738,6 +761,9 @@ def dry_run(*, workspace: Path | None = None, keep: bool = False) -> Transaction
     seen: set[str] = set()
     try:
         _seed(workspace)
+        # CRITICAL: the seed has no node_modules and must never link the live dependency tree.
+        # Bind only the two digest readers to this unchanged parser; bundle builds stay external.
+        binding = make_toolchain_binding(ROOT, workspace)
         for step in order():
             if step == BUNDLE_BUILD:
                 # Deliberately not executed: the bundle build needs `frontend/node_modules`, which
@@ -745,18 +771,28 @@ def dry_run(*, workspace: Path | None = None, keep: bool = False) -> Transaction
                 # reports that a rebuild is implied instead of pretending to have done one.
                 continue
             generator = known[step]
-            result = _run(
-                [sys.executable, f"scripts/{generator.name}.py", "--write"], cwd=workspace
+            selected_binding = (
+                binding if generator.name in {"build_provenance", "supply_chain_manifest"} else None
             )
+            result = _run(
+                # IMPORTANT: module execution searches this isolated seed, not scripts/ or an
+                # installed checkout; direct paths break generators without an import bootstrap.
+                [sys.executable, "-m", f"scripts.{generator.name}", "--write"],
+                cwd=workspace,
+                toolchain_binding=selected_binding,
+            )
+            validate_toolchain_binding(binding, candidate_root=workspace)
             if result.returncode != 0:
                 detail = result.stdout.strip() or result.stderr.strip() or "no output"
                 failures.append((generator.name, detail.splitlines()[0][:200]))
                 continue
             if generator.check:
                 verified = _run(
-                    [sys.executable, f"scripts/{generator.name}.py", *generator.check],
+                    [sys.executable, "-m", f"scripts.{generator.name}", *generator.check],
                     cwd=workspace,
+                    toolchain_binding=selected_binding,
                 )
+                validate_toolchain_binding(binding, candidate_root=workspace)
                 if verified.returncode != 0:
                     detail = verified.stdout.strip() or verified.stderr.strip() or "no output"
                     first = detail.splitlines()[0][:160]
@@ -793,6 +829,9 @@ def dry_run(*, workspace: Path | None = None, keep: bool = False) -> Transaction
                         size=len(after),
                     )
                 )
+        validate_toolchain_binding(binding, candidate_root=workspace)
+    except RedactionRefusal as error:
+        failures.append(("parser_toolchain", error.reason))
     finally:
         if not keep:
             _remove_tree(workspace, tolerant=True)
@@ -837,7 +876,7 @@ def bundle_rebuild_reasons(
             # import scan nor the path prefix sees it -- and it is compiled in all the same, through
             # `frontend/buildProvenance.ts`. Its `resolved_dependencies_sha256` covers the contract
             # inventory, so a change anywhere upstream of that inventory reaches the bundle by this
-            # route and no other. Dropping this branch is how M23-46's defect returns.
+            # route and no other. Dropping this branch is how 's defect returns.
             reasons.append(
                 f"{candidate.path} changed, and the bundle compiles its embedded identity in"
             )
@@ -845,7 +884,7 @@ def bundle_rebuild_reasons(
     # loop only ever sees declared outputs. Three of the four contracts `frontend/src` imports --
     # the host-seam census, its shape fixture and the official asset table -- are hand-maintained
     # and have no `--write` at all, so a hand edit to one of them changes the shipped bundle and
-    # produces no candidate. That is M23-47 exactly, and it is the case this whole module exists to
+    # produces no candidate. That is exactly, and it is the case this whole module exists to
     # move earlier than the gate. Iterate the inputs the candidates do NOT own; iterating the
     # candidates, or the owned set, restores the blind spot while looking almost identical.
     owned = {candidate.path for candidate in candidates}

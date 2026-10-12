@@ -1,4 +1,4 @@
-"""M25-20 F1 corrective, browser half: the exact composition wire for every `render_and_browser`
+"""F1 corrective, browser half: the exact composition wire for every `render_and_browser`
 corpus row, for the Playwright journey that presents each one in the real browser and records the
 `h3.context.nle_semantic_browser_stage.v1` observation `scripts/nle_semantic_report.py` joins.
 
@@ -74,8 +74,8 @@ from comfyui_h3_context.core.semantic_conformance_expect import (  # noqa: E402
     preview_scale,
 )
 
-#: GUARD: the M25-20 corpus base, the same document `scripts/nle_semantic_report.py` resolves every
-#: row's judged composition against and `scripts/nle_semantic_render.py` renders from. The M25-10
+#: GUARD: the corpus base, the same document `scripts/nle_semantic_report.py` resolves every
+#: row's judged composition against and `scripts/nle_semantic_render.py` renders from. The
 #: contract fixture it replaced declares a different source landmark table and audio binding for
 #: the same assets, so a row presented from it could be `source_range_unavailable` here while the
 #: join judged a composition that resolved -- the browser stage then reported a row blocked that
@@ -96,7 +96,7 @@ class WireBuildError(Exception):
 #: authoring session refuses a `read_timeline_history` response naming a different workspace
 #: handle than the one its own session was established with (`cross_workspace_response` --
 #: `authoringWorkbenchCodec.ts`'s cross-workspace guard), so a row presented in the browser must
-#: carry this exact handle. The value is opaque session-scoping plumbing, not part of any M25-20
+#: carry this exact handle. The value is opaque session-scoping plumbing, not part of any
 #: claim (transform/crop/effect/etc. never reference it), so substituting it changes nothing the
 #: corpus asserts -- it only lets the harness's already-open session accept this row's timeline.
 _BROWSER_HARNESS_WORKSPACE_HANDLE = "authoring-" + "a" * 32

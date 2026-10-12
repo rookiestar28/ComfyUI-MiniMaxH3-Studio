@@ -1,8 +1,8 @@
-"""M23-57: the pure rule deciding which browser origin may act on this server.
+"""the pure rule deciding which browser origin may act on this server.
 
 Every case is relative to a request's own target: an origin that is legitimate for its own page is
 still foreign to another one. The adapter half (headers, transport, environment, diagnostics) is
-covered through the registered routes in `test_m23_57_owned_edge_deployment.py`.
+covered through the registered routes in `test__owned_edge_deployment.py`.
 """
 
 from __future__ import annotations

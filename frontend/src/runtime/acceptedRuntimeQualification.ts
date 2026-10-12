@@ -1,7 +1,7 @@
-// M25-16: the packaged browser-runtime qualification the product consumes.
+// the packaged browser-runtime qualification the product consumes.
 //
 // `evaluateMediaCapabilities` returns `available` only when a measured qualification receipt
-// AND an independently configured authority agree. M25-12 produced and accepted the receipt
+// AND an independently configured authority agree. produced and accepted the receipt
 // after its repaired candidate passed the native Full Gate and independent review, and deferred
 // "independent qualification configuration" to the product integration owner. This module is
 // that configuration: the receipt payload is copied verbatim, and the authority below is
@@ -10,11 +10,11 @@
 // CRITICAL: `RUNTIME_QUALIFICATION_AUTHORITY.expectedQualificationFingerprint` is a pinned
 // literal. Never compute it from `ACCEPTED_RUNTIME_QUALIFICATION`; the evaluator's guard exists
 // precisely so a fabricated payload cannot recreate an `available` disposition. Refreshing the
-// receipt requires a new accepted M25-12-style qualification run and a new pinned fingerprint.
+// receipt requires a new accepted -style qualification run and a new pinned fingerprint.
 //
-// M25-45 moved the runtime visual-compositor profile to `canvas2d_ladder_v2`, which changes
+//  moved the runtime visual-compositor profile to `canvas2d_ladder_v2`, which changes
 // `RUNTIME_PROFILE_FINGERPRINT` and so the receipt that binds it. The values below come from a
-// fresh execution of `scripts/m25_12_runtime_qualification.mjs` against that profile (45 measured
+// fresh execution of `scripts/_runtime_qualification.mjs` against that profile (45 measured
 // rows, stable subject, the same accepted browser/corpus identity and the same owner,
 // pending-operation, cancel, teardown and heap limits). Copying a changed fingerprint into the
 // previous receipt would not have been execution.

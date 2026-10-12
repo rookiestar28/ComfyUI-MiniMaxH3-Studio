@@ -2,7 +2,7 @@
 
 `release_sequence` was one request that meant one thing: drop this run. That is correct for a
 prepared child whose submission failed, and it is data loss for a child the host is still
-executing -- `MODEL_ONLY_TRIGGERS` in `managed_run.py` has said so in prose since M23-31 while the
+executing -- `MODEL_ONLY_TRIGGERS` in `managed_run.py` has said so in prose since while the
 coordinator kept doing it. The approved B1 contract splits the request by *intent* and answers from
 the run's own state.
 
@@ -111,7 +111,7 @@ class ReleaseDecision:
         CRITICAL: `released` is the only outcome that removes anything, and callers must branch on
         this rather than on the disposition name. Every `detached*` outcome deliberately leaves the
         run, its prompt id and its evidence in place -- a detach that removed the run would be the
-        M23-51 defect with a new name on it.
+         defect with a new name on it.
         """
         return self.disposition is ReleaseDisposition.RELEASED
 

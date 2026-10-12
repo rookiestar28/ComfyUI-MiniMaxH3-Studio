@@ -76,7 +76,7 @@ class CorpusPartition(str, Enum):
 
 
 class PerturbationDimension(str, Enum):
-    """Exact bounded M14-02 one-variable study inventory."""
+    """Exact bounded one-variable study inventory."""
 
     WORDING = "wording"
     UNICODE = "unicode"
@@ -130,7 +130,7 @@ class ExpectedRelationKind(str, Enum):
 
 
 class MissingRelationState(str, Enum):
-    """The only admitted official/agreement state after M14-01."""
+    """The only admitted official/agreement state after."""
 
     MISSING = "MISSING"
 

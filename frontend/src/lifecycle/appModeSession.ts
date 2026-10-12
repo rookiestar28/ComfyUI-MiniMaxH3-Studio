@@ -760,7 +760,7 @@ export function createAppModeSession(ctx: ShellRuntime) {
       ...(options ?? {}),
       signal: runSignal,
       transactionId: run,
-      // M17-20 D5: the artifact location is scoped to the workspace this run
+      //  D5: the artifact location is scoped to the workspace this run
       // belongs to, so two workspaces never write into each other's output. The
       // handle is a backend-issued identifier; App Mode validates it and falls
       // back to a session scope rather than putting anything unvalidated in a path.
@@ -1040,7 +1040,7 @@ export function createAppModeSession(ctx: ShellRuntime) {
           refusalReason: safeError.reason,
         };
         failAppModeLifecycle(run, safeCode, safeError.recovery);
-        // M23-25 validation refusals happen before the sole candidate write. Keep
+        //  validation refusals happen before the sole candidate write. Keep
         // only the graph authority the user already had; a rescan cannot turn the
         // untouched canvas into proof that the refused candidate was repaired.
       }

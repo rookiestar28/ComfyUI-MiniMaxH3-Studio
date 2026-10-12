@@ -1,4 +1,4 @@
-// M25-44: pure geometry for the four-region reference shell.
+// pure geometry for the four-region reference shell.
 //
 // A layout is three shares of the workspace (R1 and R3 of its width, the top band of its height).
 // Resolving it against a measured stage clamps every region to its tier minimum with R2 and the

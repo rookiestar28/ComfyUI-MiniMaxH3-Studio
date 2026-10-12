@@ -1,11 +1,13 @@
-// M25-16 monitor: the accepted composition session bound to one canvas, with the
+//  monitor: the accepted composition session bound to one canvas, with the
 // extension-owned transport (play, pause, step, frame-domain slider) and the read-only
-// embedded-audio status. Transport is `local_transport`: it issues no M25-11 command and
+// embedded-audio status. Transport is `local_transport`: it issues no command and
 // touches no revision or history. No media element exposes UA controls.
 
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
@@ -68,7 +70,7 @@ function ignore(operation: Promise<unknown>): void {
   void operation.catch(() => undefined);
 }
 
-/** M25-64 (row #26): "Preview" and the accepted output's size and rate, when it states them. */
+/**  (row #26): "Preview" and the accepted output's size and rate, when it states them. */
 function MonitorHeader({
   text,
   facts,
@@ -87,7 +89,7 @@ function MonitorHeader({
 }
 
 /**
- * M25-64 (row #27): why the picture area has no picture, centred in it, with at most one action.
+ *  (row #27): why the picture area has no picture, centred in it, with at most one action.
  *
  * IMPORTANT (A64-1, after B-M2563-09): the overlay never takes a pointer event except on its own
  * action. It paints over the picture, and a transform handle or the move target of a selected
@@ -163,7 +165,7 @@ export function NleMonitor({
   ): void;
   onPresentationMeasurement?: (sample: PresentationMeasurement) => void;
   bindPause?(pause: (() => Promise<void>) | null): void;
-  /** M25-46: the ruler delegates to this already-ordered transport; it owns no second runtime. */
+  /** the ruler delegates to this already-ordered transport; it owns no second runtime. */
   bindTimelineTransport?(
     bridge: Readonly<{
       seek(frame: number): void;
@@ -174,7 +176,7 @@ export function NleMonitor({
     }> | null,
   ): () => void;
   /**
-   * M25-21: lets the session owner that adopts an accepted revision start the monitor's
+   * lets the session owner that adopts an accepted revision start the monitor's
    * replacement in the same task, so the adoption and the monitor's `opening` state are published
    * in one React commit instead of two. Registering is optional; without it the binding effect
    * above still performs the replacement one commit later.
@@ -182,7 +184,7 @@ export function NleMonitor({
   bindReplace?(
     replace: ((binding: VisualCompositionBinding) => void) | null,
   ): void;
-  /** M25-21: the retained position for this composition workspace, restored paused. */
+  /** the retained position for this composition workspace, restored paused. */
   retainedFrame?: Readonly<{
     restore(): number | null;
     retain(frame: number): void;
@@ -191,18 +193,18 @@ export function NleMonitor({
   logicalFrame?: () => number;
   sourceProjection?: AuthoringProjection;
   openSourcePreview?: AuthoringPreviewOpener;
-  /** M25-33: the accepted snapshot has no clips; the monitor points to clip insertion. */
+  /** the accepted snapshot has no clips; the monitor points to clip insertion. */
   emptyTimeline?: boolean;
   /**
-   * M25-64: the accepted snapshot's output profile, for the header. The composition binding
+   * the accepted snapshot's output profile, for the header. The composition binding
    * carries the same object, but the fallback modes have no binding and still have a snapshot.
    */
   output?: Readonly<Record<string, unknown>>;
   mediaTools?: MediaToolsBinding;
   overlayGeneration?: number;
-  /** M25-45: where the monitor's status and audio state are shown -- the chrome bar. */
+  /** where the monitor's status and audio state are shown -- the chrome bar. */
   statusChannel?: NleMonitorStatusChannel;
-  /** M25-51: one selected, active, enabled clip on an enabled and unlocked track. */
+  /** one selected, active, enabled clip on an enabled and unlocked track. */
   transformEditable?: boolean;
   /** Accepted timeline identity, plus conflict/error disposition, for draft cancellation. */
   transformAuthority?: string;
@@ -264,7 +266,7 @@ export function NleMonitor({
   }, [sourcePreviewAuthority, updateSourcePreview]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pictureRef = useRef<HTMLDivElement>(null);
-  // The picture rectangle and the view it was computed for. The monitor owns both: M25-51 hit
+  // The picture rectangle and the view it was computed for. The monitor owns both: hit
   // tests against this rectangle, and deriving it from the pane instead would include the
   // transport row, the seek bar and the padding.
   const [picture, setPicture] = useState<PictureBox>(EMPTY_PICTURE);
@@ -289,13 +291,13 @@ export function NleMonitor({
   // The retained frame being restored; until the monitor presents it (or the user takes the
   // transport) the presented frame is not the user's position and is not retained.
   const restoreTarget = useRef<number | null>(null);
-  // IMPORTANT (M25-21 B3-D10): the slider shows, and steps from, the frame the user last sought
+  // IMPORTANT ( B3-D10): the slider shows, and steps from, the frame the user last sought
   // until that seek settles. Stepping from the presented frame lost every key press that arrived
   // before the previous seek was presented (two quick PageUps moved one second), and React reset
   // the controlled range to the presented frame, collapsing held arrow keys the same way. It is
   // state, not a ref: the controlled input must re-render with the requested value.
   const [requestedFrame, setRequestedFrame] = useState<number | null>(null);
-  // IMPORTANT (M25-21 B3-D33): the mount effect's cleanup is created once and would close over the
+  // IMPORTANT ( B3-D33): the mount effect's cleanup is created once and would close over the
   // first render's `requestedFrame`. Retention reads the position through this ref instead.
   const requestedFrameRef = useRef(requestedFrame);
   const onTimelineRequestRef = useRef(onTimelineRequest);
@@ -377,7 +379,7 @@ export function NleMonitor({
     () => snapshotRef.current,
   );
 
-  // M25-45: the chrome bar shows this monitor's status and audio state, so the picture area keeps
+  // the chrome bar shows this monitor's status and audio state, so the picture area keeps
   // the height the two text rows used to take.
   //
   // IMPORTANT: the channel is written inside `publish` below, in the same synchronous callback
@@ -430,7 +432,7 @@ export function NleMonitor({
   /**
    * Measure the picture area and tell the session what it may draw into.
    *
-   * IMPORTANT (M25-45): the observed box is the area, and the picture is the largest rectangle of
+   * IMPORTANT: the observed box is the area, and the picture is the largest rectangle of
    * the composition's aspect ratio inside it, so a letterboxed composition does not report the
    * whole pane as picture. A zero or hidden box is not a measurement and the previous one stands,
    * because a collapsed pane -- a closed tab, a splitter dragged shut -- would otherwise throw the
@@ -541,7 +543,7 @@ export function NleMonitor({
     return () => {
       // Keep the user's position before teardown clears it. A restore still in flight means
       // the presented frame is not theirs yet, so the earlier retained position stands.
-      // IMPORTANT (M25-21 B3-D33): a seek the user has made but the media has not presented yet
+      // IMPORTANT ( B3-D33): a seek the user has made but the media has not presented yet
       // is still their position -- the transport already shows it (B3-D10) -- so the requested
       // frame wins over the presented one. Retaining only the presented frame lost every seek
       // made within a media fetch of the release: the user sought a second in, collapsed the
@@ -567,7 +569,7 @@ export function NleMonitor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [binding === null, leaseScheduler]);
 
-  // IMPORTANT (M25-21 B3-D56): this effect is the fallback, not the only path. Reacting to the
+  // IMPORTANT ( B3-D56): this effect is the fallback, not the only path. Reacting to the
   // binding prop means the replacement can only start *after* the commit that adopted the accepted
   // revision, so the monitor's `opening` state is necessarily a second React commit. The session
   // owner that adopts the revision therefore starts the replacement itself, through the trigger
@@ -642,7 +644,7 @@ export function NleMonitor({
         publishTimelineRequest(null, request.generation);
     };
     const task = active.seek(target).then(settle, settle);
-    // IMPORTANT (M25-21 B3-D29): the user's next transport intent has to queue behind this seek.
+    // IMPORTANT ( B3-D29): the user's next transport intent has to queue behind this seek.
     // Play judges the endpoint by the frame actually presented, so a Play issued while a seek
     // away from the last frame is still in flight is refused as "already at the end" and the
     // session silently republishes `paused` -- the button does nothing until it is pressed a
@@ -654,7 +656,7 @@ export function NleMonitor({
       if (pendingSeek.current === task) pendingSeek.current = null;
     });
   };
-  // IMPORTANT (M25-44 B-M2544-05): a frame step while a requested seek is still unpresented steps
+  // IMPORTANT ( B-M2544-05): a frame step while a requested seek is still unpresented steps
   // from that seek, as the slider's arrow keys do (B3-D10). The session's step pauses first, and a
   // pause with a move in flight supersedes it with a seek back to the last presented frame, so
   // handing this case to `session.step` cancels the user's seek: Home, then Next frame, landed on
@@ -732,6 +734,30 @@ export function NleMonitor({
     else playNow();
   };
   timelineStepRef.current = stepBy;
+  // IMPORTANT: the memoized transport row receives these delegates, which never change identity.
+  // They call the handlers published after the latest commit. Publishing during render would let
+  // an aborted render's requested frame or status drive a later click, and capturing the mount
+  // handlers would step and play from a stale frame. Keep both hooks above the mode returns below.
+  const committedTransport = useRef({
+    play: playNow,
+    pause: pauseNow,
+    step: stepBy,
+  });
+  useLayoutEffect(() => {
+    committedTransport.current = {
+      play: playNow,
+      pause: pauseNow,
+      step: stepBy,
+    };
+  });
+  const transportDelegates = useMemo(
+    () => ({
+      play: () => committedTransport.current.play(),
+      pause: () => committedTransport.current.pause(),
+      step: (direction: -1 | 1) => committedTransport.current.step(direction),
+    }),
+    [],
+  );
 
   useEffect(() => {
     // CRITICAL: keep this hook above every mode-specific return. A loading-to-composition switch
@@ -762,7 +788,7 @@ export function NleMonitor({
           data-h3-nle-fallback="selected_source_only"
           data-h3-nle-status="monitor"
         >
-          {/* M25-33: no clip is not a monitor or runtime failure; say what to do instead. */}
+          {/* no clip is not a monitor or runtime failure; say what to do instead. */}
           {emptyTimeline ? (
             <PictureOverlay
               kind="empty"
@@ -845,7 +871,7 @@ export function NleMonitor({
    * while focus is inside the monitor.
    *
    * IMPORTANT: they are owned here, on the monitor, and every consumed key is stopped. A supplied
-   * host binds page-wide hotkeys on `document` without exempting the modal (M26-05 runtime-18), so
+   * host binds page-wide hotkeys on `document` without exempting the modal ( runtime-18), so
    * a key this transport acts on must not also reach the host. Editable fields and focused buttons
    * keep their own behaviour: Space on a focused button already activates it, and handling it here
    * as well plays and pauses in the same press. The seek range stops its own arrows before they
@@ -909,7 +935,7 @@ export function NleMonitor({
           data-h3-nle-presented-frame={status.presentedFrame ?? undefined}
           role="img"
           aria-label={text.monitor.canvas}
-          // IMPORTANT (M25-61): the canvas sits at the box's own whole-pixel offsets. Left to the
+          // IMPORTANT: the canvas sits at the box's own whole-pixel offsets. Left to the
           // area's flex centring it lands on a half pixel whenever the leftover height or width
           // is odd, while the transform overlay is placed from the rounded box, so the two
           // disagree by 0.5 px -- 14 bp of a 359 px picture -- and every alignment button misses.
@@ -971,7 +997,7 @@ export function NleMonitor({
         {/* Recovery belongs where the user is looking when the picture is gone, and only then:
             a permanently rendered, permanently disabled Retry reads as a broken control rather
             than as an offer that applies to one state. It outranks the empty-timeline overlay,
-            which offers nothing to do in the monitor. M25-33: no clip is not a monitor or runtime
+            which offers nothing to do in the monitor. : no clip is not a monitor or runtime
             failure, so an empty timeline says what to do instead. */}
         {recoveryAvailable ? (
           <PictureOverlay
@@ -1011,9 +1037,9 @@ export function NleMonitor({
         fps={pageFrames}
         view={view}
         onView={setView}
-        onPlay={playNow}
-        onPause={pauseNow}
-        onStep={stepBy}
+        onPlay={transportDelegates.play}
+        onPause={transportDelegates.pause}
+        onStep={transportDelegates.step}
         fullscreenTarget={sectionRef}
       />
     </section>

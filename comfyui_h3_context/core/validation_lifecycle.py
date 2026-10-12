@@ -174,7 +174,7 @@ def validate_context_report(
         raise ReportLifecycleError("invalid_validator", "validator version is required")
     try:
         lint_result = lint_prompt(report.plan, report.prompt_document)
-        # M21-01. The fidelity audit is a pure function of the same pair, so the rich diagnostics --
+        # . The fidelity audit is a pure function of the same pair, so the rich diagnostics --
         # stable identity plus typed parameters -- stay reachable by calling it directly. What joins
         # the validation stream here is the projection every existing consumer already understands.
         # Only non-informational findings are folded in: the description length band is a graded

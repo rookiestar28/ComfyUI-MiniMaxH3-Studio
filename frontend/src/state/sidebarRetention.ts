@@ -1,4 +1,4 @@
-// M25-21 section 14.4: Sidebar editing-state retention.
+//  section 14.4: Sidebar editing-state retention.
 //
 // One bounded, in-memory snapshot per surface slot, owned by the shell session. A slot is written
 // under the authority scope its values were typed against (a workspace, a workspace revision, a
@@ -37,16 +37,16 @@ export type SidebarRetentionSlots = {
   "nle.overlay": Readonly<{
     bounds: OverlayBounds;
     pane: OverlayInternalPane;
-    /** M25-44: splitter shares; validated with `normalizeLayout` on restore. */
+    /** splitter shares; validated with `normalizeLayout` on restore. */
     layout?: NleLayout;
   }>;
   "nle.timeline": Readonly<{
-    /** M25-46 continuous geometry. `zoomIndex` is read once only as a legacy migration input. */
+    /**  continuous geometry. `zoomIndex` is read once only as a legacy migration input. */
     pixelsPerFrame: number;
     fitLocked: boolean;
     zoomIndex?: number;
     snapEnabled: boolean;
-    /** M25-47 local edit mode; view state only, never timeline history. */
+    /**  local edit mode; view state only, never timeline history. */
     rippleEnabled?: boolean;
     viewStart: number;
     scrollTop: number;
@@ -159,17 +159,17 @@ export function samePlain(left: unknown, right: unknown): boolean {
   );
 }
 
-function bounded(value: unknown, depth: number): boolean {
+function bounded(value: unknown, depth: number, maximumDepth: number): boolean {
   if (value === null || typeof value === "boolean") return true;
   if (typeof value === "number") return Number.isFinite(value);
   if (typeof value === "string") return value.length <= MAX_STRING;
-  if (depth < MAX_DEPTH && Array.isArray(value))
+  if (depth < maximumDepth && Array.isArray(value))
     return (
       value.length <= MAX_RECORD_KEYS &&
-      value.every((member) => bounded(member, depth + 1))
+      value.every((member) => bounded(member, depth + 1, maximumDepth))
     );
   if (
-    depth >= MAX_DEPTH ||
+    depth >= maximumDepth ||
     typeof value !== "object" ||
     Object.getPrototypeOf(value) !== Object.prototype
   )
@@ -183,7 +183,11 @@ function bounded(value: unknown, depth: number): boolean {
     keys.every(
       (key) =>
         key.length <= MAX_STRING &&
-        bounded((value as Record<string, unknown>)[key], depth + 1),
+        bounded(
+          (value as Record<string, unknown>)[key],
+          depth + 1,
+          maximumDepth,
+        ),
     )
   );
 }
@@ -231,7 +235,11 @@ export function createSidebarRetention() {
       writerGeneration: number,
     ): void {
       if (writerGeneration !== generation || scope.length > MAX_STRING) return;
-      if (!bounded(value, 0)) return;
+      // CRITICAL: text draft -> style -> decoration -> RGBA needs one extra array level;
+      // using the other slots' depth silently drops decorated drafts on close/reopen.
+      const maximumDepth =
+        slot === "nle.inspector.text" ? MAX_DEPTH + 1 : MAX_DEPTH;
+      if (!bounded(value, 0, maximumDepth)) return;
       const entry = slots.get(slot);
       // One snapshot per slot: a write for another scope replaces the old one outright, so a
       // previously visited workspace is never cached alongside the current one.

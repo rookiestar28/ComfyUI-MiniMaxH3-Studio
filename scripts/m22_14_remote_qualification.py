@@ -3,7 +3,7 @@
 Current model-free connection qualification uses prompt_model_qualification.py. These legacy
 results cannot qualify or activate v6 connections.
 
-M22-14 exact remote-provider qualification, with hermetic and separately authorized live modes.
+ exact remote-provider qualification, with hermetic and separately authorized live modes.
 
 ``hermetic`` executes the product session against package-owned fixtures and proves the route,
 payload, parser, consent and content-free receipt without DNS or network access. ``live`` uses the
@@ -162,8 +162,8 @@ def _request(profile: PromptModelProfile) -> PromptModelSessionRequest:
     )
 
 
-# M22-17. What each live service was observed to answer with on its listing route, recorded from the
-# retained M22-14 qualification artifacts and the providers' own published interfaces. This is
+# . What each live service was observed to answer with on its listing route, recorded from the
+# retained qualification artifacts and the providers' own published interfaces. This is
 # deliberately NOT derived from the adapter's `_CATALOG_IDENTIFIER_PREFIXES`: a fixture that returns
 # whatever the comparison happens to search for asserts the assumption under test instead of
 # exercising it, and that is exactly how the Gemini catalog spelling reached a live run undetected.
@@ -311,7 +311,7 @@ def basis_for(
 ) -> str | None:
     """The single acceptance rule, applied to a fresh run and to a retained observation alike.
 
-    M22-18. It is one function with two callers on purpose. A re-judgement that carried its own
+    . It is one function with two callers on purpose. A re-judgement that carried its own
     copy of these conditions could drift from what a live run would decide, and then a promotion
     would rest on a rule nothing else in the repository applies.
     """
@@ -407,7 +407,7 @@ def _run(
     receipt_valid = _receipt_is_qualification_evidence(result.receipt, profile, policy)
     transmissions = getattr(exchange, "transmission_count", None)
     receipt = _qualification_receipt_wire(result.receipt)
-    # M22-18. Two bars, and the artifact records which one was met rather than leaving a reader to
+    # . Two bars, and the artifact records which one was met rather than leaving a reader to
     # infer it. The completion bar is unchanged. A reachability acceptance additionally requires
     # that a content request was actually sent and answered -- both transmissions spent and bytes
     # on the wire in both directions -- so a run that fails at discovery cannot reach it.

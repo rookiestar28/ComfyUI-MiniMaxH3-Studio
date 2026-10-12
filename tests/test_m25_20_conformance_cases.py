@@ -1,4 +1,4 @@
-"""M25-20 post-closeout corrective: every corpus row has an executable, honest recipe.
+"""post-closeout corrective: every corpus row has an executable, honest recipe.
 
 The post-closeout review rejected the item because 306 rows were enumerated, counted and reported as
 covered without being executed. A recipe per row is the first half of fixing that, and a recipe is
@@ -133,8 +133,8 @@ def _identity(recipe: CaseRecipe) -> str:
 def test_every_corpus_row_has_exactly_one_recipe_and_no_recipe_invents_a_row() -> None:
     assert [recipe.case_id for recipe in BOOK.recipes] != []
     assert set(BOOK.by_id) == set(CORPUS.case_ids)
-    # M25-45 appended the four high-resolution rows to the accepted 306 rather than replacing any
-    # of them, and M25-77 the 22 `clip_audio` rows and the two rows of its `set_clip_audio`
+    #  appended the four high-resolution rows to the accepted 306 rather than replacing any
+    # of them, and the 22 `clip_audio` rows and the two rows of its `set_clip_audio`
     # command, so the total moves and the original set is asserted to be untouched beneath it.
     assert len(BOOK.recipes) == len(CORPUS.cases) == 334
     high_resolution = {case.case_id for case in CORPUS.cases if case.family == "high_resolution"}
@@ -160,8 +160,8 @@ def test_each_observation_kind_carries_the_rows_its_class_implies() -> None:
     # `contract_refusal` to `command_refusal` when they were given the payload the command decoder
     # actually refuses: a row that names no command cannot be answered by the command layer at all,
     # and the qualification runner blocked both for exactly that reason.
-    # M25-45's four high-resolution rows are `render_and_browser` like the rows they sit beside:
-    # 150 + 4. M25-77's 22 `clip_audio` rows are 14 that render (+14) and the eight the snapshot
+    # 's four high-resolution rows are `render_and_browser` like the rows they sit beside:
+    # 150 + 4. 's 22 `clip_audio` rows are 14 that render (+14) and the eight the snapshot
     # decoder refuses (+8): two out-of-range leaves for each of its three fields, the fade sum
     # and the member on a clip without bound audio. Its `set_clip_audio` command adds one
     # accepted and one refused command row (+1, +1), as every command does.
@@ -222,7 +222,7 @@ def test_shell_and_import_rows_never_carry_a_command_or_an_artifact() -> None:
 
 def test_the_rendering_set_is_exactly_the_rows_that_produce_an_artifact() -> None:
     rendering = BOOK.rendering()
-    # 185 accepted rows, M25-45's four, M25-77's fourteen and its accepted command row.
+    # 185 accepted rows, 's four, 's fourteen and its accepted command row.
     assert len(rendering) == 204
     assert all(recipe.refusal_code is None for recipe in rendering)
     assert all(recipe.observation != "declared_negative" for recipe in rendering)

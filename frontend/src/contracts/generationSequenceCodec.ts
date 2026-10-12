@@ -35,7 +35,7 @@ export type GenerationSequenceProgress = {
 /**
  * Which graph the command's two graph fingerprints were taken over.
  *
- * M17-20 D6. App Mode once materialized the context subgraph alone, so that was
+ *  D6. App Mode once materialized the context subgraph alone, so that was
  * the domain; it now materializes the full output-producing graph. The domain
  * travels with the command instead of being inferred, so a stale planner is a
  * named refusal rather than an identity mismatch pointing at the wrong thing.
@@ -246,7 +246,7 @@ function decodeCommand(value: unknown): GenerationSequenceCommand {
     invalid();
   const duration = object(wire.duration);
   closed(duration, durationKeys);
-  // M17-25: duration is the authored value and the frame count is derived. The
+  // duration is the authored value and the frame count is derived. The
   // basis discriminator is gone, so an unrepresentable length is unrepresentable
   // rather than rejected downstream. The lattice itself is not restated here; it
   // belongs to `core.length` alone.

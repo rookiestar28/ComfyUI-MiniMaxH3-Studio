@@ -7,9 +7,9 @@ import { resolve, sep } from "node:path";
 export const outputFixtureBody = "bounded-hermetic-output-body";
 export function authoringOutputFixture(): Plugin {
   let downloads = 0;
-  // M25-21 `action.output.download`: the integrated shell's own job handles are minted per run,
+  //  `action.output.download`: the integrated shell's own job handles are minted per run,
   // so the exact-handle route below cannot serve them. A download for any well-formed output
-  // handle is served the same bounded body; the counter stays on the M25-19 handle alone.
+  // handle is served the same bounded body; the counter stays on the handle alone.
   const anyOutputDownload =
     /^\/h3-context\/v1\/authoring\/output\/aro_[A-Za-z0-9_-]{22}\/download$/u;
   const outputHandleDownload =

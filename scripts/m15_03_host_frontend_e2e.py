@@ -1,4 +1,4 @@
-"""Run the exact M15-03 backend and real-browser supported-host contract."""
+"""Run the exact backend and real-browser supported-host contract."""
 
 from __future__ import annotations
 

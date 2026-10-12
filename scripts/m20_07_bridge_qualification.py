@@ -1,7 +1,7 @@
-"""M20-07 two-ended AV bridge qualification against the supplied host.
+"""two-ended AV bridge qualification against the supplied host.
 
 One invocation runs the frozen sequence: two full 90-frame t2va segment runs persist their
-terminal joint-AV latents through the M20-05 save canary (left seed 1, right seed 2, shared
+terminal joint-AV latents through the save canary (left seed 1, right seed 2, shared
 settings identity); the bridge probe then runs the REAL bridge admission, the REAL byte-exact
 composition (left 51-frame tail context, zero middle, right 51-frame head context, per
 domain) and the REAL interval-mask attachment inside the host process (the bridge canary),
@@ -22,11 +22,11 @@ digest-difference comparisons anywhere):
     refusals                 classified reason codes on both negative controls
 
 Byte identity is primary; a protected region may fall back to an elementwise float32 bound
-of at most ``PROTECTED_TOLERANCE`` (the M20-06 live-calibrated 1e-4) with the measured value
+of at most ``PROTECTED_TOLERANCE`` (the live-calibrated 1e-4) with the measured value
 recorded, and every generated region's divergence is recorded as the magnitude contrast.
 
 Probe geometry: 384x256 primary; on OOM rerun with ``--width 320 --height 192`` (documented
-fallback, same frame plan).  The M19-08 weight designation and the 96 GB ceiling are
+fallback, same frame plan). The weight designation and the 96 GB ceiling are
 STANDING per the maintainer directives of 2026-08-20/21.
 
 The run needs BOTH canary lanes at ONE shared root: start the host with
@@ -35,12 +35,12 @@ H3_CONTEXT_HOST_LATENT_RESUME_CANARY=1, H3_CONTEXT_HOST_TWO_ENDED_BRIDGE_CANARY=
 
 Usage:
 
-    python scripts/m20_07_bridge_qualification.py \
+    python scripts/_bridge_qualification.py \
         --host http://127.0.0.1:8188 \
         --host-output-root <supplied host root>/output \
         --canary-root <harness-owned directory> \
-        --matrix .planning/260821-M20-06_QUALIFICATION_MATRIX.json \
-        --evidence .planning/260821-M20-07_LIVE_EVIDENCE.json
+        --matrix.planning/260821-_QUALIFICATION_MATRIX.json \
+        --evidence.planning/260821-_LIVE_EVIDENCE.json
 """
 
 from __future__ import annotations
@@ -126,7 +126,7 @@ EVIDENCE_SCHEMA = "h3.m20_07.bridge_qualification.v1"
 
 #: The frozen probe frame plan (finalized plan D7): 90-frame boundary segments, 51-frame
 #: contexts, 39-frame gap, 141-frame produced bridge.  Every number is grid-derived: 51 is
-#: the M20-01 context grid, 39 the smallest producible audio-exact gap, and 90 the smallest
+#: the context grid, 39 the smallest producible audio-exact gap, and 90 the smallest
 #: on-lattice segment whose 51-frame tail boundary is audio-exact.
 SEGMENT_LENGTH = 90
 CONTEXT_FRAMES = 51

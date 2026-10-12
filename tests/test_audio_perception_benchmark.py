@@ -1,4 +1,4 @@
-"""M12-01 source-clock audio extraction and benchmark contract tests."""
+"""source-clock audio extraction and benchmark contract tests."""
 
 from __future__ import annotations
 

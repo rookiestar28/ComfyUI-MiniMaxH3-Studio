@@ -1,32 +1,32 @@
 {
   "checkpoints": [
     {
-      "commit": "2fea0df9025e639e4b2c6bf66ba65d081eee0d4e",
+      "commit": "210da75e45b53b1285af7c530fde307b3a12dd01",
       "item": "M19-01",
       "summary": "architecture inventory and fitness baseline"
     },
     {
-      "commit": "f3742ae66c9c64b27a8f8d466c8a1809c90353af",
+      "commit": "02efed8839b2ac16d196056d89368c9e03fa53a3",
       "item": "M19-02",
       "summary": "public surface authority; two import-time payloads deferred"
     },
     {
-      "commit": "e0d897915fa6c4f9dadd18854f204d2031c2afbd",
+      "commit": "68f6bdfdbf4fa818991ee2edccabfb2fe6f9f66c",
       "item": "M19-03",
       "summary": "ComfyUI node adapter decomposition behind a node-surface record"
     },
     {
-      "commit": "9da959fc6de7d27ba1d289c74b64a4f45832fa5a",
+      "commit": "93a374c5ff9cb5b79db9393c80665b397bd863cf",
       "item": "M19-04",
       "summary": "product shell frontend decomposition and its layering guard"
     },
     {
-      "commit": "ab4c3cc0c1e149509ac2d821fa4533664273a2b7",
+      "commit": "fe0fae37180d14fbae8f732ad3a1552f6d9d18f4",
       "item": "M19-05",
       "summary": "three pure-core modules decomposed and their layering guard"
     }
   ],
-  "fingerprint": "sha256:6adc6e3827ac3009d34073461cd8296ff5926da25a3e5bf6f0131512defd7232",
+  "fingerprint": "sha256:6fadddc3603c1eecad014a65df91958f2a909b3a314e0f8c2932d26ed14f6219",
   "rows": [
     {
       "domain": "architecture",

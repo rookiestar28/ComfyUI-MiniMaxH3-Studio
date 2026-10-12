@@ -1,7 +1,7 @@
-"""M20-05 focused tests for checkpoint resume admission and the qualified split composition.
+"""focused tests for checkpoint resume admission and the qualified split composition.
 
 Two properties are held apart everywhere.  Admission is identity equality over declarations
-and fingerprints -- never over produced bytes, because the M19-08 row measured the host as
+and fingerprints -- never over produced bytes, because the row measured the host as
 nondeterministic end to end -- and every divergence is a classified refusal, accumulated per
 domain, with no partial credit.  The composition builder renders exactly the topology the row
 qualified and refuses every variation (terminal boundary, foreign denoise) instead of
@@ -13,7 +13,7 @@ from __future__ import annotations
 import unittest
 from dataclasses import replace
 
-from official_temporal_parity import NATIVE_NODE_SHA256
+from oracles.native_temporal import NATIVE_NODE_SHA256
 
 from comfyui_h3_context.core.contracts import TaskMode
 from comfyui_h3_context.core.joint_av_latent import (
@@ -70,7 +70,7 @@ _FP_OTHER = "sha256:" + "9f" * 32
 def _accepted(
     resume: CapabilityStatus = CapabilityStatus.SUPPORTED,
 ) -> AcceptedQualification:
-    """The M19-08 refreshed projection: descriptor and resume rows measured live."""
+    """The refreshed projection: descriptor and resume rows measured live."""
 
     return AcceptedQualification(
         subject_identity=NATIVE_NODE_SHA256,

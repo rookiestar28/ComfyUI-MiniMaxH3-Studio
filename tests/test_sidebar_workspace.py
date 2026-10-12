@@ -1,4 +1,4 @@
-"""M15-04 backend-owned sidebar workspace and revision lifecycle tests."""
+"""backend-owned sidebar workspace and revision lifecycle tests."""
 
 from __future__ import annotations
 
@@ -407,7 +407,7 @@ class SidebarWorkspaceTests(unittest.TestCase):
     def test_stage_then_validate_is_revisioned_and_never_browser_validated(self) -> None:
         source = _validated_report()
         source_fingerprint = fingerprint_context_report(source)
-        # M24-05: the manual skeleton now renders the user's own sentence instead of the
+        # the manual skeleton now renders the user's own sentence instead of the
         # former generic fallback, so the simulated edit anchors on that sentence.
         text = source.prompt_document.text.replace(
             "Preserve the exact declared intent.",

@@ -18,7 +18,7 @@ import {
 import { syntheticTemplate } from "./support/templateFixture";
 
 /**
- * M17-20 phase 2c. The canvas App Mode materializes has to be a canvas App Mode
+ *  phase 2c. The canvas App Mode materializes has to be a canvas App Mode
  * can then read back.
  *
  * Materialization (2b) and adoption were validated by two different rules: the

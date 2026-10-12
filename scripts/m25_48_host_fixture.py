@@ -1,4 +1,4 @@
-"""Explicitly prepare or remove the public M25-48 supplied-host media fixture.
+"""Explicitly prepare or remove the public supplied-host media fixture.
 
 This helper is a separately selected maintenance operation. It never discovers a host, starts a
 process, installs dependencies, changes a candidate, or runs a browser row. Its output contains

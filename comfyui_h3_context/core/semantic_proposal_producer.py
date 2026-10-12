@@ -1,6 +1,6 @@
 """Qualified semantic-proposal source and provider authority.
 
-This module owns the closed M17-16 catalog and deterministic source derivation.  Provider I/O and
+This module owns the closed catalog and deterministic source derivation. Provider I/O and
 the process-local one-time review authority are intentionally added in the same bounded module so
 the content-bearing values never need a portable or browser-visible representation.
 """
@@ -148,7 +148,7 @@ _PROFILE_KEYS = frozenset(
 
 
 class SemanticProposalProducerError(ValueError):
-    """Closed, content-free M17-16 failure."""
+    """Closed, content-free failure."""
 
     def __init__(self, code: str) -> None:
         self.code = code
@@ -692,7 +692,7 @@ def _build_semantic_ollama_generation_request(
     *,
     typed_intents: bool = False,
 ) -> ModelGenerationRequest:
-    """Add the M17-16-only provider hint without changing the generic planning API."""
+    """Add the -only provider hint without changing the generic planning API."""
 
     if type(source) is not SemanticSourceBundle:
         _fail("producer_authority")
@@ -1177,7 +1177,7 @@ def _assemble_semantic_proposal_product(
     *,
     typed_intents: bool = False,
 ) -> SemanticProposalProduct:
-    """Purely join one qualified model result to enrichment and the accepted M17-05 contract."""
+    """Purely join one qualified model result to enrichment and the accepted contract."""
 
     if type(source) is not SemanticSourceBundle or type(model_result) is not ModelGenerationResult:
         _fail("provider_execution_authority")
@@ -1794,7 +1794,7 @@ def _fail_semantic_proposal_authority(reservation: object) -> None:
 def claim_semantic_proposal_review_authority(
     authority: object,
 ) -> Any:
-    """Return the one-time process-local claim context consumed later by M17-06."""
+    """Return the one-time process-local claim context consumed later by."""
 
     return _PROCESS_AUTHORITY_OWNER.claim(authority)
 

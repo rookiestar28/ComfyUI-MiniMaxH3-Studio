@@ -2,12 +2,12 @@
 
 One qualification instrument, mirroring the accepted latent-resume canary lane: it exists
 only when ``H3_CONTEXT_HOST_MASKED_AV_CANARY=1`` and an explicitly owned root is supplied,
-it is absent from normal registration, and it runs the REAL M20-04 store, the REAL M20-05
-resume admission, the REAL M20-06 masked-continuation admission and the REAL mask-attachment
+it is absent from normal registration, and it runs the REAL store, the REAL
+resume admission, the REAL masked-continuation admission and the REAL mask-attachment
 adapter inside the host process -- nothing is stubbed.
 
 The accepted-qualification projection next to the ownership marker is, for this item, the
-CANDIDATE row refresh under test: the M19-08 matrix rows with ``dual_domain_av_mask``
+CANDIDATE row refresh under test: the matrix rows with ``dual_domain_av_mask``
 refreshed to ``supported / repo_owned_nested_mask_constructor_executes``.  The qualification
 run is exactly the test of that candidate claim -- the canary lane is harness-owned and
 invisible to production, so gating the instrument on the claim it exists to measure

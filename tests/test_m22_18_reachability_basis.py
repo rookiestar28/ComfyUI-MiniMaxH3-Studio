@@ -1,10 +1,10 @@
-"""M22-18. A confirmed live connection is acceptance; a completed generation is not required.
+""". A confirmed live connection is acceptance; a completed generation is not required.
 
 The user's standard of 2026-08-23 is that a confirmed connection qualifies a remote provider and no
 API top-up is planned. Under the previous contract a live run on an account without credit produced
 no evidence at all, so it promoted nothing and wasted a credential.
 
-The shapes here are taken from the retained M22-14 live artifacts rather than invented. The OpenAI
+The shapes here are taken from the retained live artifacts rather than invented. The OpenAI
 run answered `prompt_model.quota` on HTTP 429 after spending both transmissions, with 726 request
 bytes and 283 response bytes: authenticated, routed to the pinned model, refused on balance. The
 Gemini retry answered HTTP 200 with an 8339-byte catalogue and never sent a content request at all,
@@ -251,7 +251,7 @@ class OlderEvidenceStillDecodesTests(unittest.TestCase):
 class RejudgingARetainedObservationTests(unittest.TestCase):
     """A recorded observation is a fact about the day it was made; only the verdict was stale.
 
-    M22-18. The retained M22-14 OpenAI artifact already contains everything the reachability basis
+    . The retained OpenAI artifact already contains everything the reachability basis
     needs. It says FAIL only because the tool that wrote it knew one bar. Re-running the provider
     would observe the same thing and spend a credential to do it, so the rule is re-applied to the
     retained observation instead. The rule itself is shared with the live path, not copied.

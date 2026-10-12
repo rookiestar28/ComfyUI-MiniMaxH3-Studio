@@ -1,5 +1,5 @@
-// M25-16 test fixtures: the plan's `M25-16-overlay-v1-smoke` (120 s, 4 tracks, 64 clips) and
-// `M25-16-overlay-v1-virtualized` (600 s, 8 tracks, 128 clips) snapshots, built from the
+//  test fixtures: the plan's `-overlay-v1-smoke` (120 s, 4 tracks, 64 clips) and
+// `-overlay-v1-virtualized` (600 s, 8 tracks, 128 clips) snapshots, built from the
 // accepted parity fixture so the output/capability blocks are the real accepted profile, plus
 // content-free timeline history and authoring view-state builders.
 
@@ -123,7 +123,7 @@ export const SMOKE_SHAPE: FixtureShape = Object.freeze({
   clipCount: 64,
 });
 
-/** M25-53 visual reference: three distinct, already-approved synthetic video sources. */
+/**  visual reference: three distinct, already-approved synthetic video sources. */
 export const REFERENCE_SHAPE: FixtureShape = Object.freeze({
   name: "M25-53-reference-three-source-v1",
   durationSeconds: 6,
@@ -138,7 +138,7 @@ export const REFERENCE_PRELOAD_SHAPE: FixtureShape = Object.freeze({
   clipCount: 0,
 });
 
-/** M25-58 fixed-denominator product playback surface at the accepted output geometry. */
+/**  fixed-denominator product playback surface at the accepted output geometry. */
 export const CONTINUOUS_PREVIEW_SHAPE: FixtureShape = Object.freeze({
   name: "M25-58-continuous-preview-v1",
   durationSeconds: 248 / 24,
@@ -253,7 +253,7 @@ export const VIRTUALIZED_SHAPE: FixtureShape = Object.freeze({
 });
 
 /**
- * M25-45 AC45-02: the smoke shape turned on its side, 180 x 320 instead of 320 x 180.
+ *  AC45-02: the smoke shape turned on its side, 180 x 320 instead of 320 x 180.
  *
  * The monitor's fit rule is width-limited for every landscape composition in the default layout,
  * so a portrait one is the only way to reach the height-limited branch without first dragging the
@@ -267,7 +267,7 @@ export const PORTRAIT_SHAPE: FixtureShape = Object.freeze({
 });
 
 /**
- * M25-21 `NLE-STRESS-V1`: the frozen 600 s / 8-track / 128-clip editing and preview stress
+ *  `NLE-STRESS-V1`: the frozen 600 s / 8-track / 128-clip editing and preview stress
  * fixture. Its geometry is the virtualized shape's; the name is the fixture identity the hardening
  * report binds its measurements to, so the two must never be edited apart.
  */

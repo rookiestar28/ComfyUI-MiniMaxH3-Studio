@@ -150,6 +150,7 @@
         "frontend/src/host/managedQualificationActions.ts",
         "frontend/src/host/managedSequenceClient.ts",
         "frontend/src/host/mediaRuntimeClient.ts",
+        "frontend/src/host/perceptionHostClient.ts",
         "frontend/src/host/productionActions.ts",
         "frontend/src/host/productionAuthoringImportClient.ts",
         "frontend/src/host/productionManagedChildResolver.ts",

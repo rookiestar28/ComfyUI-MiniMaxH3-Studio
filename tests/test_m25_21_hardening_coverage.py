@@ -1,4 +1,4 @@
-"""M25-21 hardening coverage manifest and report join.
+"""hardening coverage manifest and report join.
 
 The manifest is generated (``scripts/nle_hardening_manifest.py``); these tests bind it to its
 schema and its two frozen sources, prove the semantic validator rejects every way a coverage set

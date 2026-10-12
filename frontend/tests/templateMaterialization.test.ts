@@ -18,9 +18,10 @@ import {
   type Json,
 } from "../src/host/templateMaterialization";
 import { syntheticTemplate } from "./support/templateFixture";
+import { OFFICIAL_ASSET_MANIFEST } from "../src/host/officialAssetResolution";
 
 /**
- * M17-20 phase 2. Two kinds of row live here on purpose.
+ *  phase 2. Two kinds of row live here on purpose.
  *
  * The synthetic fixtures reproduce the two serialized shapes the pinned
  * templates use, so the rules are asserted on every machine. The real-bytes rows
@@ -40,7 +41,53 @@ const TEMPLATES = join(
   "templates",
 );
 
-const corpusPresent = existsSync(TEMPLATES);
+// An empty reference directory provides no corpus; tracked interface facts always run below.
+const corpusPresent = Object.values(MODE_TEMPLATE).some((name) =>
+  existsSync(join(TEMPLATES, `${name}.json`)),
+);
+
+type TemplateFacts = {
+  license: string;
+  attribution: string;
+  revision: string;
+  templates: {
+    name: string;
+    file_sha256: string;
+    model_filenames: string[];
+    length_expression: string;
+  }[];
+};
+
+const TRACKED_FACTS = JSON.parse(
+  readFileSync(
+    join(REPO_ROOT, "tests", "fixtures", "official_template_facts_v1.json"),
+    "utf8",
+  ),
+) as TemplateFacts;
+
+describe("tracked official template interface facts", () => {
+  it("checks published length expressions and defaults without an ignored corpus", () => {
+    expect(TRACKED_FACTS.license).toBe("MIT");
+    expect(TRACKED_FACTS.attribution).toContain("Comfy Org");
+    expect(TRACKED_FACTS.revision).toMatch(/^[0-9a-f]{40}$/);
+    const templates = new Set(TRACKED_FACTS.templates.map((row) => row.name));
+    expect(new Set(Object.values(MODE_TEMPLATE))).toEqual(templates);
+    for (const row of TRACKED_FACTS.templates) {
+      expect(row.file_sha256).toMatch(/^[0-9a-f]{64}$/);
+      expect(OFFICIAL_LENGTH_EXPRESSION).toBe(row.length_expression);
+    }
+    const roles = new Set<string>(
+      Object.values(OFFICIAL_ASSET_MANIFEST.profileFamilies).flat(),
+    );
+    const defaults = OFFICIAL_ASSET_MANIFEST.slots
+      .filter((row) => roles.has(row.slot))
+      .map((row) => row.templateDefault);
+    const published = TRACKED_FACTS.templates.flatMap(
+      (row) => row.model_filenames,
+    );
+    expect(new Set(defaults)).toEqual(new Set(published));
+  });
+});
 
 function pinned(name: string): Json {
   return JSON.parse(
@@ -1534,7 +1581,7 @@ describe.runIf(corpusPresent)(
       // same media the anchor does -- through the autogrow socket names the host
       // serializes, not the group names the API prompt uses.
       //
-      // M17-17: that includes the reference video's own soundtrack. It used to
+      // that includes the reference video's own soundtrack. It used to
       // reach the anchor without reaching the registry, so the registry derived
       // no `ref_video_audio_*` binding for a graph that carried one.
       expect((registry.inputs as Json[]).map((input) => input.name)).toEqual([

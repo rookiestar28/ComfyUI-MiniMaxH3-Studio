@@ -1,4 +1,4 @@
-"""Explicit injected perception adapter seam for M11-05.
+"""Explicit injected perception adapter seam for.
 
 This adapter is a qualification fixture boundary, not a detector/segmenter/re-ID implementation.
 It accepts caller-injected source-owned values and never launches a process, loads a model, or

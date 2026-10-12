@@ -756,7 +756,7 @@ def test_reopen_rejects_policy_drift_for_the_same_private_root() -> None:
 
 
 # ---------------------------------------------------------------------------
-# M20-08: the chunked streaming primitive and stream_artifact_into
+# the chunked streaming primitive and stream_artifact_into
 # ---------------------------------------------------------------------------
 
 

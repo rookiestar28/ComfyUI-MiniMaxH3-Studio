@@ -1,4 +1,4 @@
-"""M23-51 focused tests for detaching a run in the registry: retention, and a deadline that holds.
+"""focused tests for detaching a run in the registry: retention, and a deadline that holds.
 
 `release` pops a run unconditionally. Detach is its opposite number: the row stays, the aggregate
 stays, the prompt id stays, and the only thing that changes is that expiry stops being governed by
@@ -69,7 +69,7 @@ class DetachRetainsTests(unittest.TestCase):
     def test_detaching_fires_no_lifecycle_transition(self) -> None:
         # CRITICAL: a detach is not a cancellation and must leave no trace in the transition
         # history. If it ever fires one, a client leaving would be indistinguishable from the user
-        # pressing cancel, which is the M23-51 defect stated in lifecycle terms.
+        # pressing cancel, which is the defect stated in lifecycle terms.
         registry, _clock = _registry()
         _submitted(registry)
         before = registry.read("run_1").events

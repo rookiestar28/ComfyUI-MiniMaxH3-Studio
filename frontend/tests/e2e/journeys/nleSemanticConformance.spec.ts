@@ -1,4 +1,4 @@
-// M25-20 semantic conformance journey, on the REAL integrated shell.
+//  semantic conformance journey, on the REAL integrated shell.
 //
 // This is the browser half of the preview/final comparison. It starts from the one host tab and the
 // real three-page shell, activates `clip_editor` by hand, opens exactly one `overlay_v1`, drives a
@@ -9,7 +9,7 @@
 // What this journey is not: it is not the conformance report. It proves that the browser side can
 // be observed semantically on the accepted runtime, which is the precondition the plan sets before
 // the corpus may be run. A DOM-presence or screenshot assertion cannot stand in for that, and if
-// this journey cannot execute, M25-20 is BLOCKED rather than passed with a smaller claim.
+// this journey cannot execute, is BLOCKED rather than passed with a smaller claim.
 
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
 
@@ -22,7 +22,7 @@ test.use({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
 const OVERLAY = '[data-h3-nle-surface="overlay_v1"]';
 // The product's own launcher, distinct from the harness page's convenience button.
 const LAUNCHER = '[data-h3-nle-entry="open"]';
-// The monitor's own canvas, by its role marker: since M25-49 the media bin's card art canvases
+// The monitor's own canvas, by its role marker: since the media bin's card art canvases
 // precede the monitor in document order, so the first canvas under the overlay surface is a
 // zero-backing thumbnail, not the presented composition.
 const MONITOR_CANVAS =
@@ -168,7 +168,7 @@ test("the accepted runtime presents an edited composition that can be observed s
   // The monitor presents to a real canvas with real backing dimensions. Landmarks are read only
   // after the transport reports a presented frame — reading a target frame or a receipt instead
   // would measure an intention rather than an observation.
-  // M25-63: the monitor status is a diagnostic held in the top bar, not shown; the monitor
+  // the monitor status is a diagnostic held in the top bar, not shown; the monitor
   // publishing it is the fact, so it is read as attached with its text.
   await expect(
     page.locator('[data-h3-nle-status="monitor"]').first(),
@@ -207,7 +207,7 @@ test("the accepted runtime presents an edited composition that can be observed s
   // CRITICAL: poll until the canvas actually carries a presented frame. Sampling once, right after
   // the element becomes visible, reads the cleared surface before the first composited frame lands
   // and yields a single flat colour — which would then be compared as though it were the render.
-  // The bound is the assertion: if presentation never happens the journey fails, and M25-20 is
+  // The bound is the assertion: if presentation never happens the journey fails, and is
   // BLOCKED rather than passed on an empty observation.
   await expect
     .poll(async () => (await measure())?.distinct ?? 0, { timeout: 20_000 })

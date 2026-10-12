@@ -1,4 +1,4 @@
-// M25-16 `NLE-EDGE-TRIM-V1`: pure edge-trim geometry and the local gesture state machine.
+//  `NLE-EDGE-TRIM-V1`: pure edge-trim geometry and the local gesture state machine.
 //
 // The gesture is a view concern layered over the accepted `trim_clip` command. Nothing here
 // owns a new API, persisted schema, source lease, media dependency, worker or storage key. A

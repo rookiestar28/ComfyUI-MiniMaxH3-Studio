@@ -1,4 +1,4 @@
-"""M13-03 source-owned cross-modal temporal grounding contracts.
+"""source-owned cross-modal temporal grounding contracts.
 
 The module joins caller-supplied graph events and role candidates on an explicit source/target
 clock.  It does not decode media, infer causality, select a relation winner, or turn an alignment

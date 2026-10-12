@@ -1,4 +1,4 @@
-"""M22-06 provider settings projection, intents and route tests."""
+"""provider settings projection, intents and route tests."""
 
 from __future__ import annotations
 
@@ -123,7 +123,7 @@ def profile(
 
 
 def qualification_evidence(source: PromptModelProfile) -> PromptModelQualificationEvidence:
-    """M22-13: `qualified` now has to carry the evidence that justifies it.
+    """`qualified` now has to carry the evidence that justifies it.
 
     Built from the profile so the two never drift apart; the fingerprint is derived by the builder
     rather than restated here, which is the whole point of the builder existing.
@@ -240,7 +240,7 @@ class ShippedDefaultTests(unittest.TestCase):
     """The shipped catalog is available but never selected or authorized by default."""
 
     def test_no_settings_interaction_except_an_explicit_recheck_reaches_a_probe(self) -> None:
-        """M22-13 AC-3. Activating the local row must not make the session start talking.
+        """AC-3. Activating the local row must not make the session start talking.
 
         The guarantee is structural -- `recheck` is the only path from this object to a socket --
         but a future intent could quietly acquire one, so the whole ordinary interaction sequence
@@ -294,7 +294,7 @@ class ShippedDefaultTests(unittest.TestCase):
         projection = subject.project()
         self.assertFalse(projection.catalog_empty)
         self.assertEqual(len(projection.profiles), 4)
-        # M22-13: the qualified local row pins a digest and the projection surfaces it, so a
+        # the qualified local row pins a digest and the projection surfaces it, so a
         # reader can see which exact model the claim is about. The two catalog-only remote
         # rows still have nothing to show, which is the distinction worth asserting.
         self.assertEqual(
@@ -651,7 +651,7 @@ class ReadinessTests(unittest.TestCase):
 
 
 class ExactModelSelectionTests(unittest.TestCase):
-    """M22-11: a catalog profile names capability; only an explicit census admits a model."""
+    """a catalog profile names capability; only an explicit census admits a model."""
 
     def test_profile_selection_does_not_select_or_probe_a_model(self) -> None:
         subject = state()
@@ -1127,7 +1127,7 @@ class ConsentIntentTests(unittest.TestCase):
         assert consent is not None
         self.assertEqual(consent.status, "granted")
         self.assertTrue(consent.network_permitted)
-        # M22-11 profiles are text-only. A hostile client cannot create media-upload authority
+        #  profiles are text-only. A hostile client cannot create media-upload authority
         # merely by setting a hidden request flag.
         self.assertFalse(consent.media_upload_consented)
         self.assertEqual(consent.scope, CONSENT_SCOPE)
@@ -1992,7 +1992,7 @@ class ProviderSettingsRouteAsyncTests(unittest.IsolatedAsyncioTestCase):
 
 
 class QualifiedAuthorityTests(unittest.TestCase):
-    """M22-13: a qualified row plus a reachable host is not, by itself, authority to run."""
+    """a qualified row plus a reachable host is not, by itself, authority to run."""
 
     @staticmethod
     def _selected() -> tuple[ProviderSettingsState, PromptModelProfile]:

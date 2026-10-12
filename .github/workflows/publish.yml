@@ -34,6 +34,7 @@ jobs:
     if: github.repository == 'rookiestar28/ComfyUI-MiniMaxH3-Studio'
     permissions:
       contents: read
+      actions: read
     env:
       COMFY_NO_TELEMETRY: "1"
       PYTHONDONTWRITEBYTECODE: "1"
@@ -95,6 +96,16 @@ jobs:
             --expected-candidate "$EXPECTED_CANDIDATE" \
             --expected-version "$EXPECTED_VERSION" \
             --github-output "$GITHUB_OUTPUT"
+
+      - name: Require successful hosted CI on the exact public candidate
+        if: steps.publish_guard.outputs.should_publish == 'true'
+        shell: bash
+        env:
+          CANDIDATE_COMMIT: ${{ steps.publish_guard.outputs.candidate_commit }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python scripts/public_ci_gate.py --candidate "$CANDIDATE_COMMIT"
 
       - name: Skip unchanged push
         if: steps.publish_guard.outputs.should_publish != 'true'

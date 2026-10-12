@@ -1,4 +1,4 @@
-// M25-33: the media runtime client never throws, sends only closed action envelopes, maps every
+// the media runtime client never throws, sends only closed action envelopes, maps every
 // non-success to a closed code, and marks a mutation whose response was lost as outcome-unknown.
 
 import { describe, expect, it, vi } from "vitest";

@@ -223,14 +223,14 @@ def prepare_render_text(
     font_path = stage.write_input(font_payload, suffix=".bin")
     text_path = stage.write_input(text_payload, suffix=".txt")
     lines: list[tuple[Path | None, str]] = []
-    if "\t" in style.content and style.align != "left":
-        # CRITICAL: native centered/right multiline tabs clip glyphs. Keep literal line bytes
-        # separately for left-internal rasterization; never expand tabs or rewrite the snapshot.
-        for line in style.content.split("\n"):
-            _guard(control)
-            payload = line.encode("utf-8")
-            path = stage.write_input(payload, suffix=".txt") if payload else None
-            lines.append((path, "sha256:" + hashlib.sha256(payload).hexdigest()))
+    # CRITICAL: drawtext's multiline path rasterizes LF as .notdef with this qualified
+    # face/runtime. Always stage literal LF-free lines, retaining empty layout bands and
+    # the whole-content attestation; do not restore whole-block or non-left tab staging.
+    for line in style.content.split("\n"):
+        _guard(control)
+        payload = line.encode("utf-8")
+        path = stage.write_input(payload, suffix=".txt") if payload else None
+        lines.append((path, "sha256:" + hashlib.sha256(payload).hexdigest()))
     _guard(control)
     stage.check_budget()
     return PreparedRenderText(

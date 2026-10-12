@@ -1,6 +1,6 @@
 """Explicit cross-asset identity and reference-role resolution contracts.
 
-This module accepts caller-supplied proposals over the M13-01 graph.  It never matches faces,
+This module accepts caller-supplied proposals over the graph. It never matches faces,
 voices, embeddings, labels, filenames, or media; it preserves alternatives and conflicts instead
 of selecting a winner.
 """

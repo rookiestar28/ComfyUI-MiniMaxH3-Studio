@@ -1,4 +1,4 @@
-// M25-20 browser landmark collector. Test support: nothing here is shipped, and nothing here is a
+//  browser landmark collector. Test support: nothing here is shipped, and nothing here is a
 // debug route or a product API — the journey reads the same canvas the real monitor already
 // presents to, using the real transport's own presentation signal.
 //

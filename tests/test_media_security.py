@@ -153,12 +153,17 @@ class MediaSecurityTests(unittest.TestCase):
             self.assertNotIn(str(safe), repr(validated[0]))
             self.assertNotIn(str(safe), json.dumps(validated[0].to_public_dict()))
 
-            for candidate in (
-                root / "missing.png",
-                root.parent / "outside.png",
-                root / ".." / root.name / ".." / "outside.png",
+            for candidate_case, candidate in enumerate(
+                (
+                    root / "missing.png",
+                    root.parent / "outside.png",
+                    root / ".." / root.name / ".." / "outside.png",
+                )
             ):
-                with self.subTest(candidate=candidate), self.assertRaises(SecurityPolicyError):
+                with (
+                    self.subTest(candidate_case=candidate_case),
+                    self.assertRaises(SecurityPolicyError),
+                ):
                     validate_media_sources((image_path(candidate),), policy)
 
             directory = root / "directory"

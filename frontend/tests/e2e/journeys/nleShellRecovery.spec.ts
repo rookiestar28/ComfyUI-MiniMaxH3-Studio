@@ -1,4 +1,4 @@
-// M25-16 corrective F1 at the REAL integrated shell: a timeline transaction whose reply is lost
+//  corrective F1 at the REAL integrated shell: a timeline transaction whose reply is lost
 // after the core committed it must surface as an unknown outcome (never a rejection), be
 // reconciled by exactly one read-only history read with nothing replayed, show the committed
 // edit, and let the next trim proceed on the refreshed base as a separate transaction.

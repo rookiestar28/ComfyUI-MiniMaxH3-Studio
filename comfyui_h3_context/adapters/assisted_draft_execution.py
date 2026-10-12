@@ -1,4 +1,4 @@
-"""Hermetic-capable M22-12 binding from private provider authority to M22-05 drafting."""
+"""Hermetic-capable binding from private provider authority to drafting."""
 
 from __future__ import annotations
 

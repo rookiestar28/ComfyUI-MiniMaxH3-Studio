@@ -1,16 +1,16 @@
-"""Pure M20-09 explicit seam and crossfade policy with exact accounting.
+"""Pure explicit seam and crossfade policy with exact accounting.
 
-This module owns the typed seam profile for the M17-11 aggregate join: direct
+This module owns the typed seam profile for the aggregate join: direct
 join (the compatibility baseline) and bounded audiovisual crossfade.  It holds
 no filesystem locator, media process, host API or frontend wire.  Every overlap
 is validated on a derived exact grid and accounted in whole target frames and
 samples before any execution; fractional or unsupported accounting refuses at
 construction time instead of rounding.
 
-Master-audio ownership is bound at declaration level (the M20-07 D3 pattern):
+Master-audio ownership is bound at declaration level (the D3 pattern):
 the per-seam master source identifiers are caller-asserted bookkeeping recorded
 into the seam plan and receipt.  They are not fingerprint-verified against the
-audio content — the M17-11 media layer carries no cross-layer audio provenance
+audio content — the media layer carries no cross-layer audio provenance
 channel — and admission therefore checks declared identity consistency, not
 acoustic identity.
 

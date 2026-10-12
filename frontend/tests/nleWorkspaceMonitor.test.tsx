@@ -1,4 +1,4 @@
-// M25-16 monitor: the binding derivation degrades by the accepted runtime disposition, the
+//  monitor: the binding derivation degrades by the accepted runtime disposition, the
 // composition monitor delegates every transport control to the owned session (no UA media
 // control), the embedded-audio state is read-only, the labeled selected-source fallback shows
 // no compositor, and unmount disposes the monitor exactly once.
@@ -313,7 +313,7 @@ describe("M25-16 composition monitor", () => {
       view.container.querySelector<HTMLButtonElement>(
         `[data-h3-nle-control="${id}"]`,
       )!;
-    // Opening: nothing is enabled, and M25-45 offers recovery only where it applies.
+    // Opening: nothing is enabled, and offers recovery only where it applies.
     expect(control("transport.play").disabled).toBe(true);
     expect(control("transport.step_forward").disabled).toBe(true);
     expect(control("transport.recover")).toBeNull();
@@ -322,7 +322,7 @@ describe("M25-16 composition monitor", () => {
     });
     expect(onFrame).toHaveBeenLastCalledWith(12);
     expect(control("transport.play").disabled).toBe(false);
-    // M25-45: one play/pause button, named for the action it performs now.
+    // one play/pause button, named for the action it performs now.
     expect(control("transport.pause")).toBeNull();
     fireEvent.click(control("transport.play"));
     expect(monitor.session.play).toHaveBeenCalledTimes(1);
@@ -533,7 +533,7 @@ describe("M25-16 composition monitor", () => {
   });
 
   it("queues play behind a seek the user has already asked for", async () => {
-    // M25-21 B3-D29: the session judges the terminal endpoint by the frame actually presented,
+    //  B3-D29: the session judges the terminal endpoint by the frame actually presented,
     // so a Play issued while a seek away from the last frame is still in flight is refused as
     // "already at the end" and silently republishes `paused` -- the button does nothing until it
     // is pressed again. "Home, then Play" at the end of a composition is exactly that sequence,
@@ -584,7 +584,7 @@ describe("M25-16 composition monitor", () => {
   });
 
   it("steps the frame buttons from a seek the user has already asked for", async () => {
-    // M25-44 B-M2544-05: the session's step pauses first, and a pause while a move is in flight
+    //  B-M2544-05: the session's step pauses first, and a pause while a move is in flight
     // supersedes it with a seek back to the last presented frame. "Home, then Next frame" before
     // the Home was presented cancelled the Home and stepped from the old position (58 -> 59). The
     // buttons follow the slider's rule (B3-D10): while a seek is requested, step from it.
@@ -872,7 +872,7 @@ describe("M25-16 composition monitor", () => {
         />
       </>,
     );
-    // M25-45: the audio state reads in the chrome bar, published through the channel.
+    // the audio state reads in the chrome bar, published through the channel.
     const audio = () =>
       view.container.querySelector<HTMLElement>(
         '[data-h3-nle-status="audio"]',
@@ -949,7 +949,7 @@ describe("M25-16 composition monitor", () => {
     expect(monitor.created).toHaveLength(1);
   });
 
-  // M25-21 B3-D56: the session owner that adopts an accepted revision starts the replacement in
+  //  B3-D56: the session owner that adopts an accepted revision starts the replacement in
   // the same task, so the adoption and the monitor's `opening` state are published in one React
   // commit. The binding effect must then NOT replace again for the binding the trigger already
   // started, or every accepted edit pays two native replacements.
@@ -1026,7 +1026,7 @@ describe("M25-16 composition monitor", () => {
     expect(
       view.container.querySelectorAll('[data-h3-nle-status="monitor"]'),
     ).toHaveLength(1);
-    // M25-64 (row #27, R5): the fallback states itself in the picture overlay; the selected
+    //  (row #27, R5): the fallback states itself in the picture overlay; the selected
     // clip's raw asset id is no longer printed.
     expect(region.textContent).toContain(
       "Composition monitor unavailable; the preview shows the selected clip's source only.",
@@ -1246,7 +1246,7 @@ describe("M25-16 composition monitor", () => {
   });
 });
 
-// M25-64 (rows #26 and #27, A64-1): the monitor's header states the accepted output's facts, and
+//  (rows #26 and #27, A64-1): the monitor's header states the accepted output's facts, and
 // the picture area says why it has no picture in one centred overlay with at most one action.
 describe("M25-64 monitor header and overlays", () => {
   const snapshot = snapshotFixture(SMOKE_SHAPE);
@@ -1378,7 +1378,7 @@ describe("M25-64 monitor header and overlays", () => {
     expect(card.querySelector("[data-h3-nle-overlay-title]")!.textContent).toBe(
       "Preview unavailable",
     );
-    // M25-64 (A64-6): a plain sentence under the title, not the status sentence that repeated
+    //  (A64-6): a plain sentence under the title, not the status sentence that repeated
     // "unavailable"; the status sentence stays the diagnostics text.
     expect(
       card.querySelector("[data-h3-nle-overlay-detail]")!.textContent,

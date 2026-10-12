@@ -1,4 +1,4 @@
-// M25-20 F1 corrective, browser half: one evidence attachment per corpus row this journey set
+//  F1 corrective, browser half: one evidence attachment per corpus row this journey set
 // exercises in the real browser -- the 11 `ui_invariant.*` / 2 `import_integration.*` shell rows
 // (`comfyui_h3_context/core/semantic_conformance.py`) and the 151 `render_and_browser` rows
 // (`semantic_conformance_cases.py`'s `build_recipes()`). Each attachment is written by the
@@ -24,7 +24,7 @@ import type { TestInfo } from "@playwright/test";
 
 import { evidenceCapture } from "./evidence";
 
-// M25-20 F1 corrective (join-fixed contract): the structured landmark shapes the browser stage
+//  F1 corrective (join-fixed contract): the structured landmark shapes the browser stage
 // document's `render_and_browser` rows must carry, mirrored field-for-field from
 // `scripts/nle_semantic_report.py`'s own readers (`_source_landmarks`, `_geometry`, `_patches`,
 // `_alphas`, `_text`). Every value in these is a real, browser-measured observation -- never a
@@ -88,7 +88,7 @@ export type ShellObservation = Readonly<{
   text?: TextEntry;
 }>;
 
-// M25-20 B-65: the snapshot fields that are the composition's content. Undo and redo are judged
+//  B-65: the snapshot fields that are the composition's content. Undo and redo are judged
 // on these alone, on both halves of an `import_integration` row (the render stage applies the
 // same list, `scripts/nle_semantic_import_scenario.py`'s `TIMELINE_CONTENT_FIELDS`): the product's
 // timeline fingerprint folds the revision in, so a history step that restores the very same

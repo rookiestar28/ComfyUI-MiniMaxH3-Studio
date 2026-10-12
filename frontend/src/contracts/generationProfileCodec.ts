@@ -6,7 +6,7 @@ import {
 /**
  * The capability projection App Mode gates on, decoded from the backend route.
  *
- * M17-20 D1 puts the decision in the backend on purpose: the browser cannot see
+ *  D1 puts the decision in the backend on purpose: the browser cannot see
  * the host's node classes, its installed weights or the template bytes it
  * serves, so anything it concluded about generation would be a guess. What
  * arrives here is already a decision -- per materialization basis, a disposition
@@ -26,7 +26,7 @@ export type GenerationAssetSlot =
 export type GenerationModeFamily = "image_to_video" | "reference_to_video";
 export type GenerationFamilyDisposition =
   | "available"
-  // M17-28: every required role is installed, but at least one is not under the
+  // every required role is installed, but at least one is not under the
   // name the template materializes with. Distinct from `missing_asset` because
   // the two send the user to different actions.
   | "asset_relocated"

@@ -1,4 +1,4 @@
-"""Two-ended audiovisual bridge planning, admission and accounting (M20-07).
+"""Two-ended audiovisual bridge planning, admission and accounting.
 
 Downstream of the supported `two_ended_av_bridge` row (`pixel_domain_two_ended_composition_
 executes`, refreshed matrix consumed via the temporal capability profile).  The row measured
@@ -6,12 +6,12 @@ the pixel-domain composition affirmatively -- fl2va with both keyframes executes
 and delivers the exact requested frame count, keyframe condition latents are re-injected
 every sampling step and never denoised, and no audio anchor exists on the native surface --
 while both stock latent combinators reject the joint NestedTensor.  This module is the
-repo-owned half: a typed bridge plan between two exact M20-04 checkpoint boundaries, one
-explicit master-audio authority, a two-sided interval mask in the exact M20-06 sampler
+repo-owned half: a typed bridge plan between two exact checkpoint boundaries, one
+explicit master-audio authority, a two-sided interval mask in the exact sampler
 semantics, and an admission that binds every party by fingerprint.
 
-Frame-level accounting stays in M20-01: contexts land on ``CONTEXT_EXTENT_GRID_FRAMES`` and
-conservation is checked exclusively through :func:`check_crop_conservation` (AC-M20-01-10;
+Frame-level accounting stays in : contexts land on ``CONTEXT_EXTENT_GRID_FRAMES`` and
+conservation is checked exclusively through :func:`check_crop_conservation` (AC--10;
 this module never holds its own copy of the grid or the rule).  Two alignment facts are
 derived here from the declared rates, never enumerated: the generated middle must be a whole
 number of steps on both latent grids, so the gap is producible AND divisible by the exact
@@ -23,7 +23,7 @@ Master audio is declaration-level authority: one bounded source identity plus a 
 interval on the master timeline.  Competing boundary declarations or missing coverage are
 classified refusals -- nothing is synthesized, mixed, padded or auto-selected, and no audio
 media value enters this module.  The per-boundary declarations are caller-asserted
-bookkeeping, not fingerprint-bound identity: the M20-04 receipt carries no master-audio
+bookkeeping, not fingerprint-bound identity: the receipt carries no master-audio
 member, so admission proves that the caller's declarations agree with each other and with
 the one master declaration, and nothing stronger (distinct review 2026-08-21, accepted
 design under D3's declaration-level scope).
@@ -31,7 +31,7 @@ design under D3's declaration-level scope).
 The composition builder renders the fresh full-schedule fragment (``RandomNoise`` +
 ``BasicScheduler`` + ``SamplerCustomAdvanced``) that consumes the composed masked bridge
 latent; the caller owns model, conditioning (the pinned fl2va two-keyframe form) and the
-latent source node, exactly as the M20-05 resume builder does.
+latent source node, exactly as the resume builder does.
 """
 
 from __future__ import annotations
@@ -79,7 +79,7 @@ TWO_ENDED_BRIDGE_DECISION_SCHEMA = "h3.context.two_ended_bridge_decision.v1"
 TWO_ENDED_BRIDGE_RECEIPT_SCHEMA = "h3.context.two_ended_bridge_receipt.v1"
 
 #: One context grid unit expressed on each exact latent grid.  Both are derived from the
-#: M20-01 symbols -- the grid is a whole number of lattice steps and a whole number of audio
+#: symbols -- the grid is a whole number of lattice steps and a whole number of audio
 #: periods by construction -- so requalifying a rate moves these with it.
 VIDEO_LATENT_STEPS_PER_CONTEXT_UNIT = (
     CONTEXT_EXTENT_GRID_FRAMES // LATTICE_STEP
@@ -130,7 +130,7 @@ def _bounded_integer(value: object, field: str, minimum: int, maximum: int) -> i
 class TwoEndedBridgeAuthority:
     """The frozen consumption of the accepted profile's supported bridge row.
 
-    Same shape and same refusal as the sibling M20-04/05/06 authorities: the projection
+    Same shape and same refusal as the sibling /05/06 authorities: the projection
     exists only in the ``SUPPORTED`` state, and capability absence is a construction
     refusal, not a value with a flag.
     """
@@ -226,7 +226,7 @@ class IntervalMaskExtent:
     """One domain's two-sided interval mask on its exact latent grid.
 
     Steps in ``[0, generate_from)`` and ``[generate_to, length)`` are preserved; steps in
-    ``[generate_from, generate_to)`` are generated.  The M20-06 suffix form is the special
+    ``[generate_from, generate_to)`` are generated. The suffix form is the special
     case ``generate_to == length``; the bridge needs both sides, so the interval is the
     declared shape rather than a pair of suffixes.
     """
@@ -271,7 +271,7 @@ class TwoEndedBridgePlan:
     """The exact shape of one bridge run, stated before any of it is executed.
 
     Every extent is integral by the grid arithmetic this plan enforces at construction; the
-    latent-step members are derived, cross-checked against the M20-01 functions, and carried
+    latent-step members are derived, cross-checked against the functions, and carried
     explicitly so the adapter slices by declaration instead of re-deriving.
     """
 
@@ -624,7 +624,7 @@ def admit_two_ended_bridge(
     profile-aligned with each other, the declared master authority must be the one both
     boundaries declare and must cover the produced interval plus lookahead, the mask must be
     derived from this exact plan, and the frame-level accounting must conserve the target
-    interval exactly (the M20-01 rule, consumed, never copied).
+    interval exactly (the rule, consumed, never copied).
     """
 
     if type(authority) is not TwoEndedBridgeAuthority:
@@ -857,7 +857,7 @@ def build_bridge_composition(
     The masked bridge latent enters as ``latent_image`` from the caller's latent source node
     (the composition adapter's output); the caller also owns the model, the pinned fl2va
     two-keyframe conditioning behind the guider, and the sampler selection.  Unlike the
-    M20-05 resume fragment there is no split and noise is real: the middle is generated from
+     resume fragment there is no split and noise is real: the middle is generated from
     scratch while the interval mask preserves both contexts.
 
     The returned node ids (``bridge_noise``, ``bridge_sigmas``, ``bridge_sampler``) are

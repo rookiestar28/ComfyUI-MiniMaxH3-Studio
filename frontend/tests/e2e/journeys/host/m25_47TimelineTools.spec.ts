@@ -301,7 +301,7 @@ test("timeline tools contain shortcuts and preserve the owned supplied-host proj
     // IMPORTANT: keep the real qualification fixture's backend asset identity; `image_1`
     // never enters this workspace and makes selectOption wait for a nonexistent option.
     const imageAssetId = "first_frame_1";
-    // IMPORTANT: M25-48 replaced the generic insert form with source-bound Media cards. Keep this
+    // IMPORTANT: replaced the generic insert form with source-bound Media cards. Keep this
     // host row on that accepted surface; restoring the form would test an obsolete parallel UI.
     await overlay.locator('[data-h3-nle-pane="assets"]').click();
     // IMPORTANT: Media decoration and clip playback share one serial backend build owner. A

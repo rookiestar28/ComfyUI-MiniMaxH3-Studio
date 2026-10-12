@@ -813,7 +813,7 @@ test("automatic assembly retains original outputs for explicit NLE import and re
     await page.waitForTimeout(1_000);
     await expect(seek).toHaveValue(String(pausedFrame));
     observations.transport = { seekFrame: 12, pausedFrame };
-    // M25-44: the final-video card lives in the chrome bar's Export popover.
+    // the final-video card lives in the chrome bar's Export popover.
     await openExportPanel(overlay);
     const render = overlay.locator('[data-h3-nle-region="render"]');
     await expect(render).toHaveAttribute("data-h3-nle-render", "available");

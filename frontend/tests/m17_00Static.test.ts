@@ -7,7 +7,7 @@ const source = (path: string): string =>
   readFileSync(join(process.cwd(), path), "utf8");
 
 const entry = source("src/entry.tsx");
-// M23-28 split the product shell: `entry.tsx` is composition only, and the
+//  split the product shell: `entry.tsx` is composition only, and the
 // behaviour these guards pin lives in the module that owns it.
 const registration = source("src/lifecycle/extensionRegistration.tsx");
 const presentation = source("src/lifecycle/presentationBinding.tsx");
@@ -110,10 +110,10 @@ describe("M17-00 static architecture and privacy boundaries", () => {
 
   it("keeps the H3 presentation scoped and preserves lifecycle evidence", () => {
     expect(css).toContain("--h3-operation");
-    // M21-03 removed the decorative grid background on the user's decision of
+    //  removed the decorative grid background on the user's decision of
     // 2026-08-18, so `--h3-grid-line` no longer exists. What this row was really
     // pinning -- that the panel derives its scoped plate from its own surface
-    // rather than consuming a host colour token -- is asserted directly. M21-12
+    // rather than consuming a host colour token -- is asserted directly.
     // deliberately makes that owned plate translucent.
     expect(css).not.toContain("--h3-grid-line");
     expect(css).toMatch(

@@ -1,5 +1,5 @@
 /**
- * M25-61 redesign foundation, in the real editor:
+ *  redesign foundation, in the real editor:
  * - A61-1: no periodic line is painted through the tracks at any zoom; the snap guide survives,
  *   and is the probe's own negative: the column test that finds no grid does find the guide.
  * - A61-2: the ruler carries short labels at least 72 px apart and minor ticks down to single
@@ -12,7 +12,12 @@
 import { expect, test, type Page } from "@playwright/test";
 
 import { routeGenericFixtureMedia } from "../helpers/genericFixtureMedia";
-import { canonicalWorkspace, snapshot, surface } from "../helpers/nleCanonical";
+import {
+  canonicalFailureDiagnostics,
+  canonicalWorkspace,
+  snapshot,
+  surface,
+} from "../helpers/nleCanonical";
 import {
   playheadFrame,
   playheadSlider,
@@ -25,6 +30,13 @@ import {
 } from "../helpers/nleTargets";
 
 test.use({ viewport: { width: 1402, height: 868 }, deviceScaleFactor: 1 });
+
+test.afterEach(async ({ page }, testInfo) => {
+  if (testInfo.status === testInfo.expectedStatus) return;
+  const diagnostics = await canonicalFailureDiagnostics(page);
+  if (diagnostics)
+    console.log(JSON.stringify({ canonicalWorkspaceDiagnostics: diagnostics }));
+});
 
 const timeline = (page: Page) =>
   page.locator(surface).locator('[data-h3-nle-region="timeline"]');
@@ -213,7 +225,7 @@ test("A61-3: frame 0 sits one lead-in right of the header for clips, ruler and p
   expect(zeroMark.x - rulerLane.x).toBeCloseTo(16, 0);
   expect(zeroMark.x).toBeCloseTo(clipBox.x, 0);
   // No edit is made here: an accepted edit, even a selection, re-acquires the transport, which
-  // briefly disables the ruler and returns the playhead to frame 0 (registered against M25-64).
+  // briefly disables the ruler and returns the playhead to frame 0 (registered against).
   // Without one, the frame reached below can only come from the press being measured.
   const slider = playheadSlider(page);
   await seekPlayhead(page, slider, 30);
@@ -247,7 +259,7 @@ test("A61-4: a fine pointer measures controls against the 24 px minimum and a 26
     (dialog, grip) =>
       [...dialog.querySelectorAll<HTMLElement>("button")]
         .filter((element) => element.getClientRects().length > 0)
-        // M25-62 (B-M2562-05): only the pinned 8 px fine grip is excused its width.
+        //  (B-M2562-05): only the pinned 8 px fine grip is excused its width.
         .filter(
           (element) =>
             !(

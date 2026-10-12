@@ -1,4 +1,4 @@
-"""M25-20 semantic conformance: corpus closure, decoder-bound binding, and comparator sensitivity.
+"""semantic conformance: corpus closure, decoder-bound binding, and comparator sensitivity.
 
 Three separable jobs live here, and the middle one is the reason this file exists at all.
 
@@ -385,7 +385,7 @@ def test_the_decoder_really_refuses_the_timing_cases_the_corpus_declares(
 
 def test_tolerance_profile_is_inherited_and_frozen() -> None:
     assert TOLERANCE_PROFILE.version == TOLERANCE_VERSION
-    # Inherited unchanged from the accepted M25-10 output profile.
+    # Inherited unchanged from the accepted output profile.
     assert TOLERANCE_PROFILE.preview_max_av_drift_samples == 2_000
     assert TOLERANCE_PROFILE.final_impulse_tolerance_samples == 2_048
     assert TOLERANCE_PROFILE.patch_max_abs_channel == 8
@@ -1422,7 +1422,7 @@ def test_the_manifest_carries_no_runtime_pin_and_no_result() -> None:
 # Post-closeout corrective: report admission, derived colour, measured timing, real deadlines
 #
 # Each test below reproduces one blocking finding of
-# `.planning/260909-M25-20_POST_CLOSEOUT_CODE_REVIEW_REPORT.md`. Where the reviewer executed a
+# `.planning/260909-_POST_CLOSEOUT_CODE_REVIEW_REPORT.md`. Where the reviewer executed a
 # probe by hand, that probe is pinned here verbatim: a diagnostic that was run once and then
 # described in prose is exactly the evidence shape this item was rejected for.
 # --------------------------------------------------------------------------------------------
@@ -1583,7 +1583,7 @@ def test_the_colour_policy_is_derived_from_the_artifact_and_not_from_its_caller(
 def test_an_untagged_artifact_cannot_claim_the_accepted_colour_policy() -> None:
     """F3, pinned: the old signature returned whatever name it was handed.
 
-    `tests/fixtures/m25_12_runtime/cfr-primary.mp4` really does carry no colour tags, so this is
+    `tests/fixtures/_runtime/cfr-primary.mp4` really does carry no colour tags, so this is
     the shape a caller could previously have labelled `bt709_sdr_limited_v1` by omission.
     """
 

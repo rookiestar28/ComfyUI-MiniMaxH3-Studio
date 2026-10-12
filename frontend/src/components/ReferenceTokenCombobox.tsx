@@ -16,7 +16,7 @@ export function ReferenceTokenCombobox({
   disabled: boolean;
   onSelect(candidate: SidebarReferenceCandidate, promptText: string): void;
   focusKey?: string;
-  // M21-03 AC-19. This prop was defaulted to English. The single call site has
+  //  AC-19. This prop was defaulted to English. The single call site has
   // always passed localised labels, so the defaults were unreachable and no test
   // could fail on them -- which is exactly what made them a trap for a second
   // call site. Required is the only shape that cannot ship English silently.

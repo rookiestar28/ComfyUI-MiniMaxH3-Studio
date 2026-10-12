@@ -1,6 +1,6 @@
 """Deterministic, frame-grid-aligned audiovisual timeline planning.
 
-The planner consumes an accepted M13-05 mode/retention report and caller-owned typed events.  It
+The planner consumes an accepted mode/retention report and caller-owned typed events. It
 does not inspect media or ask a model to fill a gap.  Its output is a bounded structural hand-off
 for later rendering: half-open shots cover the target duration, reference anchors remain ordered,
 and exact text/audio continuity is explicit.

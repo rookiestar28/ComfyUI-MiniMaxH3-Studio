@@ -1,7 +1,7 @@
-"""M19-03 node surface tests.
+"""node surface tests.
 
 The record these cover exists for one reason: a 3 300-line adapter move needs a way to prove it
-changed nothing a ComfyUI host can see, and before M19-03 this repository had no test that looked at
+changed nothing a ComfyUI host can see, and before this repository had no test that looked at
 `NODE_CLASS_MAPPINGS` as a whole. `test_node_contracts` covers the declarative registry,
 `test_custom_node_loader` covers that mappings are exported at all, and the per-node suites each see
 one node.
@@ -222,7 +222,7 @@ class GeneratedSurfaceTests(unittest.TestCase):
         cls.surface = GENERATOR.build_surface()
 
     def test_the_artifact_regenerates_byte_identically(self) -> None:
-        """This is the M19-03 safety net: the live surface still equals the committed baseline."""
+        """This is the safety net: the live surface still equals the committed baseline."""
 
         self.assertEqual(
             GENERATOR.artifact_bytes(self.surface),
@@ -456,7 +456,7 @@ class HostIndependenceTests(unittest.TestCase):
 
     Two separate rules, checked here because both are structural.  The host rule is why this package
     can be imported without ComfyUI present.  The one-way rule is what keeps the adapter layer
-    acyclic after the M19-03 split: `nodes.py` imports the domain modules, so a domain module
+    acyclic after the split: `nodes.py` imports the domain modules, so a domain module
     importing `nodes` closes a cycle.  A relative `from .nodes import X` is the way that would
     actually get written, so the check has to see `level == 1` imports and not only absolute ones.
     """

@@ -1,6 +1,6 @@
 """Generate the `clip_audio` semantic corpus base from the accepted 320 x 180 one.
 
-M25-77 measures a clip's audio adjustments -- gain, mute and fades -- as the level of a steady tone,
+ measures a clip's audio adjustments -- gain, mute and fades -- as the level of a steady tone,
 window by window. The accepted base cannot carry those rows: its sources sound as short bursts with
 silence between them, and its 48-frame clip has no room for the longest fade the contract admits
 (240 frames). So this base keeps the accepted base's canvas, output profile and image layer, and
@@ -14,7 +14,7 @@ encodes. A hand-edited copy would judge one source against another source's fact
 after any change to the accepted base or to the tone source.
 
 Usage:
-    python scripts/m25_77_clip_audio_base_fixture.py [--check]
+    python scripts/_clip_audio_base_fixture.py [--check]
 
 `--check` recomputes and compares without writing, which is what the test suite calls.
 """

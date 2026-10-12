@@ -1,4 +1,4 @@
-"""Emit and validate the deterministic M23-24 package build-provenance record."""
+"""Emit and validate the deterministic package build-provenance record."""
 
 from __future__ import annotations
 
@@ -33,6 +33,7 @@ from comfyui_h3_context.core.safe_paths import (  # noqa: E402
     validate_path_components,
     validate_regular_file,
 )
+from scripts.public_redaction import RedactionRefusal, redact_bound_blobs  # noqa: E402
 
 BUILDER_ID = "scripts/frontend_build_report.py"
 BUILD_TYPE = "h3-context-frontend-offline/1"
@@ -164,6 +165,7 @@ def _source_input_paths() -> tuple[Path, ...]:
 def _source_inputs_digest() -> str:
     entries: list[JsonObject] = []
     total_bytes = 0
+    inputs: dict[str, bytes] = {}
     for path in _source_input_paths():
         relative = path.relative_to(ROOT)
         try:
@@ -175,9 +177,19 @@ def _source_inputs_digest() -> str:
         total_bytes += len(payload)
         if total_bytes > MAX_SOURCE_INPUT_TOTAL_BYTES:
             raise ProvenanceEmissionError("source input inventory exceeds the byte bound")
-        entries.append(
-            {"path": relative.as_posix(), "sha256": _sha256_bytes(payload), "size": len(payload)}
-        )
+        inputs[relative.as_posix()] = payload
+    try:
+        # CRITICAL: both digest and length describe the public form; raw comment lengths would
+        # make an otherwise equivalent redacted checkout reject the embedded bundle identity.
+        public_inputs = redact_bound_blobs(inputs, candidate_root=ROOT)
+    except RedactionRefusal:
+        raise ProvenanceEmissionError(
+            "source input public form is unavailable or invalid"
+        ) from None
+    entries.extend(
+        {"path": path, "sha256": _sha256_bytes(payload), "size": len(payload)}
+        for path, payload in public_inputs.items()
+    )
     return _sha256_bytes(_canonical(entries))
 
 

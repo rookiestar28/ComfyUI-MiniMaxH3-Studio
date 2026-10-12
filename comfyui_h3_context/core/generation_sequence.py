@@ -59,16 +59,16 @@ class GenerationSequenceError(ValueError):
 class FingerprintDomain(str, Enum):
     """Which graph `graph_fingerprint` and `compiled_prompt_fingerprint` cover.
 
-    `M17-20` `D6`. Before that item a job's graph identity covered the context
+    `` `D6`. Before that item a job's graph identity covered the context
     subgraph alone, because that was the only thing App Mode materialized. It now
     covers the full output-producing graph -- sampler, decode and artifact sink
     included -- so the same segment yields a different fingerprint than it did
     before, and an observation carrying the older one is not a mismatch to
     reconcile but a different domain.
 
-    The domain is therefore declared rather than inferred. `M18-02` separates
+    The domain is therefore declared rather than inferred. `` separates
     fingerprint domains further; declaring it here means that item does not have
-    to guess which fingerprints `M17-20` widened. It covers exactly the two
+    to guess which fingerprints `` widened. It covers exactly the two
     fingerprints named above: `model_fingerprint` and `runtime_fingerprint` are
     untouched by this widening and are not in its scope.
     """
@@ -1038,7 +1038,7 @@ def record_generation_projection(
     _identifier(transaction_id, "transaction_id")
     if runtime.transaction_id is not None and runtime.transaction_id != transaction_id:
         raise GenerationSequenceError("retry_transaction_id")
-    # `M17-20` `D6`: compare the domain before any fingerprint value.
+    # `` `D6`: compare the domain before any fingerprint value.
     if type(fingerprint_domain) is not FingerprintDomain:
         raise GenerationSequenceError("fingerprint_domain")
     if fingerprint_domain is not job.fingerprint_domain:

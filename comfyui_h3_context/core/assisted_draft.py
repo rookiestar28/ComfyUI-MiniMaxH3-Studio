@@ -1,7 +1,7 @@
-"""M22-05 assisted drafting: one model pass, a deterministic audit, and at most one repair.
+"""assisted drafting: one model pass, a deterministic audit, and at most one repair.
 
 A model may propose a prompt here. It may not decide that its proposal is good. The audit that
-judges the candidate is `M21-01`'s, unchanged; the conditions under which a repair replaces the
+judges the candidate is ``'s, unchanged; the conditions under which a repair replaces the
 original are fixed in this module; and both are pure functions of recorded inputs, so the whole
 decision replays from a transcript without a model.
 

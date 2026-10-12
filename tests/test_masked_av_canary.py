@@ -1,8 +1,8 @@
-"""M20-06 focused tests for the masked AV continuation canary lane.
+"""focused tests for the masked AV continuation canary lane.
 
 Offline provables: normal registration never contains the canary; execution refuses before
 touching anything unless the lane is enabled, the root is explicitly owned and the
-harness-supplied candidate qualification projection parses strictly; the shipped M19-08
+harness-supplied candidate qualification projection parses strictly; the shipped
 rows (mask row unsupported) cannot drive the instrument; hostile receipt strings refuse
 typed; and a refused admission fails the node with its classified reason codes.  The
 admitted end-to-end path is what the supported-host qualification run exists to prove.
@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any
 from unittest import mock
 
-from official_temporal_parity import NATIVE_NODE_SHA256
+from oracles.native_temporal import NATIVE_NODE_SHA256
 
 from comfyui_h3_context.core.joint_av_latent import (
     begin_joint_av_latent_receipt,

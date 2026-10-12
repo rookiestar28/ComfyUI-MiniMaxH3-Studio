@@ -1,4 +1,4 @@
-"""M15-03 pure product-shell projection contract tests."""
+"""pure product-shell projection contract tests."""
 
 from __future__ import annotations
 

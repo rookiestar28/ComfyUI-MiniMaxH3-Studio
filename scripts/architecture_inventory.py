@@ -1,4 +1,4 @@
-"""Generate the M19-01 architecture inventory: what is here, what couples, what may move.
+"""Generate the architecture inventory: what is here, what couples, what may move.
 
 Static `ast` parsing only.  Nothing in the package under study is imported, so a module with an
 import-time side effect cannot influence its own baseline.
@@ -404,7 +404,7 @@ def _qualification_subject_owners(scan: Scan) -> dict[str, set[str]]:
     """Every fingerprinted implementation file is owned by the tests that assert the fingerprint.
 
     IMPORTANT: an import-based rule cannot see this coupling. `av_reconstruction_media.py` changed
-    in M25-30 without selecting the qualification test, which silently revoked final output on every
+    in without selecting the qualification test, which silently revoked final output on every
     host for two accepted items. A change to any subject file must select the qualification guard.
     """
 

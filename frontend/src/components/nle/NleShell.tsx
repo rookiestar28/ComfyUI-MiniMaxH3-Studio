@@ -1,4 +1,4 @@
-// M25-44: the reference NLE shell (`NleReferenceUiContractV1`): exactly four regions -- media bin,
+// the reference NLE shell (`NleReferenceUiContractV1`): exactly four regions -- media bin,
 // preview monitor and inspector over a full-width timeline -- separated by three splitters.
 //
 // The stage is the one scroll container. Its client box is the workspace the layout resolves

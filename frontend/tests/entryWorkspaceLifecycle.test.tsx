@@ -65,7 +65,7 @@ const OWNED_RESULT_IDENTITY = Object.freeze({
 /**
  * The generation admission seam, scripted answer by answer.
  *
- * M17-20 D1 makes admission a backend decision the shell asks for, so how the
+ *  D1 makes admission a backend decision the shell asks for, so how the
  * shell *remembers* the answer is its own behaviour and is what these rows
  * check.
  */
@@ -89,7 +89,7 @@ const appModeConnectHarness = vi.hoisted(() => ({
 /**
  * The seam the entry uses to declare a canvas write as App Mode's own.
  *
- * M17-20 D11 materializes through the host's graph-load seam, which makes the
+ *  D11 materializes through the host's graph-load seam, which makes the
  * host announce a configure to every extension -- including this one. The rows
  * below drive that announcement from inside and outside the declaration,
  * because only the real host fires it and the difference decides whether a run
@@ -104,7 +104,7 @@ vi.mock("../src/styles/tokens.css?inline", () => ({
 }));
 
 /**
- * M25-21: a transparent observer of the session retention store each entry load creates, so the
+ * a transparent observer of the session retention store each entry load creates, so the
  * whole-extension disposal row can read the entry's own store after its view is gone. Behaviour
  * is the real store's; only the instance is recorded.
  */
@@ -803,7 +803,7 @@ function managedEntryFixture(
   const productionWorkspaceId = `workspace_${"m".repeat(24)}`;
   const planned = entryGenerationSequenceWire("b", 1, graphFingerprint);
   // CRITICAL: Context and Production are separate authority namespaces. Keeping
-  // this fixture aliased hid the supported-host failure that M23-17 repairs.
+  // this fixture aliased hid the supported-host failure that repairs.
   planned.workspace_id = productionWorkspaceId;
   planned.correlation = {
     prompt_id: "prompt.bootstrap.1",
@@ -1062,7 +1062,7 @@ async function loadProjectedEntry(requestedSeconds = 5): Promise<{
 /**
  * Put a value into the credential field and keep it there.
  *
- * HC-18: `ProviderSettingsSection` clears an unsent key whenever the projection
+ * `ProviderSettingsSection` clears an unsent key whenever the projection
  * context it was typed under could have changed, and that effect also runs once
  * on mount. `findByLabelText` resolves as soon as the DOM commit lands, which
  * can be before that passive effect has flushed; the effect then settles after
@@ -4892,7 +4892,7 @@ describe("entry projected workspace remount", () => {
 
   it("keeps the prior Production revision truthful while setup editing is active", async () => {
     const { fixture, container } = await loadGenerationReadyEntry();
-    // M17-21 renders the revision as a labelled badge instead of a bare "R1".
+    //  renders the revision as a labelled badge instead of a bare "R1".
     const revision = () =>
       container.querySelector('[aria-label="revision 1"]')?.textContent;
     expect(revision()).toContain("1");
@@ -5914,7 +5914,7 @@ describe("entry graph configure ownership", () => {
   });
 
   /**
-   * M23-25 admission runs against the detached candidate. A refusal must retain
+   *  admission runs against the detached candidate. A refusal must retain
    * the error and the pre-run canvas; it cannot surface an apply-current action
    * for a candidate that was never installed.
    */
@@ -6192,7 +6192,7 @@ describe("entry host interruption and canvas replacement", () => {
   });
 });
 
-// M25-21 section 14.4 through the registered extension: the host's own tab destroy/render is the
+//  section 14.4 through the registered extension: the host's own tab destroy/render is the
 // view release, and whole-extension disposal is the only reset. Remount may re-read currentness;
 // it never re-sends an edit, Start, generation, queue or provider action.
 describe("M25-21 Sidebar retention across the real view lifecycle", () => {

@@ -1,4 +1,4 @@
-// M25-44 reference-shell observations shared by the supplied-host NLE journeys: the four areas in
+//  reference-shell observations shared by the supplied-host NLE journeys: the four areas in
 // the reference proportions, three splitters moved by a real pointer drag, and the narrow tier.
 import { expect, type Locator, type Page } from "@playwright/test";
 

@@ -1,4 +1,4 @@
-"""M20-04 focused tests for the private joint AV latent checkpoint store.
+"""focused tests for the private joint AV latent checkpoint store.
 
 The store composes the accepted segment-artifact mechanics for a new receipt family, so the
 suite proves the safety model holds for THIS store rather than assuming the composition: exact
@@ -16,7 +16,7 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
-from official_temporal_parity import NATIVE_NODE_SHA256
+from oracles.native_temporal import NATIVE_NODE_SHA256
 from test_segment_artifact_store import _make_directory_link, _replace_with_directory_link
 
 from comfyui_h3_context.adapters.joint_av_latent_store import (
@@ -76,7 +76,8 @@ def _partial(*, artifact_id: str = "latent.1", now_ms: int = 100) -> JointAVLate
         video_dtype="float16",
         audio_shape=(1, 32, 2, 1),
         audio_dtype="float16",
-        requested_frames=1,
+        # Small payloads exercise storage; the request still uses the minimum native frame lattice.
+        requested_frames=5,
         completed_frames=1,
     )
     return begin_joint_av_latent_receipt(

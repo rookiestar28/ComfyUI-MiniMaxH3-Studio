@@ -12,7 +12,7 @@ from jsonschema import Draft202012Validator
 
 ROOT = Path(__file__).resolve().parents[1]
 # CRITICAL: a document and its schema no longer share a directory. The census and the shape fixture
-# are compiled into the frontend bundle, so M23-55 kept them in the installed package; nothing in
+# are compiled into the frontend bundle, so kept them in the installed package; nothing in
 # the shipped product opens their schemas, so those moved to `governance/`, which the wheel, the
 # sdist and the Registry archive exclude. Spell both roots out. These four were `with_name` siblings
 # of each other until the relocation, and a derived sibling is invisible to any per-path rewrite --

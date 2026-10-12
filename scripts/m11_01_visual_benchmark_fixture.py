@@ -1,4 +1,4 @@
-"""Offline M11-01 visual benchmark/adapter-selection fixture.
+"""Offline visual benchmark/adapter-selection fixture.
 
 The fixture freezes and checks the benchmark envelope only.  It does not load visual models,
 decode media, start ComfyUI, contact Ollama, or produce perception results.

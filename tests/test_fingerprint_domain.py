@@ -1,4 +1,4 @@
-"""M18-02 fingerprint domain separation and blast-radius tests.
+"""fingerprint domain separation and blast-radius tests.
 
 The point of a domain is not that it is written down; it is that a value carrying the wrong one
 cannot be used. So the tests that matter here are refusals: a release-integrity digest offered where
@@ -153,7 +153,7 @@ class BlastRadiusTests(unittest.TestCase):
 
 
 class SemanticConsumptionTests(unittest.TestCase):
-    """AC-M18-02-03: a release-integrity hash stays complete, and is refused as a semantic one."""
+    """AC--03: a release-integrity hash stays complete, and is refused as a semantic one."""
 
     def test_a_semantic_identity_is_returned(self) -> None:
         identity = domain_fingerprint(IdentityDomain.SEMANTIC, {"prompt_revision": 4})
@@ -265,7 +265,7 @@ class AssignmentValidationTests(unittest.TestCase):
 
 
 class ShippedArtifactTests(unittest.TestCase):
-    """AC-M18-02-01: exactly one versioned domain per inventoried consumer, by a named rule."""
+    """AC--01: exactly one versioned domain per inventoried consumer, by a named rule."""
 
     document: dict[str, Any]
     rows: list[dict[str, Any]]
@@ -347,7 +347,7 @@ class ShippedArtifactTests(unittest.TestCase):
 
 class GeneratorRefusalTests(unittest.TestCase):
     def test_a_consumer_matching_no_rule_fails_generation(self) -> None:
-        """There is no catch-all, so an unclassifiable row stops the build (AC-M18-02-01)."""
+        """There is no catch-all, so an unclassifiable row stops the build (AC--01)."""
 
         row = GENERATOR._Row(
             contract_id="h3.unclassifiable.v1",

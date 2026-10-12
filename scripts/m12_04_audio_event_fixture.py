@@ -1,4 +1,4 @@
-"""Offline M12-04 audio-event and reference-semantics fixture."""
+"""Offline audio-event and reference-semantics fixture."""
 
 from __future__ import annotations
 

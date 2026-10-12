@@ -1,4 +1,4 @@
-"""Hermetic M22-15 native Anthropic provider contract tests."""
+"""Hermetic native Anthropic provider contract tests."""
 
 from __future__ import annotations
 
@@ -415,7 +415,7 @@ class AnthropicMessageDialectTests(unittest.TestCase):
         for data in (
             [{"id": MODEL_ID}, {"id": MODEL_ID}],
             [{"id": MODEL_ID}, "malformed"],
-            # M22-19. Derived, not literal: this row was `MAX_REMOTE_MODEL_ROWS + 1` back when
+            # . Derived, not literal: this row was `MAX_REMOTE_MODEL_ROWS + 1` back when
             # the transport carried its own 256-row ceiling. The refusal is the assertion; the
             # count must follow the one ceiling rather than pin a retired second one.
             [{"id": f"other-{index}"} for index in range(MAX_DISCOVERY_ROWS + 1)],

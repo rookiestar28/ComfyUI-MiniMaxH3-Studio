@@ -1,4 +1,4 @@
-"""Pure M17-11 audiovisual reconstruction planning and sole receipt contract.
+"""Pure audiovisual reconstruction planning and sole receipt contract.
 
 This module deliberately owns no filesystem locator, media process, host API, or
 frontend wire.  It validates exact predecessor truth and produces a deterministic
@@ -464,7 +464,7 @@ class AVReconstructionLimits:
 
 
 def qualified_av_limits() -> AVReconstructionLimits:
-    """Return the finite Gate-0 M17-11 resource profile."""
+    """Return the finite Gate-0 resource profile."""
 
     return AVReconstructionLimits(
         max_segments=64,
@@ -642,7 +642,7 @@ def qualified_ffmpeg_capability() -> AVMediaCapability:
         video_encoders=("libx264",),
         audio_encoders=("aac",),
         filters=(
-            # M20-09: seam-only filters are declared for the explicit seam policy;
+            # seam-only filters are declared for the explicit seam policy;
             # presence in the exact pinned pair is measured by a real-binary probe.
             "acrossfade",
             "aformat",
@@ -1148,7 +1148,7 @@ def _build_av_reconstruction_plan(
     planned_at_ms: int,
     _factory_token: object,
 ) -> AVReconstructionPlan:
-    """Join exact M17-09/08/07/10 truth into one deterministic local plan."""
+    """Join exact /08/07/10 truth into one deterministic local plan."""
 
     if type(selective_plan) is not SelectiveRerunPlan:
         raise AVReconstructionError("selective_plan_type")
@@ -1268,7 +1268,7 @@ def _build_av_reconstruction_plan(
             raise AVReconstructionError("input_not_complete")
         if receipt.manifest_fingerprint != manifest_by_segment[receipt.segment_id]:
             # Reused receipts intentionally belong to the accepted predecessor revision, so their
-            # manifest fingerprint can differ while the M17-09 exact decision remains authority.
+            # manifest fingerprint can differ while the exact decision remains authority.
             if decision.disposition is not SelectiveRerunDisposition.REUSE:
                 raise AVReconstructionError("input_identity_mismatch")
         if decision.disposition is SelectiveRerunDisposition.REUSE:
@@ -1368,7 +1368,7 @@ def _build_av_reconstruction_plan(
         ):
             raise AVReconstructionError("boundary_identity_mismatch")
         boundary_receipt = boundary.receipt
-        # SECURITY: cut/restart receipts do not self-bind a segment pair in M17-10; the separate
+        # SECURITY: cut/restart receipts do not self-bind a segment pair in ; the separate
         # accepted fingerprint mapping is therefore required before the process-local wrapper.
         if boundary_receipt.fingerprint != accepted_boundary_receipt_fingerprints[index]:
             raise AVReconstructionError("boundary_identity_mismatch")
@@ -1853,7 +1853,7 @@ class AVReceiptSegmentResult:
 
 @dataclass(frozen=True, slots=True)
 class AVReconstructionReceipt:
-    """The sole portable and persisted M17-11 contract."""
+    """The sole portable and persisted contract."""
 
     transaction_id: str
     plan_fingerprint: str

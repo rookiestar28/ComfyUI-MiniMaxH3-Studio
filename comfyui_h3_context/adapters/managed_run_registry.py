@@ -4,7 +4,7 @@ The pure aggregate in `core/managed_run.py` decides what a run may do. This modu
 place that holds runs, so it owns the three things an immutable aggregate cannot: how many runs
 exist, when a stale one is pruned, and which lock serializes a transition.
 
-The locking is two levels because one is not enough and a global one is what M23-31 is removing.
+The locking is two levels because one is not enough and a global one is what is removing.
 A single registry-wide lock made every handler running under `asyncio.to_thread` contend with
 every other handler, including handlers for unrelated runs.
 """

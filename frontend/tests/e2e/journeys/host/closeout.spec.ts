@@ -147,7 +147,7 @@ test("M17-14 pinned host closeout sample", async ({ page }) => {
 });
 
 /**
- * M17-17 row R6: the socket the correction depends on, verified on the host.
+ *  row R6: the socket the correction depends on, verified on the host.
  *
  * The splice now declares a reference video's soundtrack to the Reference
  * Registry through an autogrow socket. Which name the host serializes for that

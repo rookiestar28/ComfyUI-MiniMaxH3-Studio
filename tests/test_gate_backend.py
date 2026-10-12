@@ -48,6 +48,20 @@ def run(root: Path, resume: bool = True, floor: float = 75) -> int:
     return run_backend(root, resume=resume, groups=2, source="sample", floor=floor)
 
 
+def test_preflight_does_not_hide_a_required_failure_under_inherited_selection(
+    suite: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts.gate_backend import GUARD_FIRST, run_guard_preflight
+
+    for number, relative in enumerate(GUARD_FIRST):
+        (suite / relative).write_text(
+            "def test_visible():\n    assert True\n"
+            + ("def test_required():\n    assert False\n" if number == 0 else "")
+        )
+    monkeypatch.setenv("PYTEST_ADDOPTS", "-k visible")
+    assert run_guard_preflight(suite) == 1
+
+
 def test_product_gate_runs_new_modules_without_coverage(suite: Path) -> None:
     from scripts.gate_backend import run_product_backend
 
@@ -56,7 +70,7 @@ def test_product_gate_runs_new_modules_without_coverage(suite: Path) -> None:
         "def test_observed():\n"
         "    Path('product-executed').write_text('yes')\n"
     )
-    assert run_product_backend(suite) == 0
+    assert run_product_backend(suite, workers=0) == 0
     assert (suite / "product-executed").read_text() == "yes"
     assert not (suite / ".coverage").exists()
     assert not (suite / STATE).exists()
@@ -73,7 +87,7 @@ def test_product_gate_reports_deferred_tooling_and_keeps_product_failures(
     (suite / "tests/test_product_failure.py").write_text(
         "def test_failure():\n    assert False, 'real product failure'\n"
     )
-    assert run_product_backend(suite) == 1
+    assert run_product_backend(suite, workers=0) == 1
     output = capfd.readouterr().out
     assert "tests/test_architecture_inventory.py" in output
     assert "real product failure" in output
@@ -85,6 +99,118 @@ def test_product_gate_refuses_empty_selection(tmp_path: Path) -> None:
 
     (tmp_path / "tests").mkdir()
     assert run_product_backend(tmp_path) == 2
+
+
+def test_delivery_classifier_is_affected_tooling_and_cannot_mask_product_failure(
+    suite: Path, capfd: pytest.CaptureFixture[str]
+) -> None:
+    from scripts.gate_backend import run_product_backend
+
+    (suite / "tests/test_change_lane.py").write_text(
+        "raise RuntimeError('classifier owning check must run separately')\n", encoding="utf-8"
+    )
+    (suite / "tests/test_product_failure.py").write_text(
+        "def test_failure():\n    assert False, 'preserve product failure'\n", encoding="utf-8"
+    )
+
+    assert run_product_backend(suite, workers=0) == 1
+
+    output = capfd.readouterr().out
+    assert "tests/test_change_lane.py" in output
+    assert "preserve product failure" in output
+    assert "classifier owning check must run separately" not in output
+
+
+def test_public_consumer_tooling_deferral_cannot_mask_a_real_product_failure(
+    suite: Path, capfd: pytest.CaptureFixture[str]
+) -> None:
+    from scripts.gate_backend import run_product_backend
+
+    (suite / "tests/test_public_consumer_compatibility.py").write_text(
+        "raise RuntimeError('public checker must run as an affected check')\n", encoding="utf-8"
+    )
+    (suite / "tests/test_product_failure.py").write_text(
+        "def test_failure():\n    assert False, 'preserve ordinary product failure'\n",
+        encoding="utf-8",
+    )
+    assert run_product_backend(suite, workers=0) == 1
+    output = capfd.readouterr().out
+    assert "tests/test_public_consumer_compatibility.py" in output
+    assert "preserve ordinary product failure" in output
+    assert "public checker must run as an affected check" not in output
+
+
+def test_product_gate_reports_both_failures_without_hidden_fail_fast(
+    suite: Path, capfd: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts.gate_backend import run_product_backend
+
+    (suite / "tests/test_two_failures.py").write_text(
+        "def test_first():\n    assert False, 'first planted failure'\n"
+        "def test_second():\n    assert False, 'second planted failure'\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("PYTEST_ADDOPTS", "-x")
+    assert run_product_backend(suite, workers=0) == 1
+    output = capfd.readouterr().out
+    assert "first planted failure" in output and "second planted failure" in output
+    summary = json.loads(
+        next((suite / ".tmp/backend-gate").glob("product-*/summary.json")).read_bytes()
+    )
+    failed = [
+        row for row in summary["reports"] if row["when"] == "call" and row["outcome"] == "failed"
+    ]
+    assert {row["node_id"] for row in failed} == {
+        "tests/test_two_failures.py::test_first",
+        "tests/test_two_failures.py::test_second",
+    }
+
+
+def test_native_parallel_audit_preserves_at_sign_parameters_and_group_membership(
+    suite: Path,
+) -> None:
+    from scripts.gate_backend import run_product_backend
+
+    (suite / "tests/test_grouped.py").write_text(
+        "import pytest\n"
+        "@pytest.mark.xdist_group('owned_resource')\n"
+        "@pytest.mark.parametrize('value', [1, 2], ids=['literal@first', 'literal@second'])\n"
+        "def test_grouped(value, subtests):\n"
+        "    with subtests.test(index=value):\n"
+        "        assert value > 0\n",
+        encoding="utf-8",
+    )
+    assert run_product_backend(suite, workers=2) == 0
+    summary = json.loads(
+        next((suite / ".tmp/backend-gate").glob("product-*/summary.json")).read_bytes()
+    )
+    grouped = [node for node in summary["collected"] if "test_grouped[" in node]
+    assert grouped == [
+        "tests/test_grouped.py::test_grouped[literal@first]",
+        "tests/test_grouped.py::test_grouped[literal@second]",
+    ]
+    assert len({summary["owners"][node] for node in grouped}) == 1
+    subtests = [row for row in summary["reports"] if row["report_type"] == "SubtestReport"]
+    assert len(subtests) == 2
+    assert all(row["subtest_context_sha256"] for row in subtests)
+    assert {row["node_id"] for row in subtests} == set(grouped)
+
+
+def test_guard_order_is_first_and_product_membership_is_conserved(tmp_path: Path) -> None:
+    from scripts.gate_backend import GUARD_FIRST, TOOLING_TESTS, product_test_modules
+
+    paths = {*GUARD_FIRST, "tests/test_new_product.py", "tests/test_aaa_product.py"}
+    for relative in paths:
+        path = tmp_path / relative
+        path.parent.mkdir(exist_ok=True)
+        path.touch()
+    product, deferred = product_test_modules(tmp_path)
+    expected = paths - TOOLING_TESTS
+    assert set(product) == expected and len(product) == len(expected)
+    guards = [name for name in GUARD_FIRST if name in expected]
+    assert product[: len(guards)] == guards
+    assert product[len(guards) :] == sorted(expected - set(guards))
+    assert set(deferred) == paths & TOOLING_TESTS
 
 
 def module(root: Path, group: int) -> Path:

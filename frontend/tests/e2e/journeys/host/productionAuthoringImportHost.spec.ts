@@ -1,4 +1,4 @@
-// M25-48 supplied-host row, promoted from the accepted Production-import journey. The host reaches
+//  supplied-host row, promoted from the accepted Production-import journey. The host reaches
 // one ready Production output through a model-free ProductShell terminal and an explicitly prepared
 // tracked media fixture. The import itself remains causal through the shipped compact control; the
 // zero-clip asset must acquire, present and release its asset-scoped thumbnail before insertion.
@@ -142,7 +142,7 @@ async function postHostAction(
   );
 }
 
-// M25-34: the same causal import, run on a host whose media tools were never configured.
+// the same causal import, run on a host whose media tools were never configured.
 // `ready` asserts the tools are found without setup; `install` starts from missing tools and
 // continues the refused import through the Media tools card's one Install and continue click,
 // then renders the imported clip. Unset keeps the AC11 row unchanged.
@@ -1045,7 +1045,7 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
   );
 
   // The host already emitted the successful model-free terminal above. This event names only the
-  // separately prepared tracked M25-48 fixture; it exercises the delivery/verification join and
+  // separately prepared tracked fixture; it exercises the delivery/verification join and
   // is never evidence of model or provider generation.
   await page.evaluate(
     ({ acceptedPromptId, outputNodeId, locator }) => {
@@ -1178,7 +1178,7 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
   const promptRequestsBeforeImport = routeReceipts.filter(
     (receipt) => receipt.stage === "request" && receipt.route === "host_prompt",
   ).length;
-  // AC11/M25-40 causal path: the shipped compact control prepares the project's exact
+  // AC11/ causal path: the shipped compact control prepares the project's exact
   // Authoring target, initializes it and imports exactly once. Every identity is read from the wire
   // the shell issued (captured responses), never recomputed by the test.
   const authoringWire: Array<{
@@ -1210,7 +1210,7 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
       });
     }
   };
-  // M25-34 precondition: the media tools exactly as this host start left them, read before the
+  //  precondition: the media tools exactly as this host start left them, read before the
   // import so neither the shell nor this read has installed or selected anything yet.
   const mediaStatusBefore =
     mediaJourney === undefined ? null : await settledMediaRuntimeStatus(page);
@@ -1231,7 +1231,7 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
     expect(mediaStatusBefore!.actions).not.toContain("install_supported");
   } else if (mediaJourney === "install") {
     // Missing tools are installable after an exhaustive search and after one truncated by a long
-    // PATH that still examined the managed directory (M25-34 B-M2534-01); the reason says which.
+    // PATH that still examined the managed directory ( B-M2534-01); the reason says which.
     expect(["supported_pair_missing", "discovery_limit"]).toContain(
       mediaStatusBefore!.resolutionReason,
     );
@@ -1245,8 +1245,8 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
     expect(mediaStatusBefore!.actions).toContain("install_supported");
   }
   page.on("response", onResponse);
-  // IMPORTANT: M25-48 re-homes Production import into the expanded editor's Media tab. The
-  // accepted M25-46 launcher exists only for the active Clip editor function; leaving Production's
+  // IMPORTANT: re-homes Production import into the expanded editor's Media tab. The
+  // accepted launcher exists only for the active Clip editor function; leaving Production's
   // workbench selected blocks the real host row before its request.
   await container.locator('[data-h3-director-function="clip_editor"]').click();
   await page.locator('[data-h3-nle-entry="open"]').click();
@@ -1591,7 +1591,7 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
       productionBeforeImport.assembly,
     );
 
-    // M25-48 editor side: the shell moved focus to the Clip editor; open the NLE overlay through
+    //  editor side: the shell moved focus to the Clip editor; open the NLE overlay through
     // the Sidebar's own launcher and prove the zero-clip import obtains its card through the exact
     // asset-thumbnail lease contract. Only then insert it as one separate timeline transaction.
     // The import was issued from this already-open Media surface.
@@ -1662,7 +1662,7 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
         })),
       )
       .toEqual({ width: 64, height: 64 });
-    // M25-34 U08 on the host: before insertion the monitor says the timeline has no clip; it
+    //  U08 on the host: before insertion the monitor says the timeline has no clip; it
     // never reports the media tools unavailable.
     const emptyTimelineNote = overlay.locator('[data-h3-nle-empty="timeline"]');
     if (mediaJourney !== undefined)
@@ -1713,7 +1713,7 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
     if (mediaJourney !== undefined)
       await expect(emptyTimelineNote).toHaveCount(0);
     if (renderJourney) {
-      // M25-34 U03: the tools installed a moment ago decode the clip in the monitor and render
+      //  U03: the tools installed a moment ago decode the clip in the monitor and render
       // the final video, which the browser then decodes. A job status alone proves neither.
       const insertedClip = afterInsertHistory.snapshot.clips.find(
         (clip) => clip.assetId === importedAssetId,
@@ -1821,7 +1821,7 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
           .catch(() => undefined);
       };
       page.on("response", onRender);
-      // M25-44: the final-video card lives in the chrome bar's Export popover.
+      // the final-video card lives in the chrome bar's Export popover.
       await openExportPanel(overlay);
       const output = overlay.getByRole("region", {
         name: "Final video",

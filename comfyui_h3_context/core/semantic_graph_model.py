@@ -73,7 +73,7 @@ _TIMING = re.compile(r"\bAt (?P<timestamp>[0-9]{2}:[0-9]{2}\.[0-9]{3}),")
 
 
 # GUARD: two prompt grammars are read here on purpose. The current renderer writes guide prose,
-# while prompts produced before M24-05 -- saved workflows, archived reports, frozen comparator
+# while prompts produced before -- saved workflows, archived reports, frozen comparator
 # corpora -- carry the repository's former internal syntax (`identifies asset ... with role ...`,
 # `<A> -> <B>: marker - ...`, `event event_1 uses full_copy for [Shot 2]`). The comparator reads
 # whatever text it is handed, so dropping either branch would silently stop deriving role,
@@ -362,7 +362,7 @@ class SemanticProvenance:
             if _FROZEN_GUIDE_SOURCE_FINGERPRINTS.get(self.source_id) != self.source_fingerprint:
                 raise SemanticGraphError("public guide source is not an admitted golden")
         else:
-            # CRITICAL: M14-01 prohibits an issuer for official-oracle observations.
+            # CRITICAL: prohibits an issuer for official-oracle observations.
             raise SemanticGraphError("official oracle authority is unavailable")
 
     def to_wire(self) -> dict[str, object]:

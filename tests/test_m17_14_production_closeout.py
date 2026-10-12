@@ -1,11 +1,11 @@
-"""M17-14 production acceptance closeout matrix.
+"""production acceptance closeout matrix.
 
 These rows do not re-prove what each predecessor item already proved on its own. They join accepted
 capabilities into the flows a user actually performs and assert the seams between them, which is the
 only place a defect can hide when every item passes alone.
 
 Every fixture value here is frozen by
-`.planning/260818-M17-14_PRODUCTION_CLOSEOUT_PLAN.md` section 3.2.1. The single authored duration is
+`` section 3.2.1. The single authored duration is
 `8_000 ms` because it is the one length that is simultaneously on the H3 lattice
 (`192 = 5 + 17 * 11`), inside the trained range, and an exact integer frame count at the model's
 24 fps, the reconstruction target's 30 fps and the preview's 15 fps -- so no row below needs a
@@ -384,7 +384,7 @@ def test_c01_workspace_identity_and_boundaries() -> None:
 
     # The authored member is a duration; the frame count is derived, never supplied. A fixture that
     # could state its own frame count could state one the model cannot produce, which is exactly the
-    # defect M17-25 removed.
+    # defect removed.
     for segment in workspace.segments:
         assert segment.duration.duration_milliseconds == CLOSEOUT_DURATION_MS
         assert segment.duration.frame_count == CLOSEOUT_FRAMES

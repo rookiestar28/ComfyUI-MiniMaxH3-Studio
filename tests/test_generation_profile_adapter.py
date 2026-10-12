@@ -1,4 +1,4 @@
-"""M17-20 phase 1: the host-observing half of the generation-profile contract.
+"""phase 1: the host-observing half of the generation-profile contract.
 
 Every row runs without a ComfyUI host. Where a host is needed it is a stub in
 `sys.modules`, which is how the repository proves that the integration is
@@ -227,7 +227,9 @@ class TemplateDigestTests(unittest.TestCase):
         """The pin is the bytes. If the vendored corpus moves, this fails rather
         than silently qualifying a template the splice was never read against."""
 
-        if not VENDORED_TEMPLATES.is_dir():
+        if not VENDORED_TEMPLATES.is_dir() or not any(
+            (VENDORED_TEMPLATES / f"{name}.json").is_file() for name, _ in PINNED_TEMPLATE_DIGESTS
+        ):
             self.skipTest("vendored template corpus is not present in this checkout")
         for name, expected in PINNED_TEMPLATE_DIGESTS:
             with self.subTest(template=name):
@@ -551,7 +553,7 @@ if __name__ == "__main__":
 
 
 class OfficialNameResolutionTests(unittest.TestCase):
-    """M17-28: admission accepts every official basename, from anywhere in the slot's folder.
+    """admission accepts every official basename, from anywhere in the slot's folder.
 
     The defect these rows pin was an equality test between one published default and
     `folder_paths.get_filename_list`, which returns *relative paths* under every configured
@@ -564,7 +566,7 @@ class OfficialNameResolutionTests(unittest.TestCase):
             return {slot.slot for slot in observe_slots() if slot.present}
 
     def test_manifest_versions_internal_materialization_without_widening_profile_v1(self) -> None:
-        """M23-05: LoRA roles are template facts, never public AssetSlot values."""
+        """LoRA roles are template facts, never public AssetSlot values."""
 
         manifest_path = (
             REPO_ROOT / "comfyui_h3_context" / "contracts" / "official_h3_assets_v2.json"
@@ -615,7 +617,7 @@ class OfficialNameResolutionTests(unittest.TestCase):
                 self.assertIn(slot, self._present(**{folder: [default]}))
 
     def test_python_derives_the_official_names_from_the_packaged_shared_manifest(self) -> None:
-        """M17-29: JSON is the one Python/TypeScript filename authority."""
+        """JSON is the one Python/TypeScript filename authority."""
 
         manifest_path = (
             REPO_ROOT / "comfyui_h3_context" / "contracts" / "official_h3_assets_v2.json"
@@ -640,7 +642,7 @@ class OfficialNameResolutionTests(unittest.TestCase):
                 self.assertNotIn(basename, adapter_source)
 
     def test_manifest_parser_rejects_policy_order_loader_and_name_drift(self) -> None:
-        """M17-29: Python enforces the same bounded authority as TypeScript."""
+        """Python enforces the same bounded authority as TypeScript."""
 
         manifest_path = (
             REPO_ROOT / "comfyui_h3_context" / "contracts" / "official_h3_assets_v2.json"
@@ -800,7 +802,7 @@ class OfficialNameResolutionTests(unittest.TestCase):
                     self.assertTrue(all(not slot.present for slot in observe_slots()))
 
     def test_the_widened_match_still_leaks_no_inventory(self) -> None:
-        """AC-M17-28-05. The list is read and thrown away; only a boolean leaves."""
+        """AC--05. The list is read and thrown away; only a boolean leaves."""
 
         private = [
             "H3\\a_users_private_model.safetensors",
@@ -814,7 +816,7 @@ class OfficialNameResolutionTests(unittest.TestCase):
         self.assertNotIn("int8_convrot", wire)
 
     def test_the_maintainer_host_recorded_in_c8ad1d2_is_relocated_not_missing(self) -> None:
-        """AC-M17-28-02 and AC-M17-28-04. This is the exact host state the hand-off
+        """AC--02 and AC--04. This is the exact host state the hand-off
         measured: every required weight installed, under `H3\\` and at a different
         official quantization, yet all three families reported `missing_asset`.
 
@@ -880,7 +882,7 @@ class OfficialNameResolutionTests(unittest.TestCase):
         self.assertIs(observed[AssetSlot.VIDEO_VAE], SlotDisposition.ABSENT)
 
     def test_a_genuinely_missing_slot_is_still_reported_missing(self) -> None:
-        """AC-M17-28-03. Widening admission must not turn the warning off."""
+        """AC--03. Widening admission must not turn the warning off."""
 
         with _HostModules(
             nodes=node_module(*ANCHOR_NODE_TYPES),

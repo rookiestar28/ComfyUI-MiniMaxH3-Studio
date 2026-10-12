@@ -1,4 +1,4 @@
-"""M20-00 focused tests for the reference-set authoring and soundtrack-ownership domain.
+"""focused tests for the reference-set authoring and soundtrack-ownership domain.
 
 The rows here hold apart the decisions a careless authoring surface collapses:
 
@@ -120,7 +120,7 @@ def rejection(testcase: unittest.TestCase, code: str) -> AbstractContextManager[
 
 
 class CommandAuthorityTests(unittest.TestCase):
-    """AC-M20-00-01: one deterministic revisioned command authority, atomic rejections."""
+    """AC--01: one deterministic revisioned command authority, atomic rejections."""
 
     def test_add_remove_reorder_produce_monotonic_revisions_and_receipts(self) -> None:
         state = fresh()
@@ -173,7 +173,7 @@ class CommandAuthorityTests(unittest.TestCase):
 
 
 class SoundtrackOwnershipTests(unittest.TestCase):
-    """AC-M20-00-02: sparse, ID-based, one-per-video, no prefix inference."""
+    """AC--02: sparse, ID-based, one-per-video, no prefix inference."""
 
     def test_include_requires_admitted_available_audio_and_video_target(self) -> None:
         state = added(fresh(), vid(1), aud(1))
@@ -236,7 +236,7 @@ class SoundtrackOwnershipTests(unittest.TestCase):
 
 
 class AvailabilityAuthorityTests(unittest.TestCase):
-    """AC-M20-00-02A: only the producer channel moves availability; unknown blocks queue."""
+    """AC--02A: only the producer channel moves availability; unknown blocks queue."""
 
     def test_default_availability_is_unknown_and_blocks_included_intent(self) -> None:
         state = added(fresh(), vid(1), aud(1))
@@ -279,7 +279,7 @@ class AvailabilityAuthorityTests(unittest.TestCase):
 
 
 class CapacityTests(unittest.TestCase):
-    """AC-M20-00-03: aggregate, per-kind, socket and timed limits enforced together."""
+    """AC--03: aggregate, per-kind, socket and timed limits enforced together."""
 
     def test_per_kind_socket_ceilings_are_the_registry_authorities(self) -> None:
         cap = capacity()
@@ -356,7 +356,7 @@ class CapacityTests(unittest.TestCase):
 
 
 class CanonicalProjectionTests(unittest.TestCase):
-    """AC-M20-00-04: deterministic order and labels joined by stable identity."""
+    """AC--04: deterministic order and labels joined by stable identity."""
 
     def test_included_soundtrack_projects_immediately_before_its_video(self) -> None:
         state = added(fresh(), img(1), vid(1), vid(2), aud(1), aud(2))
@@ -415,7 +415,7 @@ class CanonicalProjectionTests(unittest.TestCase):
 
 
 class LegacyDispositionTests(unittest.TestCase):
-    """AC-M20-00-06: exactly one disposition, KEEP_COMPAT, no silent reinterpretation."""
+    """AC--06: exactly one disposition, KEEP_COMPAT, no silent reinterpretation."""
 
     def test_disposition_constant_is_keep_compat(self) -> None:
         self.assertEqual(LEGACY_PAIRED_AUDIO_DISPOSITION, "KEEP_COMPAT")
@@ -440,7 +440,7 @@ class LegacyDispositionTests(unittest.TestCase):
 
 
 class ArchitectureAndPrivacyTests(unittest.TestCase):
-    """AC-M20-00-05: no host/media/frontend/provider import; content-free wire."""
+    """AC--05: no host/media/frontend/provider import; content-free wire."""
 
     def test_module_imports_stay_inside_stdlib_and_core(self) -> None:
         module_path = (

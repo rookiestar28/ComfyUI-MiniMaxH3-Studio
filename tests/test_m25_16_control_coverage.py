@@ -1,4 +1,4 @@
-"""M25-16 control-coverage manifest: one executable control per M25-11 command.
+"""control-coverage manifest: one executable control command.
 
 The manifest is authored data under ``governance/contracts``; this reader binds it to the
 closed backend operation profile so a supported command with no executable control row, or a
@@ -69,7 +69,7 @@ def test_every_profile_command_has_exactly_one_canonical_control_row() -> None:
 
 
 def test_schema_v2_gestures_and_alternates_never_blur_row_identity() -> None:
-    # M25-44: a row names its primary gesture and any alternates; an alternate is never another
+    # a row names its primary gesture and any alternates; an alternate is never another
     # row's canonical selector (two canonical rows would then share one control).
     manifest = _load(MANIFEST_PATH)
     assert manifest["schema"] == "h3.context.nle_control_coverage_manifest.v2"
@@ -93,7 +93,7 @@ def test_non_command_rows_never_masquerade_as_canonical_edits() -> None:
     assert len(ids) == len(set(ids)), "operation identifiers must be unique across both tables"
     for row in manifest["non_command_rows"]:
         assert row["authority_class"] != "canonical_edit"
-        # A non-command row may name a Production action, never an M25-11 timeline command.
+        # A non-command row may name a Production action, never an timeline command.
         assert row["command"] not in NLE_OPERATION_IDS
         if row["authority_class"] == "local_transport":
             assert row["command"] is None and row["route"] is None

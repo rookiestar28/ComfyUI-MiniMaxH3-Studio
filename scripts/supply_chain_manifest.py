@@ -436,11 +436,13 @@ def build_spdx_sbom() -> JsonObject:
         "aiohttp": ("3.11..<4", "Apache-2.0 AND MIT"),
         "build": ("1.5", "MIT"),
         "detect-secrets": ("1.5", "Apache-2.0"),
+        "execnet": ("2.1", "MIT"),
         "jsonschema": ("4.23", "MIT"),
         "mypy": ("2.3", "MIT"),
         "pre-commit": ("4.6", "MIT"),
         "pytest": ("9.1", "MIT"),
         "pytest-cov": ("7.1", "MIT"),
+        "pytest-xdist": ("3.8", "MIT"),
         "ruff": ("0.16", "MIT"),
         "setuptools": ("80..<84", "MIT"),
         "tomli": ("2.4", "MIT"),
@@ -524,7 +526,7 @@ def _build_input_paths() -> tuple[Path, ...]:
         # CRITICAL: Vite imports this package-owned authority from outside
         # frontend/src, so the source scan below cannot discover it.
         ROOT / "comfyui_h3_context" / "contracts" / "official_h3_assets_v2.json",
-        # HC-09 runtime source imports these package-owned host-seam authorities
+        #  runtime source imports these package-owned host-seam authorities
         # from outside frontend/src, so the source scan cannot discover them.
         ROOT / "comfyui_h3_context" / "contracts" / "host_seam_census_v1.json",
         ROOT / "comfyui_h3_context" / "contracts" / "host_seam_shape_fixture_v1.json",
@@ -546,6 +548,28 @@ def _build_input_paths() -> tuple[Path, ...]:
     return tuple(sorted(resolved, key=lambda path: path.relative_to(ROOT).as_posix()))
 
 
+def _build_inputs() -> list[JsonObject]:
+    from scripts.public_redaction import RedactionRefusal, redact_bound_blobs
+
+    inputs = {path.relative_to(ROOT).as_posix(): path.read_bytes() for path in _build_input_paths()}
+    try:
+        # CRITICAL: source hashes AND sizes must bind the public form. Keep runtime/SBOM joins
+        # below byte-exact; redaction is never permission to normalize executable artifacts.
+        public_inputs = redact_bound_blobs(inputs, candidate_root=ROOT)
+    except RedactionRefusal:
+        raise SupplyChainError(
+            "supply-chain build input public form is unavailable or invalid"
+        ) from None
+    return [
+        {
+            "path": path,
+            "sha256": "sha256:" + hashlib.sha256(payload).hexdigest(),
+            "size": len(payload),
+        }
+        for path, payload in public_inputs.items()
+    ]
+
+
 def build_supply_chain_manifest() -> JsonObject:
     """Build the deterministic file-integrity join over SBOM, source, lock, and runtime bytes."""
 
@@ -555,14 +579,7 @@ def build_supply_chain_manifest() -> JsonObject:
         "frontend runtime entry",
     )
     return {
-        "build_inputs": [
-            {
-                "path": path.relative_to(ROOT).as_posix(),
-                "sha256": f"sha256:{_sha256(path)}",
-                "size": path.stat().st_size,
-            }
-            for path in _build_input_paths()
-        ],
+        "build_inputs": _build_inputs(),
         "frontend_lock_package_count": len(
             frontend_lock_packages(FRONTEND_ROOT / "pnpm-lock.yaml")
         ),

@@ -1,4 +1,4 @@
-// M25-21 section 14.4: the bounded session retention store. Restore is exact-scope only, one
+//  section 14.4: the bounded session retention store. Restore is exact-scope only, one
 // snapshot per slot, plain bounded data only, and complete disposal fences every older writer.
 
 import { describe, expect, it } from "vitest";
@@ -167,5 +167,41 @@ describe("M25-21 Sidebar retention store", () => {
       id: "production_workbench",
       requestGeneration: 0,
     });
+  });
+
+  it("allows exactly the extra decoration array depth in the text slot", () => {
+    const retention = createSidebarRetention();
+    const generation = retention.generation();
+    const decorationDepth = {
+      style: { stroke: { rgba: [1, 2, 3, 128], width_px: 2 } },
+    };
+    retention.write(
+      "nle.inspector.text",
+      "scope",
+      decorationDepth as never,
+      generation,
+    );
+    expect(retention.restore("nle.inspector.text", "scope").value).toEqual(
+      decorationDepth,
+    );
+    retention.write(
+      "nle.inspector.basic",
+      "scope",
+      decorationDepth as never,
+      generation,
+    );
+    expect(
+      retention.restore("nle.inspector.basic", "scope").value,
+    ).toBeUndefined();
+    retention.forget("nle.inspector.text", generation);
+    retention.write(
+      "nle.inspector.text",
+      "scope",
+      { style: { stroke: { rgba: [[1]] } } } as never,
+      generation,
+    );
+    expect(
+      retention.restore("nle.inspector.text", "scope").value,
+    ).toBeUndefined();
   });
 });

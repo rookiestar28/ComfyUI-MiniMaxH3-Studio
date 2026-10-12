@@ -1,7 +1,7 @@
-"""M23-31 focused tests for the ManagedRun aggregate.
+"""focused tests for the ManagedRun aggregate.
 
 One test per lifecycle transition of the 33-row action table, plus the two invariants the four
-registries used to hold between them, plus the two follow-ups routed here from the M23-23 review.
+registries used to hold between them, plus the two follow-ups routed here from the review.
 """
 
 from __future__ import annotations

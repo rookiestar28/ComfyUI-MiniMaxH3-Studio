@@ -1,4 +1,4 @@
-"""M12-02 source-owned ASR, language, timing, and uncertainty contracts.
+"""source-owned ASR, language, timing, and uncertainty contracts.
 
 Only bounded, redacted observations and injected descriptors cross this seam.  Audio samples,
 decoders, ComfyUI model objects, Ollama, specialist runtimes, and network clients remain outside
@@ -1082,7 +1082,7 @@ def _seed(value: str) -> str:
 
 
 def build_default_asr_benchmark_plan() -> ASRBenchmarkPlan:
-    """Build the frozen M12-02 metadata-only ASR benchmark."""
+    """Build the frozen metadata-only ASR benchmark."""
 
     fixtures = (
         ASRBenchmarkFixture(

@@ -1,4 +1,4 @@
-"""M20-07 focused tests for the two-ended bridge canary lane.
+"""focused tests for the two-ended bridge canary lane.
 
 The canary is a qualification instrument: absent from normal registration, present only
 under its explicit environment pair, refusing every unowned root, malformed projection and
@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any
 from unittest import mock
 
-from official_temporal_parity import NATIVE_NODE_SHA256
+from oracles.native_temporal import NATIVE_NODE_SHA256
 
 from comfyui_h3_context.core.joint_av_latent import (
     JointAVLatentReceipt,

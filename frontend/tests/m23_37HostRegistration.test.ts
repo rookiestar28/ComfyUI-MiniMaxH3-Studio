@@ -31,9 +31,9 @@ import {
 type Json = Record<string, any>;
 
 /**
- * M23-37. Two host behaviours from the D13 catalogue, observed on the supplied
+ * . Two host behaviours from the D13 catalogue, observed on the supplied
  * host (ComfyUI 0.34.0 / frontend 1.51.9) by the first supported-host lane run
- * after M23-25:
+ * after :
  *
  * 1. a subgraph instance type is registered, and its compact serialized
  *    inputs reconciled, only by the host's own `loadGraphData`: a detached

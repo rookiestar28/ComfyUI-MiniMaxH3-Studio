@@ -127,13 +127,13 @@ def test_real_http_status_range_cancel_and_closed_refusals(subject: Any) -> None
         app.add_routes(table)
         client = test_utils.TestClient(test_utils.TestServer(app))
         await client.start_server()
-        # M23-57: a same-origin request names this test server, never a fixed deployment.
+        # a same-origin request names this test server, never a fixed deployment.
         own = f"http://{client.host}:{client.port}"
         job = module.AUTHORING_RENDER_ROUTE + "/" + status["job_handle"]
         output = module.AUTHORING_OUTPUT_ROUTE + "/" + status["output_handle"]
         query = {"workspace_handle": request.workspace_handle}
         try:
-            # M25-16: the capability read is same-origin GET, bodiless, and reports the live
+            # the capability read is same-origin GET, bodiless, and reports the live
             # registry; a query string, a foreign origin or an implicit HEAD are refused.
             response = await client.get(module.AUTHORING_OUTPUT_CAPABILITY_ROUTE)
             assert response.status == 200
@@ -259,7 +259,7 @@ def test_cancelled_http_tasks_retain_workers_and_do_not_cancel_jobs(subject: Any
         )
 
         def incoming() -> Any:
-            # M23-57: admission reads the Host and the accepting socket, which a bare mocked
+            # admission reads the Host and the accepting socket, which a bare mocked
             # request has neither of (its transport answers every lookup with a Mock).
             return test_utils.make_mocked_request(
                 "GET",

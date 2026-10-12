@@ -1,4 +1,4 @@
-// M25-50: one tabbed property inspector over the accepted composition snapshot.
+// one tabbed property inspector over the accepted composition snapshot.
 // Draft input never mutates the timeline directly: each group crosses the workspace dispatcher
 // once, at an explicit release, Enter, Apply, or Reset boundary.
 
@@ -55,6 +55,10 @@ import {
 import { fill, nleCopy } from "./nleCopy";
 import { assetDisplayNames, clipDisplayName } from "./nleTimelineSurface";
 import { NleActionIcon } from "./NleIconActions";
+import {
+  NleTextExtraControls,
+  NleTextDecorationControls,
+} from "./NleTextStyleControls";
 import {
   UNIT_DECIMALS,
   formatUnitDisplay,
@@ -357,7 +361,7 @@ function PropertyGroup({
           {label}
           <span className="h3-nle-property-chevron" aria-hidden="true" />
         </button>
-        {/* M25-64 (row #31): the reset is the canvas's icon; its name is unchanged. */}
+        {/*  (row #31): the reset is the canvas's icon; its name is unchanged. */}
         <button
           data-h3-plain
           type="button"
@@ -418,7 +422,7 @@ function displayText(
  * One numeric value in its well: an optional prefix, the text field and its unit. The draft is
  * always the canonical integer.
  *
- * M25-64 (R10): a field with a `unit` shows and reads its text through the exact decimal adapter
+ *  (R10): a field with a `unit` shows and reads its text through the exact decimal adapter
  * (`runtime/nleInspectorUnits.ts`) -- bp and per-mille as %, millidegrees as degrees -- and the
  * keys, commit, cancel and reset keep working on the integer. A field without one (frames,
  * pixels) is the whole-number field it always was.
@@ -771,7 +775,7 @@ export function NleInspectorTabs({
   return (
     <div className="h3-nle-inspector" data-h3-nle-region="inspector">
       {primary === undefined ? (
-        // M25-64 (row #28): the accepted output's settings, with no revision, counts or raw id.
+        //  (row #28): the accepted output's settings, with no revision, counts or raw id.
         // Each row is present only when the output states it (`runtime/nleProjectSettings.ts`).
         <section
           className="h3-nle-project"
@@ -1376,14 +1380,17 @@ function ClipPropertyTabs({
       acceptedEffect,
       build.setEffect(clip.clipId, effect),
     );
-  const commitTextStyle = () => {
-    if (style !== null && acceptedStyle !== null)
+  const commitTextStyleValue = (value: TextStyleWire) => {
+    if (acceptedStyle !== null)
       commit(
         "text-style",
-        style,
+        value,
         acceptedStyle,
-        build.setTextStyle(clip.clipId, style),
+        build.setTextStyle(clip.clipId, value),
       );
+  };
+  const commitTextStyle = () => {
+    if (style !== null) commitTextStyleValue(style);
   };
   // Both fades must fit the clip together; the core refuses the rest, so they are never sent.
   const audioFits = (value: ClipAudioWire) =>
@@ -1452,7 +1459,7 @@ function ClipPropertyTabs({
     tabRefs.current[target]?.focus();
   };
 
-  // M25-64 (row #29): the clip's display name, its start-end timecodes and its length, in place
+  //  (row #29): the clip's display name, its start-end timecodes and its length, in place
   // of its raw id. The name is the timeline's own (`clipDisplayName`), so the two never disagree.
   const fps = nominalFps(snapshot.output.frameRate);
   const clipName = clipDisplayName(
@@ -2237,6 +2244,15 @@ function ClipPropertyTabs({
                   }}
                 />
               </label>
+              <NleTextExtraControls
+                locale={locale}
+                style={style}
+                accepted={acceptedStyle}
+                busy={busy}
+                draft={setStyle}
+                commit={commitTextStyleValue}
+                numeric={numeric}
+              />
               <CommitButton
                 data-h3-nle-control="text.style"
                 dirty={!same(style, acceptedStyle)}
@@ -2246,6 +2262,17 @@ function ClipPropertyTabs({
                 {text.inspector.operations.set_text_style}
               </CommitButton>
             </PropertyGroup>
+            <NleTextDecorationControls
+              locale={locale}
+              style={style}
+              accepted={acceptedStyle}
+              busy={busy}
+              draft={setStyle}
+              commit={commitTextStyleValue}
+              numeric={numeric}
+              Group={PropertyGroup}
+              Apply={CommitButton}
+            />
           </>
         ) : (
           <PropertyGroup

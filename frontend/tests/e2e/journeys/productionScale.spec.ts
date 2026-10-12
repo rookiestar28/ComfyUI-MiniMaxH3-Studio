@@ -37,7 +37,7 @@ test("64 segments and 65 outputs stay within render and DOM ceilings", async ({
   expect(renderSamples[18]).toBeLessThanOrEqual(500);
   const productionElements = await page.locator(".h3p *").count();
   expect(productionElements).toBeLessThanOrEqual(2048);
-  // M17-23 Guard B / AC-M17-23-07. Windowing drops this page from 2004
+  //  Guard B / AC--07. Windowing drops this page from 2004
   // elements to 1240, so the page total stops being a live guard against
   // per-segment density: anyone adding a row to the card would now have ~800
   // elements of slack to hide in. The binding contract from here on is the
@@ -45,7 +45,7 @@ test("64 segments and 65 outputs stay within render and DOM ceilings", async ({
   // number is a deliberate edit in a reviewed diff, not a silent draw on
   // shared headroom.
   expect(productionElements).toBeLessThanOrEqual(1400);
-  // M17-25 / AC-M17-25-10. The card grew a delivered-duration readout, and a
+  //  / AC--10. The card grew a delivered-duration readout, and a
   // snapped segment grows a marker beside it, so the per-item budget is split
   // by snapped state rather than averaged: a card that shows the marker costs
   // one element more than one that does not, and both numbers are pinned. The
@@ -74,7 +74,7 @@ test("64 segments and 65 outputs stay within render and DOM ceilings", async ({
       ),
     };
   });
-  // M21-03 AC-03. A collapsed row costs 12 elements against the 25 an M17-25
+  //  AC-03. A collapsed row costs 12 elements against the 25 an
   // card cost, because the five state rows became one spine and the reorder
   // module moved to the one expanded row. The completed-run edit target costs
   // 28: it carries the full row plus the delivered-video dt/dd pair. Measured,
@@ -91,7 +91,7 @@ test("64 segments and 65 outputs stay within render and DOM ceilings", async ({
     page.getByRole("button", { name: "Add current Context" }),
   ).toBeDisabled();
 
-  // M21-03 AC-02: the reorder controls live on the one expanded row, so the
+  //  AC-02: the reorder controls live on the one expanded row, so the
   // segment this loop moves is selected once before the loop rather than
   // reached for on a collapsed row twenty times.
   await page
@@ -127,7 +127,7 @@ test("64 segments and 65 outputs stay within render and DOM ceilings", async ({
   expect(await page.locator(".h3p *").count()).toBe(elementCountBeforeCycles);
 });
 
-// M17-21 D7 / AC-M17-21-09. Every earlier visual review of this panel sampled
+//  D7 / AC--09. Every earlier visual review of this panel sampled
 // 320/400/560 -- all below `MIN_SIDEBAR_WIDTH_PX = 704` -- so none of them saw
 // the shipped layout. The floor is the design target and is asserted here.
 test("segment state grid holds at the product floor", async ({ page }) => {
@@ -138,7 +138,7 @@ test("segment state grid holds at the product floor", async ({ page }) => {
   // whichever states the fixture happens to carry.
   const WIDEST_LABEL = "Full recompute required";
 
-  // M21-03 AC-01 removed the two-column page grid, so at the 704px product floor
+  //  AC-01 removed the two-column page grid, so at the 704px product floor
   // the segment card is the full column rather than its left track and the
   // 31rem container query is satisfied there. The narrow case moves to the
   // declared 480px breakpoint, which is where one value track is still correct.
@@ -200,7 +200,7 @@ test("segment state grid holds at the product floor", async ({ page }) => {
   }
 });
 
-// M17-25 / AC-M17-25-06 and test plan item 7. A segment length is now what the
+//  / AC--06 and test plan item 7. A segment length is now what the
 // host will actually deliver, and a request the 17-frame lattice moved is marked
 // as moved. Both are asserted where a reader meets them -- the card, the
 // timeline tile and the Sequence total -- and then again at the supported
@@ -295,14 +295,14 @@ test("the card, tile and Sequence show the delivered duration and mark a snap", 
   }
 });
 
-// M17-22 / AC-M17-22-01..02. The light palette used to key on `data-theme` and
+//  / AC--01..02. The light palette used to key on `data-theme` and
 // `.light-theme`, neither of which ComfyUI sets, so it was dead code. These
 // rows exercise the real cascade rather than the presence of a selector.
 test("theme follows the host signal and yields to an explicit override", async ({
   page,
 }) => {
   const shell = page.locator(".h3c");
-  // M21-03 replaced the M17-12 neutral ladder; these are the new canvases.
+  //  replaced the neutral ladder; these are the new canvases.
   const DARK = "color(srgb 0.0509804 0.0588235 0.0745098 / 0.28)";
   const LIGHT = "color(srgb 0.92549 0.937255 0.956863 / 0.28)";
 
@@ -318,7 +318,7 @@ test("theme follows the host signal and yields to an explicit override", async (
       { present, dark, explicit },
     );
 
-  // No host at all: the accepted M17-21 dark appearance, unchanged.
+  // No host at all: the accepted dark appearance, unchanged.
   await setHost(false, false, null);
   await expect(shell).toHaveCSS("background-color", DARK);
 
@@ -347,7 +347,7 @@ test("theme follows the host signal and yields to an explicit override", async (
       danger: cs.getPropertyValue("--dg").trim(),
     };
   });
-  // `--dg` is the audited danger *role*, #a32307, not the frozen M17-12 identity
+  // `--dg` is the audited danger *role*, #a32307, not the frozen identity
   // literal #b72a0d it briefly shared: on --h3-control, which backs the stage
   // tab whose blocked child uses this colour, #b72a0d scores 4.466 and #a32307
   // scores 5.343. The identity literal is unmoved and still on
@@ -361,12 +361,12 @@ test("theme follows the host signal and yields to an explicit override", async (
   await setHost(false, false, null);
 });
 
-// M17-22 / AC-M17-22-03. The light palette shipped for three items without
+//  / AC--03. The light palette shipped for three items without
 // ever rendering, so none of its values had been measured against a light
 // surface; the dark palette's dim and idle tokens had the same gap. This sweeps
 // every leaf text node on all three pages in both themes.
 test("text contrast clears WCAG AA in both themes", async ({ page }) => {
-  // M17-22 corrective. This sweep used to run against a document where none of
+  //  corrective. This sweep used to run against a document where none of
   // the host's variables existed, so every `var(--host, literal)` in the panel
   // resolved to its literal and the sweep could only ever measure the safe half
   // of the pair. `--dg` was `var(--error-text, #ff8585)`: the fallback scores
@@ -397,7 +397,7 @@ test("text contrast clears WCAG AA in both themes", async ({ page }) => {
   });
 });
 
-// M17-23 / AC-M17-23-02, AC-M17-23-03, AC-M17-23-04. `MAX_WORKSPACE_SEGMENTS`
+//  / AC--02, AC--03, AC--04. `MAX_WORKSPACE_SEGMENTS`
 // is 64 and the list used to render every one of them: 13 528px of cards inside
 // a 14 552px page at the 704px product floor, measured before this item. The
 // list is now a page of at most `MAX_RENDERED_LIST_ITEMS`, and because a bound
@@ -455,7 +455,7 @@ test("the segment list renders a bounded, reported window", async ({
   );
 });
 
-// M17-23 / AC-M17-23-08. This is the failure mode windowing introduces and that
+//  / AC--08. This is the failure mode windowing introduces and that
 // none of the rejected alternatives shared: a move can carry a segment onto the
 // other page, and a window anchored on whichever page the user happened to be
 // reading would let the segment they are working on vanish. The anchor is the
@@ -474,7 +474,7 @@ test("a reorder across the window boundary keeps the moved segment on screen", a
   await page.getByRole("button", { name: "Show later segments" }).click();
   await expect(range).toHaveText("Showing 33–64 of 64 segments · 1 selected");
 
-  // M21-03 AC-02: the reorder controls belong to the one expanded row, so the
+  //  AC-02: the reorder controls belong to the one expanded row, so the
   // segment being moved is selected first. The sequence track reaches a segment
   // on either page, which is what makes this still one gesture away.
   // Selecting is itself a workspace mutation here, so each revision below is
@@ -511,7 +511,7 @@ test("a reorder across the window boundary keeps the moved segment on screen", a
   await expect(range).toHaveText("Showing 1–32 of 64 segments · 1 selected");
 });
 
-// M17-23 / AC-M17-23-01. The removed defect: `selectedSegmentIds` is a genuine
+//  / AC--01. The removed defect: `selectedSegmentIds` is a genuine
 // set, but Replace, Delete and the relationship editor acted on its first
 // member in sequence order, so selecting three segments and pressing Delete
 // removed one the user never identified. A destructive action now has exactly
@@ -559,8 +559,8 @@ test("destructive and replacing actions name one identified target", async ({
   ).toBeVisible();
 });
 
-// M17-23 Guard A / AC-M17-23-06. The DOM may be optimized freely; the
-// accessible tree is the contract. M17-21 shaved four elements per card against
+//  Guard A / AC--06. The DOM may be optimized freely; the
+// accessible tree is the contract. shaved four elements per card against
 // the DOM ceiling and twice reached for savings that would have cost semantics
 // -- rendering visible state keys through `::before { content: attr(...) }`,
 // and unwrapping the position `label` -- and neither would have failed a test,
@@ -595,7 +595,7 @@ test("the accessible tree of a segment card is a contract", async ({
       - button "Apply position for segment 1": Apply
   `);
 
-  // M21-03 AC-02. An unselected segment is one row. The five state rows became a
+  //  AC-02. An unselected segment is one row. The five state rows became a
   // spine, and the spine's accessible name still conveys all five states in the
   // same fixed order -- which is exactly what this contract exists to protect.
   await expect(cards.nth(1)).toMatchAriaSnapshot(`
@@ -609,9 +609,9 @@ test("the accessible tree of a segment card is a contract", async ({
   // the next author to rediscover: the accessible tree flattens generic
   // containers, so unwrapping the position `label` into a `span` leaves both
   // snapshots above byte-identical -- the input keeps its name from
-  // `aria-label`. That is exactly the saving M17-21 implemented and measured
+  // `aria-label`. That is exactly the saving implemented and measured
   // before a visual check caught "Position" wrapping onto a different line from
-  // the field it names. Verified during M17-23 implementation: with the label
+  // the field it names. Verified during implementation: with the label
   // unwrapped, all 429 unit tests and all 20 browser rows still passed. The
   // association is a structural contract, so it is asserted structurally.
   const labelBindings = await page.evaluate(() => {
@@ -633,7 +633,7 @@ test("the accessible tree of a segment card is a contract", async ({
   });
 });
 
-// M17-23, distinct review finding 1. The window anchor is component-local state
+// , distinct review finding 1. The window anchor is component-local state
 // keyed on a segment identifier, and nothing used to clear it. The fall-through
 // in the anchor lookup makes a stale identifier *look* harmless -- `findIndex`
 // returns -1 and the anchor drops to the selection -- but that only holds while

@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
-// IMPORTANT (M25-21 B3-D60): this module re-exports its siblings with `export *` and otherwise
+// IMPORTANT ( B3-D60): this module re-exports its siblings with `export *` and otherwise
 // imports only types, so nothing here brings `expect` into scope the way `candidate.ts` and
 // `layout.ts` do. Its single assertion -- the host-persistence comparison in `captureLayoutMatrix`
 // -- is reached only on one layout-matrix branch, so an absent import survives every run that does
@@ -16,7 +16,7 @@ export * from "./layout";
 export * from "./managed";
 export * from "./assets";
 export * from "./execution";
-// M23-26 registration phase Two.
+//  registration phase Two.
 // prettier-ignore
 import type { HostOfficialAssetManifest, CandidateInjectionState } from "./candidate";
 // prettier-ignore
@@ -136,7 +136,7 @@ export async function runRegistrationPhaseTwo(
           throw new Error("host panel width owners are absent");
         // IMPORTANT: never rewrite the content wrapper's width here. It is the host's value that
         // the product width controller must leave alone; resetting it erased the controller's
-        // 704 px pin before every measurement (M25-43 B-M2543-03).
+        // 704 px pin before every measurement ( B-M2543-03).
         mount.style.width = "100%";
         mount.style.maxWidth = "100%";
         panelElement.scrollTop = 0;
@@ -502,8 +502,8 @@ export async function runRegistrationPhaseTwo(
           )
             throw new Error("canonical H3 header elements are absent");
           const headerStyle = getComputedStyle(headerElement);
-          // HC-19: measure what `--h3-panel-1` actually resolves to inside the
-          // header, rather than pinning the colour M21-12 happened to produce on
+          // measure what `--h3-panel-1` actually resolves to inside the
+          // header, rather than pinning the colour happened to produce on
           // one host and one theme. Both sides then come from getComputedStyle,
           // so they compare without parsing colour syntax.
           const backgroundProbe = document.createElement("div");
@@ -639,7 +639,7 @@ export async function runRegistrationPhaseTwo(
             focusContainedInPanel:
               focusBounds !== undefined && containedInPanel(focusBounds),
             focusBounds: focusBounds === undefined ? null : rect(focusBounds),
-            // M25-21 B3-D62: whether the PRODUCTION client accepted the shipped bundle/record
+            //  B3-D62: whether the PRODUCTION client accepted the shipped bundle/record
             // pair, not whether a fixture was injected. `buildProvenanceClient` throws when the
             // bundle's compiled-in identity disagrees with the served record, leaving
             // `buildProvenance` undefined and these two spans unrendered -- which shrinks the

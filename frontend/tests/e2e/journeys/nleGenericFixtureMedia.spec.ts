@@ -43,7 +43,7 @@ test("the shell serves every fixture asset kind and the monitor becomes playable
     const url = request.url();
     if (!url.includes("/nle-media/")) return;
     const errorText = request.failure()?.errorText ?? "unknown";
-    // M25-64 (B-M2564-08): `net::ERR_ABORTED` is the caller's own cancellation. The lease
+    //  (B-M2564-08): `net::ERR_ABORTED` is the caller's own cancellation. The lease
     // scheduler preempts a decoration's fetch while the monitor opens, and since B-M2563-14 the
     // harness hands that signal to `fetch`. A route that cannot serve a member refuses with
     // `route.abort()` (`net::ERR_FAILED`) or a reset, and stays a failure here.

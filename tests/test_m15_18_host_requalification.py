@@ -1,4 +1,4 @@
-"""M15-18 exact source and profile orchestration regressions."""
+"""exact source and profile orchestration regressions."""
 
 from __future__ import annotations
 

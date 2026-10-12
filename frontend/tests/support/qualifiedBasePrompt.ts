@@ -1,7 +1,7 @@
 /**
  * A hand-built compiled prompt describing a complete H3 flow.
  *
- * Production materialization does not build a prompt at all any more: M17-20 D11
+ * Production materialization does not build a prompt at all any more: D11
  * option (b) loads the pinned official template and splices the context pipeline
  * into it, so the executable topology comes from the template rather than from
  * this repository. This builder survives as the test fixture, because a
@@ -122,7 +122,7 @@ export function createQualifiedBasePrompt(
   // The adoption route still binds context-only canvases, so its tests need the
   // sink-less shape. The materialized route never produces one.
   //
-  // M17-20 D5: the materialized route writes its own deterministic prefix into
+  //  D5: the materialized route writes its own deterministic prefix into
   // the sink and then requires the compiled prompt to carry exactly that value,
   // so the fixture derives it the same way rather than restating a literal.
   const prefix = options.filenamePrefix ?? appModeArtifactPrefix(inputs);
@@ -234,7 +234,7 @@ export function createQualifiedBasePrompt(
           videoComponentIds[index],
           0,
         ];
-        // M17-17: the soundtrack is declared to the registry that owns it and
+        // the soundtrack is declared to the registry that owns it and
         // then bound on the anchor. The fixture mirrors the splice, so a fixture
         // that bound only the anchor would qualify a graph the product no longer
         // materializes.

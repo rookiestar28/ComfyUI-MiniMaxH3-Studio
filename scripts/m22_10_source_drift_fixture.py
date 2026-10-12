@@ -1,4 +1,4 @@
-"""Generate or verify the current M22-10 source-drift v2 fixture."""
+"""Generate or verify the current source-drift v2 fixture."""
 
 from __future__ import annotations
 

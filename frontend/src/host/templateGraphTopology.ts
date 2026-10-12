@@ -1,5 +1,5 @@
 // Pure graph-topology, anchor-resolution and splice-contract support for template materialization.
-// Kept separate from the splice implementation so both cohesive modules remain under the M23-28
+// Kept separate from the splice implementation so both cohesive modules remain under the
 // 1,200-line ceiling. This module never reads or writes a live ComfyUI host.
 
 import {
@@ -96,7 +96,7 @@ export type LoaderSource = {
 /**
  * Whether a reference video's own soundtrack is part of the request.
  *
- * M17-17. `excluded` and `unavailable` produce the same graph on purpose and are
+ * . `excluded` and `unavailable` produce the same graph on purpose and are
  * kept apart everywhere else: "the user did not want it" and "the host cannot
  * supply it" are different facts, and collapsing them would let an unavailable
  * soundtrack be reported as a declined one.
@@ -168,7 +168,7 @@ export function subgraphDefinitions(workflow: Json): Json[] {
 /**
  * One native H3 conditioning node a prompt could be spliced into.
  *
- * M17-20 D13 tier B. The census is anchored on the official node classes rather
+ *  D13 tier B. The census is anchored on the official node classes rather
  * than on anything this repository owns, because in an arbitrary community graph
  * that is the only thing whose meaning is fixed: every prompt-consuming native
  * H3 node has exactly one `prompt` String input, and nothing else about the
@@ -837,7 +837,7 @@ export type SpliceOptions = {
   readonly durationSeconds: number;
   readonly media?: SpliceMedia;
   /**
-   * M17-20 D5: where this run's artifact is written, as a deterministic
+   *  D5: where this run's artifact is written, as a deterministic
    * content-free path prefix. The template ships `video/MiniMax_H3` for every
    * workflow, so two revisions of the same segment would write into the same
    * place and the second would be indistinguishable from the first. The caller
@@ -845,7 +845,7 @@ export type SpliceOptions = {
    */
   readonly artifactPrefix?: string;
   /**
-   * M17-20 D13: splice into a graph the user assembled rather than into a
+   *  D13: splice into a graph the user assembled rather than into a
    * template this repository materializes.
    *
    * In connect mode the repository owns exactly the splice seam — inserting the

@@ -800,7 +800,7 @@ describe("H3Sidebar", () => {
       expect((submit as HTMLButtonElement).disabled).toBe(true);
       expect(screen.getByText(blocker).getAttribute("role")).toBe("status");
       fireEvent.change(intent, { target: { value: `${mode} revised intent` } });
-      // M17-25: the duration stays editable, but a value the backend has not
+      // the duration stays editable, but a value the backend has not
       // derived a length for keeps submission closed. App Mode writes a length
       // into the native node, and it only ever writes one it can vouch for.
       fireEvent.change(duration, { target: { value: "6" } });
@@ -951,7 +951,7 @@ describe("H3Sidebar", () => {
   });
 
   it.each([
-    // B-M1605-EXIST-03: M24-07 dropped I2VA source-identity observation on the existing route, so
+    // B-M1605-EXIST-03: dropped I2VA source-identity observation on the existing route, so
     // an unselected first frame no longer gates it and nothing is sent in its place.
     {
       taskMode: "i2va" as const,
@@ -1136,8 +1136,8 @@ describe("H3Sidebar", () => {
 });
 
 describe("M17-20 generation admission surface", () => {
-  // M17-20 D2. The sidebar states which model *role* is unsatisfied and never a
-  // filename. M23-25 keeps Start available as an off-canvas retry, but a refusal
+  //  D2. The sidebar states which model *role* is unsatisfied and never a
+  // filename. keeps Start available as an off-canvas retry, but a refusal
   // leaves the current canvas unchanged. The backend still owns the decision.
   const refused = (
     reason:
@@ -1314,7 +1314,7 @@ describe("M17-20 generation admission surface", () => {
   });
 
   it("tells a relocated weight apart from a missing one, in the notice itself", () => {
-    // M17-28. The two refusals share a remediation and both name roles, so the
+    // . The two refusals share a remediation and both name roles, so the
     // only thing that distinguishes them for the user is the sentence. A render
     // that fell through to the missing-asset copy would tell someone with a
     // fully provisioned host that their weights are absent, which is the defect
@@ -1544,7 +1544,7 @@ describe("M17-20 D13 connect-to-canvas surface", () => {
   });
 
   it("does not surface a materialize notice as an ambient existing-canvas error", () => {
-    // M24-07. Asset/default admission describes a graph this repository would
+    // . Asset/default admission describes a graph this repository would
     // create. An existing canvas awaiting its explicit route decision is not
     // that graph, so entering App Mode must not render this as its verdict.
     render(

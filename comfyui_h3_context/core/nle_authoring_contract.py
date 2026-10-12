@@ -1,4 +1,4 @@
-"""M25-57 empty-capable NLE authoring state and its non-empty V1 render boundary."""
+"""empty-capable NLE authoring state and its non-empty V1 render boundary."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-// M25-16 explicit Production-output import through the session: the target is ensured only on
+//  explicit Production-output import through the session: the target is ensured only on
 // explicit intent, identities are captured exactly once, a success adopts the returned
 // projection and focuses the compact clip editor, refusal classes are typed, an uncertain
 // outcome retries the same request body, and an ineligible selection never sends.

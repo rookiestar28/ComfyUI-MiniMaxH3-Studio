@@ -41,7 +41,7 @@ test("M25-47 toolbar, shortcuts, ripple and roll share one accepted timeline pat
     }),
   );
   expect([...new Set(targetBoxes.map((box) => box.top))]).toHaveLength(1);
-  // M25-61: the fine-pointer floor comes from the contract, not a 44 px literal.
+  // the fine-pointer floor comes from the contract, not a 44 px literal.
   const floor = await nleTargetFloor(page);
   expect(
     targetBoxes.every((box) => box.width >= floor && box.height >= floor),
@@ -157,7 +157,7 @@ test("M25-47 toolbar, shortcuts, ripple and roll share one accepted timeline pat
   await receipts(page, 8);
 
   const beforeEditable = transactions.length;
-  // M25-50 moved editable clip properties into Inspector tabs. The old Delta frames field no
+  //  moved editable clip properties into Inspector tabs. The old Delta frames field no
   // longer exists; an active Basic numeric draft must still shield Delete from timeline tools.
   const input = overlay.getByRole("spinbutton", {
     name: "Position X (%)",
@@ -182,4 +182,90 @@ test("M25-47 toolbar, shortcuts, ripple and roll share one accepted timeline pat
       (clip) => clip.clipId === "clip-0",
     ),
   ).toBe(true);
+});
+
+test("Ripple edits deletes only the edited video overlay and restores it through history", async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  await routeGenericFixtureMedia(page);
+  const transactions = await canonicalWorkspace(
+    page,
+    (wire) => {
+      const clips = wire.clips as Record<string, unknown>[];
+      const template = clips.find((clip) => clip.track_id === "track-1")!;
+      wire.clips = [
+        ...clips.filter((clip) => clip.track_id !== "track-1"),
+        ...[
+          { clip_id: "overlay-before", start_frame: 0, duration_frames: 4 },
+          { clip_id: "overlay-edited", start_frame: 8, duration_frames: 8 },
+          { clip_id: "overlay-following", start_frame: 24, duration_frames: 8 },
+        ].map((clip) => ({ ...structuredClone(template), ...clip })),
+      ];
+    },
+    undefined,
+    "&media=1",
+  );
+  const overlay = page.locator(surface);
+  const original = (await snapshot(page)).timelineSnapshot!;
+  const clipWires = (timeline: typeof original, excludeEditedTrack = false) =>
+    Object.fromEntries(
+      timeline.clips
+        .filter((clip) => !excludeEditedTrack || clip.trackId !== "track-1")
+        .map((clip) => [clip.clipId, clip]),
+    );
+  expect(
+    original.tracks.find((track) => track.trackId === "track-1")!.kind,
+  ).toBe("video_overlay");
+  const select = overlay.locator(
+    '[data-h3-nle-clip="overlay-edited"] [data-h3-nle-control="selection.set"]',
+  );
+  await select.scrollIntoViewIfNeeded();
+  await select.click();
+  await receipts(page, 1);
+  const ripple = overlay.locator('[data-h3-nle-control="transport.ripple"]');
+  await expect(ripple).toHaveAccessibleName("Ripple edits");
+  await expect(ripple).toHaveAttribute("aria-pressed", "false");
+  await ripple.click();
+  await expect(ripple).toHaveAttribute("aria-pressed", "true");
+  await overlay.locator('[data-h3-nle-control="range.ripple_delete"]').click();
+  await receipts(page, 2);
+  expect((transactions.at(-1) as { commands: unknown[] }).commands).toEqual([
+    {
+      kind: "ripple_delete",
+      payload: {
+        start_frame: 8,
+        duration_frames: 8,
+        scope_track_ids: ["track-1"],
+        remainder_ids: {},
+      },
+    },
+  ]);
+  const changed = (await snapshot(page)).timelineSnapshot!;
+  expect(changed.clips.some((clip) => clip.clipId === "overlay-edited")).toBe(
+    false,
+  );
+  expect(
+    changed.clips.find((clip) => clip.clipId === "overlay-following"),
+  ).toEqual({
+    ...original.clips.find((clip) => clip.clipId === "overlay-following")!,
+    startFrame: 16,
+  });
+  expect(
+    changed.clips.find((clip) => clip.clipId === "overlay-before"),
+  ).toEqual(original.clips.find((clip) => clip.clipId === "overlay-before"));
+
+  await overlay.locator('[data-h3-nle-control="history.undo"]').click();
+  await receipts(page, 3);
+  const undone = (await snapshot(page)).timelineSnapshot!;
+  expect(clipWires(undone)).toEqual(clipWires(original));
+  await overlay.locator('[data-h3-nle-control="history.redo"]').click();
+  await receipts(page, 4);
+  const redone = (await snapshot(page)).timelineSnapshot!;
+  expect(clipWires(redone)).toEqual(clipWires(changed));
+  for (const timeline of [changed, undone, redone]) {
+    expect(clipWires(timeline, true)).toEqual(clipWires(original, true));
+    expect(timeline.tracks).toEqual(original.tracks);
+    expect(timeline.assets).toEqual(original.assets);
+  }
 });

@@ -1,4 +1,4 @@
-"""M23-47: the owned HTTP edge, asserted once over every route instead of once per route.
+"""the owned HTTP edge, asserted once over every route instead of once per route.
 
 Before this item there were nine per-route origin assertions and thirteen routes. Three of the four
 routes those assertions did not cover had no origin rule at all, and nothing would have reported it:
@@ -53,7 +53,7 @@ from scripts.hc_09_host_seam_test_double import host_prompt_server_module
 #: Origins that are not this request's own target. Every request below addresses the default
 #: listener (`Host: 127.0.0.1:8188` on a socket bound to it), so each of these is foreign to it --
 #: including `localhost`, another port, IPv6 loopback and HTTPS, which are legitimate for their OWN
-#: page (M23-57) but never authorize this one. The absent header is not here: it is a legitimate
+#: page but never authorize this one. The absent header is not here: it is a legitimate
 #: same-origin GET and has its own assertion below.
 FOREIGN_ORIGINS: tuple[list[str], ...] = (
     ["http://localhost:8188"],
@@ -75,17 +75,19 @@ ABSENT_ORIGIN_ROUTES = frozenset(
         BUILD_PROVENANCE_ROUTE,
         MANAGED_SEQUENCE_PROJECTION_ROUTE,
         # Native output navigation is read-only and additionally rejects foreign fetch metadata.
-        # M25-16: the capability projection is a same-origin fetch GET the browser sends without
+        # the capability projection is a same-origin fetch GET the browser sends without
         # an Origin header; it reads no workspace and starts no job.
         "/h3-context/v1/authoring/output-capability",
         "/h3-context/v1/authoring/render/{handle}",
         "/h3-context/v1/authoring/output/{handle}/preview",
         "/h3-context/v1/authoring/output/{handle}/download",
-        # M25-31: the media runtime status and setup-job reads are same-origin fetch GETs the
+        # the media runtime status and setup-job reads are same-origin fetch GETs the
         # browser sends without Origin; both reject foreign fetch metadata. Neither writes state or
         # downloads: status may run bounded local discovery, and the job read is a projection.
         "/h3-context/v1/media-runtime",
         "/h3-context/v1/media-runtime/setup/{job_id}",
+        # The perception GET reads only cached finite readiness; it never retries settings IO.
+        "/h3-context/v1/perception/status",
     }
 )
 
@@ -205,7 +207,7 @@ def _adapter_modules() -> Iterator[ModuleType]:
 def _registrars() -> list[tuple[ModuleType, str]]:
     # CRITICAL: `_registered`, not `_route_registered`. The lease registrar is plural
     # (`ensure_authoring_media_lease_routes_registered`), and the narrower suffix silently left its
-    # two capability-bearing routes out of every invariant in this file until M23-57.
+    # two capability-bearing routes out of every invariant in this file until.
     # `test_the_walk_finds_every_registrar_the_package_calls` pins the set against the package.
     found = [
         (module, name)
@@ -522,7 +524,7 @@ class EveryOwnedRouteRefusesAForeignOriginTests(unittest.IsolatedAsyncioTestCase
 #: express without five policy hooks -- authoring evicts its oldest entry, production refuses with a
 #: 409 that carries a projection to reconcile against, and the coordinator refuses with a 429 under
 #: both an entry count and a retained-bytes budget. Unifying the three status codes is a wire change
-#: `M23-34` owns along with the problem-details envelope; what is asserted here is that there are
+#: `` owns along with the problem-details envelope; what is asserted here is that there are
 #: exact closed set, so another owner cannot quietly invent another behaviour.
 REPLAY_LEDGERS = {
     "comfyui_authoring_workspace.py": (422, "request_replay_mismatch"),
@@ -639,7 +641,7 @@ class AFailureIsBlamedOnWhoeverCausedItTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(await self._drive(method, None), (500, "internal_failure"))
 
     async def test_a_body_reader_that_misbehaves_answers_the_generic_decode_refusal(self) -> None:
-        # The wire this pins is a deliberate M23-47 generalization, recorded because it is the one
+        # The wire this pins is a deliberate generalization, recorded because it is the one
         # place the shared read changed an answer: `comfyui_provider_settings` raised its own
         # `request_malformed` here, and every other route already said `invalid_request`. Both are
         # 400, and no real `aiohttp.StreamReader.read` can reach it -- it always returns bytes. It

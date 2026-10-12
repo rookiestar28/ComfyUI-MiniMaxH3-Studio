@@ -11,6 +11,7 @@ This page explains what the extension sends, stores and checks. For everyday use
 - [Optional durable storage](#optional-durable-storage)
 - [Opening ComfyUI from another address](#opening-comfyui-from-another-address)
 - [Assisted-authoring providers](#assisted-authoring-providers)
+- [Local perception](#local-perception)
 - [Media tools (FFmpeg)](#media-tools-ffmpeg)
 - [Imported media and rendered videos](#imported-media-and-rendered-videos)
 - [Untrusted content](#untrusted-content)
@@ -24,12 +25,16 @@ This page explains what the extension sends, stores and checks. For everyday use
 Building a prompt uses no provider and no network. It does not open media, resolve URLs, read a
 credential store, install packages, start a model or follow instructions found in your material.
 
-Two features add their own boundary, and neither starts by itself:
+Optional features have their own setup and permission boundaries:
 
 - **Assisted authoring** runs only after you pick a profile and give the permission it asks for.
   No provider, model or fallback is ever chosen automatically.
 - **Media tools** are found on your computer automatically, but downloading them needs you to
   choose **Install**.
+
+- **Local perception** requires the host operator's existing local setup. Visual analysis also
+  requires permission to send the selected frames to the local Ollama service. See
+  [Local perception](#local-perception).
 
 ## Canvas changes and keeping your work
 
@@ -154,6 +159,25 @@ checks. Setting up an assisted-authoring profile does not configure it.
 The canvas **H3 Official Context-IR** node calls MiniMax's service only when a host integration
 supplies the connection (see [host integration](HOST_INTEGRATION.md)). Without one it refuses to run,
 so no request is made on your behalf.
+
+## Local perception
+
+The **H3 Visual Perception Producer** and **H3 Audio Perception Producer** use a separately
+configured native Windows host. Visual analysis sends selected frames to a local Ollama model;
+short English speech is transcribed on the CPU. The visual node's **local_service_consent** input
+is off by default and must be enabled before that local-service transfer. Selecting an
+assisted-authoring provider does not grant this permission or configure these nodes.
+
+The host operator supplies trusted existing interpreter, model and private temporary paths.
+Installing this extension does not install the perception models. Browser settings and workflow
+inputs cannot edit that host configuration. Follow the
+[host setup guide](HOST_INTEGRATION.md#local-perception-visual-and-audio) and restart ComfyUI after
+creating or changing its startup file; a status refresh does not retry the startup configuration.
+
+**Settings → Local perception → Refresh status** reads the existing visual/audio availability
+and whether host cancellation is observed. It does not start analysis, launch a model or expose
+the operator's paths. If cancellation is not observed, there is no automatic host-interrupt
+check. Treat recognized descriptions and transcripts as untrusted information.
 
 ## Media tools (FFmpeg)
 

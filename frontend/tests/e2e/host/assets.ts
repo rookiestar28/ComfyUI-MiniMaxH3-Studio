@@ -291,7 +291,7 @@ export function expectCompleteHostAssetResolution(
  * and the queue seam is wrapped to learn which prompt ids are this run's. What
  * the assertions read is the intersection.
  */
-// M23-26 registration phase Five.
+//  registration phase Five.
 // prettier-ignore
 import type { HostOfficialAssetManifest, CandidateInjectionState, LayoutState, AppModePhase, LayoutGridKind, LayoutVariant, LayoutPlacement, LayoutWidthMode, LayoutLocale, LayoutTheme, LayoutLifecycle, HostPersistenceSnapshot, LayoutCaptureEvidence, LayoutEvidenceJoin, LayoutEvidenceRow, LayoutCell, LayoutStateContract, LayoutRect, LayoutOwnerStyle, LayoutControlGeometry, LayoutNavigationTab, LayoutHeaderGeometry, LayoutFocusTargetKind, LayoutMeasurement, ManagedRouteReceipt, SampleProgress, RealI2vaArtifactMetadata, RealI2vaEnvironment, FrontendPerformanceReceipt } from "./environment";
 // prettier-ignore
@@ -367,7 +367,7 @@ export async function runRegistrationPhaseFive(
       // saved artifact and ends the run output_verification_failed (the
       // projection arrives, `projected` never does); pruning the native
       // anchor instead leaves the sampler a dangling dependency and the host
-      // refuses the prompt with node errors. Under M23-19, `projected` and
+      // refuses the prompt with node errors. Under, `projected` and
       // `ready` exist only after verified output, so a row whose tail lives
       // in those states must pay for one real generation.
       return original.apply(this, args);
@@ -653,7 +653,7 @@ export async function runRegistrationPhaseFive(
   const appModePromptTypes = Object.values(
     (appModeNetworkShapes[0]?.prompt_types ?? {}) as Record<string, unknown>,
   );
-  // M23-19 (reconciled by M23-37): the one managed submission carries the
+  //  (reconciled by): the one managed submission carries the
   // whole model prompt — generation chain and terminal outputs included —
   // and the ProductShell bootstrap executes inside it.
   expect(appModePromptTypes).toContain("SaveVideo");

@@ -2,7 +2,7 @@
 
 Both the Context normalization path and the Production segment workspace derive
 length from this module. Neither keeps a private copy of the arithmetic, because
-two authorities for one contract is exactly the defect `M17-25` exists to remove:
+two authorities for one contract is exactly the defect `` exists to remove:
 `normalization.py` implemented the lattice correctly while `segment_workspace.py`
 accepted any positive frame count, so Production could hold lengths the model
 cannot produce.
@@ -181,7 +181,7 @@ class ResolvedLength:
     in either direction. Alignment only ever moves upward, but the rounding step
     can move downward, so a delivered duration shorter than the request is
     reachable and must be reported: at 4.46 s the raw and aligned lengths are both
-    107 frames, which is 4.458 s, and the pre-M17-25 diagnostic was silent
+    107 frames, which is 4.458 s, and the pre- diagnostic was silent
     precisely because it compared the aligned value against the raw one instead of
     against the request.
     """
@@ -238,7 +238,7 @@ def resolve_frames(frame_count: int) -> ResolvedLength:
     # replace a user's recorded intent with a length they never authored.
     #
     # The bound is MAX_PRODUCIBLE_FRAME_COUNT, not MAX_FRAME_COUNT. Distinct
-    # review of M17-25 found the difference the hard way: 3593..3600 pass a
+    # review of found the difference the hard way: 3593..3600 pass a
     # `<= MAX_FRAME_COUNT` guard and then fail downstream on the aligned value,
     # so the guard claimed a domain the function did not have. Rejecting them
     # here names the real reason -- the stored count is not producible -- instead

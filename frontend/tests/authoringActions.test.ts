@@ -244,7 +244,7 @@ describe("authoring action client", () => {
   });
 
   it("wraps a rejected fetch as transport_failure so a lost reply is never read as a rejection", async () => {
-    // M25-16 corrective F1: a network drop or abort leaves the outcome unknown. The session
+    //  corrective F1: a network drop or abort leaves the outcome unknown. The session
     // must be able to tell it from every decoded status, which all keep their own codes.
     for (const failure of [
       new TypeError("Failed to fetch"),

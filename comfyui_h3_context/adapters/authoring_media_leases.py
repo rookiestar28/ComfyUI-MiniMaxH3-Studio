@@ -556,7 +556,7 @@ class MediaLeaseAuthority:
                 )
                 if type(body) is not bytearray or type(facts) is not VerifiedDerivative:
                     raise MediaLeaseError("generation_failed")
-                # IMPORTANT (M25-45): a body that simply does not fit is a resource limit, not a
+                # IMPORTANT: a body that simply does not fit is a resource limit, not a
                 # generation failure. The browser's own body admission already answers
                 # `resource_limit` for the same physical condition, and a client that sees two
                 # different reasons for one fact cannot tell "this source is too big for the

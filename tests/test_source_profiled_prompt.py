@@ -1,4 +1,4 @@
-"""M13-09 source-profiled rendering, parsing, semantic validation, and budgets."""
+"""source-profiled rendering, parsing, semantic validation, and budgets."""
 
 from __future__ import annotations
 
@@ -230,7 +230,9 @@ class SourceProfiledPromptTests(unittest.TestCase):
             (Mock(spec=str), OFFICIAL_H3_BASE_GUIDE_DIGEST),
             (OFFICIAL_H3_GUIDE_REVISION, Mock(spec=str)),
         ):
-            with self.subTest(revision=revision, digest=digest):
+            with self.subTest(
+                revision_type=type(revision).__name__, digest_type=type(digest).__name__
+            ):
                 with self.assertRaises(ContractValidationError):
                     build_official_source_profile_binding(
                         BASE_PROFILE,
@@ -263,10 +265,10 @@ class SourceProfiledPromptTests(unittest.TestCase):
         binding = self._official_binding(BASE_PROFILE)
         valid = render_profiled_prompt(plan, binding)
 
-        for malformed in (1_000_001, -1, True, "100", Mock(spec=int)):
+        for budget_case, malformed in enumerate((1_000_001, -1, True, "100", Mock(spec=int))):
             budget = PromptBudget()
             object.__setattr__(budget, "max_characters", malformed)
-            with self.subTest(budget=malformed):
+            with self.subTest(budget_case=budget_case):
                 with self.assertRaises(ContractValidationError):
                     validate_profiled_prompt(plan, valid.document, binding, budget)
 

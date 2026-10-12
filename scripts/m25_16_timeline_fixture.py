@@ -1,7 +1,7 @@
 """Bounded hermetic browser oracle using the canonical transaction/history core.
 
 Two modes. The default reads one document from stdin and replays at most 32 transactions from the
-snapshot every call, which keeps each M25-16 journey stateless. ``--serve`` (M25-21) keeps one
+snapshot every call, which keeps each journey stateless. ``--serve`` keeps one
 ``TimelineHistoryState`` in memory and answers a JSON-lines protocol, so the NLE-STRESS-V1 edit
 workload's hundreds of transactions are applied once each by the same canonical core instead of
 being replayed quadratically; its answers have exactly the replay mode's shape.
@@ -139,7 +139,7 @@ def serve() -> None:
         decided_at = time.perf_counter()
         body = json.dumps(reply, separators=(",", ":"))
         serialized_at = time.perf_counter()
-        # M25-21 B3-D57: the two costs this process can actually see -- deciding the reply (parse,
+        #  B3-D57: the two costs this process can actually see -- deciding the reply (parse,
         # validate, apply, build the answer) and serializing it -- on this process's own monotonic
         # clock, in milliseconds. Reported beside the caller's own measurement, never subtracted
         # from it: they are different clock domains.

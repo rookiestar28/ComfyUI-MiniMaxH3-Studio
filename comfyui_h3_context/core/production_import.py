@@ -61,7 +61,7 @@ _FINGERPRINT = re.compile(r"sha256:[0-9a-f]{64}\Z")
 
 
 class ProductionImportError(ValueError):
-    """Closed M26-03 contract or derivation failure."""
+    """Closed contract or derivation failure."""
 
     def __init__(self, code: str) -> None:
         self.code = code

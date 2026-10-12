@@ -5,6 +5,7 @@ from decimal import Decimal
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
+from oracles.native_reference_media import native_window
 
 from comfyui_h3_context.core import (
     ReferenceConditioningWindow,
@@ -13,19 +14,6 @@ from comfyui_h3_context.core import (
 )
 from comfyui_h3_context.core.errors import ContractValidationError
 from comfyui_h3_context.core.length import LengthError
-
-
-def native_window(
-    reference_count: int, output_count: int
-) -> tuple[int, tuple[int, ...], tuple[Decimal, ...]]:
-    # Independent transcription of ComfyUI Ref2VA: truncate, reject, then floor 17k+5.
-    count = min(reference_count, output_count)
-    if count < 5:
-        raise ValueError("reference_too_short")
-    while count % 17 != 5:
-        count -= 1
-    indices = tuple(range(0, count, 12))
-    return count, indices, tuple(Decimal(index) / 2 for index in range(len(indices)))
 
 
 def assert_native_pair(reference_count: int, output_count: int) -> None:

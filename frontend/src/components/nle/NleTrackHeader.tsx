@@ -1,4 +1,4 @@
-// M25-62: the track header. Under a fine pointer it is 112 px in two lines -- kind icon and
+// the track header. Under a fine pointer it is 112 px in two lines -- kind icon and
 // display name, then the lock and eye toggles (deviation D-2). Under a coarse pointer it keeps
 // today's 160 px on one line, so the trigger and both toggles are disjoint 44 px targets
 // (DD-8, B-M2562-01; `trackHeaderWidthPx`).
@@ -7,7 +7,7 @@
 // The two lines are CSS grid areas, not wrappers: the command recipes find the toggles through the
 // trigger's parent, and the raw track id lives only in the row's `data-h3-nle-track`.
 
-import type { MouseEvent as ReactMouseEvent } from "react";
+import { memo, type MouseEvent as ReactMouseEvent } from "react";
 
 import type { CompositionTrack } from "../../contracts/compositionCodec";
 import type { TimelineCommandWire } from "../../contracts/authoringWorkbenchCodec";
@@ -24,7 +24,7 @@ const KIND_ICON: Record<CompositionTrack["kind"], NleIconName> = {
   text_overlay: "text",
 };
 
-export function NleTrackHeader({
+function NleTrackHeaderView({
   locale,
   track,
   name,
@@ -32,7 +32,7 @@ export function NleTrackHeader({
   onOpenTrackMenu,
 }: {
   locale: Locale;
-  track: CompositionTrack;
+  track: Pick<CompositionTrack, "trackId" | "kind" | "locked" | "enabled">;
   name: string;
   onTrackCommand(command: TimelineCommandWire): void;
   onOpenTrackMenu(
@@ -93,3 +93,7 @@ export function NleTrackHeader({
     </div>
   );
 }
+
+// IMPORTANT: reuse unchanged display data, while the row's committed-event seam
+// keeps these stable handlers pointed at the latest accepted command/menu owner.
+export const NleTrackHeader = memo(NleTrackHeaderView);

@@ -582,7 +582,7 @@ test("NLE workspace opens from the shipped tab and edits a real bound VIDEO", as
     await expect(
       overlay.locator('[data-h3-nle-status="timeline"]'),
     ).toHaveAttribute("data-h3-nle-authoring", "ready");
-    // M25-44: four areas in the reference proportions and three splitters that move by a real
+    // four areas in the reference proportions and three splitters that move by a real
     // pointer drag, on the supplied host at 1440 x 900.
     const { standard, splitterMoves } = await expectStandardReferenceShell(
       page,
@@ -751,7 +751,7 @@ test("NLE workspace opens from the shipped tab and edits a real bound VIDEO", as
       throw error;
     }
     await expect.poll(async () => (await pixels()).colors).toBeGreaterThan(100);
-    // M25-44: the final-video card lives in the chrome bar's Export popover.
+    // the final-video card lives in the chrome bar's Export popover.
     await openExportPanel(overlay);
     const output = overlay.getByRole("region", {
       name: "Final video",
@@ -788,7 +788,7 @@ test("NLE workspace opens from the shipped tab and edits a real bound VIDEO", as
     await overlay.locator('[data-h3-nle-action="close"]').click();
     await expect(overlay).toHaveCount(0);
     await expect(open).toBeFocused();
-    // M25-44: the narrow tier at 720 x 480 on the supplied host, opened after the viewport change
+    // the narrow tier at 720 x 480 on the supplied host, opened after the viewport change
     // so the explicit open re-clamps the retained bounds.
     await page.setViewportSize({ width: 720, height: 480 });
     await open.click();

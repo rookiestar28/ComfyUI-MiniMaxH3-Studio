@@ -1,5 +1,5 @@
 // App Mode managed preparation: the Production-managed preflight, source identity request
-// and execution projection (M23-28 split).
+// and execution projection ( split).
 
 import { sha256Text } from "../contracts/canonicalFingerprint";
 import {

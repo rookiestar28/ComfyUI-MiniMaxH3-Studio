@@ -27,7 +27,7 @@ Modes::
     python scripts/workspace_link_guard.py check [ROOT]
     python scripts/workspace_link_guard.py remove-worktree PATH [--force] [--dry-run]
 
-``check`` is the gate stage and exits non-zero when an escaping link exists.  Items M23-01, M23-03.
+``check`` is the gate stage and exits non-zero when an escaping link exists. Items,.
 """
 
 from __future__ import annotations
@@ -60,7 +60,7 @@ class LinkFinding:
 
     @property
     def dangling(self) -> bool:
-        return not self.target.exists()
+        return not Path(_io_path(self.target)).exists()
 
     @property
     def escapes(self) -> bool:
@@ -86,10 +86,33 @@ def _is_within(candidate: Path, root: Path) -> bool:
     return a == b or a.startswith(b + os.sep)
 
 
+def _io_path(path: Path) -> str:
+    value = str(path)
+    if os.name != "nt" or value.startswith("\\\\?\\"):
+        return value
+    # CRITICAL: wildcard enumeration and junction resolution need the extended spelling.
+    # An existing long path otherwise looks missing, hiding either a directory or a live target.
+    value = os.path.abspath(value)
+    return "\\\\?\\UNC\\" + value[2:] if value.startswith("\\\\") else "\\\\?\\" + value
+
+
+def _real_path(path: Path) -> Path:
+    value = os.path.realpath(_io_path(path))
+    # The native spelling is an IO detail, never a different containment identity.
+    if os.name == "nt":
+        if value.startswith("\\\\?\\UNC\\"):
+            value = "\\\\" + value[8:]
+        elif value.startswith("\\\\?\\") and value[5:7] == ":\\":
+            value = value[4:]
+        # A volume/device prefix has no ordinary drive spelling. Keep it absolute;
+        # stripping it would make a live escape look like a missing relative target.
+    return Path(value)
+
+
 def is_reparse_point(path: Path) -> bool:
     """True for a junction or a symlink. Deliberately not os.path.islink, which misses junctions."""
     try:
-        metadata = os.lstat(path)
+        metadata = os.lstat(_io_path(path))
     except OSError:
         return False
     return bool(int(getattr(metadata, "st_file_attributes", 0)) & REPARSE_ATTRIBUTE) or bool(
@@ -134,7 +157,9 @@ def deletable_unit(link: Path, repo_root: Path, worktrees: list[Path]) -> Path:
     return repo_root
 
 
-def find_links(root: Path, repo_root: Path | None = None) -> list[LinkFinding]:
+def find_links(
+    root: Path, repo_root: Path | None = None, *, strict: bool = False
+) -> list[LinkFinding]:
     """Every reparse point under root, without ever traversing one."""
     root = root.resolve()
     repo_root = (repo_root or root).resolve()
@@ -144,23 +169,62 @@ def find_links(root: Path, repo_root: Path | None = None) -> list[LinkFinding]:
     stack = [root]
     while stack:
         directory = stack.pop()
+        if directory != root:
+            try:
+                # Enumeration metadata is short-lived: a queued directory can become a link
+                # before descent. Recheck it here so the walker never follows that replacement.
+                metadata = os.lstat(_io_path(directory))
+                if bool(
+                    int(getattr(metadata, "st_file_attributes", 0)) & REPARSE_ATTRIBUTE
+                ) or stat.S_ISLNK(metadata.st_mode):
+                    findings.append(
+                        LinkFinding(
+                            directory,
+                            _real_path(directory),
+                            deletable_unit(directory, repo_root, worktrees),
+                        )
+                    )
+                    continue
+            except OSError:
+                if strict:
+                    raise
+                continue
         try:
-            real = os.path.realpath(directory)
+            real = str(_real_path(directory))
         except OSError:
+            if strict:
+                raise
             continue
         if real in visited:
             continue
         visited.add(real)
         try:
-            entries = list(os.scandir(directory))
+            entries = list(os.scandir(_io_path(directory)))
         except OSError:
+            if strict:
+                raise
             continue
         for entry in entries:
-            path = Path(entry.path)
-            if is_reparse_point(path):
+            # Enumeration spelling is an IO detail, never a different containment identity.
+            path = directory / entry.name
+            try:
+                # CRITICAL: inspect no-follow enumeration metadata, including junctions.
+                # islink misses Windows junctions; a separate lstat for every ordinary file
+                # turns a large dependency tree into minutes of duplicate metadata requests.
+                metadata = entry.stat(follow_symlinks=False)
+                linked = bool(
+                    int(getattr(metadata, "st_file_attributes", 0)) & REPARSE_ATTRIBUTE
+                ) or stat.S_ISLNK(metadata.st_mode)
+            except OSError:
+                if strict:
+                    raise
+                continue
+            if linked:
                 try:
-                    target = Path(os.path.realpath(path))
+                    target = _real_path(path)
                 except OSError:
+                    if strict:
+                        raise
                     continue
                 findings.append(
                     LinkFinding(path, target, deletable_unit(path, repo_root, worktrees))
@@ -170,6 +234,8 @@ def find_links(root: Path, repo_root: Path | None = None) -> list[LinkFinding]:
                 if entry.is_dir(follow_symlinks=False):
                     stack.append(path)
             except OSError:
+                if strict:
+                    raise
                 continue
     return findings
 
@@ -219,9 +285,25 @@ def _census(root: Path) -> int:
 
 
 def _check(root: Path) -> int:
-    escaping = [f for f in find_links(root, _repo_root()) if f.escapes]
+    wants_receipt = bool(os.environ.get("H3_GATE_LINK_RECEIPT"))
+    try:
+        findings = find_links(root, _repo_root(), strict=wants_receipt)
+    except OSError:
+        print("workspace link guard: FAIL (strict census could not inspect every entry)")
+        return 1
+    escaping = [f for f in findings if f.escapes]
     if not escaping:
         print("workspace link guard: no escaping reparse point")
+        if wants_receipt:
+            from scripts.gate_link_receipt import issue
+
+            try:
+                issue(root, findings)
+                print("workspace link guard: fresh gate receipt issued")
+            except (OSError, ValueError, KeyError, subprocess.SubprocessError):
+                # CRITICAL: unavailable proof keeps the original backend check active; it
+                # cannot authorize a skip or turn a completed census into a failed guard.
+                print("workspace link guard: receipt unavailable; backend must run its check")
         return 0
     print("workspace link guard: FAIL", file=sys.stderr)
     for finding in sorted(escaping, key=lambda f: str(f.path)):
@@ -323,7 +405,7 @@ def remove_tree(root: Path) -> None:
 
     ``shutil.rmtree`` was probed and does handle reparse points correctly on this build.  It is
     still not used: the correctness of this module rests on not trusting the standard library's
-    link handling on Windows, which is the whole defect class M23-01 exists for, and an explicit
+    link handling on Windows, which is the whole defect class exists for, and an explicit
     walker keeps the refusal to traverse a link on the same predicate the guard is built from.
     """
     with os.scandir(root) as entries:

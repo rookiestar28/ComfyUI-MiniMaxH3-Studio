@@ -1,5 +1,5 @@
 // Authoring session: authoring wire payloads and intents, availability facts, assisted and
-// generic workspace actions (M23-28 split of entry.tsx).
+// generic workspace actions ( split of entry.tsx).
 
 import type {
   AuthoringIntent,
@@ -76,7 +76,7 @@ export function createAuthoringSession(ctx: ShellRuntime) {
     };
   }
 
-  // M25-16 corrective F1. CRITICAL: a lost transport reply is neither a rejection nor an
+  //  corrective F1. CRITICAL: a lost transport reply is neither a rejection nor an
   // acceptance -- the backend may have committed the transaction. Never re-send the draft (a
   // replay could apply it twice) and never claim a receipt for it; keep its identity for
   // attribution only, then reconcile with exactly one read-only history read. If that read
@@ -161,7 +161,7 @@ export function createAuthoringSession(ctx: ShellRuntime) {
     return `sha256:${hex}`;
   }
 
-  // M20-03 F1: the one qualified availability producer. The verdict is the boolean
+  //  F1: the one qualified availability producer. The verdict is the boolean
   // graph-shape proof over the host's own compiled workflow; without a compilable
   // workflow there is no verdict and nothing is posted -- absence stays unknown.
   async function currentGraphQualificationVerdict(): Promise<Readonly<{

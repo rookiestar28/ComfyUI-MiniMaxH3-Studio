@@ -1,4 +1,4 @@
-"""M20-07 focused tests for bridge latent composition and interval mask attachment.
+"""focused tests for bridge latent composition and interval mask attachment.
 
 Composition is exercised on real byte values: tiny 1x1-spatial synthetic domains whose every
 temporal step carries a distinct float32 pattern, so the tail-zero-head assembly is asserted
@@ -13,7 +13,7 @@ import struct
 import unittest
 from typing import Any
 
-from official_temporal_parity import NATIVE_NODE_SHA256
+from oracles.native_temporal import NATIVE_NODE_SHA256
 
 from comfyui_h3_context.adapters.comfyui_two_ended_bridge import (
     TwoEndedBridgeAdapterError,

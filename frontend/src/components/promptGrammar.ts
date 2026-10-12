@@ -1,5 +1,5 @@
 /**
- * M21-03 AC-08 — the canonical prompt grammar, tokenised for display only.
+ *  AC-08 — the canonical prompt grammar, tokenised for display only.
  *
  * The prompt is backend-owned text. Highlighting it must therefore be a pure
  * partition: `segments(text).map((s) => s.text).join("")` is `text`, byte for

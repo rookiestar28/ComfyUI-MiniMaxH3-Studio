@@ -1,0 +1,3 @@
+/* stylelint-disable property-no-unknown -- M99-11: Preserve linting. */
+.example { synthetic-property: 7; }
+/* stylelint-enable property-no-unknown -- M99-11: Preserve linting. */

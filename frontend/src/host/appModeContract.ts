@@ -1,5 +1,5 @@
 // App Mode contract: constants, exported types, the refusal/error vocabulary and the
-// pure validation and identity helpers every App Mode module shares (M23-28 split).
+// pure validation and identity helpers every App Mode module shares ( split).
 
 import { sha256Text } from "../contracts/canonicalFingerprint";
 import type {
@@ -42,7 +42,7 @@ export const APP_MODE_MAX_FRAME_COUNT = 3592;
 // are outer sanity bounds for a host payload, not a restatement of the frame
 // lattice: the producible set is decided by the backend alignment authority.
 //
-// M17-25 distinct review: these were 150 s, taken from the host's 3600-frame
+//  distinct review: these were 150 s, taken from the host's 3600-frame
 // ceiling divided by 24. That ceiling is not the longest producible video --
 // 3593..3600 frames all align to 3609, above it -- so the old bound offered
 // about 313 ms of durations that could never resolve. The backend publishes the
@@ -280,7 +280,7 @@ export const REFERENCE_SOURCE_TYPES = new Set<string>([
 export type AppModeInputs = {
   task_mode: AppModeTaskMode;
   user_intent: string;
-  // M23-04: `duration_milliseconds` is the Sidebar-authored request and is what
+  // `duration_milliseconds` is the Sidebar-authored request and is what
   // the shared materialized duration source receives. `frame_count` is the
   // backend-resolved value used for qualification and exact UI disclosure; the
   // native node derives the same value from that source through the pinned
@@ -293,7 +293,7 @@ export type AppModeInputs = {
   reference_video_sources?: string[];
   reference_audio_sources?: string[];
   /**
-   * M17-17: whether the reference videos submit their own soundtrack.
+   * whether the reference videos submit their own soundtrack.
    *
    * The Reference Registry owns the pairing, and this is what tells it. Omitted
    * means `included`, which is the graph every accepted ref2va route produced
@@ -329,7 +329,7 @@ export type AppModeStartOptions = {
   /** Queue the currently visible, compatible H3 graph without replacing it. */
   useExisting?: boolean;
   /**
-   * M17-20 D13: splice the context pipeline into the graph already on the
+   *  D13: splice the context pipeline into the graph already on the
    * canvas, rewiring only the designated native H3 anchor's `prompt`.
    *
    * Choosing this route is the consent: like `replaceExisting`, it mutates a
@@ -347,7 +347,7 @@ export type AppModeStartOptions = {
   /** Bounded metadata for the exact queue callable this run invokes. */
   onQueueSeamObserved?: (observation: QueueSeamObservation) => void;
   /**
-   * M23-37 (D13): invoked when the one candidate write had to happen before
+   *  (D13): invoked when the one candidate write had to happen before
    * the compile because the candidate carries subgraph definitions that only
    * the host's own load reconciles; the compile that follows is the root
    * compile of the written canvas.
@@ -361,7 +361,7 @@ export type AppModeStartOptions = {
     compiledPromptFingerprint: string;
   };
   /**
-   * M17-20 D5: the content-free workspace identifier this run's artifact belongs
+   *  D5: the content-free workspace identifier this run's artifact belongs
    * to. It becomes one path segment of the sink prefix, so two workspaces never
    * write into each other's output. Absent, the run is scoped to the session.
    */
@@ -380,7 +380,7 @@ export type AppModeStartOptions = {
    */
   projectManagedExecution?: ManagedAppModeExecutionProjector;
   /**
-   * M23-18: observe the exact operator-selected I2VA source immediately before
+   * observe the exact operator-selected I2VA source immediately before
    * managed preparation. The transient locator exists only in this request and
    * never enters the prepared observation or a diagnostic.
    */
@@ -990,7 +990,7 @@ export function validateExistingInputs(inputs: AppModeInputs): void {
 /**
  * The declared soundtrack state, or the default that preserves accepted routes.
  *
- * M17-17. `included` is the default because it is what every accepted ref2va
+ * . `included` is the default because it is what every accepted ref2va
  * route already produced; the correction declares that state rather than
  * changing it.
  */
@@ -1065,7 +1065,7 @@ export function graphFingerprint(value: unknown): string {
 /**
  * The official duration-to-length expression, pinned by content.
  *
- * M17-25 proved this expression equals `core/length.py` over every integer
+ *  proved this expression equals `core/length.py` over every integer
  * millisecond of the accepted domain. Recognising it here is what lets App Mode
  * admit a `length` that arrives as a link instead of a number without restating
  * the lattice: the canvas is running the same rule, and this asserts that it is
@@ -1074,7 +1074,7 @@ export function graphFingerprint(value: unknown): string {
 /**
  * The root every materialized artifact is written under.
  *
- * M17-20 D5. The pinned templates all ship `video/MiniMax_H3`, so two revisions
+ *  D5. The pinned templates all ship `video/MiniMax_H3`, so two revisions
  * of the same segment would write into one place and a regeneration would be
  * indistinguishable from the run it replaced. This repository writes its own
  * root instead, and the prefix below adds the scope and the revision identity.
@@ -1113,7 +1113,7 @@ export function appModeArtifactPrefix(
     reference_image_sources: inputs.reference_image_sources ?? [],
     reference_video_sources: inputs.reference_video_sources ?? [],
     reference_audio_sources: inputs.reference_audio_sources ?? [],
-    // M17-17: excluding a reference video's soundtrack is a different request,
+    // excluding a reference video's soundtrack is a different request,
     // so it must not resolve to the location the included revision wrote to.
     reference_video_soundtrack: referenceVideoSoundtrackOf(inputs),
   }).slice(-APP_MODE_ARTIFACT_REVISION_LENGTH);

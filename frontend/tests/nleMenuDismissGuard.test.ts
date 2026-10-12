@@ -1,4 +1,4 @@
-// M25-79 (B-M2579-01): the class guard for floating editor menus. The timeline's clip and track
+//  (B-M2579-01): the class guard for floating editor menus. The timeline's clip and track
 // menus shipped without an outside-press dismissal because it lived privately in the bin's menus,
 // and no test asked every floating menu the same question. This one does, from the source: each
 // `h3-nle-context-menu` an editor component renders registers `useMenuDismiss`, and any other
@@ -17,7 +17,7 @@ const NLE = resolve(HERE, "..", "src", "components", "nle");
 /**
  * `role="menu"` elements that are not floating context menus. The toolbar's "More timeline tools"
  * overflow is a tool tray its own button opens and closes; journeys use its scroll range and
- * alternatives across presses elsewhere, so it does not close on an outside press (M25-79 O-1).
+ * alternatives across presses elsewhere, so it does not close on an outside press ( O-1).
  */
 const PINNED_OTHER_MENUS: Readonly<Record<string, number>> = {
   "NleTimelineToolbar.tsx": 1,

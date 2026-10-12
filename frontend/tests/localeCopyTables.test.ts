@@ -16,7 +16,7 @@ import {
 } from "./localeTableSource";
 
 /**
- * M17-26 — locale parity for every copy table, not only the catalog.
+ * locale parity for every copy table, not only the catalog.
  *
  * `validateCatalog` runs at module load and is fail-closed, but it can only see
  * `src/i18n/catalog.ts`. Four further locale-keyed tables live in component

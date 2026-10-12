@@ -112,7 +112,7 @@ async function returnH3View(page: Page, containerId: string, away: AwayView) {
   return openH3AppModeTab(page, containerId);
 }
 
-// M25-22 T1: the single formal four-child causal interval, from real source context through
+//  T1: the single formal four-child causal interval, from real source context through
 // UI planning, the product's own Start and B1 leave/return, explicit assembly, a proper-subset
 // original import, separate insertion, real edits and transport, render, preview and download.
 // T2 then retains that view across native Sidebar collapse/expand and tab leave/return, and T3
@@ -741,7 +741,7 @@ test("four real children flow from UI planning through B1, assembly, import, edi
 
     // -------------------------------------------------------------- T1 planning (UI only)
     stage = "planning";
-    // M25-63: planning lives in the sidebar's Production tab (entered in setup above). The editor's
+    // planning lives in the sidebar's Production tab (entered in setup above). The editor's
     // Sequence tab keeps the readiness request and every run control, so readiness and Start are
     // driven there. The page restores its last function tab, so the workbench is chosen explicitly.
     await shell
@@ -1084,7 +1084,7 @@ test("four real children flow from UI planning through B1, assembly, import, edi
     const assetsPane = overlay.locator('[data-h3-nle-pane="assets"]');
     if ((await assetsPane.getAttribute("aria-selected")) !== "true")
       await assetsPane.click();
-    // M25-63: the bin card shows the one-shot import cue as its "Imported" badge.
+    // the bin card shows the one-shot import cue as its "Imported" badge.
     for (const assetId of assetIds)
       await expect(
         overlay.locator(
@@ -1142,7 +1142,7 @@ test("four real children flow from UI planning through B1, assembly, import, edi
       await timelineReady();
       const before = clipOf(receipts.at(-1)!);
       const count = receipts.length;
-      // M25-62: a clip too narrow for inline grips carries them on the trim rail below it.
+      // a clip too narrow for inline grips carries them on the trim rail below it.
       const grip = overlay
         .locator(
           `[data-h3-nle-clip="${clipId}"] .h3-nle-grip[data-h3-nle-trim-edge="${edge}"]:not([hidden]), ` +
@@ -1232,14 +1232,14 @@ test("four real children flow from UI planning through B1, assembly, import, edi
         });
     const play = overlay.locator('[data-h3-nle-control="transport.play"]');
     await expect(play).toBeEnabled();
-    // M25-62: the seek control is the timeline ruler, a `role="slider"` with no input value; its
+    // the seek control is the timeline ruler, a `role="slider"` with no input value; its
     // frame is `aria-valuenow`, and Home/PageUp/ArrowRight keep their frozen steps.
     const seek = overlay.locator('[data-h3-nle-control="transport.seek"]');
     await seek.press("Home");
     await expect(seek).toHaveAttribute("aria-valuenow", "0");
     // Frame 0 precedes the inserted clip; the keyboard seek lands inside its edited range.
     const blank = await pixels();
-    // The frozen M25-21 page step: PageUp is one output second forward, PageDown one back.
+    // The frozen page step: PageUp is one output second forward, PageDown one back.
     for (let second = 0; second < 3; second++) await seek.press("PageUp");
     for (let frame = 0; frame < 12; frame++) await seek.press("ArrowRight");
     await expect(seek).toHaveAttribute("aria-valuenow", "84");
@@ -1313,7 +1313,7 @@ test("four real children flow from UI planning through B1, assembly, import, edi
     };
     expect(audible.length).toBeGreaterThan(0);
     // IMPORTANT (B-M2522-SPEC-02): the observer's onset rule (amplitude > 0.1) belongs to the
-    // M25-15 click fixtures. These producer inputs are lavfi sine tones at the default 1/8
+    //  click fixtures. These producer inputs are lavfi sine tones at the default 1/8
     // amplitude, -20.8 dBFS (about 0.091) after AAC, so they can never register an onset. Judge
     // audibility with the tone floor `verify_causal_media.py` applies to the same inputs (0.01).
     expect(audiblePeak).toBeGreaterThan(0.01 * 32768);
@@ -1332,7 +1332,7 @@ test("four real children flow from UI planning through B1, assembly, import, edi
     // -------------------------------------------------------------- T1 render, preview, download
     stage = "render";
     await timelineReady();
-    // M25-44: the final-video card lives in the chrome bar's Export popover.
+    // the final-video card lives in the chrome bar's Export popover.
     await openExportPanel(overlay);
     const render = overlay.locator('[data-h3-nle-region="render"]');
     await expect(render).toHaveAttribute("data-h3-nle-render", "available");
@@ -1589,7 +1589,7 @@ test("four real children flow from UI planning through B1, assembly, import, edi
         overlay.locator('[data-h3-nle-control="transport.zoom_out"]').click(),
     );
     await overlay.locator('[data-h3-nle-control="transport.snap"]').click();
-    // M25-44: R1's two tabs are the retained pane; the inspector is permanently R3.
+    // R1's two tabs are the retained pane; the inspector is permanently R3.
     const targetPane = prior.pane === "sequence" ? "assets" : "sequence";
     await overlay.locator(`[data-h3-nle-pane="${targetPane}"]`).first().click();
     const adjusted = await retainedView();
@@ -1852,7 +1852,7 @@ test("four real children flow from UI planning through B1, assembly, import, edi
           document
             .querySelector('[data-h3-nle-status="readiness"]')
             ?.getAttribute("data-state") ?? null,
-        // M25-63: a held readiness names its closed reason code; without it a hold cannot be
+        // a held readiness names its closed reason code; without it a hold cannot be
         // localized after the run.
         readinessReason:
           document

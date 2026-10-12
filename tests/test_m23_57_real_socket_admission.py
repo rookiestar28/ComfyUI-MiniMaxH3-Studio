@@ -1,6 +1,6 @@
-"""M23-57 F01: admission reads the socket that really accepted the connection.
+"""F01: admission reads the socket that really accepted the connection.
 
-The other M23-57 suites hand the seam a transport double. Here the same owned routes are served by a
+The other suites hand the seam a transport double. Here the same owned routes are served by a
 real aiohttp listener on an ephemeral loopback port, so `request.transport.get_extra_info` is the
 event loop's own transport and the port is one no fixture chose. Skipped where aiohttp is absent,
 like the other real-server route suites; the supplied host is the actual-host proof (plan F03).
@@ -96,7 +96,7 @@ def _cases(address: str, port: int) -> list[tuple[str, str, dict[str, str], list
             [],
         ),
         ("GET", BUILD_PROVENANCE_ROUTE, {}, []),
-        # The pre-M23-57 pinned origin is foreign to a listener on another port.
+        # The pre- pinned origin is foreign to a listener on another port.
         (
             "POST",
             DURATION_RESOLUTION_ROUTE,

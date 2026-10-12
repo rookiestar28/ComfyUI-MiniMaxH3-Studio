@@ -1,4 +1,4 @@
-"""M17-20 phase 1: the backend-owned generation-profile qualification contract.
+"""phase 1: the backend-owned generation-profile qualification contract.
 
 These rows are written against the evidence recorded in plan section 8.1, which
 was measured on the pinned host on 2026-08-18 rather than assumed. The host that
@@ -170,7 +170,7 @@ class GenerationProfileTests(unittest.TestCase):
                 )
 
     def test_mixed_absent_and_relocated_roles_share_one_ordered_remediation_round(self) -> None:
-        """M17-29: severity stays missing, but relocated roles must not disappear."""
+        """severity stays missing, but relocated roles must not disappear."""
 
         dispositions = {
             AssetSlot.VIDEO_UNET: SlotDisposition.ABSENT,

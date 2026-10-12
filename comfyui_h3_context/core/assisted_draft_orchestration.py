@@ -1,8 +1,8 @@
-"""M22-12 fail-closed assisted-draft execution and content-free receipts.
+"""fail-closed assisted-draft execution and content-free receipts.
 
 This pure boundary decides whether an exact catalog profile may construct an execution binding,
 wraps every model call with cancellation checks, delegates drafting and repair to the accepted
-M22-05 core, and emits a new browser-safe receipt rather than forwarding provider transport data.
+ core, and emits a new browser-safe receipt rather than forwarding provider transport data.
 """
 
 from __future__ import annotations

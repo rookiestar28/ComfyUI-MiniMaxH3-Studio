@@ -1,4 +1,4 @@
-"""Offline M12-01 audio extraction, normalization, and segmentation fixture."""
+"""Offline audio extraction, normalization, and segmentation fixture."""
 
 from __future__ import annotations
 

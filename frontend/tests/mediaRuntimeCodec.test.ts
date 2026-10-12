@@ -1,4 +1,4 @@
-// M25-33 AC33-01: the media runtime status v3 and setup job v1 decoders fail closed on every
+//  AC33-01: the media runtime status v3 and setup job v1 decoders fail closed on every
 // unknown key or value, and the closed client vocabularies equal the server's. Both sides read
 // `fixtures/media_runtime_wire_v3.json`, which the backend suite regenerates from the service.
 

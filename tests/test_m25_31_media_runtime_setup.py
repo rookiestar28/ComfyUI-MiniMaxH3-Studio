@@ -1,9 +1,9 @@
-"""M25-31: one-time managed media setup and safe binary acquisition.
+"""one-time managed media setup and safe binary acquisition.
 
 Synthetic archives under a substituted manifest are hermetic contract evidence for validation,
 extraction and publication. Two rows use real inputs only when a caller supplies them explicitly:
-the verified release archive (`H3_M25_31_MANAGED_ARCHIVE_PATH`) and one live download through the
-production transport (`H3_M25_31_LIVE_DOWNLOAD=1`).
+the verified release archive (`H3__MANAGED_ARCHIVE_PATH`) and one live download through the
+production transport (`H3__LIVE_DOWNLOAD=1`).
 """
 
 from __future__ import annotations
@@ -2042,7 +2042,7 @@ def long_path_inputs() -> RuntimeInputs:
 
 @windows_only
 def test_a_long_path_that_truncates_discovery_still_offers_the_install(tmp_path: Path) -> None:
-    # M25-34 B-M2534-01: on the supplied host a 118-entry PATH truncated discovery, and the missing
+    #  B-M2534-01: on the supplied host a 118-entry PATH truncated discovery, and the missing
     # tools were reported as `discovery_limit` with no install offer, so Install and continue never
     # appeared. The managed directory is the first candidate and was searched, so installing it is
     # both safe and the one thing that resolves the search.

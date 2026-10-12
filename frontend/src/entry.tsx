@@ -17,6 +17,8 @@ import { createWorkspaceStateClient } from "./host/workspaceStateClient";
 import { createWorkspaceStateLifecycle } from "./lifecycle/workspaceStateSession";
 import { createRetainedAssetsClient } from "./host/retainedAssetsClient";
 import { createRetainedAssetsLifecycle } from "./lifecycle/retainedAssetsSession";
+import { createPerceptionHostClient } from "./host/perceptionHostClient";
+import { createPerceptionHostLifecycle } from "./lifecycle/perceptionHostSession";
 import { createProjectDocumentClient } from "./host/projectDocumentClient";
 import { createProjectRecoveryClient } from "./host/projectRecoveryClient";
 import { createProjectPersistenceSession } from "./lifecycle/projectPersistenceSession";
@@ -142,7 +144,7 @@ const authoringMediaSourceLeaseClient = createAuthoringMediaSourceLeaseClient({
   ) => Promise<Response>,
 });
 
-// M25-16: the dedicated M25-29 import route and the M26 planning/readiness clients. Each is
+// the dedicated import route and the M26 planning/readiness clients. Each is
 // constructed once here and reached only through explicit user intent in the NLE session.
 const productionAuthoringImportClient = createProductionAuthoringImportClient({
   fetchApi,
@@ -154,7 +156,7 @@ const managedQualificationClient = createManagedQualificationClient({
   fetchApi,
 });
 
-// M25-16: the accepted M25-19 final-output leaf, mounted only inside the expanded workspace.
+// the accepted final-output leaf, mounted only inside the expanded workspace.
 const authoringOutputCapabilityClient = createAuthoringOutputCapabilityClient({
   fetchApi,
 });
@@ -165,10 +167,11 @@ const outputFetch = fetchApi as unknown as (
 const authoringOutputClient = createOutputClient(outputFetch);
 const authoringOutputPreview = createOutputPreview(outputFetch);
 
-// M25-33: media runtime status, setup and job routes; read on Settings open, a contextual
+// media runtime status, setup and job routes; read on Settings open, a contextual
 // runtime refusal or while a setup job runs.
 const mediaRuntimeClient = createMediaRuntimeClient({ fetchApi });
 const workspaceStateClient = createWorkspaceStateClient({ fetchApi });
+const perceptionHostClient = createPerceptionHostClient({ fetchApi });
 const projectDocumentClient = createProjectDocumentClient({
   fetchApi: outputFetch,
 });
@@ -234,7 +237,7 @@ const appModeController = createAppModeController(app, api, {
 
 const shellActions = {} as ShellActions;
 
-// IMPORTANT: AppModeController remains the sole aggregate host-effect seam until M23-28 splits it.
+// IMPORTANT: AppModeController remains the sole aggregate host-effect seam until splits it.
 // Supplying a second queue executor here would duplicate the one authorized ComfyUI submission.
 const appModeLifecycle = createAppModeInterpreter({
   machine: createAppModeMachine(),
@@ -322,6 +325,7 @@ const deps: ShellDeps = Object.freeze({
   authoringOutputPreview,
   mediaRuntimeClient,
   workspaceStateClient,
+  perceptionHostClient,
   retainedAssetsClient,
   projectDocumentClient,
   projectRecoveryClient,
@@ -344,6 +348,7 @@ Object.assign(
   createNleWorkspaceSession(runtime),
   createMediaRuntimeSession(runtime),
   createWorkspaceStateLifecycle(runtime),
+  createPerceptionHostLifecycle(runtime),
   createRetainedAssetsLifecycle(runtime),
   createProjectPersistenceSession(runtime),
 );

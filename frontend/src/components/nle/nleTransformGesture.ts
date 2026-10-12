@@ -46,7 +46,7 @@ const ROTATION_MAX = 180_000;
 const HANDLE_PX = 44;
 /**
  * The shortest layer side along which handles may be drawn inside the edge: three handles, so
- * the move body keeps at least one handle's width between them (M25-53 D-3).
+ * the move body keeps at least one handle's width between them ( D-3).
  */
 const INSET_MIN_EXTENT_PX = 3 * HANDLE_PX;
 const SCALE_HANDLE_NAMES: readonly Exclude<TransformHandle, "move">[] = [
@@ -106,7 +106,7 @@ function signs(
   }
 }
 
-/** Pure M25-51 pointer-to-contract mapping. It never mutates accepted clip state. */
+/** Pure pointer-to-contract mapping. It never mutates accepted clip state. */
 export function gestureTransform(
   start: TransformGestureStart,
   handle: TransformHandle,
@@ -231,11 +231,11 @@ export function rotateTransform(
 /**
  * B-M2564-02: the scale handles to draw a half-handle inside the layer's edge.
  *
- * The side splitters overlap the monitor by 20 px (M25-21), and the picture area clips whatever
+ * The side splitters overlap the monitor by 20 px, and the picture area clips whatever
  * lies outside it. A handle centred on an edge within one handle of the area's left or right side
  * is therefore partly under a separator and half cut off; it is drawn inside instead, along each
  * axis it lies on. A layer shorter than three handles along such an axis keeps its handles on the
- * edge, so the move body between them survives (M25-53 D-3). The positions are the rotated
+ * edge, so the move body between them survives ( D-3). The positions are the rotated
  * handle centres in the picture area's coordinates.
  */
 export function handleInsets(

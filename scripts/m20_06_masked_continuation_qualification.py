@@ -1,7 +1,7 @@
-"""M20-06 dual-domain masked continuation qualification against the supplied host.
+"""dual-domain masked continuation qualification against the supplied host.
 
 One invocation runs the frozen sequence: workflow A produces a declared-boundary checkpoint
-through the M20-05 save canary (reused verbatim); five masked continuation probes then run
+through the save canary (reused verbatim); five masked continuation probes then run
 the REAL masked-continuation admission and the REAL repo-owned nested-mask attachment inside
 the host process (the masked canary) and finish through the pure resume fragment, each
 persisting its OUTPUT latent through the save canary so the harness can compare domain bytes
@@ -25,7 +25,7 @@ The five probes are the row-refresh evidence for `dual_domain_av_mask`:
     protect_audio         (0, L)   audio identical, video differs  } proofs, natively impossible
     temporal_split        (k, m)   protected prefixes identical, generated tails differ
 
-On PASS the harness writes the refreshed qualification matrix (the M19-08 matrix with the
+On PASS the harness writes the refreshed qualification matrix (the matrix with the
 mask row refreshed to `supported / repo_owned_nested_mask_constructor_executes` and this
 run's live evidence) next to the content-free evidence JSON.
 
@@ -33,18 +33,18 @@ Both canary lanes share ONE root directory: the harness writes both ownership ma
 one candidate qualification projection (the refreshed rows -- the claim this run tests).
 The maintainer starts the host with all four canary environment variables pointing at it.
 
-Hygiene follows the M19-08 protocol; the M19-08 weight designation and 96 GB ceiling are
+Hygiene follows the protocol; the weight designation and 96 GB ceiling are
 STANDING per the maintainer directive of 2026-08-21.
 
 Usage:
 
-    python scripts/m20_06_masked_continuation_qualification.py \
+    python scripts/_masked_continuation_qualification.py \
         --host http://127.0.0.1:8188 \
         --host-output-root <supplied host root>/output \
         --canary-root <harness-owned directory> \
-        --matrix .planning/260820-M19-08_QUALIFICATION_MATRIX.json \
-        --evidence .planning/260821-M20-06_LIVE_EVIDENCE.json \
-        --matrix-out .planning/260821-M20-06_QUALIFICATION_MATRIX.json
+        --matrix.planning/260820-_QUALIFICATION_MATRIX.json \
+        --evidence.planning/260821-_LIVE_EVIDENCE.json \
+        --matrix-out.planning/260821-_QUALIFICATION_MATRIX.json
 """
 
 from __future__ import annotations
@@ -123,7 +123,7 @@ OUTPUT_PREFIX = "m20_06_masked"
 RUN_TIMEOUT_SECONDS = 1800.0
 SOURCE_ID = "segment.resume"
 
-#: The exact latent grids for the probe geometry (verified against the M20-05 live run).
+#: The exact latent grids for the probe geometry (verified against the live run).
 VIDEO_STEPS = 7
 AUDIO_STEPS = 37
 
@@ -485,7 +485,7 @@ def main() -> int:
         _prepare_canary_root(canary_root, projection)
         _assert_canaries_registered(base_url)
 
-        # Workflow A: the M20-05 checkpoint production, reused verbatim.
+        # Workflow A: the checkpoint production, reused verbatim.
         workflow_a = _workflow_a(designation, boundary, identity, transaction_fingerprint)
         entry_a, elapsed_a, vram_a = _run(base_url, workflow_a)
         receipt_wire = _ui_output(entry_a, "save_ckpt", "checkpoint_receipt")
@@ -645,7 +645,7 @@ def main() -> int:
         json.dumps(evidence, sort_keys=True, indent=1) + "\n", encoding="utf-8"
     )
 
-    # The refreshed matrix: the accepted M19-08 matrix with the mask row refreshed by this
+    # The refreshed matrix: the accepted matrix with the mask row refreshed by this
     # run's evidence. Everything else is carried verbatim.
     refreshed = json.loads(Path(args.matrix).read_text(encoding="utf-8"))
     for row in refreshed["rows"]:

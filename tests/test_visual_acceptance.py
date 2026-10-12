@@ -1,4 +1,4 @@
-"""M11-08 visual-perception acceptance gate tests."""
+"""visual-perception acceptance gate tests."""
 
 from __future__ import annotations
 

@@ -1,7 +1,7 @@
 import { configure } from "@testing-library/react";
 
 /**
- * M17-27 — give the suite's async assertions a ceiling related to this machine,
+ * give the suite's async assertions a ceiling related to this machine,
  * not to a library default.
  *
  * Testing Library's `waitFor` defaults to 1000 ms. Fifty-seven call sites in

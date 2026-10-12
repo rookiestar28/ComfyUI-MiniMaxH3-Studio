@@ -1,4 +1,4 @@
-"""M13-02 explicit cross-asset identity and reference-role resolution tests."""
+"""explicit cross-asset identity and reference-role resolution tests."""
 
 from __future__ import annotations
 

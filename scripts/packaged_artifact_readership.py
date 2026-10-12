@@ -1,6 +1,6 @@
 """Who reads each packaged artifact, computed from readers rather than from what it looks like.
 
-M23-48's plan needs an exact disposition for every packaged contract and dynamically selected font
+'s plan needs an exact disposition for every packaged contract and dynamically selected font
 artifact, because the governance-only set can only be moved once it is known which files are not
 governance-only. The question is easy to get wrong in a specific way, and the whole design of this
 script is a response to it.
@@ -9,7 +9,7 @@ script is a response to it.
 host seams, hand-maintained, no generator, no `--write` -- and a module under
 `frontend/src/host/` imports it, so the bundle compiles it in. Every heuristic short of reading
 the imports puts it on the wrong side: "generated versus hand-maintained" does, "record versus
-contract" does, and so does any rule about the file's name. M23-47 spent a gate run finding
+contract" does, and so does any rule about the file's name. spent a gate run finding
 this out.
 
 So the class of an artifact is decided by **who opens it**, in this order of precedence, because a
@@ -49,7 +49,7 @@ _MAX_FONT_MANIFEST_BYTES = 512 * 1024
 _MAX_READER_SOURCE_BYTES = 1024 * 1024
 # CRITICAL: `CONTRACTS` is the directory this generator *classifies* and must keep naming
 # the installed package -- the question it answers is which packaged JSON has a reader.
-# Its own output has none, so M23-55 moved it out; the two paths are deliberately
+# Its own output has none, so moved it out; the two paths are deliberately
 # different and collapsing them back would make the census classify its own output.
 ARTIFACT_PATH = Path("governance/contracts/packaged_artifact_readership_v1.json")
 SCHEMA = "h3.context.packaged_artifact_readership.v1"
@@ -223,7 +223,7 @@ def _search_roots() -> tuple[str, ...]:
     # GUARD: `governance/` is deliberately absent, and adding it would change every answer. The
     # question is who *reads* a packaged artifact, and the governance records name each other and
     # the retained nine because they are records *about* the contracts -- the same distinction
-    # `SELF_DESCRIBING_PATHS` draws in `scripts/contract_inventory.py`. Before M23-55 those records
+    # `SELF_DESCRIBING_PATHS` draws in `scripts/contract_inventory.py`. Before those records
     # sat inside `comfyui_h3_context/` and already did not count, because `_classify` recognises a
     # reader only under `frontend/src`, a package `.py`, or the tooling roots. Searching the new
     # root would hand a fresh reader to artifacts whose only question is whether anyone reads them.

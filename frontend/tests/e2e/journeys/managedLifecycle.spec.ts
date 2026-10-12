@@ -433,8 +433,8 @@ test("an interrupted first attempt stays empty and the next ordinary Start commi
 
   // Prepare the same-session editor explicitly before testing the import action. The fixture
   // answers the real Authoring and import clients with eligible synthetic media authority; this
-  // setup does not queue another generation and does not stand in for M25-40 cold-entry recovery.
-  // M25-44: the Clip editor function's project summary owns the explicit start.
+  // setup does not queue another generation and does not stand in for cold-entry recovery.
+  // the Clip editor function's project summary owns the explicit start.
   await page.getByRole("tab", { name: "Clip editor" }).click();
   const summary = page.getByRole("region", {
     name: "Clip editor project",
@@ -448,14 +448,14 @@ test("an interrupted first attempt stays empty and the next ordinary Start commi
   ).toBeEnabled();
   // An explicit open of the full editor initializes the timeline history, so the import below
   // adopts an editor that already has one (the compact editor's "Load professional timeline" did
-  // this before M25-44).
+  // this before).
   await page.locator('[data-h3-nle-entry="open"]').click();
   const overlay = page.locator('[data-h3-nle-surface="overlay_v1"]');
   await expect(overlay).toHaveAttribute("data-h3-nle-state", "expanded");
   await expect(
     overlay.locator('[data-h3-nle-status="timeline"]'),
   ).toHaveAttribute("data-h3-nle-authoring", "ready");
-  // B-M2561-01: since M25-48 the Production import lives in the open editor's Media pane.
+  // B-M2561-01: since the Production import lives in the open editor's Media pane.
   await overlay.locator('[data-h3-nle-pane="assets"]').click();
   const importSelected = overlay.locator(
     '[data-h3-nle-control="asset.import_production"]',
@@ -481,7 +481,7 @@ test("an interrupted first attempt stays empty and the next ordinary Start commi
       (action) => action === "admit_generation_destination_v2",
     ),
   ).toHaveLength(2);
-  // M25-40: import prepares through the live Production owner (adopting this same-lineage editor),
+  // import prepares through the live Production owner (adopting this same-lineage editor),
   // reads the accepted history before posting, then reads it again to confirm the receipt assets.
   expect(succeeded.authoringActions).toEqual([
     "create_authoring_workspace",

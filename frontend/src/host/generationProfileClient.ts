@@ -6,7 +6,7 @@ import {
 /**
  * Read the backend's generation capability projection over the same-origin seam.
  *
- * The route is this repository's own (M17-20 D1), served by the node pack the
+ * The route is this repository's own ( D1), served by the node pack the
  * shell ships with, so a host that cannot answer it is a host this shell has not
  * qualified rather than an older host to accommodate. Every failure here is
  * therefore terminal for App Mode's generation route and never a downgrade.

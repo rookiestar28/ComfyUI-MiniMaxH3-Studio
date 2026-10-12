@@ -1,4 +1,4 @@
-"""Strict, provider-neutral semantic proposal validation for M13-08.
+"""Strict, provider-neutral semantic proposal validation for.
 
 The model is an explicitly selected proposal engine.  This module parses one complete JSON
 document, checks it against the accepted reduction/timeline hand-off, and emits a new immutable

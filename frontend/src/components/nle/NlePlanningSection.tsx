@@ -1,4 +1,4 @@
-// M25-36: the shared whole-video planning surface used by the compact Production
+// the shared whole-video planning surface used by the compact Production
 // workbench and the expanded NLE. Both callers receive the same session state and actions.
 
 import { useState } from "react";
@@ -539,7 +539,7 @@ export function NlePlanningSection({
 }
 
 /**
- * M25-63: the readiness request and its state, shared by Production's planning section and the
+ * the readiness request and its state, shared by Production's planning section and the
  * editor's Sequence tab. The request needs an accepted plan bound to the current Production
  * workspace, whichever surface asks.
  */

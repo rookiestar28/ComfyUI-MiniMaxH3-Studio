@@ -1,4 +1,4 @@
-"""HC-12 exact pure-core hub derivation and package-containment tests."""
+"""exact pure-core hub derivation and package-containment tests."""
 
 from __future__ import annotations
 

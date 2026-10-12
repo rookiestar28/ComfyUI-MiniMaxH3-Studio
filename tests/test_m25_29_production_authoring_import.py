@@ -1,4 +1,4 @@
-"""M25-29 focused contract and atomic catalog/reference tests.
+"""focused contract and atomic catalog/reference tests.
 
 Fixtures are content-free.  Real encoded-source qualification is recorded separately by the
 item's runtime row; these tests pin the pure transaction boundaries that must stay deterministic.

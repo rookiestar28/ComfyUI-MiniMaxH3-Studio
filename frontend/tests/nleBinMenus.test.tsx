@@ -1,4 +1,4 @@
-// M25-63: the bin's sort/filter menu and a card's context menu. Keyboard, choice, dismissal and
+// the bin's sort/filter menu and a card's context menu. Keyboard, choice, dismissal and
 // focus return are the menus' own contract; the commands they choose are dispatched by the bin.
 
 import { act, cleanup, fireEvent, render } from "@testing-library/react";

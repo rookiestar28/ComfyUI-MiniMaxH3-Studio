@@ -94,7 +94,7 @@ describe("timeline filmstrip scene wiring", () => {
     const scene = raster.read!();
     expect(scene.filmstrips.length).toBeGreaterThan(0);
     const strip = scene.filmstrips[0]!;
-    // M25-62: the clip border and selection ring are DOM (above the raster), not raster outlines;
+    // the clip border and selection ring are DOM (above the raster), not raster outlines;
     // the filmstrip fills the clip inside its 1 px border (row top + 4 px inset + 1 px border).
     expect("clipOutlines" in scene).toBe(false);
     expect(strip.bounds.height).toBe(46);
@@ -116,7 +116,7 @@ describe("timeline filmstrip scene wiring", () => {
     expect(waveform.asset.assetId).toBe(asset.assetId);
     expect(waveform.asset.embeddedAudio).toBe("present_bound");
     expect(waveform.envelope).toBe(peaks);
-    // M25-62: the waveform is the clip's bottom 14 px band.
+    // the waveform is the clip's bottom 14 px band.
     expect(waveform.bounds).toEqual({
       x: strip.bounds.x,
       y: strip.bounds.y + strip.bounds.height - 14,

@@ -1,4 +1,4 @@
-"""Deterministic ordered contact-sheet sampling and composition contracts for M21-02.
+"""Deterministic ordered contact-sheet sampling and composition contracts for.
 
 A contact sheet is the *internal* visual representation of one video: a bounded, ordered set of
 frames sampled from an already-decoded document and composed into a single numbered image.  This
@@ -337,7 +337,7 @@ def plan_contact_sheet(
 def contact_sheet_declaration(plan: ContactSheetPlan, video_label: str) -> str:
     """State exactly what the sheet is, and what it is not, in the request that carries it.
 
-    The vocabulary here is the vocabulary `M21-01` refuses in a rendered prompt.  That is the
+    The vocabulary here is the vocabulary `` refuses in a rendered prompt. That is the
     mechanical guarantee that this declaration cannot leak into product output: it is not a
     stylistic choice, it is the reason the audit rule was delivered first.
     """

@@ -18,6 +18,8 @@ import { WorkspaceStateSection } from "./WorkspaceStateSection";
 import type { WorkspaceStateBinding } from "../lifecycle/workspaceStateSession";
 import type { RetainedAssetsBinding } from "../lifecycle/retainedAssetsSession";
 import { RetainedAssetsSection } from "./RetainedAssetsSection";
+import { PerceptionHostStatus } from "./PerceptionHostStatus";
+import type { PerceptionHostBinding } from "../state/perceptionHostState";
 
 const copy = {
   en: {
@@ -78,11 +80,12 @@ export function SettingsPage({
   mediaTools,
   recoveryMetadata,
   retainedAssets,
+  perceptionHost,
 }: {
   locale: Locale;
   snapshot: LanguageSettingSnapshot;
   onWrite(value: LocalePreference): void | Promise<boolean>;
-  /** M22-06: absent until the host seam answers; the section renders nothing. */
+  /** absent until the host seam answers; the section renders nothing. */
   providerProjection?: ProviderSettingsProjection;
   onProviderIntent?(
     intent: ProviderIntent,
@@ -92,12 +95,13 @@ export function SettingsPage({
   providerBusy?: boolean;
   providerBusyIntent?: ProviderIntent;
   onProviderCredentialClearerChange?(clearer: (() => void) | undefined): void;
-  /** M25-21: section expansion only; nothing credential-bearing is retained. */
+  /** section expansion only; nothing credential-bearing is retained. */
   retention?: SidebarRetention;
-  /** M25-33: the shared Media tools status and setup; absent when rendered on its own. */
+  /** the shared Media tools status and setup; absent when rendered on its own. */
   mediaTools?: MediaToolsBinding;
   recoveryMetadata?: WorkspaceStateBinding;
   retainedAssets?: RetainedAssetsBinding;
+  perceptionHost?: PerceptionHostBinding;
 }) {
   const text = copy[locale];
   const disabled =
@@ -157,7 +161,10 @@ export function SettingsPage({
       {retainedAssets !== undefined ? (
         <RetainedAssetsSection locale={locale} binding={retainedAssets} />
       ) : null}
-      {/* M22-06: provider selection lives in this page. There is no second
+      {perceptionHost !== undefined ? (
+        <PerceptionHostStatus locale={locale} binding={perceptionHost} />
+      ) : null}
+      {/* provider selection lives in this page. There is no second
           settings surface, and this section is the only place it appears. */}
       <ProviderSettingsSection
         locale={locale}

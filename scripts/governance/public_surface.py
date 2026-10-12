@@ -1,6 +1,6 @@
 """Which names this package promises, who promises them, and what the hub silently picks.
 
-M19-01 recorded that "public" has three answers here and that they barely intersect.  They are not
+ recorded that "public" has three answers here and that they barely intersect. They are not
 competitors -- they sit at different levels -- but nothing said so, and their names do not overlap,
 which is what made them look like rivals:
 

@@ -1,4 +1,4 @@
-"""M24-05 readiness is established only by explicit typed ownership."""
+"""readiness is established only by explicit typed ownership."""
 
 from __future__ import annotations
 

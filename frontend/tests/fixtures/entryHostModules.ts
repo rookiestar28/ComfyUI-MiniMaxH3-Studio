@@ -142,7 +142,7 @@ function executedOutput(
         ? {}
         : {
             // Requested and effective duration deliberately diverge for snapped
-            // fixture rows; mirroring one into both fields hid M23-40.
+            // fixture rows; mirroring one into both fields hid.
             capabilities: {
               ...validSidebarWorkspace.capabilities,
               output_duration: {
@@ -472,7 +472,7 @@ export const hostSeamFixture = bindFrontendHostSeamFixture({
 
 // D13 host behaviour (observed on frontend 1.51.9): `app.graph` returns `undefined` until the
 // host has created its root graph, and extension modules are evaluated before that point.
-// M23-36 models it here so module-evaluation-time reads are visible to the hermetic lane.
+//  models it here so module-evaluation-time reads are visible to the hermetic lane.
 let graphInitialized = true;
 export function setGraphInitialized(initialized: boolean): void {
   graphInitialized = initialized;

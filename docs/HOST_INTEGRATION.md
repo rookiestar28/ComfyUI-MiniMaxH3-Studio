@@ -56,7 +56,62 @@ For each run, the factory receives an opaque `credential_reference` and returns 
 
 The **H3 Visual Perception Producer** and **H3 Audio Perception Producer** describe short media on
 the host itself: the visual node asks a local Ollama model about selected frames, and the audio node
-transcribes short English speech on the CPU. Both need a one-time registration:
+transcribes short English speech on the CPU. Enable them through an operator-owned file or the
+programmatic host integration below. Installing this extension does not install either model.
+
+### Operator-owned file
+
+On a native Windows host, place `perception_host.json` directly in ComfyUI's system-user directory
+for `h3_context`. Resolve that location in the host's Python environment, rather than using an
+input, output, temporary or custom-node folder:
+
+```python
+from pathlib import Path
+import folder_paths
+
+settings_file = Path(folder_paths.get_system_user_directory("h3_context")) / "perception_host.json"
+```
+
+A visual-only configuration has this shape; replace the example paths with trusted existing paths:
+
+```json
+{
+  "schema": "h3-context-perception-host/1",
+  "python_executable": "C:/operator/perception/.venv/Scripts/python.exe",
+  "temporary_root": "C:/operator/perception/private-temp",
+  "profiles": ["qwen38_27b_q4_visual_v2"]
+}
+```
+
+- The file must be UTF-8 JSON, at most 16 KiB, with exactly the fields shown and, optionally,
+  `weight_path` and `processor_dir`. Unknown or duplicate fields, `null` values and duplicate or
+  unknown profiles are refused. The [JSON schema](../governance/contracts/perception_host_settings_v1.schema.json)
+  describes the fields; the loader also checks the actual filesystem.
+- `profiles` must contain one or both qualified profile IDs. To enable audio, include
+  `whisper_large_v3_cpu_en_v1`, `weight_path` for the existing qualified weight file and
+  `processor_dir` for its existing complete processor directory. Omit optional fields when unused.
+- Paths must be existing native Windows local-drive absolute paths. The interpreter and weight
+  must be regular files; the temporary and processor roots must be directories. Network/device
+  paths, traversal, symlinks and junctions or other reparse components are refused. Prepare a
+  private writable temporary directory before starting the host; the loader creates nothing.
+- The interpreter must already contain the supported dependencies below. The file selects a local
+  executable, so allow only the trusted host operator to write it. These values are never workflow
+  inputs, browser settings or result fields.
+- Restart ComfyUI after creating or changing the file. The extension attempts to read it once on
+  genuine host startup and caches a missing or refused configuration. Reloading the extension or
+  reading status does not retry. An existing programmatic registration is preserved.
+- The read-only `/h3-context/v1/perception/status` endpoint reports only finite readiness, visual/
+  audio availability and whether host cancellation is observed. It cannot edit configuration or
+  launch a model. If cancellation is not observed, no automatic host-interrupt check is available.
+
+In **Settings → Local perception**, inspect configuration readiness and separate visual/audio
+availability. **Refresh status** reads the host's existing readiness; it does not reread the
+startup file, retry a refused configuration, edit host paths or launch a model. Restart ComfyUI
+after changing the startup file. Assisted-authoring provider settings are a separate connection.
+
+### Programmatic host integration
+
+The existing registration method remains available:
 
 ```python
 from pathlib import Path
@@ -114,6 +169,7 @@ or use paid services. If the installed runtime or files differ, the nodes refuse
 - Results are partial and uncertain descriptions, not a measure of recognition accuracy. Saved
   receipts hold hashes and identities only, not media or text.
 
-The visual result can feed the **H3 Full Reference Timeline Producer**, but in this release that
-connection cannot be queued; see the README's
-[known limitations](../README.md#known-limitations).
+Connect the qualified visual result to the **H3 Full Reference Timeline Producer**. The connected
+workflow can be queued when the local visual profile is configured and the user consents to
+perception. Keep the same admitted media and request through the chain; the resulting timeline
+remains partial. Without a qualified result, use the Plan and Compiler nodes to write prompts.

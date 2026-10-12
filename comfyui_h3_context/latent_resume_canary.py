@@ -2,8 +2,8 @@
 
 Two qualification instruments, mirroring the accepted H2 media canary: they exist only when
 ``H3_CONTEXT_HOST_LATENT_RESUME_CANARY=1`` and an explicitly owned root is supplied, they are
-absent from normal registration, and they run the REAL M20-04 store, the REAL torch-boundary
-codec and the REAL M20-05 admission inside the host process -- nothing is stubbed.  The
+absent from normal registration, and they run the REAL store, the REAL torch-boundary
+codec and the REAL admission inside the host process -- nothing is stubbed. The
 accepted qualification projection is a consume-time input placed next to the ownership marker
 by the orchestrating harness; the package embeds no acceptance claim of its own.
 
@@ -191,7 +191,7 @@ class H3LatentResumeCheckpointSaveCanaryNode:
                 **_BOUNDARY_WIDGETS,
                 **_IDENTITY_WIDGETS,
             },
-            # M20-07: a bridge output artifact declares its left boundary as predecessor;
+            # a bridge output artifact declares its left boundary as predecessor;
             # the empty default preserves every earlier workflow byte for byte.
             "optional": {
                 "predecessor_artifact_fingerprint": ("STRING", {"default": ""}),

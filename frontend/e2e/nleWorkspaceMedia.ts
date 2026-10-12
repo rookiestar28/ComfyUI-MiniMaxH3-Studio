@@ -25,7 +25,7 @@ const geometry = (width: number, height: number): AuthoringMediaGeometry => ({
   derivativeWidth: width,
   derivativeHeight: height,
 });
-// M25-20 F1 corrective: explicit test instrumentation, read-only, additive. The 151
+//  F1 corrective: explicit test instrumentation, read-only, additive. The 151
 // `render_and_browser` rows need the actual `<video>` element's own `currentTime` for a source's
 // asset id -- the runtime's real decode clock, not a value copied back out of the composition --
 // to report `source_mapping.source_time`. This registry is the only way to reach that element,
@@ -61,7 +61,7 @@ const live = new Set<() => void>();
 let acquired = 0;
 let released = 0;
 let maximumLive = 0;
-// IMPORTANT (M25-63 B-M2563-06): `acquired` counts an acquisition when its bytes arrive, which
+// IMPORTANT ( B-M2563-06): `acquired` counts an acquisition when its bytes arrive, which
 // can be after the editor that asked for it has closed (a decoration already fetching is
 // discarded, not cancelled). A journey that reads `acquired` across a close must first wait for
 // `acquisitionsInFlight` to reach 0, and proves "this step acquired nothing" by
@@ -123,7 +123,7 @@ function sourceBinding(
 }
 let acquisitionAttempts = 0;
 let acquisitionsInFlight = 0;
-// M25-21 resource ceilings. The harness media client is the only place that mints the Blob URLs
+//  resource ceilings. The harness media client is the only place that mints the Blob URLs
 // and knows their byte sizes, so the retained-surface accounting belongs here rather than in a
 // second registry: a journey reads it through `mediaOwnership()` like every other owner fact.
 let blobUrls = 0;
@@ -318,7 +318,7 @@ export const mediaOwnership = () => {
   };
 };
 
-// M25-20 F1 corrective: a corpus source asset
+//  F1 corrective: a corpus source asset
 // (`comfyui_h3_context.core.semantic_conformance_media.SOURCE_PROFILES`) carries a real,
 // spec-compliant picture -- the frame-identity row and the labelled colour patches -- that a
 // generic green still or a content-free stub video cannot stand in for. Every caller that names an
@@ -327,7 +327,7 @@ export const mediaOwnership = () => {
 // real file when it has one.
 //
 // GUARD (B-M2545-16): the page must not hold its own list of which ids are corpus assets. It did,
-// and M25-45's high-resolution sources were not on it, so `vid-primary-hd` was served the generic
+// and 's high-resolution sources were not on it, so `vid-primary-hd` was served the generic
 // content-free stub while every stage downstream believed it was looking at the declared picture:
 // the monitor drew a 320 x 180 placeholder, every landmark read as absent, and each frame's source
 // identity decoded to 0. Whether a response IS corpus media is decided by the route that served
@@ -732,7 +732,7 @@ const untrackedMediaClient: AuthoringMediaDecorationLeaseClient = {
     if (context.derivativeKind === "audio_peaks") {
       waveformAttempts += 1;
       // GUARD: mirror the production lease's exact per-frame timing gate; sparse fixtures cannot
-      // support M25-52 waveform mapping and must not receive a fabricated envelope.
+      // support waveform mapping and must not receive a fabricated envelope.
       if (
         asset.kind !== "video" ||
         asset.embeddedAudio !== "present_bound" ||

@@ -1,4 +1,4 @@
-"""M18-03 cross-language structural contract authority tests.
+"""cross-language structural contract authority tests.
 
 The claim this item makes is narrow and checkable: for every frozen cross-language wire there is
 exactly one place that decides its key set -- the Python ``to_wire`` that produces it -- and the
@@ -23,9 +23,11 @@ import importlib.util
 import json
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 from comfyui_h3_context.core.contract_inventory import FORBIDDEN_RECORD_TEXT
 from scripts.governance.cross_language_surface import (
@@ -60,7 +62,7 @@ def test_unfinished_inline_array_does_not_stall_shape_validation() -> None:
 
 
 # The artifact stays in the package because `frontend/src` compiles it in; its schema and
-# the shipped schemas read below have no runtime or bundle reader and moved with M23-55.
+# the shipped schemas read below have no runtime or bundle reader and moved with.
 CONTRACTS = REPO_ROOT / "comfyui_h3_context" / "contracts"
 GOVERNANCE = REPO_ROOT / "governance" / "contracts"
 ARTIFACT = CONTRACTS / "cross_language_surface_v1.json"
@@ -163,14 +165,15 @@ class ExtractionTests(unittest.TestCase):
     def test_extract_shape_refuses_an_unresolved_or_absent_declaration(self) -> None:
         """Fail closed. A partial key set is worse than none, so it must never be returned."""
 
-        unresolved = REPO_ROOT / "tests" / "fixtures" / "_m18_03_unresolved_wire.py"
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        unresolved = Path(directory.name) / "_m18_03_unresolved_wire.py"
         unresolved.write_text(
             "class Example:\n"
             "    def to_wire(self):\n"
             '        return {"alpha": self.a, self.name: self.b}\n',
             encoding="utf-8",
         )
-        self.addCleanup(unresolved.unlink)
         relative = "tests/fixtures/_m18_03_unresolved_wire.py"
         with self.assertRaises(CrossLanguageSurfaceError) as raised:
             extract_shape(unresolved, relative, "Example")
@@ -181,8 +184,10 @@ class ExtractionTests(unittest.TestCase):
     def test_extraction_reads_the_module_without_importing_it(self) -> None:
         """The parser must describe code it would be unsafe to run; a marker proves it did not."""
 
-        marker = REPO_ROOT / "tests" / "fixtures" / "_m18_03_side_effect_marker.txt"
-        module = REPO_ROOT / "tests" / "fixtures" / "_m18_03_side_effect_wire.py"
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        marker = Path(directory.name) / "_m18_03_side_effect_marker.txt"
+        module = Path(directory.name) / "_m18_03_side_effect_wire.py"
         module.write_text(
             "import pathlib\n"
             f"pathlib.Path({str(marker.name)!r}).write_text('ran', encoding='utf-8')\n"
@@ -192,7 +197,6 @@ class ExtractionTests(unittest.TestCase):
             '        return {"alpha": self.a}\n',
             encoding="utf-8",
         )
-        self.addCleanup(module.unlink)
         shape = extract_shape(module, "tests/fixtures/_m18_03_side_effect_wire.py", "Example")
         self.assertEqual(shape.required_keys, ("alpha",))
         self.assertFalse(marker.exists())
@@ -297,7 +301,7 @@ class GeneratedArtifactTests(unittest.TestCase):
                 self.assertEqual(list(extracted.optional_keys), shape.get("optional_keys", []))
 
     def test_each_shape_names_exactly_one_authority(self) -> None:
-        """AC-M18-03-01: one shape, one module and class. Two authorities is an unowned wire."""
+        """AC--01: one shape, one module and class. Two authorities is an unowned wire."""
 
         authorities = [
             (shape["module_path"], shape["class_name"]) for shape in self.document["shapes"]
@@ -337,7 +341,7 @@ class GeneratedArtifactTests(unittest.TestCase):
 
 
 class DuplicationTests(unittest.TestCase):
-    """AC-M18-03-02: each owned whole-wire key set exists once; refinements are named."""
+    """AC--02: each owned whole-wire key set exists once; refinements are named."""
 
     def test_no_codec_re_declares_a_shape_the_table_owns(self) -> None:
         self.assertEqual(GENERATOR.duplicate_shapes(GENERATOR.build_surface()), [])
@@ -347,8 +351,18 @@ class DuplicationTests(unittest.TestCase):
 
         surface = GENERATOR.build_surface()
         owned = surface.shape("executionCorrelationKeys")
-        codec = Path(GENERATOR.ROOT) / GENERATOR.CODEC_DIR / "_m18_03_probe_codec.ts"
-        self.addCleanup(codec.unlink)
+        original_codecs = Path(GENERATOR.ROOT) / GENERATOR.CODEC_DIR
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        isolated_codecs = Path(directory.name)
+        for original in original_codecs.glob("*.ts"):
+            (isolated_codecs / original.name).write_bytes(original.read_bytes())
+        # CRITICAL: other workers scan repository codecs. Mutation probes must live
+        # in a private copy or they create false production-contract regressions.
+        patched = patch.object(GENERATOR, "CODEC_DIR", isolated_codecs)
+        patched.start()
+        self.addCleanup(patched.stop)
+        codec = isolated_codecs / "_m18_03_probe_codec.ts"
         named = ", ".join(f'"{key}"' for key in owned.all_keys)
         joined = ",".join(owned.all_keys)
         forms = {

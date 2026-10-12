@@ -1,4 +1,4 @@
-"""M12-07 audio-perception acceptance and disposition contracts.
+"""audio-perception acceptance and disposition contracts.
 
 The gate evaluates the frozen audio benchmark and explicitly supplied redacted profile evidence.
 It never discovers a provider, starts a process, opens media, contacts a server, or changes an

@@ -1,4 +1,4 @@
-// M25-45 monitor geometry: the picture rectangle inside the measured picture area.
+//  monitor geometry: the picture rectangle inside the measured picture area.
 //
 // It is separate from the compositor's backing-store rule on purpose. This decides how much of
 // the pane the picture occupies in CSS pixels; `computePreviewSize` decides how many device
@@ -29,7 +29,7 @@ const EMPTY: PictureBox = Object.freeze({
  * pixel, clipped by the area, which is what makes the 100% view a view rather than a resize -- the
  * composition is never scaled up and the output is never changed.
  *
- * IMPORTANT (M25-45): the returned rectangle is the monitor's own answer to "where is the
+ * IMPORTANT: the returned rectangle is the monitor's own answer to "where is the
  * picture", and later items hit-test against it. Never re-derive it from the pane's bounds: the
  * pane includes the transport row, the seek bar and the padding, and a transform handle placed
  * against the pane lands off the picture.

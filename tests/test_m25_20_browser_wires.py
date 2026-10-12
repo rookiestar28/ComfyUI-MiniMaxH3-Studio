@@ -1,4 +1,4 @@
-"""M25-20 post-closeout corrective: what the browser journey is told to look at.
+"""post-closeout corrective: what the browser journey is told to look at.
 
 `scripts/nle_semantic_browser_wires.py` hands each `render_and_browser` row a prescription -- the
 frames to visit and, at each, the points, identity cells, geometry targets and ramp targets to

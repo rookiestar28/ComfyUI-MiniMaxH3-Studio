@@ -24,6 +24,7 @@ from coverage import CoverageData
 
 VERSION = 1
 GROUPS = 16
+DEFAULT_PRODUCT_WORKERS = 12
 STATE = ".tmp/backend-gate/state.json"
 # These test the development tools themselves. Run them when those tools change, or with
 # --coverage for the complete diagnostic suite. Product and safety regressions stay selected.
@@ -31,11 +32,13 @@ TOOLING_TESTS = frozenset(
     f"tests/{name}.py"
     for name in (
         "test_acceptance_baseline",
+        "test_change_lane",
         "test_architecture_fitness",
         "test_architecture_inventory",
         "test_contract_inventory",
         "test_core_public_surface",
         "test_public_surface",
+        "test_public_consumer_compatibility",
         "test_fingerprint_domain",
         "test_frontend_build_report",
         "test_frontend_module_budget",
@@ -49,6 +52,15 @@ TOOLING_TESTS = frozenset(
         "test_tooling_contract",
         "test_roadmap_registry",
     )
+)
+GUARD_FIRST = (
+    "tests/test_m23_48_derived_artifacts.py",
+    "tests/test_hc_09_host_seam_census.py",
+    "tests/test_security_audit.py",
+    "tests/test_supply_chain_manifest.py",
+    "tests/test_frontend_build_report.py",
+    "tests/test_architecture_fitness.py",
+    "tests/test_frontend_module_budget.py",
 )
 # IMPORTANT: ignored input presence, membership and bytes belong to the reader and its consumers;
 # tracked-source hashes alone reuse stale results, while unconditional reruns discard valid work.
@@ -596,13 +608,76 @@ def product_test_modules(root: Path) -> tuple[list[str], list[str]]:
     if any(not path.resolve().is_relative_to(root) for path in paths):
         raise ValueError("Product test path escapes workspace")
     modules = [path.relative_to(root).as_posix() for path in paths]
+    product = [name for name in modules if name not in TOOLING_TESTS]
     return (
-        [name for name in modules if name not in TOOLING_TESTS],
+        [name for name in GUARD_FIRST if name in product]
+        + [name for name in product if name not in GUARD_FIRST],
         [name for name in modules if name in TOOLING_TESTS],
     )
 
 
-def run_product_backend(root: Path, *, list_only: bool = False) -> int:
+def run_guard_preflight(root: Path) -> int:
+    modules = [name for name in GUARD_FIRST if (root / name).is_file()]
+    if len(modules) != len(GUARD_FIRST):
+        print("Guard preflight refuses a missing declared guard module.", flush=True)
+        return 2
+    env = dict(os.environ)
+    # IMPORTANT: inherited selectors must not narrow the declared guard population.
+    env.pop("PYTEST_ADDOPTS", None)
+    return command(root, ["-m", "pytest", *modules, "--no-cov", "--durations=20"], env)
+
+
+def _validate_native_execution(
+    directory: Path, expected: list[str], workers: int
+) -> tuple[list[dict[str, Any]], dict[str, str]]:
+    paths = sorted(directory.glob("*.json"))
+    names = {path.stem for path in paths}
+    required = {f"gw{number}" for number in range(workers)} if workers else {"serial"}
+    if names != (required | {"controller"} if workers else required):
+        raise ValueError("Backend native worker reports are missing or unexpected")
+    reports: list[dict[str, Any]] = []
+    owners: dict[str, str] = {}
+    for path in paths:
+        data = json.loads(path.read_bytes())
+        if data["schema"] != "backend-native-outcomes/1" or data["worker"] != path.stem:
+            raise ValueError("Backend native report identity changed")
+        if path.stem == "controller":
+            if data["collected"] or data["reports"]:
+                raise ValueError("Controller reports must not duplicate native worker reports")
+            continue
+        collection = data["collected"]
+        if [row["original"] for row in collection] != expected:
+            raise ValueError("Worker collection differs from the serial collection")
+        scheduled = {row["scheduled"]: row["original"] for row in collection}
+        if len(scheduled) != len(expected):
+            raise ValueError("Worker scheduled identities are duplicated")
+        for report in data["reports"]:
+            node = report["node_id"]
+            if scheduled.get(report["scheduled"]) != node:
+                raise ValueError("Native report does not belong to its actual collection")
+            if owners.setdefault(node, path.stem) != path.stem:
+                raise ValueError("A test executed in more than one worker")
+            reports.append(report)
+    if set(owners) != set(expected):
+        raise ValueError("A collected test did not execute")
+    phases: dict[str, dict[str, list[str]]] = {node: {} for node in expected}
+    for report in reports:
+        if report["report_type"] == "TestReport":
+            phases[report["node_id"]].setdefault(report["when"], []).append(report["outcome"])
+    for phase in phases.values():
+        if len(phase.get("setup", [])) != 1 or len(phase.get("teardown", [])) != 1:
+            raise ValueError("A test has missing or duplicated native lifecycle reports")
+        calls = phase.get("call", [])
+        if len(calls) != (1 if phase["setup"] == ["passed"] else 0):
+            raise ValueError("A test has missing or duplicated native call reports")
+        if set(phase) - {"setup", "call", "teardown"}:
+            raise ValueError("A test reported an unknown execution phase")
+    return reports, owners
+
+
+def run_product_backend(
+    root: Path, *, list_only: bool = False, workers: int = DEFAULT_PRODUCT_WORKERS
+) -> int:
     root = root.resolve()
     modules, deferred = product_test_modules(root)
     print(f"Product backend: {len(modules)} modules; coverage is not collected.", flush=True)
@@ -616,6 +691,8 @@ def run_product_backend(root: Path, *, list_only: bool = False) -> int:
         for name in modules:
             print(name)
         return 0
+    if not 0 <= workers <= 32:
+        raise ValueError("Product worker count must be between 0 (serial) and 32")
     cache = root / ".tmp/backend-gate"
     if not cache.resolve().is_relative_to(root):
         raise ValueError("Backend cache escapes workspace")
@@ -625,16 +702,67 @@ def run_product_backend(root: Path, *, list_only: bool = False) -> int:
         raise ValueError("Backend lock escapes workspace")
     # IMPORTANT: product runs never consume coverage fragments or a previous whole-stage PASS.
     # Use the same lock as coverage diagnostics, so simultaneous runs cannot share test state.
-    with execution_lock(cache), tempfile.TemporaryDirectory(prefix="product-", dir=cache) as temp:
-        arguments = Path(temp) / "modules.txt"
+    with execution_lock(cache):
+        directory = Path(tempfile.mkdtemp(prefix="product-", dir=cache))
+        arguments = directory / "modules.txt"
         arguments.write_text("\n".join(modules), encoding="utf-8")
         env = dict(os.environ)
-        env["PYTHONPATH"] = str(root)
-        return command(
+        env.pop("PYTEST_ADDOPTS", None)
+        env["PYTHONPATH"] = os.pathsep.join((str(root), str(Path(__file__).resolve().parents[1])))
+        env["H3_GATE_BACKEND_ROOT"] = str(root)
+        plugin = ["-p", "scripts.gate_backend_inventory"]
+        common = ["-m", "pytest", f"@{arguments}", "--no-cov", *plugin]
+        collected = directory / "collection"
+        collected.mkdir()
+        env["H3_GATE_BACKEND_AUDIT_DIR"] = str(collected)
+        code = command(root, [*common, "-n", "0", "--collect-only", "-qq"], env)
+        if code:
+            return code
+        inventory = json.loads((collected / "serial.json").read_bytes())
+        expected = [row["original"] for row in inventory["collected"]]
+        if not expected or len(expected) != len(set(expected)):
+            raise ValueError("Serial product collection is empty or duplicated")
+        print(f"Serial product collection: {len(expected)} unique nodes.", flush=True)
+        executed = directory / "execution"
+        executed.mkdir()
+        env["H3_GATE_BACKEND_AUDIT_DIR"] = str(executed)
+        started = time.monotonic()
+        code = command(
             root,
-            ["-m", "pytest", f"@{arguments}", "--no-cov", "--maxfail=1", "--durations=10"],
+            [
+                *common,
+                "-n",
+                str(workers),
+                "--dist",
+                "loadgroup",
+                "--max-worker-restart=0",
+                "--durations=20",
+            ],
             env,
         )
+        try:
+            reports, owners = _validate_native_execution(executed, expected, workers)
+        except (OSError, ValueError, KeyError, TypeError):
+            print(
+                f"Backend native execution inventory is incomplete; retained at {directory}.",
+                flush=True,
+            )
+            return code or 2
+        summary = dict(
+            schema="backend-product-run/1",
+            workers=workers,
+            collected=expected,
+            exit_status=code,
+            execution_seconds=time.monotonic() - started,
+            owners=owners,
+            reports=reports,
+        )
+        (directory / "summary.json").write_text(json.dumps(summary), encoding="utf-8")
+        print(
+            f"Backend actual collection and native outcomes conserved; retained at {directory}.",
+            flush=True,
+        )
+        return code
 
 
 def main() -> int:
@@ -642,14 +770,27 @@ def main() -> int:
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--coverage", action="store_true", help="run all tests and the 75%% floor")
     parser.add_argument("--list", action="store_true", help="list product modules without testing")
+    parser.add_argument(
+        "--preflight", action="store_true", help="run the declared guard modules only"
+    )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=DEFAULT_PRODUCT_WORKERS,
+        help="product workers; 0 selects serial execution",
+    )
     args = parser.parse_args()
+    if args.preflight and (args.resume or args.coverage or args.list):
+        parser.error("--preflight cannot be combined with resume, coverage or list")
     if args.coverage and args.list:
         parser.error("--list describes the product gate; use pytest --collect-only for all tests")
     try:
         root = Path(__file__).resolve().parents[1]
+        if args.preflight:
+            return run_guard_preflight(root)
         if args.coverage:
             return run_backend(root, resume=args.resume)
-        return run_product_backend(root, list_only=args.list)
+        return run_product_backend(root, list_only=args.list, workers=args.workers)
     except (OSError, ValueError, subprocess.SubprocessError) as exc:
         print(f"Backend gate failed ({type(exc).__name__}); check inputs and active runners.")
         return 2

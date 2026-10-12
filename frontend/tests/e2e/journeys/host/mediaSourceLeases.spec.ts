@@ -86,7 +86,7 @@ async function loadWorkspaceFixture(): Promise<WorkspaceFixture> {
   )
     throw new Error("workspace fixture is not bound to the exact candidate");
   // IMPORTANT: accepted NLE workspace fixtures bind the owned graph anchor by stable string id;
-  // narrowing it to a numeric LiteGraph id rejects the real M25-46 handoff before host execution.
+  // narrowing it to a numeric LiteGraph id rejects the real handoff before host execution.
   if (
     typeof wire.anchorId !== "string" ||
     !/^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$/.test(wire.anchorId) ||
@@ -387,7 +387,7 @@ test("M25-48 preserves the existing real supplied-host clip lease row without qu
   const clipId = freshIdentifier(history.snapshot, "clip");
   const setupRequestId = `m25-48-host-setup-${authoringHandle!.slice(-16)}`;
   // IMPORTANT: the migrated NLE fixture intentionally starts with only its legacy primary-video
-  // track. Build the former IMAGE qualification clip through one accepted M25-46 transaction;
+  // track. Build the former IMAGE qualification clip through one accepted transaction;
   // silently auto-creating a track in the Media card would weaken its explicit admission rule.
   const setupTransaction = encodeTimelineTransaction({
     requestId: setupRequestId,

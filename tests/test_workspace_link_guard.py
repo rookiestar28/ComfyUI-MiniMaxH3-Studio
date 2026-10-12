@@ -1,4 +1,4 @@
-"""M23-01 workspace link-hazard guard regressions.
+"""workspace link-hazard guard regressions.
 
 The hazard: a directory link inside a git worktree is followed by ``git worktree remove``, which
 deletes the link target's contents.  When the link path is gitignored the plain, unforced command
@@ -70,7 +70,9 @@ def _worktree_with_link(tmp_path: Path, target: Path) -> Path:
     return worktree
 
 
-def test_a_junction_is_a_reparse_point_that_os_path_islink_does_not_see(tmp_path: Path) -> None:
+def test_a_junction_is_a_reparse_point_that_os_path_islink_does_not_see(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     """The reason this module exists, asserted directly rather than assumed."""
     target = tmp_path / "target"
     target.mkdir()
@@ -79,6 +81,8 @@ def test_a_junction_is_a_reparse_point_that_os_path_islink_does_not_see(tmp_path
         pytest.skip("this platform cannot create a directory link without extra privilege")
 
     assert is_reparse_point(link)
+    monkeypatch.chdir(tmp_path)
+    assert is_reparse_point(Path("link")), "relative paths must preserve link classification"
     if os.name == "nt":
         assert not os.path.islink(link), (
             "a Windows junction must remain invisible to os.path.islink; if this ever changes the "
@@ -139,6 +143,119 @@ def test_walk_terminates_on_a_link_pointing_at_its_own_root(tmp_path: Path) -> N
     assert [f for f in findings if f.path.name == "self"]
 
 
+def test_a_queued_directory_replaced_by_a_junction_is_never_traversed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = tmp_path / "root"
+    queued = root / "queued"
+    queued.mkdir(parents=True)
+    subprocess.run(
+        ["git", "init", "--quiet", "--template=", str(root)],
+        check=True,
+        capture_output=True,
+    )
+    target = tmp_path / "target"
+    target.mkdir()
+    (target / "canary.txt").write_text("must not be traversed", encoding="utf-8")
+    original = os.scandir
+    descended: list[Path] = []
+
+    class ReplacedAfterEnumeration:
+        def __init__(self, entry: os.DirEntry[str]) -> None:
+            self.entry = entry
+            self.path = entry.path
+            self.name = entry.name
+
+        def stat(self, *, follow_symlinks: bool = True) -> os.stat_result:
+            return self.entry.stat(follow_symlinks=follow_symlinks)
+
+        def is_dir(self, *, follow_symlinks: bool = True) -> bool:
+            result = self.entry.is_dir(follow_symlinks=follow_symlinks)
+            queued.rmdir()
+            if not _make_directory_link(queued, target):
+                pytest.skip("directory links unavailable")
+            return result
+
+    def scandir(path: os.PathLike[str] | str) -> object:
+        canonical = Path(os.fspath(path).removeprefix("\\\\?\\"))
+        descended.append(canonical)
+        entries = list(original(path))
+        if canonical == root:
+            return iter(
+                ReplacedAfterEnumeration(entry) if entry.name == "queued" else entry
+                for entry in entries
+            )
+        return iter(entries)
+
+    monkeypatch.setattr(os, "scandir", scandir)
+    try:
+        findings = find_links(root, repo_root=root, strict=True)
+        assert len(findings) == 1 and findings[0].path == queued
+        assert findings[0].escapes
+        assert queued not in descended and target not in descended
+    finally:
+        if is_reparse_point(queued):
+            if os.name == "nt":
+                os.rmdir(queued)
+            else:
+                queued.unlink()
+    assert (target / "canary.txt").read_text(encoding="utf-8") == "must not be traversed"
+
+
+def test_a_long_windows_directory_is_censused_without_following_its_junction(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    if os.name != "nt":
+        pytest.skip("Windows wildcard enumeration boundary")
+    root = tmp_path / "root"
+    root.mkdir()
+    subprocess.run(
+        ["git", "init", "--quiet", "--template=", str(root)],
+        check=True,
+        capture_output=True,
+    )
+    target = tmp_path / "target"
+    target.mkdir()
+    canary = target / "canary.txt"
+    canary.write_text("keep the target", encoding="utf-8")
+    deep = root
+    assert len(str(deep)) < 258
+    while len(str(deep)) < 259:
+        distance = 259 - len(str(deep))
+        component = min(30, distance - 1)
+        if distance - component - 1 == 1:
+            component -= 1
+        deep /= "d" * component
+    assert len(str(deep)) == 259
+    extended = "\\\\?\\" + str(deep)
+    os.makedirs(extended)
+    link = deep / "junction"
+    extended_link = "\\\\?\\" + str(link)
+    subprocess.run(
+        ["cmd", "/c", "mklink", "/J", extended_link, str(target)],
+        check=True,
+        capture_output=True,
+    )
+    original = os.scandir
+    entered: list[str] = []
+
+    def observe(path: os.PathLike[str] | str) -> object:
+        entered.append(os.fspath(path))
+        return original(path)
+
+    monkeypatch.setattr(os, "scandir", observe)
+    try:
+        findings = find_links(root, repo_root=root, strict=True)
+        assert len(findings) == 1
+        assert findings[0].path == link
+        assert findings[0].target == target.resolve()
+        assert findings[0].escapes
+        assert str(link) not in entered and extended_link not in entered
+    finally:
+        os.rmdir(extended_link)
+    assert canary.read_text(encoding="utf-8") == "keep the target"
+
+
 def test_check_exit_codes(
     tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -197,13 +314,123 @@ def test_escapes_is_derived_not_stored() -> None:
     assert not finding.escapes
 
 
+@pytest.mark.skipif(os.name != "nt", reason="Windows extended-length target regression")
+def test_a_long_live_target_cannot_be_mistaken_for_a_dangling_junction(tmp_path: Path) -> None:
+    from scripts.gate_link_receipt import _topology
+
+    root = tmp_path / "root"
+    root.mkdir()
+    subprocess.run(
+        ["git", "init", "--quiet", "--template=", str(root)],
+        check=True,
+        capture_output=True,
+    )
+    target = tmp_path / "outside"
+    while len(str(target)) < 310:
+        target /= "d" * 30
+    native_target = "\\\\?\\" + str(target)
+    os.makedirs(native_target)
+    canary = Path(native_target) / "canary.txt"
+    canary.write_text("must survive the census", encoding="utf-8")
+    link = root / "junction"
+    subprocess.run(
+        ["cmd", "/c", "mklink", "/J", str(link), native_target],
+        check=True,
+        capture_output=True,
+    )
+    try:
+        findings = find_links(root, repo_root=root, strict=True)
+        assert len(findings) == 1
+        assert findings[0].path == link and findings[0].target == target
+        assert not findings[0].dangling and findings[0].escapes
+        with pytest.raises(ValueError, match="escaping live link"):
+            _topology(root, findings)
+    finally:
+        os.rmdir(link)
+    assert canary.read_text(encoding="utf-8") == "must survive the census"
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows native containment spellings")
+@pytest.mark.parametrize(
+    "native,expected",
+    [
+        ("\\\\?\\C:\\fixture", "C:\\fixture"),
+        ("\\\\?\\UNC\\fixture.invalid\\share\\fixture", "\\\\fixture.invalid\\share\\fixture"),
+        (
+            "\\\\?\\Volume{00000000-0000-0000-0000-000000000001}\\fixture",
+            "\\\\?\\Volume{00000000-0000-0000-0000-000000000001}\\fixture",
+        ),
+    ],
+)
+def test_native_io_spelling_keeps_an_absolute_containment_identity(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, native: str, expected: str
+) -> None:
+    from scripts.workspace_link_guard import _real_path
+
+    monkeypatch.setattr(os.path, "realpath", lambda path: native)
+    target = _real_path(tmp_path / "fixture")
+    assert target == Path(expected) and os.path.isabs(str(target))
+
+
 def test_the_repository_holds_no_escaping_link() -> None:
     """The invariant the Full Gate stage enforces."""
+    from scripts.gate_link_receipt import authentic_current_receipt
+
+    if authentic_current_receipt(ROOT):
+        pytest.skip("fresh authenticated Full Gate stage-1 census covers this exact repository")
     escaping = [f for f in find_links(ROOT, repo_root=ROOT) if f.escapes]
     assert escaping == [], (
         "an escaping link is present; a recursive delete of its container would destroy its "
         f"target: {[str(f.path) for f in escaping]}"
     )
+
+
+@pytest.mark.parametrize("error_type", [PermissionError, ValueError])
+def test_unavailable_receipt_does_not_replace_the_original_guard(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    error_type: type[Exception],
+) -> None:
+    from scripts import gate_link_receipt as receipt
+
+    root = tmp_path / "root"
+    root.mkdir()
+    subprocess.run(
+        ["git", "init", "--quiet", "--template=", str(root)],
+        check=True,
+        capture_output=True,
+    )
+    path = root / ".tmp/gate-link-receipts/owned-run/receipt.json"
+    monkeypatch.setenv(receipt.RECEIPT_ENV, str(path))
+    issued: list[Path] = []
+
+    def unavailable(repo: Path, findings: list[LinkFinding]) -> None:
+        issued.append(repo)
+        raise error_type("controlled unavailable proof")
+
+    monkeypatch.setattr(receipt, "issue", unavailable)
+    assert main(["check", str(root)]) == 0
+    assert issued == [root]
+    assert "fresh gate receipt issued" not in capsys.readouterr().out
+    assert not path.exists() and not receipt.authentic_current_receipt(root)
+
+
+def test_uninspectable_census_still_fails_before_receipt_issuance(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts import gate_link_receipt as receipt
+
+    issued: list[Path] = []
+    monkeypatch.setenv(receipt.RECEIPT_ENV, str(tmp_path / "unused.json"))
+    monkeypatch.setattr(receipt, "issue", lambda root, findings: issued.append(root))
+
+    def unavailable(path: os.PathLike[str] | str) -> object:
+        raise PermissionError("controlled unreadable census")
+
+    monkeypatch.setattr(os, "scandir", unavailable)
+    assert main(["check", str(tmp_path)]) == 1
+    assert not issued
 
 
 def _seed_repo_with_worktree(base: Path, gitignore: str) -> tuple[Path, Path, Path]:
@@ -258,7 +485,7 @@ def test_bare_git_worktree_remove_destroys_the_link_target(tmp_path: Path) -> No
 
 
 def test_remove_worktree_mode_preserves_the_link_target(tmp_path: Path) -> None:
-    """The same configuration, through the guard. AC-M23-01-04."""
+    """The same configuration, through the guard. AC--04."""
     repo, worktree, canary = _seed_repo_with_worktree(tmp_path, ".venv/\n")
     if not _make_directory_link(worktree / ".venv", canary):
         pytest.skip("this platform cannot create a directory link without extra privilege")
@@ -285,9 +512,9 @@ def test_remove_worktree_mode_preserves_the_link_target(tmp_path: Path) -> None:
 
 
 # --------------------------------------------------------------------------------------------
-# M23-03: teardown completion.
+# teardown completion.
 #
-# M23-01 shipped `remove-worktree` as the sanctioned teardown path and it did not complete: it
+#  shipped `remove-worktree` as the sanctioned teardown path and it did not complete: it
 # left both M23 worktrees as deregistered husks.  The cause was probed rather than assumed, and
 # the first hypothesis -- that ignored build output blocks removal -- was refuted.  What actually
 # defeats git is an *internal* junction, which is how pnpm links every package.
@@ -377,7 +604,7 @@ def _git_remove(repo: Path, worktree: Path, *flags: str) -> subprocess.Completed
 def test_git_worktree_remove_is_defeated_by_an_internal_junction(
     tmp_path: Path, flags: tuple[str, ...]
 ) -> None:
-    """The control arm for M23-03, and the reason the tool cannot simply delegate.
+    """The control arm for, and the reason the tool cannot simply delegate.
 
     ``--force`` is parametrised deliberately: it overrides git's policy checks, not ``rmdir``, so
     it makes no difference here.  If either arm ever starts passing, upstream fixed the deletion
@@ -399,7 +626,7 @@ def test_git_worktree_remove_is_defeated_by_an_internal_junction(
 def test_ignored_build_output_alone_does_not_block_removal(tmp_path: Path) -> None:
     """The refuted hypothesis, asserted so it cannot quietly return.
 
-    M23-03's first plan blamed ignored build output and proposed forcing past it.  Both halves
+    's first plan blamed ignored build output and proposed forcing past it. Both halves
     were wrong, and this arm is what says so.
     """
     repo, worktree, _ = _seed_repo_with_worktree(tmp_path, "node_modules/\n.venv/\n")
@@ -414,7 +641,7 @@ def test_ignored_build_output_alone_does_not_block_removal(tmp_path: Path) -> No
 def test_remove_worktree_finishes_what_git_could_not(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """AC-M23-03-01, and AC-M23-03-04's second half: no --force is needed."""
+    """AC--01, and AC--04's second half: no --force is needed."""
     repo, worktree, _ = _seed_repo_with_worktree(tmp_path, "node_modules/\n")
     if not _internal_junction(worktree):
         pytest.skip("this platform cannot create a directory link without extra privilege")
@@ -428,7 +655,7 @@ def test_remove_worktree_finishes_what_git_could_not(
 def test_an_uncommitted_tracked_change_is_refused(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """AC-M23-03-02."""
+    """AC--02."""
     repo, worktree, _ = _seed_repo_with_worktree(tmp_path, "node_modules/\n")
     (worktree / "seed.txt").write_text("edited and never committed", encoding="utf-8")
     _use_fixture_repo(monkeypatch, repo)
@@ -442,7 +669,7 @@ def test_an_uncommitted_tracked_change_is_refused(
 def test_an_unreachable_detached_head_is_refused(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """AC-M23-03-03: a commit made on a detached HEAD exists nowhere else."""
+    """AC--03: a commit made on a detached HEAD exists nowhere else."""
     repo, worktree, _ = _seed_repo_with_worktree(tmp_path, "node_modules/\n")
     (worktree / "new.txt").write_text("work that exists only here", encoding="utf-8")
     for args in (("add", "-A"), ("commit", "-q", "-m", "detached work")):
@@ -485,7 +712,7 @@ def test_a_branch_worktree_is_never_treated_as_unreachable(
 def test_force_overrides_a_refusal_and_names_it(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """AC-M23-03-04: an override has to be visible in a command log, not silent."""
+    """AC--04: an override has to be visible in a command log, not silent."""
     repo, worktree, _ = _seed_repo_with_worktree(tmp_path, "node_modules/\n")
     (worktree / "seed.txt").write_text("edited and never committed", encoding="utf-8")
     _use_fixture_repo(monkeypatch, repo)
@@ -500,7 +727,7 @@ def test_force_overrides_a_refusal_and_names_it(
 def test_a_real_husk_is_refused_rather_than_recognised(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    """AC-M23-03-05: nothing but a registered worktree is deleted, husks included.
+    """AC--05: nothing but a registered worktree is deleted, husks included.
 
     A ``--remnant`` mode was built and withdrawn.  Twice a rule meant to recognise "this used to
     be a worktree" admitted real directories, the second time an ordinary ``.venv``, so the
@@ -524,7 +751,7 @@ def test_a_real_husk_is_refused_rather_than_recognised(
 def test_an_escaping_link_target_survives_the_completion_walker(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """AC-M23-03-06: the repair must not reintroduce the hazard it completes around."""
+    """AC--06: the repair must not reintroduce the hazard it completes around."""
     # IMPORTANT: a trailing slash ignores junction directories but not POSIX symlinks;
     # keep the fixture link ignored on both without bypassing the dirty-work refusal.
     repo, worktree, canary = _seed_repo_with_worktree(tmp_path, "node_modules/\n.venv\n")

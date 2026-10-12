@@ -1,4 +1,4 @@
-"""M12-02 source-owned ASR, language, timing, and uncertainty contracts."""
+"""source-owned ASR, language, timing, and uncertainty contracts."""
 
 from __future__ import annotations
 

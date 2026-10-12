@@ -1,4 +1,4 @@
-"""M16-03 closed release-audit contract and fail-closed validation tests."""
+"""closed release-audit contract and fail-closed validation tests."""
 
 from __future__ import annotations
 

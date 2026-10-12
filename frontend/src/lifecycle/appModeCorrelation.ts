@@ -1,6 +1,6 @@
 // App Mode correlation: projection/terminal/artifact deferral and quarantine, host reconnect
 // reconciliation, managed host events and execution terminalization. Consumes prompt and
-// execution identities; never queues (M23-28 split of entry.tsx).
+// execution identities; never queues ( split of entry.tsx).
 
 import {
   AppModeError,

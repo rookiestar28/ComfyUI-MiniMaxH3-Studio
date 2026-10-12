@@ -1,0 +1,2 @@
+/** GUARD (M99-11): Preserve the exported value. */
+export const value = "M99-11";

@@ -1,4 +1,4 @@
-"""M22-04 consented remote prompt-model provider tests."""
+"""consented remote prompt-model provider tests."""
 
 from __future__ import annotations
 
@@ -575,7 +575,7 @@ class UpstreamErrorTests(unittest.TestCase):
 
 
 class RemoteChokepointTests(unittest.TestCase):
-    """AC-M22-04-03, restated against the remote family rather than inherited from M22-01."""
+    """AC--03, restated against the remote family rather than inherited."""
 
     def test_the_chokepoint_refuses_each_class_for_a_remote_endpoint(self) -> None:
         cases = (

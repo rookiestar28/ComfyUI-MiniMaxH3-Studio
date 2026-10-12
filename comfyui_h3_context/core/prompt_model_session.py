@@ -1,4 +1,4 @@
-"""M22-03 prompt-model session contract: what a local transport must do, judged in pure code.
+"""prompt-model session contract: what a local transport must do, judged in pure code.
 
 The transports themselves live in `adapters/prompt_model_transport.py`, because they open sockets
 and start subprocesses. Everything that decides *whether* a request may be issued, *what* the
@@ -66,14 +66,14 @@ MAX_IMAGE_PAYLOADS = 8
 MAX_IMAGE_PAYLOAD_CHARACTERS = 8_000_000
 MAX_IDENTIFIER_CHARACTERS = 128
 
-# The two local families this item delivers. `in_process_gguf` is declared by M22-01 and is
+# The two local families this item delivers. `in_process_gguf` is declared by and is
 # deliberately absent: an in-process native runtime raises the item's risk class, so it gets the
 # out-of-process probe contract here and a transport only from an item that accepts that risk.
 LOCAL_TRANSPORT_FAMILIES: frozenset[PromptModelFamily] = frozenset(
     {PromptModelFamily.LOOPBACK_SERVER, PromptModelFamily.OLLAMA}
 )
 
-# Every family that has a transport at all. The remote one joined in M22-04 and reaches the network
+# Every family that has a transport at all. The remote one joined in and reaches the network
 # only through the separate consent gate in `core/remote_prompt_model.py`; being here means a
 # request can be *shaped* for it, never that one may be sent.
 TRANSPORT_FAMILIES: frozenset[PromptModelFamily] = LOCAL_TRANSPORT_FAMILIES | frozenset(
@@ -333,7 +333,7 @@ def admit_session_request(request: object) -> PromptModelOutcome:
             parameters=(("family", request.family.value),),
         )
     accepted = request.capabilities.accepted_media
-    # M22-13. The local Ollama lane is text-only by family, not by catalog data. The curated model
+    # . The local Ollama lane is text-only by family, not by catalog data. The curated model
     # itself reports a `vision` capability, so a row that copied its capabilities off `/api/show`
     # instead of the curated policy would otherwise open a media path this lane never qualified.
     if request.family is PromptModelFamily.OLLAMA:

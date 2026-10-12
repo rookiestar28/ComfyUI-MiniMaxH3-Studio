@@ -1,4 +1,4 @@
-"""M23-15 lazy route ownership and closed transport checks."""
+"""lazy route ownership and closed transport checks."""
 
 from __future__ import annotations
 

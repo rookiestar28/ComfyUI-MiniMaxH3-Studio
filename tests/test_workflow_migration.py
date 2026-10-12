@@ -1,4 +1,4 @@
-"""M15-10 versioned workflow migration audit regressions."""
+"""versioned workflow migration audit regressions."""
 
 from __future__ import annotations
 

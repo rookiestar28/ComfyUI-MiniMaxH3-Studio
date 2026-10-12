@@ -1,4 +1,4 @@
-"""M21-01 official prompt fidelity audit rule tests.
+"""official prompt fidelity audit rule tests.
 
 Every row here is about prose the linter cannot see. The structural linter already checks label
 syntax, residue, security and duration; these rules check whether the rendered sentences obey the
@@ -318,7 +318,7 @@ class DescriptionLengthRuleTests(unittest.TestCase):
 
 
 class InternalVocabularyRuleTests(unittest.TestCase):
-    """M21-02 introduces a producer of this vocabulary; the check exists before it does."""
+    """introduces a producer of this vocabulary; the check exists before it does."""
 
     def test_internal_representation_words_never_ship(self) -> None:
         plan = _plan()
@@ -442,7 +442,7 @@ class BoundaryAndContractTests(unittest.TestCase):
             ),
         )
         # A consumer that never touches `message` must still be able to render every finding. This
-        # is the property that lets M21-03 localise the family instead of shipping English prose.
+        # is the property that lets localise the family instead of shipping English prose.
         catalog = {
             identity: identity.value.replace(".", " ").replace("_", " ") + " {parameters}"
             for identity in PromptFidelityDiagnosticId
@@ -575,7 +575,7 @@ class ValidationStreamTests(unittest.TestCase):
         codes = [
             item.code for item in report.validation.diagnostics if item.code.startswith("fidelity")
         ]
-        # A correct render introduces no prose defect. M24-05 added guide-readiness rules over the
+        # A correct render introduces no prose defect. added guide-readiness rules over the
         # typed plan, and this fixture is the manual skeleton the plan node builds when no intent
         # graph is connected, so exactly those two readiness codes are expected and the report
         # still passes: readiness is reported, never enforced as a structural failure.

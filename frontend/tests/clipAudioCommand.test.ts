@@ -18,7 +18,7 @@ import {
 } from "../src/components/nle/nleCommandBuilders";
 
 // `set_clip_audio`: a video clip's own gain, mute and fades, as one command. The backend's own
-// rows are `tests/test_m25_77_clip_audio_command.py`; this file holds the browser's half -- the
+// rows are `tests/test__clip_audio_command.py`; this file holds the browser's half -- the
 // closed vocabulary, the wire shape it sends and the rebase set it shares with the history.
 
 const snapshot = compositionFixture.snapshot as Record<string, unknown>;

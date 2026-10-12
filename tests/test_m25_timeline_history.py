@@ -92,6 +92,147 @@ def fixture_snapshot_with_edit_coverage() -> PublicCompositionSnapshot:
     return resign(wire)
 
 
+def video_overlay_ripple_snapshot(*, locked: bool = False) -> PublicCompositionSnapshot:
+    wire = cast(dict[str, Any], fixture_snapshot_with_edit_coverage().to_wire())
+    wire["clips"] = [clip for clip in wire["clips"] if clip["track_id"] != "track-video"]
+    for clip_id, start, duration in (
+        ("overlay-before", 0, 4),
+        ("overlay-edited", 8, 8),
+        ("overlay-following", 24, 8),
+    ):
+        wire["clips"].append(
+            clip_wire(
+                clip_id=clip_id,
+                asset_id="vid-overlay",
+                track_id="track-video",
+                start_frame=start,
+                duration_frames=duration,
+            )
+        )
+    next(track for track in wire["tracks"] if track["track_id"] == "track-video")["locked"] = locked
+    return resign(wire)
+
+
+def video_overlay_ripple_command(operation: str) -> dict[str, object]:
+    if operation == "delete":
+        return {
+            "kind": "ripple_delete",
+            "payload": {
+                "start_frame": 8,
+                "duration_frames": 8,
+                "scope_track_ids": ["track-video"],
+                "remainder_ids": {},
+            },
+        }
+    return {
+        "kind": "ripple_trim",
+        "payload": {
+            "clip_id": "overlay-edited",
+            "edge": operation,
+            "delta_frames": 2 if operation == "start" else -2,
+            "scope_track_ids": ["track-video"],
+        },
+    }
+
+
+@pytest.mark.parametrize("operation", ["delete", "start", "end"])
+def test_video_overlay_ripple_history_only_moves_edited_track(operation: str) -> None:
+    initial = TimelineHistoryState.initialize(video_overlay_ripple_snapshot())
+    original = cast(dict[str, Any], initial.snapshot.to_wire())
+
+    def unaffected_bytes(snapshot: PublicCompositionSnapshot) -> bytes:
+        return json.dumps(
+            {
+                clip.clip_id: clip.to_wire()
+                for clip in snapshot.clips
+                if clip.track_id != "track-video"
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+
+    changed, accepted = apply_timeline_transaction(
+        initial,
+        transaction_wire(
+            initial.snapshot,
+            request_id=f"overlay-{operation}",
+            commands=[video_overlay_ripple_command(operation)],
+        ),
+    )
+    changed_clips = {clip.clip_id: clip for clip in changed.snapshot.clips}
+    expected = copy.deepcopy(original["clips"])
+    if operation == "delete":
+        expected = [clip for clip in expected if clip["clip_id"] != "overlay-edited"]
+    else:
+        edited = next(clip for clip in expected if clip["clip_id"] == "overlay-edited")
+        edited["duration_frames"] = 6
+        edited["source_start_frame"] = 2 if operation == "start" else 0
+    following = next(clip for clip in expected if clip["clip_id"] == "overlay-following")
+    following["start_frame"] = 16 if operation == "delete" else 22
+    # Accepted commands canonicalize list order; compare every clip's complete wire by identity.
+    assert {clip.clip_id: clip.to_wire() for clip in changed.snapshot.clips} == {
+        clip["clip_id"]: clip for clip in expected
+    }
+    assert changed_clips["overlay-before"] == next(
+        clip for clip in initial.snapshot.clips if clip.clip_id == "overlay-before"
+    )
+    assert unaffected_bytes(changed.snapshot) == unaffected_bytes(initial.snapshot)
+    assert changed.snapshot.tracks == initial.snapshot.tracks
+    assert changed.snapshot.assets == initial.snapshot.assets
+    saved_receipt = copy.deepcopy(accepted.to_wire())
+
+    undone, undo_receipt = apply_timeline_transaction(
+        changed,
+        transaction_wire(
+            changed.snapshot,
+            request_id=f"undo-overlay-{operation}",
+            commands=[{"kind": "undo", "payload": {"history_cursor": accepted.history_cursor}}],
+        ),
+    )
+    assert {clip.clip_id: clip for clip in undone.snapshot.clips} == {
+        clip.clip_id: clip for clip in initial.snapshot.clips
+    }
+    assert undone.selection == initial.selection
+    redone, _ = apply_timeline_transaction(
+        undone,
+        transaction_wire(
+            undone.snapshot,
+            request_id=f"redo-overlay-{operation}",
+            commands=[{"kind": "redo", "payload": {"history_cursor": undo_receipt.history_cursor}}],
+        ),
+    )
+    assert {clip.clip_id: clip for clip in redone.snapshot.clips} == changed_clips
+    assert redone.selection == changed.selection
+    for state in (undone, redone):
+        assert unaffected_bytes(state.snapshot) == unaffected_bytes(initial.snapshot)
+        assert state.snapshot.tracks == initial.snapshot.tracks
+        assert state.snapshot.assets == initial.snapshot.assets
+    assert accepted.to_wire() == saved_receipt
+    assert initial.snapshot.to_wire() == original
+
+
+@pytest.mark.parametrize("operation", ["delete", "start", "end"])
+def test_video_overlay_ripple_refusal_is_atomic_on_locked_track(operation: str) -> None:
+    state = TimelineHistoryState.initialize(video_overlay_ripple_snapshot(locked=True))
+    before = copy.deepcopy(state)
+    rejected = transaction_wire(
+        state.snapshot,
+        request_id=f"locked-overlay-{operation}",
+        commands=[
+            {"kind": "select_clips", "payload": {"clip_ids": ["clip-main"]}},
+            video_overlay_ripple_command(operation),
+        ],
+    )
+    assert history_rejection_code(lambda: apply_timeline_transaction(state, rejected)) == (
+        "invalid_command"
+    )
+    assert state == before
+    assert state.selection == ()
+    assert state.undo_entries == ()
+    assert state.redo_entries == ()
+    assert state.idempotency_records == ()
+
+
 @pytest.mark.parametrize("disposition", ["present_bound", "absent"])
 def test_measured_source_role_moves_undo_redo_preserve_assets_and_old_receipts(
     disposition: str,

@@ -1,8 +1,8 @@
-"""M25-20: freeze the machine-readable semantic conformance manifest.
+"""freeze the machine-readable semantic conformance manifest.
 
 The manifest is the exact-set join of two things that already exist: the closed corpus expanded by
-``comfyui_h3_context.core.semantic_conformance.build_corpus`` from the accepted M25-10 contract
-domains and 34 M25-11 command identifiers, and the M25-16 ``NleControlCoverageManifestV1`` control
+``comfyui_h3_context.core.semantic_conformance.build_corpus`` from the accepted contract
+domains and 34 command identifiers, and the ``NleControlCoverageManifestV1`` control
 rows. It is generated rather than authored precisely because a hand-written copy of 300-odd case
 identifiers is a copy that drifts: the day a contract bound moves, an authored manifest keeps
 reporting the old boundary as covered.

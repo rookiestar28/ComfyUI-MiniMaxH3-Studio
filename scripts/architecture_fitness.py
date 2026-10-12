@@ -94,7 +94,7 @@ class OwnershipRule(NamedTuple):
     checks: tuple[str, ...]
 
 
-# M23-28 retired the last known-debt row: the host queue callable is read only by
+#  retired the last known-debt row: the host queue callable is read only by
 # `frontend/src/host/queueSeam.ts`. An empty tuple is the steady state; a new row needs an
 # owner item and a reason, and `enforce_findings` refuses an unowned or duplicate row.
 KNOWN_VIOLATIONS: tuple[KnownViolation, ...] = ()
@@ -146,7 +146,7 @@ OWNERSHIP_RULES = (
     ),
 )
 
-# --- M23-50 source reachability ------------------------------------------------------------
+# --- source reachability ------------------------------------------------------------
 # CRITICAL: this axis is *static module-import reachability of the shipped source*. It is not the
 # question `comfyui_h3_context/core/reachability.py` answers, which is whether a public workflow
 # can reach a field or task mode through a named producer at runtime. Never conflate the two: a
@@ -414,7 +414,7 @@ def _route_responsibilities(tree: ast.Module, handler: ast.AST, text: str) -> li
         for node in tree.body
     )
     responsibilities = {"application"}
-    # CRITICAL: since M23-47 a handler served by the shared seam receives decoded bytes
+    # CRITICAL: since a handler served by the shared seam receives decoded bytes
     # and returns a `RouteResult`, so it names neither `request` nor `json_response`.
     # Both spellings have to be recognised, or every converted route would silently drop
     # its decode and response rows and the inventory would read as if the responsibility
@@ -1096,7 +1096,7 @@ def _source_reachability(
     The order below is the precedence and it is deliberate. A module a shipped path reaches is
     `product` whoever else imports it; a module nothing reaches is `unresolved` rather than dead.
     `unresolved` records that this tool cannot see a consumer, never that none exists -- the hub is
-    also read through attribute access and `importlib`, and HC-12 retained a hub name only where
+    also read through attribute access and `importlib`, and retained a hub name only where
     something imports it.
     """
 

@@ -241,7 +241,7 @@ function harness(options: Readonly<{ attached?: boolean }> = {}): {
   const context = new MemoryContext(owner);
   // The filter rung needs somewhere of its own to put its `<filter>` elements: the canvas's own
   // parent, inside the extension's root. Without one the probe cannot run and the session takes
-  // the software path, which is the pre-M25-45 behaviour every other case here relies on.
+  // the software path, which is the pre- behaviour every other case here relies on.
   const parent =
     options.attached === true ? document.createElement("div") : null;
   if (parent !== null) document.body.append(parent);
@@ -1167,7 +1167,7 @@ describe("M25-14 visual compositor", () => {
     expect([...original]).toEqual([255, 0, 0, 127]);
   });
 
-  // M25-20 B-64: the preview's colour adjustment is the renderer's 8-bit-plane fixed-point `eq`,
+  //  B-64: the preview's colour adjustment is the renderer's 8-bit-plane fixed-point `eq`,
   // not a floating-point approximation of it. Each expectation below is
   // `semantic_conformance_expect._adjusted` evaluated on the same input and rounded -- the
   // oracle the final artifact is judged against -- and the saturation-2.0 rows are the regime

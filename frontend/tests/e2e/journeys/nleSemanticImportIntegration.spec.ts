@@ -1,4 +1,4 @@
-// M25-20 F1 corrective, browser half: the two `import_integration` corpus rows
+//  F1 corrective, browser half: the two `import_integration` corpus rows
 // (`generated_source.explicit_import_then_insert.pointer` / `.keyboard`,
 // `comfyui_h3_context/core/semantic_conformance_cases.py`'s `IMPORT_INTEGRATION_CASE`). Each row
 // performs a real explicit import through the product's own affordance (the Production stage's
@@ -6,13 +6,13 @@
 // insertion into the timeline, and counts the two effects separately rather than as one combined
 // total -- exactly the AC10 shape the post-closeout review found only enumerated, never executed.
 //
-// This reuses the accepted M25-16/M25-29 import journey infrastructure
-// (`frontend/e2e/nleShell.tsx`'s `import=1` mode, `scripts/m25_16_import_fixture.py` via
+// This reuses the accepted / import journey infrastructure
+// (`frontend/e2e/nleShell.tsx`'s `import=1` mode, `scripts/_import_fixture.py` via
 // `startImportFixture`) that `nleProductionImport.spec.ts` already exercises for AC11; this file
 // adds the two named, per-case-id observations that corpus admission needs, it does not replace
 // that journey's own broader coverage.
 //
-// M25-20 B-65: the fixture runs with `importMedia=corpus`, so the ready output the shell imports
+//  B-65: the fixture runs with `importMedia=corpus`, so the ready output the shell imports
 // is the real encoded imported source the render stage also imports, probed by the real adapter;
 // after the insertion the journey undoes it across the pre-import history and redoes it, through
 // the shell's own history controls by the same gesture, and records the chain's invariant
@@ -44,7 +44,7 @@ const CAPABILITY_ROUTE = "/h3-context/v1/authoring/output-capability";
 const importButton = '[data-h3-nle-control="asset.import_production"]';
 const undoButton = '[data-h3-nle-control="history.undo"]';
 const redoButton = '[data-h3-nle-control="history.redo"]';
-// The monitor's own canvas, by its role marker: since M25-49 the media bin's card art canvases
+// The monitor's own canvas, by its role marker: since the media bin's card art canvases
 // precede the monitor in document order, so the first canvas under the overlay surface is a
 // zero-backing thumbnail, not the presented composition.
 const MONITOR_CANVAS =
@@ -151,7 +151,7 @@ function foreignPaths(paths: readonly string[], since: number): string[] {
       path !== PRODUCTION_ROUTE &&
       path !== IMPORT_ROUTE &&
       path !== CAPABILITY_ROUTE &&
-      // The overlay's Media tools card (M25-33) reads the runtime status to report its features.
+      // The overlay's Media tools card reads the runtime status to report its features.
       // IMPORTANT: admit exactly this read-only path; the setup route and every other
       // media-runtime path stay foreign.
       path !== MEDIA_RUNTIME_STATUS_ROUTE,

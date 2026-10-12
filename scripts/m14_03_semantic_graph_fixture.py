@@ -1,4 +1,4 @@
-"""Generate the frozen M14-03 semantic graph/comparator evaluation bundle."""
+"""Generate the frozen semantic graph/comparator evaluation bundle."""
 
 from __future__ import annotations
 

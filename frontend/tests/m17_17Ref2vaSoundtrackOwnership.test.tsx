@@ -29,11 +29,11 @@ import {
 afterEach(cleanup);
 
 /**
- * M17-17. Who owns the soundtrack of a reference video.
+ * . Who owns the soundtrack of a reference video.
  *
  * The repository has always had an exact answer: an audio asset carrying
  * `paired_video_id` is the only thing that produces a native
- * `ref_video_audio_*` binding, and `tests/test_m17_17_ref2va_soundtrack_ownership.py`
+ * `ref_video_audio_*` binding, and `tests/test__ref2va_soundtrack_ownership.py`
  * pins that. App Mode never told it. The splice wired the video's own audio
  * track straight into the anchor and handed the Reference Registry only the
  * video, so the typed report said "this run submits no soundtrack" about a graph
@@ -123,7 +123,7 @@ describe("M17-17 the reference video soundtrack has one declared owner", () => {
   });
 
   it("treats an undeclared soundtrack as included, so accepted routes are unchanged", () => {
-    // AC-M17-17-04. Every ref2va route accepted before this item bound the
+    // AC--04. Every ref2va route accepted before this item bound the
     // video's audio; the correction declares that rather than changing it.
     expect(JSON.stringify(splice(undefined))).toBe(
       JSON.stringify(splice("included")),
@@ -207,7 +207,7 @@ describe("M17-17 the reference video soundtrack has one declared owner", () => {
  * The control that carries the declaration.
  *
  * The state has to be authorable, or `included` is not a default but the only
- * reachable value -- which is the situation M17-17 found. The control appears
+ * reachable value -- which is the situation found. The control appears
  * only once a reference video is selected, because a soundtrack state with no
  * video to own it is a claim about nothing, and App Mode refuses it as such.
  */

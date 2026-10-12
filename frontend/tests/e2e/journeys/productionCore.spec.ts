@@ -272,8 +272,8 @@ test("responsive, theme and accessibility fallbacks preserve structure", async (
   );
   expect(boxes.every((box) => box.width >= 72 && box.height >= 36)).toBe(true);
 
-  // M17-21: the sequence stays a proportional flex track at every width. The
-  // narrow-mode fallback the M17-12 research asked for is the segment list,
+  // the sequence stays a proportional flex track at every width. The
+  // narrow-mode fallback the research asked for is the segment list,
   // which now carries duration, boundary, every lifecycle state and the same
   // actions; stacking the tiles as well only produced an empty-looking box.
   const cases = [

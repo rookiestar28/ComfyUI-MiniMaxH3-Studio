@@ -1,5 +1,5 @@
 // App Mode existing-route admission: compatibility of a host-compiled prompt with the
-// requested route, the visible graph and the official asset resolution (M23-28 split).
+// requested route, the visible graph and the official asset resolution ( split).
 
 import { isQualifiedExternalReferenceGraph } from "./graphAdapter";
 import type { OfficialAssetResolution } from "./officialAssetResolution";
@@ -75,7 +75,7 @@ export function isCompatibleExistingPrompt(
     imageGenerationNodeType,
     referenceGenerationNodeType,
   ]);
-  // M17-20 D11: the prompt is no longer a closed world. A materialized graph is
+  //  D11: the prompt is no longer a closed world. A materialized graph is
   // the pinned official template plus this repository's context pipeline, so it
   // carries loaders, a sampler, decode and a sink that are not H3 nodes at all.
   // What stays strict is the part this repository owns: the H3 chain must be
@@ -155,7 +155,7 @@ export function isCompatibleExistingPrompt(
     reference?.[0] !== undefined ? record(reference[0].inputs) : undefined;
   const durationSeconds = requestInputs?.duration_seconds;
   const requestedTaskMode = requestInputs?.task_mode;
-  // CRITICAL (M23-38 F-13): every frame mode needs the typed declaration that
+  // CRITICAL ( F-13): every frame mode needs the typed declaration that
   // Plan normalizes, including Connect. Connect differs only in where the link
   // comes from: the designated anchor's graph-owned edge, never a caller id.
   const frameRegistryRequired =
@@ -176,7 +176,7 @@ export function isCompatibleExistingPrompt(
     typeof requestInputs.user_intent !== "string" ||
     requestInputs.user_intent.trim().length === 0 ||
     requestInputs.user_intent.length > 4096 ||
-    // M17-25: the authored length. Absent or zero is the host loader sentinel for
+    // the authored length. Absent or zero is the host loader sentinel for
     // an unset optional widget, which leaves the node default in force and is a
     // perfectly bindable graph; anything else must be a duration inside the
     // accepted authored range. The producible set is not checked here, because
@@ -524,7 +524,7 @@ export function isCompatibleExistingPrompt(
       const componentIds = (videoComponents ?? []).map(
         (node) => nodes.find((candidate) => candidate.node === node)?.id,
       );
-      // M17-17: a reference video may or may not submit its own soundtrack, and
+      // a reference video may or may not submit its own soundtrack, and
       // both are legitimate canvases. What is never legitimate is the registry
       // and the anchor disagreeing about it: the registry is the owner, so the
       // native soundtrack bindings must be exactly the ones it declares.
@@ -590,7 +590,7 @@ export function isCompatibleExistingPrompt(
     `${imageGenerationNodeType}.first_frame`,
     `${imageGenerationNodeType}.last_frame`,
     // The native anchors take the model inputs they encode with. A graph that
-    // only conditions is exactly the truncated outcome M17-20 exists to stop
+    // only conditions is exactly the truncated outcome exists to stop
     // shipping, so these are part of the contract rather than foreign wiring --
     // and which node supplies them is the graph's business, not this module's.
     `${imageGenerationNodeType}.clip`,
@@ -647,7 +647,7 @@ export function isCompatibleExistingPrompt(
     [previewNodeType, new Set(["report"])],
     [
       referenceRegistryNodeType,
-      // M17-17: `paired_audios` is how the registry is told that a reference
+      // `paired_audios` is how the registry is told that a reference
       // video submits its own soundtrack. Leaving it out of this set refused a
       // canvas that declared the pairing the documented way.
       new Set([
@@ -708,7 +708,7 @@ export function isCompatibleExistingPrompt(
     if (inputs === undefined) return false;
     const classType = node.node.class_type;
     const allowedNames = allowedInputNames.get(String(classType));
-    // M17-20 D11: a materialized graph carries the template's loaders, sampler,
+    //  D11: a materialized graph carries the template's loaders, sampler,
     // decode and sink. Their input names belong to the host's node definitions,
     // not to this contract, so they are not enumerated here -- an allowlist that
     // has to grow every time an official template gains a node would fail closed
@@ -992,7 +992,7 @@ export function compiledPromptMatchesRequestedRoute(
         expectedImages &&
       countBindings("ref_videos", /^ref_videos\.ref_video_\d+$/) ===
         expectedVideos &&
-      // M17-17: the soundtrack count is read from the state the user declared,
+      // the soundtrack count is read from the state the user declared,
       // not assumed from the video count, and the registry that owns the pairing
       // has to say the same thing the anchor does. A graph where only one of them
       // carries the soundtrack is the drift this item removed.

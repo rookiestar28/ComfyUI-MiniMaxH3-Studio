@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from copy import copy
 from decimal import Decimal
@@ -28,6 +29,11 @@ from comfyui_h3_context.nodes import (
     H3MediaAdmissionProducerNode,
     H3ReferenceRegistryNode,
     H3VisualPerceptionProducerNode,
+)
+
+# IMPORTANT: qualified execution is Windows-only; keep portable worker and refusal tests active.
+windows_perception = pytest.mark.skipif(
+    os.name != "nt", reason="qualified perception execution requires Windows"
 )
 
 
@@ -108,6 +114,7 @@ def visual(media: Any) -> Any:
     )[0]
 
 
+@windows_perception
 def test_reference_conditioning_discards_the_blue_tail(
     configured: Any, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -125,6 +132,8 @@ def test_reference_conditioning_discards_the_blue_tail(
         colors = []
         for value in job["frames"]:
             pixel = Image.open(io.BytesIO(base64.b64decode(value))).getpixel((0, 0))
+            # Pillow can return scalar pixels; this RGB fixture requires three channels.
+            assert isinstance(pixel, tuple) and len(pixel) == 3
             colors.append("A red frame." if pixel[0] > pixel[2] else "A blue frame.")
         return colors
 
@@ -145,6 +154,7 @@ def test_reference_conditioning_discards_the_blue_tail(
     assert torch.all(media.runtime_payload.images[124:, :, :, 2] == 1)
 
 
+@windows_perception
 def test_qualified_frames_produce_nonempty_partial_timeline(configured: Any) -> None:
     media = video_media()
     result = visual(media)
@@ -177,6 +187,7 @@ def test_qualified_frames_produce_nonempty_partial_timeline(configured: Any) -> 
     jsonschema.validate(report.to_wire(), schema)
 
 
+@windows_perception
 def test_parent_copy_source_mutation_and_nested_analysis_mutation_are_rejected(
     configured: Any,
 ) -> None:
@@ -195,6 +206,7 @@ def test_parent_copy_source_mutation_and_nested_analysis_mutation_are_rejected(
         result.assert_current()
 
 
+@windows_perception
 def test_revocation_rejects_previous_result_and_old_clear_preserves_successor(
     configured: Any, tmp_path: Path
 ) -> None:
@@ -250,6 +262,7 @@ def test_unsupported_source_refuses_before_worker(
         visual(media)
 
 
+@windows_perception
 def test_silent_audio_abstains_before_asr(configured: Any, monkeypatch: pytest.MonkeyPatch) -> None:
     import torch
 
@@ -287,6 +300,7 @@ def test_busy_admission_refuses_without_creating_files(configured: Any, tmp_path
 _REAL_RUNNER = host._run_worker
 
 
+@windows_perception
 def test_unbound_reference_is_filtered_by_timeline_and_tail_mutation_stays_revocable(
     configured: Any, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -321,6 +335,7 @@ def test_unbound_reference_is_filtered_by_timeline_and_tail_mutation_stays_revoc
         result.assert_current()
 
 
+@windows_perception
 def test_window_bound_reference_refuses_a_different_timeline_request(configured: Any) -> None:
     media = video_media(fps=Decimal(24), count=288)
     result = H3VisualPerceptionProducerNode().produce(
@@ -337,6 +352,7 @@ def test_window_bound_reference_refuses_a_different_timeline_request(configured:
         timeline(media, result, duration_seconds=4.0)
 
 
+@windows_perception
 def test_non_native_rate_warns_and_uses_frame_indices_without_resampling(configured: Any) -> None:
     result = H3VisualPerceptionProducerNode().produce(
         video_media(),
@@ -354,6 +370,7 @@ def test_non_native_rate_warns_and_uses_frame_indices_without_resampling(configu
     )
 
 
+@windows_perception
 def test_other_mode_and_image_requests_keep_legacy_visual_sampling(configured: Any) -> None:
     import torch
 
@@ -385,6 +402,7 @@ def test_other_mode_and_image_requests_keep_legacy_visual_sampling(configured: A
 
 
 @pytest.mark.parametrize("count,reason", [(4, "reference_too_short"), (301, "unsupported_media")])
+@windows_perception
 def test_windowing_does_not_bypass_whole_media_admission(
     configured: Any, monkeypatch: pytest.MonkeyPatch, count: int, reason: str
 ) -> None:
@@ -401,6 +419,7 @@ def test_windowing_does_not_bypass_whole_media_admission(
         )
 
 
+@windows_perception
 def test_visual_window_contract_is_closed_and_authority_pins_nested_metadata(
     configured: Any,
 ) -> None:
@@ -526,6 +545,7 @@ def test_callback_revocation_runs_outside_lock(tmp_path: Path) -> None:
         host._lease(binding)
 
 
+@windows_perception
 def test_mutated_configuration_cannot_reuse_issued_authority(
     configured: Any, tmp_path: Path
 ) -> None:
@@ -609,6 +629,7 @@ def test_audio_worker_rejects_version_drift_before_import_or_assets(
         worker._audio({})
 
 
+@windows_perception
 def test_manual_dialogue_is_preserved_without_asr_promotion(configured: Any) -> None:
     media = video_media()
     planned, _ = timeline(media, visual(media), constraints_text="Keep these exact words.")

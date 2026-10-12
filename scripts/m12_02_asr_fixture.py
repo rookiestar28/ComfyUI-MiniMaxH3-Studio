@@ -1,4 +1,4 @@
-"""Offline M12-02 ASR, language, word-timing, and uncertainty fixture."""
+"""Offline ASR, language, word-timing, and uncertainty fixture."""
 
 from __future__ import annotations
 

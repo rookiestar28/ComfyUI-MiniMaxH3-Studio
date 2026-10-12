@@ -31,7 +31,7 @@ import { SMOKE_SHAPE, snapshotFixture } from "./support/nleWorkspaceFixture";
 
 afterEach(cleanup);
 
-// M25-63: range commands live in the card's menu, opened by a context click or Shift+F10 on the
+// range commands live in the card's menu, opened by a context click or Shift+F10 on the
 // card. The menu may render outside the bin's own subtree, so it is looked up in the document.
 function openAssetMenu(via: "pointer" | "keyboard" = "pointer"): void {
   const card = document.querySelector<HTMLElement>(".h3-nle-media-primary")!;

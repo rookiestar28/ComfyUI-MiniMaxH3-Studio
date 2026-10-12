@@ -1,17 +1,17 @@
 """Closed corpus identity and frozen tolerance profile for preview/final semantic conformance.
 
-M25-20 compares what the browser actually presented against what an independent extractor actually
+ compares what the browser actually presented against what an independent extractor actually
 decoded out of the final artifact. This module owns neither observation. It owns the two questions
 that must be answerable *before* any runtime executes:
 
-- **Which cases exist?** The corpus is a closed set expanded from the accepted M25-10 contract
-  domains and the 34 accepted M25-11 command identifiers, never from executed results. Deriving
+- **Which cases exist?** The corpus is a closed set expanded from the accepted contract
+  domains and the 34 accepted command identifiers, never from executed results. Deriving
   membership from what happened to run is how a conformance suite silently stops covering the thing
   it was built for, so `build_corpus()` reads the contract and nothing else.
 - **What counts as agreement?** The tolerances in `TOLERANCE_PROFILE` are the plan's frozen
   acceptance targets. They are inherited, not chosen: the 2,000-sample preview drift and
-  2,048-sample final impulse bounds come from the accepted M25-10 output profile, and the raster
-  bounds come from the M25-18 synthetic observation scale.
+  2,048-sample final impulse bounds come from the accepted output profile, and the raster
+  bounds come from the synthetic observation scale.
 
 Case identity is stable and per-leaf. A family that names several boundaries expands into one
 identifier per boundary, because a row that can be satisfied by "the transform family passed"
@@ -34,7 +34,7 @@ from .errors import ContractValidationError
 CORPUS_VERSION: Final = "nle_semantic_corpus.v1"
 TOLERANCE_VERSION: Final = "nle_semantic_tolerance.v1"
 
-#: The one way a final artifact may reach the independent extractor: the accepted M25-19
+#: The one way a final artifact may reach the independent extractor: the accepted
 #: transport (`AuthoringOutputRegistry` create / status / download), whose download is the
 #: store's completely verified body. The render stage labels every observed phase with how its
 #: bytes were obtained, and the join admits only this label -- a phase that decoded the
@@ -105,7 +105,7 @@ MISMATCH_CLASSES: Final = (
     "audio_onset",
     "audio_silence",
     "audio_extent",
-    # M25-77: a window of output audio whose level is not the one a clip's adjustments define.
+    # a window of output audio whose level is not the one a clip's adjustments define.
     "audio_level",
     "refusal_code",
     # B-66: an audio-surface declared negative whose counted control or exception is not zero.
@@ -114,7 +114,7 @@ MISMATCH_CLASSES: Final = (
     "import_effect",
 )
 
-#: The seven frozen shell rows. They are not M25-11 commands and can never satisfy a command row.
+#: The seven frozen shell rows. They are not commands and can never satisfy a command row.
 SIDEBAR_UI_INVARIANT_IDS: Final = (
     "global_shell_identity",
     "function_switch",
@@ -139,7 +139,7 @@ NON_DESTROY_CLOSE_REASONS: Final = (
 #: lease, no waveform, no mixer, no audio-edit receipt -- rather than a silent skip.
 #:
 #: `gain`, `mute` and `envelope` here are the controls of an independent audio track, which is
-#: still deferred. A video clip's own gain, mute and fades (M25-77) are a different surface: they
+#: still deferred. A video clip's own gain, mute and fades are a different surface: they
 #: live on the clip, are measured by the `clip_audio` family, and leave these seams as they were.
 DEFERRED_AUDIO_SEAMS: Final = (
     "independent_audio_seam",
@@ -236,7 +236,7 @@ IMPORT_EFFECT_FACTS: Final[Mapping[str, str]] = {
 }
 
 #: Each expanded shell-invariant leaf and the executable case that proves it, cited as
-#: `<path under frontend/tests>::<collected test name>`. The format matches the M25-16 control
+#: `<path under frontend/tests>::<collected test name>`. The format matches the control
 #: coverage manifest so one frontend collector resolves both: `frontend/tests/nleEvidenceCollection`
 #: asks the real runners what they collected rather than parsing test sources, which is what stops a
 #: citation from naming a test that was renamed, skipped or never written.
@@ -503,7 +503,7 @@ EFFECT_DOMAINS: Final = (
     NumericDomain("saturation_permille", 0, 2_000, 1_000, 600),
 )
 
-#: M25-77: a clip's audio member (`composition_contract._clip_audio`). The gain is in millibels; a
+#: : a clip's audio member (`composition_contract._clip_audio`). The gain is in millibels; a
 #: fade is in output frames, and its `lower` bound is its identity, so it expands without one.
 CLIP_AUDIO_DOMAINS: Final = (
     NumericDomain("gain_mb", -6_000, 1_200, 0, -600),
@@ -576,7 +576,7 @@ EMBEDDED_AUDIO_CASES: Final = (
     "visual_only_mapping_preserved",
 )
 
-#: The six property identifiers M25-16 froze as `NLE-EDGE-TRIM-V1`. They ride the existing
+#: The six property identifiers froze as `NLE-EDGE-TRIM-V1`. They ride the existing
 #: `trim_clip` command; they are never two extra command identifiers.
 EDGE_TRIM_PROPERTY_IDS: Final = (
     "edge_trim_start_in",
@@ -610,7 +610,7 @@ HISTORY_CURRENTNESS_CASES: Final = (
     "source_replaced_refused",
     "output_replaced_refused",
     "old_output_accepted_label",
-    # The M25-16 second corrective made an unknown outcome carry a `reconciliation` fact rather
+    # The second corrective made an unknown outcome carry a `reconciliation` fact rather
     # than an inferred verdict. Both of its values get a case, because the whole point is that an
     # unknown outcome is attributed to neither acceptance nor rejection.
     "unknown_outcome_pending",
@@ -627,7 +627,7 @@ class ToleranceProfile:
     """
 
     version: str
-    #: Inherited unchanged from the accepted M25-10 output profile.
+    #: Inherited unchanged from the accepted output profile.
     preview_max_av_drift_samples: int
     final_impulse_tolerance_samples: int
     #: Output-space pixels, against actual Canvas backing dimensions rather than CSS coordinates.
@@ -648,7 +648,7 @@ class ToleranceProfile:
     codec_boundary_exclusion_samples: int
     #: Rational conversion may round by at most one sample, and the conversion must be disclosed.
     duration_max_abs_samples: int
-    #: M25-77: a window's measured level against the level a clip's audio adjustments define there,
+    #: : a window's measured level against the level a clip's audio adjustments define there,
     #: both in millionths of the source tone's own level. A window passes when its error is within
     #: this many millionths of the defined level, or within the floor below where the defined
     #: level is so small that a relative bound would be smaller than what an encode can hold. Both
@@ -888,7 +888,7 @@ def _edge_trim_cases() -> Iterator[CorpusCase]:
     yield from _named_family("edge_trim", EDGE_TRIM_OBSERVATION_CASES)
 
 
-#: M25-45 AC45-05: one row per visual layer class, on the 1280 x 720 base whose sources are
+#: AC45-05: one row per visual layer class, on the 1280 x 720 base whose sources are
 #: 512-square. Each isolates its own layer so the landmarks it is judged on are the ones that layer
 #: drew, unoccluded, at the full backing the shipped preview now reaches; the base corpus keeps
 #: every occluded-composite row it already had, at its own size, unchanged.

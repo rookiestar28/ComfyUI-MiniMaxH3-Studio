@@ -1,4 +1,4 @@
-// M25-44 (one NLE): the `clip_editor` tab's read-only project summary under the launcher. The
+//  (one NLE): the `clip_editor` tab's read-only project summary under the launcher. The
 // compact sidebar editor it replaces was also the only home of the Authoring workspace's lifecycle
 // actions, so they live here: start from the current Context, refresh, and a labelled two-step
 // release. Nothing here edits the timeline; editing happens in the full editor only.
@@ -123,7 +123,7 @@ export function NleProjectSummary({
         </p>
       ) : null}
       {authoring.status === "pending" ? <p>{text.pending}</p> : null}
-      {/* The owner's sidebar action-row rule (M25-41, M25-43): icon tiles on the shared column
+      {/* The sidebar action-row rule: icon tiles on the shared column
           grid, the full label as the accessible name and the description, or the reason an action
           is unavailable, on hover and focus. They are lifecycle actions, never editing controls. */}
       {hasActions ? (

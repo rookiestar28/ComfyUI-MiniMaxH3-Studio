@@ -1,4 +1,4 @@
-"""Statically verify the closed HC-09 ComfyUI host-seam source census.
+"""Statically verify the closed ComfyUI host-seam source census.
 
 The scanner reads repository source as text and reports only closed seam IDs and
 repository-relative paths. It never imports scanned modules, contacts a host, or
@@ -39,7 +39,7 @@ _DETECTORS: Mapping[str, re.Pattern[str]] = {
     "backend.node_display_name_mappings": re.compile(r"\bNODE_DISPLAY_NAME_MAPPINGS\b"),
     "backend.prompt_server.routes": re.compile(r"\bPromptServer\b"),
     "backend.web_directory": re.compile(r"\bWEB_DIRECTORY\b"),
-    # IMPORTANT: a family whose member read is delegated to a typed probe (M23-28) is detected by
+    # IMPORTANT: a family whose member read is delegated to a typed probe is detected by
     # the probe's name as well as by the raw member forms, so the probe owner and every caller
     # stay in the census even though neither names the host member directly.
     "frontend.api.event_target": re.compile(

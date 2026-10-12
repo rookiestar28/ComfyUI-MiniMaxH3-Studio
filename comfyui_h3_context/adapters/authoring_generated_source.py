@@ -1,4 +1,4 @@
-"""Private generated VIDEO ownership for the M25-29 Authoring import bridge."""
+"""Private generated VIDEO ownership for the Authoring import bridge."""
 
 from __future__ import annotations
 

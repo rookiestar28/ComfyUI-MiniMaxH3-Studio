@@ -1,4 +1,4 @@
-// M25-62 A62-2: the 112 px track header shows a display name and icon toggles. The raw track id
+//  A62-2: the 112 px track header shows a display name and icon toggles. The raw track id
 // stays in `data-h3-nle-track` for diagnostics and never reaches visible text, an accessible
 // name or a tooltip; the toggles keep `track.locked`/`track.enabled`, their `aria-pressed` and
 // their commands.

@@ -2,7 +2,7 @@
 
 The M19 chain wrote five records full of numbers. None of them is the source here. Every reading is
 read out of the artifact that checkpoint actually committed, with `git show`, and recomputed --
-because a record's prose is not evidence, and M18-06's closeout log records the one metric it
+because a record's prose is not evidence, and 's closeout log records the one metric it
 copied from prose being wrong.
 
 That also means this generator answers a question the records cannot: whether a value that was
@@ -38,8 +38,8 @@ from scripts.governance.m19_closeout import (  # noqa: E402
 
 ARTIFACT_PATH = Path("governance/contracts/m19_closeout_v1.json")
 
-# CRITICAL: these four paths address the accepted M19-01..M19-05 checkpoint *trees*, not the
-# working tree. M23-55 moved three of the four artifacts out of the installed package; the
+# CRITICAL: these four paths address the accepted.. checkpoint *trees*, not the
+# working tree. moved three of the four artifacts out of the installed package; the
 # probes must keep the packaged spelling because `git show <commit>:<path>` resolves inside a
 # commit where that is where they lived. Re-pathing them turns every probe into ABSENT, which
 # reads as a real regression rather than as a broken path.
@@ -54,12 +54,34 @@ BASELINE = "tests/acceptance_baseline.json"
 
 #: The chain, in order, each at the commit that accepted it. These are the only remembered values
 #: in this generator, and they are checkable: `git show <commit>` either produces the tree or fails.
+# CRITICAL: resolve these exact public checkpoint identities; never fall back to HEAD
+# or retired refs, which changes the historical subject used by every probe.
 CHECKPOINTS: tuple[tuple[str, str, str], ...] = (
-    ("M19-01", "2fea0df", "architecture inventory and fitness baseline"),
-    ("M19-02", "f3742ae", "public surface authority; two import-time payloads deferred"),
-    ("M19-03", "e0d8979", "ComfyUI node adapter decomposition behind a node-surface record"),
-    ("M19-04", "9da959f", "product shell frontend decomposition and its layering guard"),
-    ("M19-05", "ab4c3cc", "three pure-core modules decomposed and their layering guard"),
+    (
+        "M19-01",
+        "210da75e45b53b1285af7c530fde307b3a12dd01",  # pragma: allowlist secret
+        "architecture inventory and fitness baseline",
+    ),
+    (
+        "M19-02",
+        "02efed8839b2ac16d196056d89368c9e03fa53a3",  # pragma: allowlist secret
+        "public surface authority; two import-time payloads deferred",
+    ),
+    (
+        "M19-03",
+        "68f6bdfdbf4fa818991ee2edccabfb2fe6f9f66c",  # pragma: allowlist secret
+        "ComfyUI node adapter decomposition behind a node-surface record",
+    ),
+    (
+        "M19-04",
+        "93a374c5ff9cb5b79db9393c80665b397bd863cf",  # pragma: allowlist secret
+        "product shell frontend decomposition and its layering guard",
+    ),
+    (
+        "M19-05",
+        "fe0fae37180d14fbae8f732ad3a1552f6d9d18f4",  # pragma: allowlist secret
+        "three pure-core modules decomposed and their layering guard",
+    ),
 )
 
 
@@ -131,7 +153,7 @@ def _baseline_ids(commit: str) -> tuple[str, ...]:
 def _retained(first_ids: tuple[str, ...]) -> Callable[[str], str]:
     """How many of the baseline's contract identities still exist at a checkpoint.
 
-    Entry *count* grows across the chain -- M19-02 alone adds a schema and its record -- so a plain
+    Entry *count* grows across the chain -- alone adds a schema and its record -- so a plain
     count says nothing about loss. This says what matters: no identity the baseline knew about
     stopped existing.
     """
@@ -195,7 +217,7 @@ def _largest_authored_module(document: Any) -> str:
 def _largest_frontend_module(pattern: str) -> Callable[[str], str]:
     """The largest TypeScript module under `frontend/src/host/`.
 
-    The Python inventory cannot see the frontend, so M19-04's decomposition is invisible to every
+    The Python inventory cannot see the frontend, so 's decomposition is invisible to every
     architecture row above. This reads the tree directly: `git ls-tree -l` gives each blob's size
     without fetching it, and byte size is the comparable measure here because line counts would
     need every blob read.
@@ -323,11 +345,11 @@ def _rows() -> list[tuple[str, str, str, str, RowExpectation, Callable[[str], st
             fixed,
             _nodes(lambda d: str(len(d["exported_names"]))),
         ),
-        # Frontend: the artifact users receive. It moved at M19-04 and the record says why.
+        # Frontend: the artifact users receive. It moved at and the record says why.
         ("frontend", "bundle_sha256", BUNDLE, "M19-01", noted, _bundle("sha256")),
         ("frontend", "bundle_bytes", BUNDLE, "M19-01", noted, _bundle("bytes")),
-        # Two rows, deliberately. The first is what M19-04 moved; the second is what it left, and
-        # `appMode.ts` at 120 kB is why AC-M19-04-04 had to be corrected from "the largest frontend
+        # Two rows, deliberately. The first is what moved; the second is what it left, and
+        # `appMode.ts` at 120 kB is why AC--04 had to be corrected from "the largest frontend
         # host module" to "the largest module in the frozen cohort".
         (
             "frontend",

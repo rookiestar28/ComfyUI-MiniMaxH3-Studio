@@ -1,15 +1,15 @@
-"""Torch boundary for two-ended bridge latent composition and interval masking (M20-07).
+"""Torch boundary for two-ended bridge latent composition and interval masking.
 
-Composition is exact byte arithmetic first and tensors second.  The M20-04 store hands each
+Composition is exact byte arithmetic first and tensors second. The store hands each
 boundary's domains back as headerless C-contiguous little-endian buffers, so the bridge
 input -- left tail context, zero-initialized middle, right head context, per domain -- is
 assembled by pure-Python block slicing over the declared plan extents (a temporal-axis
 slice of a C-contiguous buffer is a fixed-stride byte window; float zeros of every admitted
 dtype are zero bytes).  Only the finished payloads become tensors, through the same default
-factories the reviewed M20-04 codec uses, and the pair is the host's
+factories the reviewed codec uses, and the pair is the host's
 ``comfy.nested_tensor.NestedTensor``.
 
-The interval mask renders the M20-06 sampler semantics (``0 = preserve, 1 = generate``,
+The interval mask renders the sampler semantics (``0 = preserve, 1 = generate``,
 one dense mask per domain at the exact latent grid) in the two-sided form the bridge plan
 declares: preserved prefix, generated middle, preserved suffix.  Every binding gate --
 plan-to-descriptor fingerprints, byte lengths against descriptor arithmetic, mask-to-plan

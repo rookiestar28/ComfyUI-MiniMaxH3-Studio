@@ -381,8 +381,8 @@ class NodeContractTests(unittest.TestCase):
             lambda: socket("value", description="https://example.invalid/resource"),
             lambda: socket("value", description="line\nfeed"),
         )
-        for make_socket in cases:
-            with self.subTest(make_socket=make_socket):
+        for socket_case, make_socket in enumerate(cases):
+            with self.subTest(socket_case=socket_case):
                 with self.assertRaises(NodeContractError):
                     make_socket()
 

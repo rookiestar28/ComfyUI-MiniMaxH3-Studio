@@ -1,7 +1,7 @@
 """Semantic graph comparison: the aggregation surface every consumer imports.
 
 This was one 2307-line module holding the shared vocabulary, the graph model, graph comparison, the
-frozen M14-01 evaluation and the untrusted-wire readers. Those are five separate concerns and they
+frozen evaluation and the untrusted-wire readers. Those are five separate concerns and they
 now have five owners, layered one way:
 
     primitives <- model <- diff <- evaluation <- wire

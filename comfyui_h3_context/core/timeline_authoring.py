@@ -1,14 +1,14 @@
-"""M20-02: the timeline authoring domain and deterministic constraint engine.
+"""the timeline authoring domain and deterministic constraint engine.
 
-The Production editor (`M20-03`) needs one pure place that owns interactive timeline authoring:
+The Production editor (``) needs one pure place that owns interactive timeline authoring:
 which clips exist, where they sit, how they trim/split/merge, which audio is linked to which
 video, what snaps where, and what a command may never silently do.  Three decisions shape it:
 
 * **The engine consumes accepted authorities; it never re-derives them.**  Admitted sources come
-  in as a :func:`reference_view` over the accepted M20-00 reference-set state -- a timeline clip
+  in as a :func:`reference_view` over the accepted reference-set state -- a timeline clip
   may reference only a stable admitted asset ID and cannot mutate selection, order, soundtrack
-  ownership or capacity, which remain exclusively M20-00 responsibilities.  Temporal constants
-  come in as a :func:`build_h3_timeline_profile` view over the accepted M20-01 temporal profile;
+  ownership or capacity, which remain exclusively responsibilities. Temporal constants
+  come in as a :func:`build_h3_timeline_profile` view over the accepted temporal profile;
   lattice and audio-period math is consumed, not restated.
 
 * **Commands are atomic and every receipt carries its own undo.**  Each command names the exact
@@ -154,7 +154,7 @@ _CLIP_KINDS = (MediaKind.VIDEO, MediaKind.AUDIO)
 
 
 class TimelineCommandError(ContractValidationError):
-    """M25-11 closed command-codec rejection with a stable, content-free code."""
+    """closed command-codec rejection with a stable, content-free code."""
 
     def __init__(self, code: str, message: str) -> None:
         super().__init__(f"{code}: {message}")
@@ -202,7 +202,7 @@ class NleCommandKind(str, Enum):
     REBASE_TRANSACTION = "rebase_transaction"
 
 
-# IMPORTANT: this table is the public M25-11 command boundary. Adding a permissive fallback would
+# IMPORTANT: this table is the public command boundary. Adding a permissive fallback would
 # silently turn an unknown or deferred-audio intent into accepted history.
 _NLE_PAYLOAD_KEYS: dict[NleCommandKind, tuple[str, ...]] = {
     NleCommandKind.CREATE_TRACK: ("track_id", "kind", "order"),
@@ -1329,7 +1329,7 @@ def apply_nle_command(
 
 @dataclass(frozen=True, slots=True)
 class TimelineProfileInput:
-    """Frozen consumption of the accepted M20-01 temporal profile; never re-derived here."""
+    """Frozen consumption of the accepted temporal profile; never re-derived here."""
 
     schema: str
     version: int
@@ -1418,7 +1418,7 @@ def build_h3_timeline_limits() -> TimelineAuthoringLimits:
 
 @dataclass(frozen=True, slots=True)
 class ReferencedAsset:
-    """One admitted M20-00 source as the timeline is allowed to see it."""
+    """One admitted source as the timeline is allowed to see it."""
 
     asset_id: str
     kind: MediaKind
@@ -1461,7 +1461,7 @@ class TimelineReferenceView:
 
 
 def reference_view(state: ReferenceSetState) -> TimelineReferenceView:
-    """The one mapping from the accepted M20-00 state into what this engine may consult."""
+    """The one mapping from the accepted state into what this engine may consult."""
 
     if not isinstance(state, ReferenceSetState):
         raise _reject("invalid_reference_state", "state must be a ReferenceSetState")

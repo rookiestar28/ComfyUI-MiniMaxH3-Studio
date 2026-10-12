@@ -88,7 +88,7 @@ _DIALOGUE = re.compile(r"<d>[^\x00]{1,4096}?</d>")
 
 
 class ProductionStoryboardError(ValueError):
-    """One M26-02 wire value or invariant is not closed and canonical."""
+    """One wire value or invariant is not closed and canonical."""
 
 
 class StoryboardSourceKindV1(str, Enum):

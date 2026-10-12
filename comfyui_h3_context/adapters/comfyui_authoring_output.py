@@ -225,7 +225,7 @@ class AuthoringOutputRoutes:
             if request.method != ("POST" if post else "GET"):
                 raise OutputProtocolError()
             if kind == "capability":
-                # M25-16: a bodiless, unauthenticated-by-workspace read of the closed
+                # a bodiless, unauthenticated-by-workspace read of the closed
                 # capability projection. It takes no admission slot and touches no job.
                 if request.query or request.can_read_body:
                     raise OutputProtocolError()

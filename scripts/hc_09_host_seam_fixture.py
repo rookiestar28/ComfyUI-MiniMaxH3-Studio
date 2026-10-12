@@ -1,4 +1,4 @@
-"""Normalize and compare a bounded content-free HC-09 live shape fixture.
+"""Normalize and compare a bounded content-free live shape fixture.
 
 The tool never contacts or discovers a host. It accepts only a closed fixture-shaped
 observation document, validates it against the tracked census, emits deterministic bytes,

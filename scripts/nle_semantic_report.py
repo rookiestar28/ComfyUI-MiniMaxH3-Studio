@@ -1,4 +1,4 @@
-"""M25-20 corrective: join the executed stages into the one closed conformance report.
+"""corrective: join the executed stages into the one closed conformance report.
 
 Three stages observe the corpus and none of them may judge itself:
 
@@ -37,10 +37,14 @@ it will call anything conformant.
 from __future__ import annotations
 
 import argparse
+import copy
+import hashlib
+import io
 import json
 import sys
 from collections.abc import Collection, Mapping, Sequence
 from fractions import Fraction
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Final, cast
 
@@ -177,7 +181,7 @@ def read_render_bases(path: Path) -> dict[str, Mapping[str, Any]]:
     """Every composition base the render stage declared it rendered against, by name.
 
     The stage writes one record before each base's rows. A record without a `base` name is read as
-    the accepted corpus base: that is what a render artifact produced before M25-45 is, and it is
+    the accepted corpus base: that is what a render artifact produced before is, and it is
     unambiguous because there was only one base to be.
     """
 
@@ -1480,16 +1484,30 @@ def _describe_divergence(declared: object, fixture: object, path: str = "") -> s
     return None
 
 
-def _corpus_bases() -> dict[str, dict[str, Any]]:
-    """Every declared base composition, read from the corpus's own fixtures, by name."""
-
+@lru_cache(maxsize=4)
+def _decoded_corpus_bases(
+    snapshot: tuple[tuple[str, str, bytes], ...],
+) -> dict[str, dict[str, Any]]:
     return {
         name: cast(
             dict[str, Any],
-            json.loads((FIXTURES_DIR / filename).read_text(encoding="utf-8"))["snapshot"],
+            json.loads(io.TextIOWrapper(io.BytesIO(raw), encoding="utf-8", newline=None).read())[
+                "snapshot"
+            ],
         )
-        for name, filename in BASE_FIXTURE_NAMES.items()
+        for name, _digest, raw in snapshot
     }
+
+
+def _corpus_bases() -> dict[str, dict[str, Any]]:
+    """Every declared base composition, read from the corpus's own fixtures, by name."""
+    snapshot = []
+    for name, filename in BASE_FIXTURE_NAMES.items():
+        raw = (FIXTURES_DIR / filename).read_bytes()
+        snapshot.append((name, hashlib.sha256(raw).hexdigest(), raw))
+    # CRITICAL: key and decode the same actual bytes, then isolate every caller's mutable graph.
+    # A path/mtime-only memo or shared return serves stale or caller-modified expectations.
+    return copy.deepcopy(_decoded_corpus_bases(tuple(snapshot)))
 
 
 def join(
@@ -1523,8 +1541,8 @@ def join(
                 "the render stage declared a composition base that is not the corpus base: "
                 f"{name}: {divergence}"
             )
-    book = build_recipes()
     corpus = build_corpus()
+    book = build_recipes(corpus)
     outcomes: list[CaseOutcome] = []
     for case in corpus.cases:
         recipe = book.by_id.get(case.case_id)

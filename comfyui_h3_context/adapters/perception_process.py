@@ -61,6 +61,10 @@ class _Accounting(ctypes.Structure):
     ]
 
 
+class _ProcessIds(ctypes.Structure):
+    _fields_ = [("assigned", wintypes.DWORD), ("count", wintypes.DWORD)]
+
+
 class OwnedWindowsJob:
     """Assign before resuming: process enumeration alone cannot close the spawn race."""
 
@@ -84,6 +88,12 @@ class OwnedWindowsJob:
             ),
             "OpenThread": ([wintypes.DWORD, wintypes.BOOL, wintypes.DWORD], wintypes.HANDLE),
             "ResumeThread": ([wintypes.HANDLE], wintypes.DWORD),
+            "OpenProcess": ([wintypes.DWORD, wintypes.BOOL, wintypes.DWORD], wintypes.HANDLE),
+            "IsProcessInJob": (
+                [wintypes.HANDLE, wintypes.HANDLE, ctypes.POINTER(wintypes.BOOL)],
+                wintypes.BOOL,
+            ),
+            "WaitForSingleObject": ([wintypes.HANDLE, wintypes.DWORD], wintypes.DWORD),
             "CloseHandle": ([wintypes.HANDLE], wintypes.BOOL),
         }
         for name, (arguments, result) in signatures.items():
@@ -117,13 +127,48 @@ class OwnedWindowsJob:
             self.close()
             raise
 
+    def _capture_members(self, handles: list[Any], deadline: float) -> None:
+        capacity = 16
+        while True:
+            buffer = ctypes.create_string_buffer(
+                ctypes.sizeof(_ProcessIds) + ctypes.sizeof(ctypes.c_size_t) * capacity
+            )
+            header = _ProcessIds.from_buffer(buffer)
+            result = self.kernel.QueryInformationJobObject(
+                self.handle, 3, buffer, ctypes.sizeof(buffer), None
+            )
+            if header.assigned > capacity:
+                if time.monotonic() >= deadline:
+                    raise RuntimeError("worker_cleanup_failed")
+                capacity = int(header.assigned)
+                continue
+            if not result or header.count > capacity:
+                raise RuntimeError("worker_cleanup_failed")
+            ids = (ctypes.c_size_t * header.count).from_buffer(buffer, ctypes.sizeof(_ProcessIds))
+            for pid in ids:
+                handle = self.kernel.OpenProcess(0x00101000, False, pid)
+                if not handle:
+                    raise RuntimeError("worker_cleanup_failed")
+                handles.append(handle)
+                member = wintypes.BOOL()
+                # CRITICAL: validate the retained handle, not a PID that may have been reused.
+                if not self.kernel.IsProcessInJob(
+                    handle, self.handle, ctypes.byref(member)
+                ) or not (member.value):
+                    raise RuntimeError("worker_cleanup_failed")
+            return
+
     def close(self) -> None:
         if not self.handle:
             return
+        handles: list[Any] = []
+        deadline = time.monotonic() + 5
         try:
+            # CRITICAL: accounting zero precedes real process signalling on Windows. Retain
+            # member handles before termination; otherwise inherited files can outlive cleanup.
+            self._capture_members(handles, deadline)
             if not self.kernel.TerminateJobObject(self.handle, 1):
                 raise RuntimeError("worker_cleanup_failed")
-            start = time.monotonic()
             while True:
                 accounting = _Accounting()
                 if not self.kernel.QueryInformationJobObject(
@@ -131,10 +176,16 @@ class OwnedWindowsJob:
                 ):
                     raise RuntimeError("worker_cleanup_failed")
                 if accounting.active == 0:
-                    return
-                if time.monotonic() - start > 5:
+                    break
+                if time.monotonic() >= deadline:
                     raise RuntimeError("worker_cleanup_failed")
                 time.sleep(0.01)
+            for handle in handles:
+                remaining = max(0, int((deadline - time.monotonic()) * 1000))
+                if self.kernel.WaitForSingleObject(handle, remaining) != 0:
+                    raise RuntimeError("worker_cleanup_failed")
         finally:
+            for handle in handles:
+                self.kernel.CloseHandle(handle)
             self.kernel.CloseHandle(self.handle)
             self.handle = None

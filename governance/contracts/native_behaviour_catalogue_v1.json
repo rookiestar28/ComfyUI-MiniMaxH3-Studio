@@ -1,0 +1,1153 @@
+{
+  "schema": "h3.native_behaviour_catalogue.v1",
+  "entries": [
+    {
+      "behaviour_id": "frames.alignment",
+      "authority": "host_node",
+      "statement": "Nominal frame counts align upward to the five-plus-seventeen lattice.",
+      "anchors": [
+        {
+          "anchor_id": "native.frames.alignment@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "align_frame_count",
+          "content_sha256": "sha256:325a44f65f6c3a3fbe1e6c53a5c636ff7a722190598e2a7d539461e0659ad8f7",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/length.py"
+      ],
+      "oracle_tests": [
+        "tests/test_temporal_profile.py::AdapterParityTests::test_alignment_and_both_latent_lengths_match_the_published_derivation"
+      ],
+      "oracle_class": "independent",
+      "disposition": "covered",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Independent interface specification and product comparison."
+    },
+    {
+      "behaviour_id": "frames.seconds_rounding",
+      "authority": "template",
+      "statement": "Duration conversion uses nearest-even rounding before lattice alignment.",
+      "anchors": [
+        {
+          "anchor_id": "template.i2v@5097de61",
+          "repository": "Comfy-Org/workflow_templates",
+          "revision": "5097de61ef09fe75466716ac0b200515f5ea078f",
+          "path": "templates/video_minimax_h3_i2v.json",
+          "json_pointer": "",
+          "content_sha256": "sha256:9b1e1703048575f06460b393cc818cb83bf9c9efc83dc381c8bf20be90fcb8f2",
+          "license": "MIT",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/length.py"
+      ],
+      "oracle_tests": [
+        "tests/test_length_authority.py::RoundingConventionTests::test_matches_the_official_template_over_a_contiguous_range"
+      ],
+      "oracle_class": "independent",
+      "disposition": "covered",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Independent interface specification and product comparison."
+    },
+    {
+      "behaviour_id": "latents.video_extent",
+      "authority": "host_node",
+      "statement": "Each additional frame group adds five video latent positions after the initial two.",
+      "anchors": [
+        {
+          "anchor_id": "native.video.geometry@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "video_latent_t",
+          "content_sha256": "sha256:482570d0fa693fe50920b665c8b431c6f03e18336ae81232aa7a71c3dc4e08d8",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        },
+        {
+          "anchor_id": "native.latents.geometry@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "temporal_shape",
+          "content_sha256": "sha256:6a2c1d14517f5f32efd2ad4a7af2c8d434e4ab12469fa34a72172c85c2bdaf66",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/temporal_profile.py"
+      ],
+      "oracle_tests": [
+        "tests/test_temporal_profile.py::AdapterParityTests::test_alignment_and_both_latent_lengths_match_the_published_derivation"
+      ],
+      "oracle_class": "independent",
+      "disposition": "covered",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Independent interface specification and product comparison."
+    },
+    {
+      "behaviour_id": "latents.audio_extent",
+      "authority": "host_node",
+      "statement": "Audio extent spans forty latent positions per second at twenty-four video frames per second.",
+      "anchors": [
+        {
+          "anchor_id": "native.latents.geometry@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "temporal_shape",
+          "content_sha256": "sha256:6a2c1d14517f5f32efd2ad4a7af2c8d434e4ab12469fa34a72172c85c2bdaf66",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/temporal_profile.py"
+      ],
+      "oracle_tests": [
+        "tests/test_temporal_profile.py::AdapterParityTests::test_alignment_and_both_latent_lengths_match_the_published_derivation"
+      ],
+      "oracle_class": "independent",
+      "disposition": "covered",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Independent interface specification and product comparison."
+    },
+    {
+      "behaviour_id": "references.window",
+      "authority": "host_node",
+      "statement": "Reference conditioning truncates to the shorter admissible lattice and samples twelve frames apart.",
+      "anchors": [
+        {
+          "anchor_id": "native.reference.window@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "MiniMaxH3ReferenceToVideo.execute",
+          "content_sha256": "sha256:3612d13586a17763f6bb22c6044668798898a5c142ba4b4b502884f428c9b5a3",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/reference_window.py"
+      ],
+      "oracle_tests": [
+        "tests/test_reference_window.py::test_native_window_property"
+      ],
+      "oracle_class": "independent",
+      "disposition": "covered",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Independent interface specification and product comparison."
+    },
+    {
+      "behaviour_id": "references.aggregate_limit",
+      "authority": "model_card",
+      "statement": "The total reference file count does not exceed twelve.",
+      "anchors": [
+        {
+          "anchor_id": "model.reference.interface@d21241f0",
+          "repository": "MiniMax-AI/MiniMax-H3",
+          "revision": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+          "path": "README.md",
+          "text_heading": "## System Overview",
+          "content_sha256": "sha256:35f1cbfa61cb997228c530fe404082aa96a1ee9ee08501f2cf908919f13a9f11",
+          "license": "Interface facts; no permissive source license",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/native_h3.py"
+      ],
+      "oracle_tests": [
+        "tests/test_native_behaviour_oracles.py::test_native_binding_refuses_the_independent_aggregate_reference_limit"
+      ],
+      "oracle_class": "independent",
+      "disposition": "covered",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Independent interface specification and product comparison."
+    },
+    {
+      "behaviour_id": "references.per_kind_limits",
+      "authority": "model_card",
+      "statement": "The interface declares nine images, three videos and three audio references.",
+      "anchors": [
+        {
+          "anchor_id": "model.reference.interface@d21241f0",
+          "repository": "MiniMax-AI/MiniMax-H3",
+          "revision": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+          "path": "README.md",
+          "text_heading": "## System Overview",
+          "content_sha256": "sha256:35f1cbfa61cb997228c530fe404082aa96a1ee9ee08501f2cf908919f13a9f11",
+          "license": "Interface facts; no permissive source license",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/native_h3.py"
+      ],
+      "oracle_tests": [
+        "tests/test_native_behaviour_oracles.py::test_model_card_reference_limits_match_the_native_binding_contract"
+      ],
+      "oracle_class": "independent",
+      "disposition": "covered",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Independent interface specification and product comparison."
+    },
+    {
+      "behaviour_id": "references.timed_limits",
+      "authority": "model_card",
+      "statement": "Individual timed references last two to fifteen seconds with fifteen-second aggregate bounds.",
+      "anchors": [
+        {
+          "anchor_id": "model.reference.interface@d21241f0",
+          "repository": "MiniMax-AI/MiniMax-H3",
+          "revision": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+          "path": "README.md",
+          "text_heading": "## System Overview",
+          "content_sha256": "sha256:35f1cbfa61cb997228c530fe404082aa96a1ee9ee08501f2cf908919f13a9f11",
+          "license": "Interface facts; no permissive source license",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/native_h3.py"
+      ],
+      "oracle_tests": [
+        "tests/test_native_behaviour_oracles.py::test_model_card_reference_limits_match_the_native_binding_contract"
+      ],
+      "oracle_class": "independent",
+      "disposition": "covered",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Independent interface specification and product comparison."
+    },
+    {
+      "behaviour_id": "output.duration_limits",
+      "authority": "model_card",
+      "statement": "Output duration remains within the model's four-to-fifteen-second range.",
+      "anchors": [
+        {
+          "anchor_id": "model.reference.interface@d21241f0",
+          "repository": "MiniMax-AI/MiniMax-H3",
+          "revision": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+          "path": "README.md",
+          "text_heading": "## System Overview",
+          "content_sha256": "sha256:35f1cbfa61cb997228c530fe404082aa96a1ee9ee08501f2cf908919f13a9f11",
+          "license": "Interface facts; no permissive source license",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/native_h3.py"
+      ],
+      "oracle_tests": [
+        "tests/test_native_behaviour_oracles.py::test_native_binding_refuses_output_outside_the_independent_model_range"
+      ],
+      "oracle_class": "independent",
+      "disposition": "covered",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Independent interface specification and product comparison."
+    },
+    {
+      "behaviour_id": "references.audio_requires_visual",
+      "authority": "model_card",
+      "statement": "Audio reference cannot be the sole reference modality.",
+      "anchors": [
+        {
+          "anchor_id": "model.reference.interface@d21241f0",
+          "repository": "MiniMax-AI/MiniMax-H3",
+          "revision": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+          "path": "README.md",
+          "text_heading": "## System Overview",
+          "content_sha256": "sha256:35f1cbfa61cb997228c530fe404082aa96a1ee9ee08501f2cf908919f13a9f11",
+          "license": "Interface facts; no permissive source license",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/native_h3.py"
+      ],
+      "oracle_tests": [
+        "tests/test_native_behaviour_oracles.py::test_audio_only_reference_is_not_ready_under_the_model_card_interface"
+      ],
+      "oracle_class": "independent",
+      "disposition": "divergence",
+      "defect": "audio-only-reference-ready",
+      "owner": "model-contract-repair",
+      "reason": "Current native wiring admits audio-only references; strict expected failure preserves the model restriction until owned repair."
+    },
+    {
+      "behaviour_id": "references.autogrow_paths",
+      "authority": "host_node",
+      "statement": "Native autogrow bindings are zero-based qualified paths and presentation labels are one-based.",
+      "anchors": [
+        {
+          "anchor_id": "native.reference.window@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "MiniMaxH3ReferenceToVideo.execute",
+          "content_sha256": "sha256:3612d13586a17763f6bb22c6044668798898a5c142ba4b4b502884f428c9b5a3",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/native_h3.py"
+      ],
+      "oracle_tests": [
+        "tests/test_native_h3_adapter.py::NativeH3AdapterTests::test_reference_paths_are_fully_qualified_zero_based"
+      ],
+      "oracle_class": "characterization",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Literal mapping examples characterize the repository; they are not an independent native path oracle."
+    },
+    {
+      "behaviour_id": "references.paired_soundtrack",
+      "authority": "host_node",
+      "statement": "Audio explicitly paired with a reference video uses the video soundtrack binding.",
+      "anchors": [
+        {
+          "anchor_id": "native.reference.window@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "MiniMaxH3ReferenceToVideo.execute",
+          "content_sha256": "sha256:3612d13586a17763f6bb22c6044668798898a5c142ba4b4b502884f428c9b5a3",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/native_h3.py"
+      ],
+      "oracle_tests": [
+        "tests/test_native_h3_adapter.py::NativeH3AdapterTests::test_ref2va_preserves_explicit_paired_soundtrack_slot"
+      ],
+      "oracle_class": "characterization",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Binding examples retain existing contract coverage; live conditioning semantics remain a bounded host obligation."
+    },
+    {
+      "behaviour_id": "references.canvas_grid",
+      "authority": "host_node",
+      "statement": "Reference images use a thirty-two-pixel grid, a 768 short-edge target and a 768-by-1344 area ceiling.",
+      "anchors": [
+        {
+          "anchor_id": "native.reference.canvas@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "adapt_canvas",
+          "content_sha256": "sha256:aa2ecb3c2b5230d66a5afe2896f53a632dfb36f476f90225b1c23fec4e1c92f2",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/native_h3.py"
+      ],
+      "oracle_tests": [],
+      "oracle_class": "none",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Native canvas adaptation is delegated to the host; independent examples do not establish product parity. Reduced host samples retain this seam."
+    },
+    {
+      "behaviour_id": "audio.native_format",
+      "authority": "model_card",
+      "statement": "Native generated audio uses thirty-two-kilohertz stereo output.",
+      "anchors": [
+        {
+          "anchor_id": "model.reference.interface@d21241f0",
+          "repository": "MiniMax-AI/MiniMax-H3",
+          "revision": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+          "path": "README.md",
+          "text_heading": "## System Overview",
+          "content_sha256": "sha256:35f1cbfa61cb997228c530fe404082aa96a1ee9ee08501f2cf908919f13a9f11",
+          "license": "Interface facts; no permissive source license",
+          "retrieved": "2026-10-09"
+        },
+        {
+          "anchor_id": "native.reference.audio@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "MiniMaxH3ReferenceToVideo._encode_ref_audio",
+          "content_sha256": "sha256:a1482b46a3680769f3f97c67411f138b12d23eaa5c60ff5da896cc99106cfc90",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/adapters/authoring_render_graph.py"
+      ],
+      "oracle_tests": [],
+      "oracle_class": "none",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "The NLE renderer and native model audio have different contracts; metadata-only tests do not prove decoder/output format. Reduced samples retain the native outcome."
+    },
+    {
+      "behaviour_id": "latents.joint_layout",
+      "authority": "host_node",
+      "statement": "Joint AV descriptors preserve both domains, shape and declared temporal extents.",
+      "anchors": [
+        {
+          "anchor_id": "native.latents.layout@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "_empty_av_latent",
+          "content_sha256": "sha256:511e54265a14fb5d1dfa9f0ef480b9b47d1dd9b8280880002b43d9943cf5e28d",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        },
+        {
+          "anchor_id": "native.latents.geometry@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "temporal_shape",
+          "content_sha256": "sha256:6a2c1d14517f5f32efd2ad4a7af2c8d434e4ab12469fa34a72172c85c2bdaf66",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/joint_av_latent.py"
+      ],
+      "oracle_tests": [
+        "tests/test_joint_av_latent.py::DescriptorTests::test_measured_layout_pins_are_enforced"
+      ],
+      "oracle_class": "shape",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Measured-layout and byte-arithmetic checks prove descriptor shape, not a native tensor execution or continuation outcome."
+    },
+    {
+      "behaviour_id": "latents.requested_lattice",
+      "authority": "host_node",
+      "statement": "A requested descriptor frame extent must be admissible; completion may describe a partial boundary.",
+      "anchors": [
+        {
+          "anchor_id": "native.frames.alignment@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "align_frame_count",
+          "content_sha256": "sha256:325a44f65f6c3a3fbe1e6c53a5c636ff7a722190598e2a7d539461e0659ad8f7",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        },
+        {
+          "anchor_id": "native.latents.geometry@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "temporal_shape",
+          "content_sha256": "sha256:6a2c1d14517f5f32efd2ad4a7af2c8d434e4ab12469fa34a72172c85c2bdaf66",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/joint_av_latent.py"
+      ],
+      "oracle_tests": [
+        "tests/test_joint_av_latent.py::DescriptorTests::test_requested_extent_requires_an_admissible_frame_lattice"
+      ],
+      "oracle_class": "shape",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "A confined descriptor refusal regression is planned; it is not a claim of native tensor parity."
+    },
+    {
+      "behaviour_id": "masks.polarity",
+      "authority": "host_sampler",
+      "statement": "A zero denoise mask preserves the reference and a one mask generates the new trajectory.",
+      "anchors": [
+        {
+          "anchor_id": "native.mask.blend@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy/samplers.py",
+          "symbol": "KSamplerX0Inpaint.__call__",
+          "content_sha256": "sha256:d3114e1619f990a7f986eb1b45f7687508f38cb16478059037412e75f4c411bf",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/masked_av_continuation.py"
+      ],
+      "oracle_tests": [
+        "tests/test_native_behaviour_oracles.py::test_mask_polarity_matches_the_independent_native_blend_specification"
+      ],
+      "oracle_class": "independent",
+      "disposition": "covered",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Independent interface specification and product comparison."
+    },
+    {
+      "behaviour_id": "masks.domain_grid",
+      "authority": "host_sampler",
+      "statement": "Per-domain suffix masks remain on the declared video and audio latent grids.",
+      "anchors": [
+        {
+          "anchor_id": "native.mask.blend@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy/samplers.py",
+          "symbol": "KSamplerX0Inpaint.__call__",
+          "content_sha256": "sha256:d3114e1619f990a7f986eb1b45f7687508f38cb16478059037412e75f4c411bf",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        },
+        {
+          "anchor_id": "native.latents.geometry@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "temporal_shape",
+          "content_sha256": "sha256:6a2c1d14517f5f32efd2ad4a7af2c8d434e4ab12469fa34a72172c85c2bdaf66",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/masked_av_continuation.py"
+      ],
+      "oracle_tests": [
+        "tests/test_masked_av_continuation.py::MaskPlanTests::test_plan_lives_on_the_exact_grids_and_is_stable"
+      ],
+      "oracle_class": "shape",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Grid planning is checked; sampler execution needs existing supported-host qualification rather than a self-derived mask golden."
+    },
+    {
+      "behaviour_id": "sources.compatibility_identity",
+      "authority": "host_node",
+      "statement": "The supported core revision and native blob agree with the active compatibility and native binding authorities.",
+      "anchors": [
+        {
+          "anchor_id": "native.keyframe.bindings@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "MiniMaxH3ImageToVideo.execute",
+          "content_sha256": "sha256:5ea8dc0c9954b05459e4baf752ab441d9b57e5e3d4a81046d44a058a7971940f",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/source_drift_checkpoint.py"
+      ],
+      "oracle_tests": [
+        "tests/test_source_drift_checkpoint.py::test_supported_core_identity_equals_the_active_compatibility_reference_profile"
+      ],
+      "oracle_class": "identity",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Cross-authority identity equality is provenance and must not be counted as semantic parity or latest-host support."
+    },
+    {
+      "behaviour_id": "encoder.dialogue_tokens",
+      "authority": "host_encoder",
+      "statement": "The later native tokenizer changes dialogue special-token handling.",
+      "anchors": [
+        {
+          "anchor_id": "native.encoder.tokens@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy/text_encoders/minimax.py",
+          "symbol": "MiniMaxH3Tokenizer.tokenize_with_weights",
+          "content_sha256": "sha256:62f44ee524db5b0b0dd657c61b855fb83a472db0f029b4436e81048795c35d0f",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/rendering.py"
+      ],
+      "oracle_tests": [],
+      "oracle_class": "none",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "The repository emits text and delegates native tokenization. Revision-bound change detection is required; no later-host qualification is inferred."
+    },
+    {
+      "behaviour_id": "encoder.audio_anchors",
+      "authority": "host_encoder",
+      "statement": "The later native encoder changes reference-audio anchor handling.",
+      "anchors": [
+        {
+          "anchor_id": "native.encoder.tokens@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy/text_encoders/minimax.py",
+          "symbol": "MiniMaxH3Tokenizer.tokenize_with_weights",
+          "content_sha256": "sha256:62f44ee524db5b0b0dd657c61b855fb83a472db0f029b4436e81048795c35d0f",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        },
+        {
+          "anchor_id": "native.reference.audio@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "MiniMaxH3ReferenceToVideo._encode_ref_audio",
+          "content_sha256": "sha256:a1482b46a3680769f3f97c67411f138b12d23eaa5c60ff5da896cc99106cfc90",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/native_h3.py"
+      ],
+      "oracle_tests": [],
+      "oracle_class": "none",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Reference-audio token assembly is host-owned; source drift observations do not substitute for codec/weight-backed qualification."
+    },
+    {
+      "behaviour_id": "encoder.per_token_masks",
+      "authority": "host_encoder",
+      "statement": "The later native encoder changes per-token reference-mask handling.",
+      "anchors": [
+        {
+          "anchor_id": "native.encoder.token_masks@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy/text_encoders/minimax.py",
+          "symbol": "MiniMaxH3ClipModel.encode_token_weights",
+          "content_sha256": "sha256:612b698ca0ce23ef5657d265c6a07aecbb37877c3dd728016adffbcd0f95c5cf",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/native_h3.py"
+      ],
+      "oracle_tests": [],
+      "oracle_class": "none",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Host-owned token mask execution has no independent repository runtime oracle; the observation remains revision-bound and unqualified."
+    },
+    {
+      "behaviour_id": "guide.full_reference_fields",
+      "authority": "guide",
+      "statement": "Full Reference output follows the six declared interface fields in order.",
+      "anchors": [
+        {
+          "anchor_id": "guide.reference.structure@d21241f0",
+          "repository": "MiniMax-AI/MiniMax-H3-official-skills",
+          "revision": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+          "path": ".agents/skills/h3-prompt-writing/references/ref-en.txt",
+          "text_heading": "## 1. Overall Structure",
+          "content_sha256": "sha256:b7bd1c86ca66bca64177a12359ae3621a5e3c7f34a274fe72bcf7abd59b4f86e",
+          "license": "Interface facts; no permissive source license",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/rendering.py"
+      ],
+      "oracle_tests": [
+        "tests/test_native_behaviour_oracles.py::test_full_reference_sections_follow_the_independent_guide_interface"
+      ],
+      "oracle_class": "independent",
+      "disposition": "covered",
+      "defect": null,
+      "owner": "prompt-rendering",
+      "reason": "Independent interface specification and product comparison."
+    },
+    {
+      "behaviour_id": "guide.shot_timestamps",
+      "authority": "guide",
+      "statement": "Later shots have increasing bounded timestamps while the first shot has no cut timestamp.",
+      "anchors": [
+        {
+          "anchor_id": "guide.base.shots@d21241f0",
+          "repository": "MiniMax-AI/MiniMax-H3-official-skills",
+          "revision": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+          "path": ".agents/skills/h3-prompt-writing/references/base-en.txt",
+          "text_heading": "### 4.2 Shots and Cuts",
+          "content_sha256": "sha256:b7c6161d4d1e0b1319ce1694e1ee2122ed70ebb43bee2aa735ec568454038179",
+          "license": "Interface facts; no permissive source license",
+          "retrieved": "2026-10-09"
+        },
+        {
+          "anchor_id": "guide.reference.description@d21241f0",
+          "repository": "MiniMax-AI/MiniMax-H3-official-skills",
+          "revision": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+          "path": ".agents/skills/h3-prompt-writing/references/ref-en.txt",
+          "text_heading": "## 5. `detailed_description`",
+          "content_sha256": "sha256:17f03ef9084ef558aeb7c0480363a6604e533c0ee61c565ab350bf7b54faa826",
+          "license": "Interface facts; no permissive source license",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/rendering.py"
+      ],
+      "oracle_tests": [
+        "tests/test_native_behaviour_oracles.py::test_later_rendered_shots_have_ordered_bounded_timestamps"
+      ],
+      "oracle_class": "independent",
+      "disposition": "covered",
+      "defect": null,
+      "owner": "prompt-rendering",
+      "reason": "Independent interface specification and product comparison."
+    },
+    {
+      "behaviour_id": "guide.dialogue_languages",
+      "authority": "model_card",
+      "statement": "Stable dialogue tags use the eleven languages declared by the model interface.",
+      "anchors": [
+        {
+          "anchor_id": "model.reference.interface@d21241f0",
+          "repository": "MiniMax-AI/MiniMax-H3",
+          "revision": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+          "path": "README.md",
+          "text_heading": "## System Overview",
+          "content_sha256": "sha256:35f1cbfa61cb997228c530fe404082aa96a1ee9ee08501f2cf908919f13a9f11",
+          "license": "Interface facts; no permissive source license",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/dialogue_language.py"
+      ],
+      "oracle_tests": [
+        "tests/test_native_behaviour_oracles.py::test_model_card_dialogue_language_set_is_exact"
+      ],
+      "oracle_class": "independent",
+      "disposition": "covered",
+      "defect": null,
+      "owner": "prompt-rendering",
+      "reason": "Independent interface specification and product comparison."
+    },
+    {
+      "behaviour_id": "guide.dialogue_markup",
+      "authority": "guide",
+      "statement": "Dialogue retains its declared spoken text and interface tags without invented metadata.",
+      "anchors": [
+        {
+          "anchor_id": "guide.base.dialogue@d21241f0",
+          "repository": "MiniMax-AI/MiniMax-H3-official-skills",
+          "revision": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+          "path": ".agents/skills/h3-prompt-writing/references/base-en.txt",
+          "text_heading": "### 4.4 Speakers, Dialogue, and Singing",
+          "content_sha256": "sha256:f4678c2008a06a1bcec5a6dd06621443851a011684910bf220ca927e3fb1e7f9",
+          "license": "Interface facts; no permissive source license",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/rendering.py"
+      ],
+      "oracle_tests": [
+        "tests/test_dialogue_language.py::test_base_and_full_preserve_the_declared_derived_or_absent_tag"
+      ],
+      "oracle_class": "characterization",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "prompt-rendering",
+      "reason": "Existing exact-text goldens characterize repository output; source-anchored language-set coverage is tracked separately."
+    },
+    {
+      "behaviour_id": "guide.cut_vocabulary",
+      "authority": "guide",
+      "statement": "Ordinary cuts use guide vocabulary while explicitly authored non-cut transitions remain possible.",
+      "anchors": [
+        {
+          "anchor_id": "guide.base.shots@d21241f0",
+          "repository": "MiniMax-AI/MiniMax-H3-official-skills",
+          "revision": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+          "path": ".agents/skills/h3-prompt-writing/references/base-en.txt",
+          "text_heading": "### 4.2 Shots and Cuts",
+          "content_sha256": "sha256:b7c6161d4d1e0b1319ce1694e1ee2122ed70ebb43bee2aa735ec568454038179",
+          "license": "Interface facts; no permissive source license",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/rendering.py"
+      ],
+      "oracle_tests": [],
+      "oracle_class": "none",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "prompt-rendering",
+      "reason": "Cut descriptions remain author-supplied; vocabulary facts are anchored but no complete semantic renderer oracle is claimed."
+    },
+    {
+      "behaviour_id": "guide.camera_vocabulary",
+      "authority": "guide",
+      "statement": "Camera descriptions distinguish motion type, amplitude and speed.",
+      "anchors": [
+        {
+          "anchor_id": "guide.base.camera@d21241f0",
+          "repository": "MiniMax-AI/MiniMax-H3-official-skills",
+          "revision": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+          "path": ".agents/skills/h3-prompt-writing/references/base-en.txt",
+          "text_heading": "### 4.3 Camera Motion: Motion Type + Amplitude + Speed",
+          "content_sha256": "sha256:f36c6b3d1aa0a65f8c7ebb335083ebb8a11fdf64480a829109d18aab717d3ae6",
+          "license": "Interface facts; no permissive source license",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/rendering.py"
+      ],
+      "oracle_tests": [],
+      "oracle_class": "none",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "prompt-rendering",
+      "reason": "Free-form camera descriptions are retained; enumeration presence alone would not prove guide conformance."
+    },
+    {
+      "behaviour_id": "guide.full_reference_shot_lines",
+      "authority": "guide",
+      "statement": "The detailed-description style and each shot occupy their intended separate lines.",
+      "anchors": [
+        {
+          "anchor_id": "guide.reference.description@d21241f0",
+          "repository": "MiniMax-AI/MiniMax-H3-official-skills",
+          "revision": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+          "path": ".agents/skills/h3-prompt-writing/references/ref-en.txt",
+          "text_heading": "## 5. `detailed_description`",
+          "content_sha256": "sha256:17f03ef9084ef558aeb7c0480363a6604e533c0ee61c565ab350bf7b54faa826",
+          "license": "Interface facts; no permissive source license",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/rendering.py"
+      ],
+      "oracle_tests": [
+        "tests/test_native_behaviour_oracles.py::test_full_reference_detailed_description_has_one_line_per_shot"
+      ],
+      "oracle_class": "independent",
+      "disposition": "divergence",
+      "defect": "full-reference-shot-line-layout",
+      "owner": "prompt-rendering-repair",
+      "reason": "Current rendering joins style and shots into one line; strict expected failure retains the guide layout obligation until repair."
+    },
+    {
+      "behaviour_id": "guide.base_characterization",
+      "authority": "guide",
+      "statement": "Base renderer output remains deterministic for repository-authored goldens.",
+      "anchors": [
+        {
+          "anchor_id": "guide.base.structure@d21241f0",
+          "repository": "MiniMax-AI/MiniMax-H3-official-skills",
+          "revision": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+          "path": ".agents/skills/h3-prompt-writing/references/base-en.txt",
+          "text_heading": "## 2. Final Prompt Structure",
+          "content_sha256": "sha256:6f0f9240caec66deebcac08943fc2b04547f711dd94483152c7484ac8bbf84bf",
+          "license": "Interface facts; no permissive source license",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/rendering.py"
+      ],
+      "oracle_tests": [
+        "tests/test_rendering.py::BaseRenderingTests::test_t2va_golden_structure_and_determinism"
+      ],
+      "oracle_class": "characterization",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "prompt-rendering",
+      "reason": "Repository-authored prompt goldens are explicitly characterization, not independent guide parity."
+    },
+    {
+      "behaviour_id": "prompt.budget_estimate",
+      "authority": "host_encoder",
+      "statement": "The byte-based prompt budget estimate is separate from actual native token count.",
+      "anchors": [
+        {
+          "anchor_id": "native.encoder.tokens@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy/text_encoders/minimax.py",
+          "symbol": "MiniMaxH3Tokenizer.tokenize_with_weights",
+          "content_sha256": "sha256:62f44ee524db5b0b0dd657c61b855fb83a472db0f029b4436e81048795c35d0f",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/prompt_model_budget.py"
+      ],
+      "oracle_tests": [],
+      "oracle_class": "none",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "prompt-budget",
+      "reason": "No native tokenizer comparison is available in offline core; an estimate cannot claim a tokenizer budget proof."
+    },
+    {
+      "behaviour_id": "templates.published_facts",
+      "authority": "template",
+      "statement": "Three attributed tracked template facts retain default model basenames, file identities and length expressions.",
+      "anchors": [
+        {
+          "anchor_id": "template.t2v@5097de61",
+          "repository": "Comfy-Org/workflow_templates",
+          "revision": "5097de61ef09fe75466716ac0b200515f5ea078f",
+          "path": "templates/video_minimax_h3_t2v.json",
+          "json_pointer": "",
+          "content_sha256": "sha256:aeb49dda0665ca21f4c7ebbd645a9534360fa763dc87c587a62edac3f4fbc1b6",
+          "license": "MIT",
+          "retrieved": "2026-10-09"
+        },
+        {
+          "anchor_id": "template.i2v@5097de61",
+          "repository": "Comfy-Org/workflow_templates",
+          "revision": "5097de61ef09fe75466716ac0b200515f5ea078f",
+          "path": "templates/video_minimax_h3_i2v.json",
+          "json_pointer": "",
+          "content_sha256": "sha256:9b1e1703048575f06460b393cc818cb83bf9c9efc83dc381c8bf20be90fcb8f2",
+          "license": "MIT",
+          "retrieved": "2026-10-09"
+        },
+        {
+          "anchor_id": "template.r2v@5097de61",
+          "repository": "Comfy-Org/workflow_templates",
+          "revision": "5097de61ef09fe75466716ac0b200515f5ea078f",
+          "path": "templates/video_minimax_h3_r2v.json",
+          "json_pointer": "",
+          "content_sha256": "sha256:0ea586482de089c7c7ba9e1b9dad2ec230bbdc1e8893e6cdc67d7881c4d5758b",
+          "license": "MIT",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/adapters/comfyui_generation_profile.py",
+        "frontend/tests/templateMaterialization.test.ts"
+      ],
+      "oracle_tests": [
+        "tests/test_native_behaviour_oracles.py::test_published_template_facts_match_the_actual_defaults_and_digest_contract"
+      ],
+      "oracle_class": "independent",
+      "disposition": "covered",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Independent interface specification and product comparison."
+    },
+    {
+      "behaviour_id": "templates.optional_corpus",
+      "authority": "template",
+      "statement": "Real template corpus cases supplement unconditional tracked-fact coverage.",
+      "anchors": [
+        {
+          "anchor_id": "template.t2v@5097de61",
+          "repository": "Comfy-Org/workflow_templates",
+          "revision": "5097de61ef09fe75466716ac0b200515f5ea078f",
+          "path": "templates/video_minimax_h3_t2v.json",
+          "json_pointer": "",
+          "content_sha256": "sha256:aeb49dda0665ca21f4c7ebbd645a9534360fa763dc87c587a62edac3f4fbc1b6",
+          "license": "MIT",
+          "retrieved": "2026-10-09"
+        },
+        {
+          "anchor_id": "template.i2v@5097de61",
+          "repository": "Comfy-Org/workflow_templates",
+          "revision": "5097de61ef09fe75466716ac0b200515f5ea078f",
+          "path": "templates/video_minimax_h3_i2v.json",
+          "json_pointer": "",
+          "content_sha256": "sha256:9b1e1703048575f06460b393cc818cb83bf9c9efc83dc381c8bf20be90fcb8f2",
+          "license": "MIT",
+          "retrieved": "2026-10-09"
+        },
+        {
+          "anchor_id": "template.r2v@5097de61",
+          "repository": "Comfy-Org/workflow_templates",
+          "revision": "5097de61ef09fe75466716ac0b200515f5ea078f",
+          "path": "templates/video_minimax_h3_r2v.json",
+          "json_pointer": "",
+          "content_sha256": "sha256:0ea586482de089c7c7ba9e1b9dad2ec230bbdc1e8893e6cdc67d7881c4d5758b",
+          "license": "MIT",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "tests/test_generation_profile_adapter.py",
+        "frontend/tests/templateMaterialization.test.ts"
+      ],
+      "oracle_tests": [],
+      "oracle_class": "identity",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Ignored-corpus cases remain optional supplements. The independently tracked fact consumer runs without that corpus and is a separate covered row."
+    },
+    {
+      "behaviour_id": "host.queue_projection",
+      "authority": "host_execution",
+      "statement": "Queue validation projects unresolved links, list consumers, absent optional inputs and declared link types.",
+      "anchors": [
+        {
+          "anchor_id": "host.queue.projection@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "execution.py",
+          "symbol": "get_input_data",
+          "content_sha256": "sha256:6d0d2ea0962e1e3c7e495e9d4fda9243dff031fee90ff99cb2974d9e1993a106",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        },
+        {
+          "anchor_id": "host.queue.validation@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "execution.py",
+          "symbol": "validate_inputs",
+          "content_sha256": "sha256:4cbb5ec0274f46e2220a3ff8ccea865b0d6850d7863fd4cc4d9a523e503fcac1",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/nodes.py"
+      ],
+      "oracle_tests": [
+        "tests/test_host_queue_validation.py::test_queue_projection_matches_handwritten_contract"
+      ],
+      "oracle_class": "independent",
+      "disposition": "covered",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Independent interface specification and product comparison."
+    },
+    {
+      "behaviour_id": "host.connected_visual",
+      "authority": "host_execution",
+      "statement": "A connected visual-result socket is admitted before its unresolved value exists.",
+      "anchors": [
+        {
+          "anchor_id": "host.queue.validation@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "execution.py",
+          "symbol": "validate_inputs",
+          "content_sha256": "sha256:4cbb5ec0274f46e2220a3ff8ccea865b0d6850d7863fd4cc4d9a523e503fcac1",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        },
+        {
+          "anchor_id": "host.queue.projection@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "execution.py",
+          "symbol": "get_input_data",
+          "content_sha256": "sha256:6d0d2ea0962e1e3c7e495e9d4fda9243dff031fee90ff99cb2974d9e1993a106",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/timeline_producer_nodes.py"
+      ],
+      "oracle_tests": [
+        "tests/test_host_queue_validation.py::test_qualified_visual_link_is_admitted"
+      ],
+      "oracle_class": "independent",
+      "disposition": "covered",
+      "defect": null,
+      "owner": "perception-host-integration",
+      "reason": "Handwritten queue admission passes for correctly typed connected visual placeholders; delegated socket types are checked explicitly."
+    },
+    {
+      "behaviour_id": "keyframes.native_binding",
+      "authority": "host_node",
+      "statement": "Keyframe modes retain the explicit native first/last-frame bindings.",
+      "anchors": [
+        {
+          "anchor_id": "native.keyframe.bindings@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "MiniMaxH3ImageToVideo.execute",
+          "content_sha256": "sha256:5ea8dc0c9954b05459e4baf752ab441d9b57e5e3d4a81046d44a058a7971940f",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/native_h3.py"
+      ],
+      "oracle_tests": [
+        "tests/test_native_h3_adapter.py::NativeH3AdapterTests::test_single_keyframe_modes_use_exact_native_image_inputs"
+      ],
+      "oracle_class": "characterization",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "Binding metadata is characterized; the reduced I2VA/FL2VA host samples retain the execution obligation."
+    },
+    {
+      "behaviour_id": "sampler.sigma_structure",
+      "authority": "host_node",
+      "statement": "Native sigma adjustment and sampler structure are qualified separately from source identity.",
+      "anchors": [
+        {
+          "anchor_id": "native.sampler.sigma@b323a345",
+          "repository": "Comfy-Org/ComfyUI",
+          "revision": "b323a345bbbfb2f3a95b5b73b68eb7919a26515e",
+          "path": "comfy_extras/nodes_minimax_h3.py",
+          "symbol": "MiniMaxH3SigmaShift.execute",
+          "content_sha256": "sha256:45d9a19c41541a053c207a6d78c82f6fe4d9a43b68f71e745c1d00ad5217d105",
+          "license": "GPL-3.0",
+          "retrieved": "2026-10-09"
+        }
+      ],
+      "repo_sites": [
+        "comfyui_h3_context/core/native_mode_matrix.py"
+      ],
+      "oracle_tests": [],
+      "oracle_class": "identity",
+      "disposition": "accepted_gap",
+      "defect": null,
+      "owner": "native-compatibility",
+      "reason": "The catalogue records source facts; an identity pin alone cannot establish sigma/sampler execution acceptance."
+    }
+  ]
+}

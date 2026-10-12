@@ -178,7 +178,7 @@ describe("M25 sidebar editor UI contract", () => {
         name: "Start authoring from this context",
       }),
     ).toBeDefined();
-    // M25-44 (one NLE): the tab holds the summary, never a second editing surface.
+    //  (one NLE): the tab holds the summary, never a second editing surface.
     expect(
       screen.getByRole("region", { name: "Clip editor project" }),
     ).toBeDefined();
@@ -232,7 +232,7 @@ describe("M25 sidebar editor UI contract", () => {
     ).toBe("true");
   });
 
-  // M25-21 section 14.4 supersedes M25-16's mounted-view-only reset: the selected function
+  //  section 14.4 supersedes 's mounted-view-only reset: the selected function
   // survives view destroy/remount through the session store and resets only on full disposal.
   it("retains the function across view destroy and resets it only on full disposal", () => {
     const retention = createSidebarRetention();

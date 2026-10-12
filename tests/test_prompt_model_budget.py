@@ -1,4 +1,4 @@
-"""M22-02 prompt-model runtime budget and admission planner tests."""
+"""prompt-model runtime budget and admission planner tests."""
 
 from __future__ import annotations
 

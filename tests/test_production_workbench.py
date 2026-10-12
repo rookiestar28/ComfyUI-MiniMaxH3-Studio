@@ -1,4 +1,4 @@
-"""M17-12 bounded Production workbench core and adapter tests."""
+"""bounded Production workbench core and adapter tests."""
 
 from __future__ import annotations
 
@@ -396,7 +396,7 @@ def test_registry_stages_and_atomically_adopts_exact_builder_source_once() -> No
 
 
 def test_staged_adoption_retains_project_editor_seed_after_context_loss() -> None:
-    """M25-40 class sweep: the planned origin prepares its editor like manual and managed ones."""
+    """class sweep: the planned origin prepares its editor like manual and managed ones."""
 
     sidebar, registry, seed_handle = _setup()
     seed = sidebar.claim_production_seed(seed_handle)

@@ -1,4 +1,4 @@
-"""M22-12 execution admission, cancellation and sanitized receipt contracts."""
+"""execution admission, cancellation and sanitized receipt contracts."""
 
 from __future__ import annotations
 
@@ -51,7 +51,7 @@ def _authority() -> tuple[ContextPlan, PromptDocument]:
 
 
 PLAN, TEMPLATE = _authority()
-# M22-13: the shipped local row now arrives qualified, so the catalog-only fixture is derived by
+# the shipped local row now arrives qualified, so the catalog-only fixture is derived by
 # removing the qualification rather than by assuming the shipped default is unqualified. The state
 # and its evidence come off together, because a profile cannot hold one without the other.
 QUALIFIED = load_prompt_model_catalog().profiles[0]

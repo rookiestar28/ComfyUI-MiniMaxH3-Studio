@@ -1,4 +1,4 @@
-"""M20-08 focused tests for the incremental segment transport.
+"""focused tests for the incremental segment transport.
 
 The transport must stream an exact reusable stored artifact into a caller-owned fresh file one
 bounded chunk at a time, verify content identity en route, fail closed on tamper, cancellation,

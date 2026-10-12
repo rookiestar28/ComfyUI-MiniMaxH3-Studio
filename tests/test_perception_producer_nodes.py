@@ -1,4 +1,4 @@
-"""M15-01 public media/perception producer contract and node tests."""
+"""public media/perception producer contract and node tests."""
 
 from __future__ import annotations
 

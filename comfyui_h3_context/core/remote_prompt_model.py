@@ -1,4 +1,4 @@
-"""M22-04 consented remote prompt-model providers: what may leave the machine, and when.
+"""consented remote prompt-model providers: what may leave the machine, and when.
 
 Nothing here transmits. This module decides whether a transmission is allowed, what a credential is
 allowed to be, what may come back from a third party, and what the receipt of a completed call may

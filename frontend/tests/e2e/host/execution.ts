@@ -136,7 +136,7 @@ export type SampleProgress = {
  *
  * Each revision has to be measured on its own: a second revision that wrote
  * nothing would otherwise be credited with the first revision's artifact, which
- * is exactly the claim AC-M17-20-04 exists to make impossible.
+ * is exactly the claim AC--04 exists to make impossible.
  */
 export async function sampleProgress(
   page: Page,
@@ -401,7 +401,7 @@ export async function inspectRealI2vaArtifact(
     throw new Error("the live I2VA artifact could not be verified safely");
   }
 }
-// M23-26 registration phase Six.
+//  registration phase Six.
 // prettier-ignore
 import type { HostOfficialAssetManifest, CandidateInjectionState, LayoutState, AppModePhase, LayoutGridKind, LayoutVariant, LayoutPlacement, LayoutWidthMode, LayoutLocale, LayoutTheme, LayoutLifecycle, HostPersistenceSnapshot, LayoutCaptureEvidence, LayoutEvidenceJoin, LayoutEvidenceRow, LayoutCell, LayoutStateContract, LayoutRect, LayoutOwnerStyle, LayoutControlGeometry, LayoutNavigationTab, LayoutHeaderGeometry, LayoutFocusTargetKind, LayoutMeasurement, SerializedGraph, ManagedRouteReceipt, HostAssetResolutionReceipt, FrontendPerformanceReceipt } from "./environment";
 // prettier-ignore

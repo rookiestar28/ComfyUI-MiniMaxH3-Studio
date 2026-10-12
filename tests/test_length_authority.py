@@ -1,4 +1,4 @@
-"""M17-25 focused tests for `core.length`, the single H3 alignment authority.
+"""focused tests for `core.length`, the single H3 alignment authority.
 
 These tests own the arithmetic contract: the lattice, the accepted and trained
 ranges, the round-to-nearest seconds-to-frames convention adopted from the
@@ -16,7 +16,7 @@ import unittest
 from decimal import ROUND_CEILING, Decimal
 from pathlib import Path
 
-from official_temporal_parity import official_expression
+from oracles.native_temporal import official_expression
 
 from comfyui_h3_context.core.length import (
     DEFAULT_FRAME_COUNT,
@@ -77,7 +77,7 @@ class LatticeTests(unittest.TestCase):
 
 class RoundingConventionTests(unittest.TestCase):
     def test_matches_the_official_template_over_a_contiguous_range(self) -> None:
-        """AC-M17-25-02. Parity over every integer millisecond the range admits."""
+        """AC--02. Parity over every integer millisecond the range admits."""
 
         divergences = []
         for milliseconds in range(188, 30_001):
@@ -101,7 +101,7 @@ class RoundingConventionTests(unittest.TestCase):
         self.assertEqual(frames_from_milliseconds(188), MIN_FRAME_COUNT)
 
     def test_the_ceiling_convention_this_item_replaced_disagrees_and_is_longer(self) -> None:
-        """The pre-M17-25 convention rounded seconds up. Recomputed here rather
+        """The pre- convention rounded seconds up. Recomputed here rather
         than quoted from the plan, so the headline number is evidence."""
 
         divergences = 0
@@ -198,7 +198,7 @@ class ResolutionTests(unittest.TestCase):
 
 class MigrationTests(unittest.TestCase):
     def test_the_lattice_round_trip_is_lossless(self) -> None:
-        """AC-M17-25-07, first half."""
+        """AC--07, first half."""
 
         failures = [
             n
@@ -208,12 +208,12 @@ class MigrationTests(unittest.TestCase):
         self.assertEqual(failures, [])
 
     def test_off_lattice_migration_equals_alignment_and_is_marked_snapped(self) -> None:
-        """AC-M17-25-07, second half. A legacy non-producible value lands on
+        """AC--07, second half. A legacy non-producible value lands on
         exactly the length alignment would have given it, so the migration never
         introduces a third answer, and it is never silent.
 
         The domain is `MIN_FRAME_COUNT .. MAX_PRODUCIBLE_FRAME_COUNT`, and that is
-        the correction M17-25's distinct review forced. This test used to sweep to
+        the correction 's distinct review forced. This test used to sweep to
         `MAX_FRAME_COUNT` and carry an `if aligned > MAX_FRAME_COUNT: assertRaises;
         continue` escape hatch, which let its own name promise "equals alignment"
         while it asserted a raise for eight of the values it covered. The eight are
@@ -306,7 +306,7 @@ def _resolves(milliseconds: int) -> bool:
 
 
 class SingleAuthorityTests(unittest.TestCase):
-    """AC-M17-25-01. A fitness check, not a style rule: two authorities for one
+    """AC--01. A fitness check, not a style rule: two authorities for one
     contract is the defect this item exists to remove, and the only thing that
     keeps it removed is a test that fails when a second one appears."""
 
@@ -345,7 +345,7 @@ class SingleAuthorityTests(unittest.TestCase):
         self.assertEqual(offenders, [])
 
     def test_no_shipped_artifact_authors_a_frame_count(self) -> None:
-        """AC-M17-25-03. The derived frame count stays; the ability to author one
+        """AC--03. The derived frame count stays; the ability to author one
         does not. Checked on the shipped artifacts, which is where the previous
         contract non-producible values actually lived."""
 

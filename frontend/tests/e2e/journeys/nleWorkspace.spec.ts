@@ -84,7 +84,7 @@ async function openClipMenu(page: Page, clipId: string) {
     `[data-h3-nle-clip="${clipId}"] [data-h3-nle-menu-trigger="clip"], ` +
       `.h3-nle-trim-rail[data-h3-nle-trim-clip="${clipId}"] [data-h3-nle-menu-trigger="clip"]`,
   );
-  // M25-62 (B-M2562-03): this spec runs under a fine pointer, where a selected clip narrower than
+  //  (B-M2562-03): this spec runs under a fine pointer, where a selected clip narrower than
   // 96 px has no inline trigger and opens its menu by a context click.
   if ((await trigger.count()) === 0)
     await page
@@ -113,7 +113,7 @@ test("NLE sequence keyboard review, import, serial start and separate assembly",
   await page
     .locator('[data-h3-nle-control="planning.target_seconds"]')
     .fill("20");
-  // M25-63: Production's planning section and the editor's Sequence tab both offer the
+  // Production's planning section and the editor's Sequence tab both offer the
   // readiness request; this flow requests it from the editor's tab, as before.
   const scoped = (id: string) =>
     id === "readiness.request"
@@ -657,7 +657,7 @@ for (const row of [
     const needsSourceRoom =
       row.control === "clip.slip" || row.control === "asset.replace";
     if (needsSourceRoom) {
-      // M25-62 (R7): clip-0 is wide enough for its inline grips; a narrow one uses the rail.
+      //  (R7): clip-0 is wide enough for its inline grips; a narrow one uses the rail.
       const endGrip = page.locator(
         '[data-h3-nle-clip="clip-0"] .h3-nle-grip[data-h3-nle-trim-edge="end"]:not([hidden]), ' +
           '.h3-nle-trim-rail[data-h3-nle-trim-clip="clip-0"] [data-h3-nle-trim-edge="end"]',
@@ -676,7 +676,7 @@ for (const row of [
         .click();
       await page.locator('[data-h3-nle-control="clip.move"]').click();
     } else if (row.control === "clip.trim") {
-      // M25-62 (R7): clip-0 is wide enough for its inline grips; a narrow one uses the rail.
+      //  (R7): clip-0 is wide enough for its inline grips; a narrow one uses the rail.
       const endGrip = page.locator(
         '[data-h3-nle-clip="clip-0"] .h3-nle-grip[data-h3-nle-trim-edge="end"]:not([hidden]), ' +
           '.h3-nle-trim-rail[data-h3-nle-trim-clip="clip-0"] [data-h3-nle-trim-edge="end"]',
@@ -986,6 +986,7 @@ test("decoded discrete edits stay within the frozen render and handler budgets",
   const commits: number[] = [];
   const renders: number[] = [];
   const handlers: number[] = [];
+  const states: string[] = [];
   for (let index = 0; index < 10; index++) {
     await expect(
       page.getByRole("button", { name: "Play", exact: true }),
@@ -996,7 +997,7 @@ test("decoded discrete edits stay within the frozen render and handler budgets",
       name: "Position X (%)",
       exact: true,
     });
-    // M25-64 (R10): 1 % is the 100 bp this series has always alternated with 0.
+    //  (R10): 1 % is the 100 bp this series has always alternated with 0.
     await input.fill(index % 2 === 0 ? "1" : "0");
     await page.waitForTimeout(100);
     await page.evaluate(() => window.nleWorkspaceHarness.resetMeasurements());
@@ -1015,16 +1016,37 @@ test("decoded discrete edits stay within the frozen render and handler budgets",
       );
     commits.push(measurements.commitDurationsMs.length);
     renders.push(...measurements.commitDurationsMs);
+    states.push(...measurements.commitStates);
     handlers.push(...measurements.handlerDurationsMs);
   }
   const p95 = (values: number[]) =>
     [...values].sort((a, b) => a - b)[Math.ceil(values.length * 0.95) - 1]!;
+  const report = {
+    commits,
+    renderP95: p95(renders),
+    handlerP95: p95(handlers),
+    renderSamplesSortedMs: [...renders]
+      .sort((a, b) => a - b)
+      .map((value) => Math.round(value * 10) / 10),
+    renderMedianMs:
+      ([...renders].sort((a, b) => a - b)[
+        Math.floor((renders.length - 1) / 2)
+      ]! +
+        [...renders].sort((a, b) => a - b)[Math.floor(renders.length / 2)]!) /
+      2,
+    handlerSamplesSortedMs: [...handlers]
+      .sort((a, b) => a - b)
+      .map((value) => Math.round(value * 10) / 10),
+    slowCommitStates: renders
+      .map((duration, index) => ({ duration, state: states[index] }))
+      .sort((a, b) => b.duration - a.duration)
+      .slice(0, 3)
+      .map(({ state }) => state ?? "unknown"),
+    sampleCounts: { renders: renders.length, handlers: handlers.length },
+  };
+  console.log(JSON.stringify(report));
   await testInfo.attach("discrete-edit-budgets", {
-    body: JSON.stringify({
-      commits,
-      renderP95: p95(renders),
-      handlerP95: p95(handlers),
-    }),
+    body: JSON.stringify(report),
     contentType: "application/json",
   });
   expect(renders.length).toBeGreaterThan(0);
@@ -1642,7 +1664,7 @@ test("background marquee commits one exact selection transaction", async ({
   const grid = page.getByRole("grid", { name: "Timeline tracks", exact: true });
   const bounds = (await grid.boundingBox())!;
   const before = transactions.length;
-  // M25-62: the 112 px header moved every lane 48 px left, so the grid's right edge now lands on
+  // the 112 px header moved every lane 48 px left, so the grid's right edge now lands on
   // clip-28. The press starts in the empty lane after clip-24 and ends just past the header, as
   // the 160 px layout's `x + 161` did.
   const gapAfter = (await page
@@ -1723,7 +1745,7 @@ test("virtualized row marquees stay off the scrollbar and each commit", async ({
 });
 
 test.describe("coarse pointer", () => {
-  // M25-62 (R2, R7): the 44 px rail is the coarse-pointer rule, so this case runs under touch.
+  //  (R2, R7): the 44 px rail is the coarse-pointer rule, so this case runs under touch.
   // The fine rail (30 px, below 24 px clips) is pinned by m25_62TimelineSurface A62-4.
   test.use({ hasTouch: true });
 
@@ -2239,7 +2261,7 @@ test("explicit open, singleton, keyboard focus, resize and close/reopen", async 
   await page.evaluate(() => window.nleWorkspaceHarness.open());
   await expect(page.locator(surface)).toHaveCount(1);
   const resize = page.locator('[data-h3-nle-action="resize"]');
-  // M25-44: the workspace opens at the viewport minus the 16 px margin. This file's `test.use`
+  // the workspace opens at the viewport minus the 16 px margin. This file's `test.use`
   // sets 1440 x 900 for every case in it, including this one.
   expect((await snapshot(page)).bounds).toEqual({ width: 1408, height: 868 });
   await resize.focus();
@@ -2397,7 +2419,7 @@ test("keyboard draft whose row is scrolled out of the virtual window is cancelle
 });
 
 test.describe("coarse pointer", () => {
-  // M25-62 (R2, R7): 44 px rail targets and a touch drag are the coarse-pointer rule.
+  //  (R2, R7): 44 px rail targets and a touch drag are the coarse-pointer rule.
   test.use({ hasTouch: true });
 
   test("narrow selected clip exposes two nonoverlapping 44px touch targets", async ({
@@ -2528,7 +2550,7 @@ test("small viewport keeps the four regions within the available bounds and swit
   await page.setViewportSize({ width: 740, height: 540 });
   await open(page);
   expect((await snapshot(page)).bounds).toEqual({ width: 724, height: 524 });
-  // M25-44: no pane mode -- the four regions exist at every width; only R1's tabs switch.
+  // no pane mode -- the four regions exist at every width; only R1's tabs switch.
   await expect(page.locator(`${surface} [data-h3-nle-area]`)).toHaveCount(4);
   const media = page.locator('[data-h3-nle-pane="assets"]');
   const sequence = page.locator('[data-h3-nle-pane="sequence"]');

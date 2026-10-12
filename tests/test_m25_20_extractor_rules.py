@@ -1,4 +1,4 @@
-"""M25-20 post-closeout corrective: the independent extractor observes what it is told to look at.
+"""post-closeout corrective: the independent extractor observes what it is told to look at.
 
 Each test here pins one rule of `scripts/nle_semantic_conformance.py` that a real run reported as a
 defect when it was missing, and each one is written to fail against the earlier behaviour:

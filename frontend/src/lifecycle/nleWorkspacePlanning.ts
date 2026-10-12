@@ -1,7 +1,7 @@
 // M26 NLE workspace planning slice: the whole-video target and policy, Context preparation,
 // storyboard review and admission, the proposal and its explicit approval and import to
 // Production. Split from `nleWorkspaceSession.ts` to keep every lifecycle module within the
-// M23-28 line budget; it owns nothing beyond the in-flight planning transport and reads shared
+//  line budget; it owns nothing beyond the in-flight planning transport and reads shared
 // session state only through the core it is given.
 //
 // Every step is one existing accepted planning action; nothing here decides segmentation,

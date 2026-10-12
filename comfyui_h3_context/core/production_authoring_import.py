@@ -1,4 +1,4 @@
-"""Pure, locator-free M25-29 Production-output import contract.
+"""Pure, locator-free Production-output import contract.
 
 The browser names only two current workspaces and opaque output rows.  Artifact receipts, source
 fingerprints, media facts and filesystem locators remain adapter-owned and cannot cross this wire.

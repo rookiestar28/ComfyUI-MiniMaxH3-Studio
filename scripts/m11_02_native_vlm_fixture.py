@@ -1,4 +1,4 @@
-"""Offline M11-02 native VLM observation fixture.
+"""Offline native VLM observation fixture.
 
 The fixture injects a host-shaped CLIP and admitted image payloads to exercise the strict parser
 and source/region contract.  It never starts ComfyUI, loads a checkpoint, decodes media, contacts

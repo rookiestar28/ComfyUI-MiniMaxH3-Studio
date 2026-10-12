@@ -4,7 +4,7 @@
  * Every entry is a seam behaviour observed on a supplied host, implemented so the
  * hermetic double carries it. The catalogue is a fixture: it changes only when a
  * supported frontend is observed to behave differently, and each entry names the
- * observation it came from. Item M23-26 owns its growth; M23-37 opened it.
+ * observation it came from. Item owns its growth; opened it.
  *
  * Observed on ComfyUI 0.34.0 / frontend 1.51.9 (2026-08-28):
  *
@@ -32,7 +32,7 @@
  *    candidate publishes its graph-store-backed widget state to the live
  *    canvas. Constructing empty and calling `configure()` has the same effect.
  *
- * Observed on the supplied pinned host, frontend 1.51.9 (2026-09-14, M16-05):
+ * Observed on the supplied pinned host, frontend 1.51.9 (2026-09-14,):
  *
  * 4. Entry 3 is not limited to subgraph definitions. The frontend's widget value
  *    store keys widget state by graph id, node id and widget name, and

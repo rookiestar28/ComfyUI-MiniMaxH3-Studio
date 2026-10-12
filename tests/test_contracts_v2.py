@@ -1,4 +1,4 @@
-"""M10-01 portable contract-v2 semantic boundary tests."""
+"""portable contract-v2 semantic boundary tests."""
 
 from __future__ import annotations
 

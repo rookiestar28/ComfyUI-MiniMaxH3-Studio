@@ -1,4 +1,4 @@
-"""M25-45 AC45-08 precondition: the supplied host runs with its output captured.
+"""AC45-08 precondition: the supplied host runs with its output captured.
 
 `tests/TEST_SOP.md` section 4's scan reads a file, and until now no file existed -- the supplied
 host was started by hand and its output lived in a terminal's scrollback. `scripts/

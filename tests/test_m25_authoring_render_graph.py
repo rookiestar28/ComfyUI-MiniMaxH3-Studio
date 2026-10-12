@@ -81,7 +81,7 @@ def test_video_layer_tail_hold_follows_the_last_selected_position_not_the_source
     `tpad` stamps its clones from its own frame count times one source period, which coincides
     with the next output offset only for a source held exactly one period per frame; a source
     whose nominal rate is at least twice the output rate rounded the period to zero, the layer
-    ended two frames short, and the layer below repeated the previous frame there (M25-20 B-60,
+    ended two frames short, and the layer below repeated the previous frame there ( B-60,
     found by the corpus's `timing.vfr_unequal_intervals` row). The graph re-stamps every clone
     after the last selected frame's position, one output frame apart.
     """

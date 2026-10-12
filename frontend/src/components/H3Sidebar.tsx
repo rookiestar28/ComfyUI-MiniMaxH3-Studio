@@ -42,6 +42,7 @@ import { UNSCOPED, type SidebarRetention } from "../state/sidebarRetention";
 import type { MediaToolsBinding } from "../state/mediaRuntimeState";
 import type { WorkspaceStateBinding } from "../lifecycle/workspaceStateSession";
 import type { RetainedAssetsBinding } from "../lifecycle/retainedAssetsSession";
+import type { PerceptionHostBinding } from "../state/perceptionHostState";
 import type { SidebarWorkspaceState } from "../state/sidebarWorkspace";
 import type { SemanticProposalReviewState } from "../state/semanticProposalReview";
 import {
@@ -116,7 +117,7 @@ type StageId = (typeof stageIds)[number];
 
 export type AppModeDraft = {
   userIntent: string;
-  // M23-04: App Mode authors only the product's integer-second control. Exact
+  // App Mode authors only the product's integer-second control. Exact
   // milliseconds and frame count arrive together from the backend resolver.
   requestedSeconds: number;
   taskMode: AppModeTaskMode;
@@ -126,7 +127,7 @@ export type AppModeDraft = {
   referenceVideos: string[];
   referenceAudios: string[];
   /**
-   * M17-17: whether a selected reference video submits its own soundtrack.
+   * whether a selected reference video submits its own soundtrack.
    *
    * `included` is the default because it is the graph every accepted ref2va
    * route already produced. The control that changes it appears only once a
@@ -137,7 +138,7 @@ export type AppModeDraft = {
 };
 
 /**
- * M21-03 AC-18. The intent field is seeded rather than left empty, and the seed
+ *  AC-18. The intent field is seeded rather than left empty, and the seed
  * used to be a hardcoded English sentence that rendered as editable content in
  * every locale. The seeds now come from the catalog, and an intent still equal
  * to one of them is untouched by the user, so it follows the active locale.
@@ -178,17 +179,17 @@ type AppModeView = {
   busy?: boolean;
   error?: string;
   existingGraph?: boolean;
-  // M23-04: the shell owns transport/race settlement and supplies only a pairing
+  // the shell owns transport/race settlement and supplies only a pairing
   // resolved by Python `core.length`; this component never derives the lattice.
   durationResolution?: AppModeDurationResolutionState;
   onResolveDuration?: (requestedSeconds: number) => void;
   onRetryDuration?: () => void;
-  // M17-20 D1/D2: whether the backend says this host can generate the selected
+  //  D1/D2: whether the backend says this host can generate the selected
   // task mode. The shell renders it and blocks on it; it never derives it, and
   // `undefined` means the answer has not arrived rather than that it is yes --
   // App Mode's own gate refuses the queue either way.
   admission?: AppModeAdmission;
-  // M17-20 D13: which native H3 anchors the visible canvas offers. Reported by
+  //  D13: which native H3 anchors the visible canvas offers. Reported by
   // the controller's census; the surface only decides whether to offer the route
   // and, when there is more than one anchor, to require a designation.
   connect?: CanvasAdmission;
@@ -342,7 +343,7 @@ function AppModeEntry({
       firstFrameSource === lastFrameSource)
       ? text.sourceBlockers.distinctFrames
       : // IMPORTANT (B-M1605-EXIST-03): the existing route observes no first-frame identity
-        // (M24-07), so an unselected first frame must not gate it; materialization still needs one.
+        //, so an unselected first frame must not gate it; materialization still needs one.
         !useExistingAction && taskMode === "i2va" && firstFrameSource === ""
         ? text.sourceBlockers.firstFrame
         : !useExistingAction && taskMode === "l2va" && lastFrameSource === ""
@@ -412,7 +413,7 @@ function AppModeEntry({
     sourceSelectionBlocker !== null ||
     lengthUnconfirmed ||
     generationBlocked;
-  // M17-20 D13. The connect route is offered exactly where replace and keep are
+  //  D13. The connect route is offered exactly where replace and keep are
   // offered today: a canvas the adapter did not admit, which is where a
   // user-loaded template or a community workflow lands. Tier C reports no anchor
   // and the route is simply absent, which is the fail-closed answer.
@@ -860,7 +861,7 @@ function AppModeEntry({
                 ) : null}
               </div>
             ) : null}
-            {/* M21-05. Scoped to the affordance it judges. Every reason this
+            {/* . Scoped to the affordance it judges. Every reason this
                 notice can carry -- a relocated or missing weight, a drifted
                 template, an unqualified host or task mode -- is a verdict on
                 materializing and queueing, not on connecting to the canvas the
@@ -881,7 +882,7 @@ function AppModeEntry({
             ) : null}
             <button
               type="submit"
-              // M21-03 AC-06. In the canvas decision the safe option is the
+              //  AC-06. In the canvas decision the safe option is the
               // primary and the irreversible one is a danger-toned ghost; the
               // shipped panel did the opposite. Only the visual role moves --
               // which button performs which action, and which one the form
@@ -1048,7 +1049,7 @@ export type SidebarNleBinding = Readonly<{
   surface: NleSurfaceState;
   supported: boolean;
   onOpen(): void;
-  /** M25-44: create the Authoring workspace from Context; falls back to the plain intent. */
+  /** create the Authoring workspace from Context; falls back to the plain intent. */
   onStartAuthoring?(): void;
   onFunctionChange(id: ProductionFunctionId): void;
   requestedFunction: NleFunctionRequest;
@@ -1133,6 +1134,7 @@ export function H3Sidebar({
   mediaTools,
   recoveryMetadata,
   retainedAssets,
+  perceptionHost,
   projectFile,
 }: {
   state: ShellState;
@@ -1159,7 +1161,7 @@ export function H3Sidebar({
   contextWorkspaceHandle?: string;
   onProductionIntent?: (intent: ProductionIntent) => void | Promise<void>;
   onAuthoringIntent?: (intent: AuthoringIntent) => void | Promise<void>;
-  /** Unused since M25-44 retired the compact editor; kept so hosts' bindings stay valid. */
+  /** Unused since retired the compact editor; kept so hosts' bindings stay valid. */
   onAuthoringMediaPreview?: AuthoringPreviewOpener;
   generationControls?: readonly ProductionGenerationControl[];
   productionProposalRows?: readonly ProductionProposalRow[];
@@ -1175,7 +1177,7 @@ export function H3Sidebar({
   productionMediaPreview?: ProductionMediaPreviewState;
   onProductionMediaPreview?: (outputHandle: string) => void | Promise<void>;
   onProductionMediaPreviewClose?: () => void;
-  /** M25-16: launcher, function-switch notification, one-shot function request and import action. */
+  /** launcher, function-switch notification, one-shot function request and import action. */
   nle?: SidebarNleBinding;
   providerSettings?: ProviderSettingsProjection;
   assistedProposal?: AssistedPromptProposalProjection;
@@ -1209,12 +1211,13 @@ export function H3Sidebar({
     notify?(outcome: "copied" | "fallback"): void;
   }>;
   buildProvenance?: BuildProvenanceProjection;
-  /** M25-21: the session-owned retention store; absent when rendered on its own. */
+  /** the session-owned retention store; absent when rendered on its own. */
   retention?: SidebarRetention;
-  /** M25-33: the shared Media tools status, setup job and continuation. */
+  /** the shared Media tools status, setup job and continuation. */
   mediaTools?: MediaToolsBinding;
   recoveryMetadata?: WorkspaceStateBinding;
   retainedAssets?: RetainedAssetsBinding;
+  perceptionHost?: PerceptionHostBinding;
   projectFile?: ProjectFileBinding;
 }) {
   const text = sidebarCopy(locale);
@@ -1276,7 +1279,7 @@ export function H3Sidebar({
     const changed = directorSelection !== id;
     // CRITICAL: state updater callbacks must stay pure; React may run them during render.
     setDirectorSelection(id);
-    // M25-16: switching functions closes an expanded editor with `function_switch`.
+    // switching functions closes an expanded editor with `function_switch`.
     if (changed) nle?.onFunctionChange(id);
   };
   const requestedFunctionGeneration = nle?.requestedFunction.generation ?? 0;
@@ -1400,7 +1403,7 @@ export function H3Sidebar({
   return (
     <section
       className="h3c"
-      // M21-03: the panel declares its own language. The CJK type variant keys
+      // the panel declares its own language. The CJK type variant keys
       // on `:lang(zh)`, and a screen reader needs the same signal to pick the
       // right voice -- without this attribute both would silently do nothing.
       lang={locale}
@@ -1493,6 +1496,7 @@ export function H3Sidebar({
           mediaTools={mediaTools}
           recoveryMetadata={recoveryMetadata}
           retainedAssets={retainedAssets}
+          perceptionHost={perceptionHost}
         />
       ) : pageRegistry.selected === "production" ? (
         <div className="h3-director">
@@ -1565,7 +1569,7 @@ export function H3Sidebar({
                     onOpen={nle.onOpen}
                   />
                 ) : null}
-                {/* M25-44 (one NLE): editing happens only in the full editor; this tab keeps the
+                {/*  (one NLE): editing happens only in the full editor; this tab keeps the
                     launcher and a read-only summary with the workspace lifecycle actions. */}
                 <NleProjectSummary
                   locale={locale}

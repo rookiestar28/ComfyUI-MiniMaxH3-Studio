@@ -42,7 +42,7 @@ const NOTHING = Object.freeze({
 });
 
 /**
- * M25-21 section 14.4. Read a retained slot once, when the view mounts, and hand back a writer
+ *  section 14.4. Read a retained slot once, when the view mounts, and hand back a writer
  * bound to that mount's store generation. Without a store (a component rendered on its own) the
  * slot restores nothing and every write is inert, which is the pre-retention behaviour.
  */

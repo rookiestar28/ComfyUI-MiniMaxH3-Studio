@@ -465,7 +465,7 @@ export async function mountManagedEntryHarness(
     context_source_id: wires.workspaceId,
   });
   const preparedHistory = historyWire(SMOKE_SHAPE);
-  // M25-40: an accepted import is focused only after the editor's own history read shows its
+  // an accepted import is focused only after the editor's own history read shows its
   // receipt assets, so the double answers later history reads with the assets it imported.
   const importedAssetIds: string[] = [];
   const currentHistory = (): JsonRecord => {
@@ -567,7 +567,7 @@ export async function mountManagedEntryHarness(
       authoringActions.push(action);
       if (action === "create_authoring_workspace")
         return jsonResponse(preparedAuthoringProjection, 201);
-      // M25-40: import prepares through the live Production owner. The backend adopts the
+      // import prepares through the live Production owner. The backend adopts the
       // preferred same-lineage editor this journey created from Context with 200.
       if (action === "ensure_authoring_from_production")
         return jsonResponse(preparedAuthoringProjection, 200);

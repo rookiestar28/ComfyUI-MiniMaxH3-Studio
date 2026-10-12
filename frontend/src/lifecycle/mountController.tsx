@@ -36,7 +36,7 @@ const mountMarker = "data-h3-context-mount";
 
 // The sidebar's stylesheet is injected into someone else's page, so it is bounded like every other
 // input this package accepts. The number is a ceiling on a runaway stylesheet, not a design target:
-// M21-03 grew the shipped sheet to 32 811 characters against a 32 768 bound and the throw below took
+//  grew the shipped sheet to 32 811 characters against a 32 768 bound and the throw below took
 // the whole extension down on every real host, because nothing in the gate ever paired the bound
 // with the stylesheet that actually ships. `tests/test_sidebar_style_budget.py` now does, and it
 // reads this constant out of this file -- keep the literal here greppable.

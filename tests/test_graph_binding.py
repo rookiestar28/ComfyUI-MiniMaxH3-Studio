@@ -1,4 +1,4 @@
-"""M10-08 manifest/visible-graph binding and explicit anchor tests."""
+"""manifest/visible-graph binding and explicit anchor tests."""
 
 from __future__ import annotations
 

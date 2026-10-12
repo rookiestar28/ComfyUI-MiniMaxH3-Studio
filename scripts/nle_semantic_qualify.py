@@ -1,4 +1,4 @@
-"""M25-20 corrective: the bounded backend qualification runner (post-closeout finding F1).
+"""corrective: the bounded backend qualification runner (post-closeout finding F1).
 
 The 306-row corpus in ``semantic_conformance`` and its per-case recipes in
 ``semantic_conformance_cases`` were enumerated and counted, but the post-closeout review found they
@@ -262,7 +262,7 @@ def _browser_scope_row(recipe: CaseRecipe) -> QualifyRow:
 AUDIO_COMMAND_NAMESPACE: Final = "h3.authoring.audio.command.v1"
 
 #: What the deferred seam must declare, field by field. Written from
-#: `tests/fixtures/m25_10_composition_contract_v1.json`'s accepted `audio_extension` section, not
+#: `tests/fixtures/_composition_contract_v1.json`'s accepted `audio_extension` section, not
 #: read back from it at runtime: a check that reads its own expectation proves nothing.
 DEFERRED_AUDIO_SEAM: Final = {
     "track_profile": "none_v1",
@@ -410,7 +410,7 @@ def _snapshot_layer_row(recipe: CaseRecipe) -> QualifyRow:
 
 # ---------------------------------------------------------------------------------------------
 # Command-layer rows: `command_refusal` and `command_effect`, driven through the real timeline
-# transaction decoder, in the same shape `tests/test_m25_20_conformance_cases.py` asserts.
+# transaction decoder, in the same shape `tests/test__conformance_cases.py` asserts.
 # ---------------------------------------------------------------------------------------------
 
 

@@ -469,7 +469,7 @@ export function reduceShellState(
   // visible. Do not let an intermediate malformed/missing snapshot erase the
   // state that owns cancellation/retry; only an explicit action may advance it.
   if (state.status === "working") return state;
-  // M23-25 validation errors precede the sole candidate write, so a later graph
+  //  validation errors precede the sole candidate write, so a later graph
   // census is not evidence that the refused candidate was repaired.
   if (state.status === "error") return state;
   // A canvas census during a host drop says nothing about the socket. Reclassifying here would

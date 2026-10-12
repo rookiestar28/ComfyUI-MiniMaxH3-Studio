@@ -9,13 +9,13 @@ import { MAX_MEDIA_PREVIEW_BYTES, MEDIA_PREVIEW_REQUEST_SCHEMA, MEDIA_PREVIEW_RO
 import { appModeQueueDiagnostic, assertCandidateBundleInjection, beginSettledH3InteractionPhase, candidateInjectionCount, expectCandidateInteractionNetworkLocal, hostUrl, instrumentHostGraphLoads, monitorCandidateInitiatorNetwork, monitorH3Network, openH3AppModeTab, reportedArtifactNames, sampleProgress, SAMPLE_AUTHORIZED, setSupportedH3Language, supportedHostQueueCounts, waitForH3Registration, waitForHostGraphSettled, watchHostExecution, } from "../../host/environment";
 
 /**
- * M24-07 / M24-08 existing route and M24-09 preview discoverability on the supplied host.
+ *  / existing route and preview discoverability on the supplied host.
  *
- * The owner's own expanded I2VA workflow (already carrying the H3 Context nodes) is loaded onto the
+ * The own expanded I2VA workflow (already carrying the H3 Context nodes) is loaded onto the
  * canvas, the Sidebar authors intent and duration, and the graph is queued exactly once through the
  * ordinary queue with one real inference. Only repository-owned facts are asserted: the authored
  * intent and shared duration root, the native length's dependency on that root, one queue call,
- * the captured workflow identity and open-tab count, and that the owner's model and sampling inputs
+ * the captured workflow identity and open-tab count, and that the model and sampling inputs
  * reach execution as the owner set them. The Production clip openers are then exercised one click
  * at a time. The workflow path is private input: nothing from it is logged or retained.
  */
@@ -112,7 +112,7 @@ test("M24-07/M24-08 existing expanded graph queues once and M24-09 openers previ
   const workflow = JSON.parse(
     await readFile(WORKFLOW_PATH, "utf-8"),
   ) as Workflow;
-  // IMPORTANT: the owner's intent text is private. Replace it before the graph reaches the page so
+  // IMPORTANT: the intent text is private. Replace it before the graph reaches the page so
   // no failure snapshot can carry it; the placeholder also differs from INTENT, so the executed
   // intent still proves the Sidebar wrote it.
   const requestNodes = workflow.nodes.filter(
@@ -230,7 +230,7 @@ test("M24-07/M24-08 existing expanded graph queues once and M24-09 openers previ
   );
   await watchHostExecution(page);
 
-  // M24-07: the expanded existing graph is admitted and the Sidebar authors the shared duration.
+  // the expanded existing graph is admitted and the Sidebar authors the shared duration.
   const submit = container.locator('[data-h3-focus-key="app-submit"]');
   await expect(submit).toHaveText("Apply and queue current H3 graph", {
     timeout: 60_000,
@@ -413,7 +413,7 @@ test("M24-07/M24-08 existing expanded graph queues once and M24-09 openers previ
   );
   expect(changedSettings).toEqual([]);
 
-  // M24-08 / M24-09: Production previews the result without a second queue or a Production action.
+  //  / : Production previews the result without a second queue or a Production action.
   await container.locator('[data-h3-focus-key="page-production"]').click();
   await expect(
     container.getByText("1 of 1 segments", { exact: true }),
@@ -517,9 +517,9 @@ test("M24-07/M24-08 existing expanded graph queues once and M24-09 openers previ
     const player = container.getByLabel(playerLabel);
     await expect(player).toBeVisible({ timeout: 60_000 });
     await expect(container.locator("#h3p-preview-panel")).toBeFocused();
-    // M24-09 (as its hermetic journey measures it): the player lies wholly inside the scrollport
+    //  (as its hermetic journey measures it): the player lies wholly inside the scrollport
     // that owns it, which is the nearest scrolling ancestor, and inside the window. Only rounded
-    // rectangle numbers and the owner's class token are reported.
+    // rectangle numbers and the class token are reported.
     const geometry = await player.evaluate((node) => {
       let owner = node.parentElement;
       while (owner !== null) {

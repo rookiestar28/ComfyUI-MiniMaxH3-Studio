@@ -1,0 +1,11 @@
+"""M99-11: Preserve the module contract.
+
+Keep the line mapping (M99-12).
+"""
+# IMPORTANT (M99-11): Preserve the ordering.
+value = "M99-11"
+class Example:
+    """RM-999"""
+    def method(self):
+        """Preserve the return value per HC-999."""
+        return value  # m99_11

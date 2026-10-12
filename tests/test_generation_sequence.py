@@ -867,14 +867,14 @@ def test_projection_retry_command_uses_the_core_owned_attempt_transaction() -> N
 
 
 def test_widened_fingerprint_domain_is_declared_and_enforced() -> None:
-    """M17-20 D6: the graph identity's domain travels with it and is checked first.
+    """D6: the graph identity's domain travels with it and is checked first.
 
     App Mode's fingerprints once covered the context subgraph alone; they now
     cover the full output-producing graph. An observation carrying the older
     domain is not a drifted graph to reconcile but a different measurement, and
     reporting it as an identity mismatch would send the caller looking in the
-    wrong place. M18-02 separates fingerprint domains further and must not have
-    to guess which fingerprints M17-20 widened, so the domain is declared rather
+    wrong place. separates fingerprint domains further and must not have
+    to guess which fingerprints widened, so the domain is declared rather
     than inferred.
     """
 

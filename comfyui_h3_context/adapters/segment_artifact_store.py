@@ -458,7 +458,7 @@ def _copy_regular_file_into_new_pinned(
 ) -> tuple[int, str]:
     """Stream one pinned regular file into one freshly created file, hashing en route.
 
-    M20-08: the incremental-transport primitive. Read-side admission mirrors
+    the incremental-transport primitive. Read-side admission mirrors
     ``_read_regular_bytes_pinned`` and write-side admission mirrors ``_write_new_file_pinned``;
     the payload itself only ever exists one bounded chunk at a time.
     """
@@ -1886,7 +1886,7 @@ class PrivateSegmentArtifactStore:
     ) -> tuple[int, str]:
         """Stream one exact reusable artifact into a caller-owned new file.
 
-        M20-08: the incremental alternative to ``read`` — the payload never exists in memory
+        the incremental alternative to ``read`` — the payload never exists in memory
         beyond one bounded chunk, the destination is created exclusively (no clobber), and a
         length or fingerprint divergence removes the partial copy and fails closed. The
         filesystem locator of the stored artifact never leaves this store.

@@ -61,7 +61,7 @@ import {
 
 import { hostUrl } from "./candidate";
 /**
- * M17-20 supported-host lane.
+ *  supported-host lane.
  *
  * Plan section 5 lane 6 samples the exact runtime candidate on the supplied
  * pinned host. Two things are sampled here and they are deliberately separate.
@@ -73,7 +73,7 @@ import { hostUrl } from "./candidate";
  * run derived. It does not execute anything -- the queue seam is counted, not
  * called through -- because execution is the separately authorized sample below.
  *
- * The second test is that sample (AC-M17-20-08). It runs only when the
+ * The second test is that sample (AC--08). It runs only when the
  * maintainer has authorized it for this session and named the installed weights,
  * because it loads tens of gigabytes and produces a real file. Absent that
  * authorization it is skipped and the criterion stays NOT_RUN, which is what the
@@ -607,7 +607,7 @@ export async function waitForHostGraphSettled(page: Page): Promise<void> {
     await page.waitForTimeout(500);
   }
 }
-// M23-26 registration phase Four.
+//  registration phase Four.
 // prettier-ignore
 import type { HostOfficialAssetManifest, CandidateInjectionState, LayoutState, AppModePhase, LayoutGridKind, LayoutVariant, LayoutPlacement, LayoutWidthMode, LayoutLocale, LayoutTheme, LayoutLifecycle, HostPersistenceSnapshot, LayoutCaptureEvidence, LayoutEvidenceJoin, LayoutEvidenceRow, LayoutCell, LayoutStateContract, LayoutRect, LayoutOwnerStyle, LayoutControlGeometry, LayoutNavigationTab, LayoutHeaderGeometry, LayoutFocusTargetKind, LayoutMeasurement, HostAssetResolutionReceipt, SampleProgress, RealI2vaArtifactMetadata, RealI2vaEnvironment, FrontendPerformanceReceipt } from "./environment";
 // prettier-ignore
@@ -666,7 +666,7 @@ export async function runRegistrationPhaseFour(
     .getByRole("button", { name: "Start H3 App Mode" })
     .click();
   await awaitAppModePhase("working");
-  // IMPORTANT: target Cancel by owned identity; M25-36 intentionally keeps New project enabled
+  // IMPORTANT: target Cancel by owned identity; intentionally keeps New project enabled
   // while a run retains its captured destination, so counting every enabled action is ambiguous.
   const cancelAction = appModeContainer.locator(
     '[data-h3-focus-key="app-cancel"]',

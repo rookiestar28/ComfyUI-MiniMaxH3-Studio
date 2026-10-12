@@ -1,4 +1,4 @@
-"""Offline M11-04 source-PTS video decode fixture.
+"""Offline source-PTS video decode fixture.
 
 The fixture injects decoded frame metadata and uses the explicit decoder seam.  It never launches
 ffprobe/ffmpeg, opens media, contacts a model/Ollama server, or claims real VFR/shot quality.

@@ -371,7 +371,7 @@ test("M17-20 supported host qualifies every basis and materializes the pinned te
           sameLink(stepSwitch.inputs?.switch, loraSwitch.inputs?.switch),
       };
     };
-    // M23-19: the product submits one full managed prompt. This host-only
+    // the product submits one full managed prompt. This host-only
     // harness records that exact envelope, then sends only ProductShell's
     // backward closure to avoid loading model assets while preserving the
     // prompt id and real backend projection used by the product lifecycle.
@@ -684,7 +684,7 @@ test("M17-20 supported host qualifies every basis and materializes the pinned te
       .getByRole("button", { name: "Context", exact: true })
       .click();
     const graphLoadsBeforeKeep = await hostGraphLoads(page);
-    // M23-07: finish the intercepted, content-free submission through the real
+    // finish the intercepted, content-free submission through the real
     // host event seam. The private diagnostic fields must never cross into the
     // product shell, and one admitted click must remain one queue attempt.
     await page.evaluate(() => {
@@ -719,7 +719,7 @@ test("M17-20 supported host qualifies every basis and materializes the pinned te
     await expect(
       container.getByRole("button", { name: "Continue with native nodes" }),
     ).toBeVisible();
-    // M23-11: the recovery action and the dirty-canvas Keep button share this
+    // the recovery action and the dirty-canvas Keep button share this
     // handler. Exercise it on the real serialized H3 canvas: the immediate
     // refresh may update recognition, but cannot reopen the decision, load a
     // graph or submit another queue request.
@@ -753,13 +753,13 @@ test("M17-20 supported host qualifies every basis and materializes the pinned te
 
     // Exercise the same supported-host canvas through the existing route. Refuse
     // only the next Production creation after the one managed submission's
-    // ProductShell projection. M23-25 (reconciled by M23-37): the existing route
+    // ProductShell projection. (reconciled by): the existing route
     // validates a detached candidate and writes it exactly once into the captured
     // workflow object before the queue — one load, no new tab. Once queue
     // ownership crossed, user parameters stay on that workflow; a second load
     // would create a duplicate tab and falsely imply that the accepted host
     // submission had been rolled back.
-    // M23-32: the aggregate owns Production creation, so the refusal that models
+    // the aggregate owns Production creation, so the refusal that models
     // "the backend failed after the host accepted the prompt" is now the
     // coordinator's `prepare_managed_run`, not the Production registry's
     // `create_workspace_from_context`. The two are the same point in the run:
@@ -835,7 +835,7 @@ test("M17-20 supported host qualifies every basis and materializes the pinned te
       "managed_projection_call_through",
       "managed_projection_call_through",
     ]);
-    // M23-25 (reconciled by M23-37): the existing route writes its validated
+    //  (reconciled by): the existing route writes its validated
     // candidate exactly once, into the captured workflow object, so the one
     // recorded load targets that object and no tab is opened.
     const workflowAuthority = await hostWorkflowAuthorityReceipt(page);
@@ -902,7 +902,7 @@ test("M17-20 supported host qualifies every basis and materializes the pinned te
     )[0]!;
     expect(visibleAnchorNodeId).toMatch(/^\d{1,20}$/);
 
-    // IMPORTANT (M23-49 requalification): retain an executed surroundings diff and the direct
+    // IMPORTANT ( requalification): retain an executed surroundings diff and the direct
     // anchor prompt-link check beside the queue/workflow receipts. An import-only helper or a
     // service-health probe recreates the false closeout this row is correcting.
     const surroundingsEvidence = await page.evaluate(diffGraphSurroundings, {

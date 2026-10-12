@@ -341,8 +341,8 @@ describe("M25-63 top bar and bin copy", () => {
     "B-M2563-11: the empty monitor points at the card's visible controls in %s",
     (locale) => {
       const copy = nleCopy(locale);
-      // Since M25-63 a card shows "+" and is dragged; "Add to timeline" is only in its context
-      // menu. The hint names what the card shows, as the empty lane's hint does. M25-64 moves the
+      // Since a card shows "+" and is dragged; "Add to timeline" is only in its context
+      // menu. The hint names what the card shows, as the empty lane's hint does. moves the
       // monitor's hint to the empty-timeline overlay's key.
       for (const hint of [copy.monitor.emptyHint, copy.timeline.emptyLane])
         expect(hint, locale).toContain("+");
@@ -400,7 +400,7 @@ describe("B-M1605-COPY-01 inspector options", () => {
   );
 });
 
-// M25-64 (R5, rows #26-#31): the monitor header and overlays, Project settings, the clip header and
+//  (R5, rows #26-#31): the monitor header and overlays, Project settings, the clip header and
 // every property tab name things plainly. The fixture's own ids, revision numbers, internal unit
 // tokens and interval notation never reach a reader, and a user's text keeps its brackets.
 describe("M25-64 monitor and inspector copy", () => {
@@ -554,7 +554,7 @@ describe("M25-64 monitor and inspector copy", () => {
   );
 });
 
-// M25-62 (R5): the redesigned timeline surface -- track headers, clips, grips, the rail and the
+//  (R5): the redesigned timeline surface -- track headers, clips, grips, the rail and the
 // empty lane -- names things by display name and timecode. The fixture's ids stay on data
 // attributes only; interval notation and internal unit tokens never reach a reader.
 describe("M25-62 timeline surface copy", () => {

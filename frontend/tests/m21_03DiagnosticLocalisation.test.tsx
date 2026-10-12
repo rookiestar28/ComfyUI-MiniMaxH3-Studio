@@ -1,14 +1,14 @@
 /**
- * M21-03 — diagnostics are composed here, not translated by the backend.
+ * diagnostics are composed here, not translated by the backend.
  *
- * `M21-01` shipped eleven prose-fidelity identities and `M24-05` now owns eleven
+ * `` shipped eleven prose-fidelity identities and `` now owns eleven
  * guide-readiness ones, plus four language identities, for twenty-six in total. Before localisation they reached the
  * sidebar as backend English rendered verbatim, which is the defect this file
  * guards against returning.
  *
- * The registry is read from the `M21-01` contract rather than restated here. A
+ * The registry is read from the `` contract rather than restated here. A
  * hand-maintained list would pass forever after a twelfth identity was added,
- * which is the exact failure AC-M21-03-15 exists to prevent.
+ * which is the exact failure AC--15 exists to prevent.
  */
 
 import { cleanup, render, screen } from "@testing-library/react";
@@ -123,7 +123,7 @@ describe("M21-03 diagnostic registry parity", () => {
     //
     // GUARD: naming no parameter is legitimate for exactly the identities in
     // CONTENT_FREE and for nobody else, so the exemption is an enumerated
-    // allowlist rather than a lowered bar. M24-05's readiness reasons state a
+    // allowlist rather than a lowered bar. 's readiness reasons state a
     // fact about the typed plan and carry none of the user's words, so their
     // templates interpolate nothing; every other identity must still name at
     // least one parameter in English and the same set in all three locales.

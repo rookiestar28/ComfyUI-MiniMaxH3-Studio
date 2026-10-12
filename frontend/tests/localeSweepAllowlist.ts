@@ -1,5 +1,5 @@
 /**
- * M17-26 — the declared exceptions for the rendered-output locale sweep.
+ * the declared exceptions for the rendered-output locale sweep.
  *
  * The sweep renders every registered surface in `en` and `zh-TW` and treats a
  * byte-identical string as suspicious, because a translated product should not
@@ -23,7 +23,7 @@ export const PERMANENT_IDENTIFIER_RULES: ReadonlyArray<
 > = [
   // Numbers, separators, arrows and typographic placeholders such as the em
   // dash. A glyph-only control is correct when its accessible name is
-  // localised, which is how the M17-23 window pagination buttons are built:
+  // localised, which is how the window pagination buttons are built:
   // `←` is the visible content and `aria-label={text.pagePrevious}` carries the
   // name.
   {
@@ -88,9 +88,9 @@ export type TemporaryViolation = Readonly<{
 export const TEMPORARY_VIOLATIONS: readonly TemporaryViolation[] = [];
 
 /**
- * Frozen on 2026-08-18 against `27050d5`, the commit that accepted `M17-23`,
+ * Frozen on 2026-08-18 against `27050d5`, the commit that accepted ``,
  * with the sweep at its full surface coverage, at `5`. Lowered to `0` by
- * `M21-03`, which translated all five declared violations: the seeded intent
+ * ``, which translated all five declared violations: the seeded intent
  * value, `sidebar.viewOnGithub` in both Chinese locales, and the Production
  * predecessor label, revision accessible name and conflict notice.
  *
@@ -119,10 +119,10 @@ export const PENDING_SURFACES: readonly PendingSurface[] = [];
  * Frozen on 2026-08-18 at `1`. May only decrease.
  *
  * The Production ready/pending/conflict surfaces were a pending gap until
- * `M17-23` landed at `27050d5` and its projection shape settled; they are now
+ * `` landed at `27050d5` and its projection shape settled; they are now
  * swept, which is what surfaced three of the five declared violations. The last
  * gap, the semantic proposal review, was registered as a swept surface by
- * `M21-03`, so the ceiling is `0` and every surface the product renders is
+ * ``, so the ceiling is `0` and every surface the product renders is
  * compared across locales.
  */
 export const PENDING_SURFACE_CEILING = 0;
@@ -134,7 +134,7 @@ export const PENDING_SURFACE_CEILING = 0;
  * `ReferenceTokenCombobox`'s `labels` prop used to carry English defaults that
  * its only call site always overrode, so they were unreachable, no test could
  * fail on them, and a future second call site would have shipped English
- * silently. `M21-03` made the prop required, which removes the shape that made
+ * silently. `` made the prop required, which removes the shape that made
  * the risk possible rather than the string that expressed it. The list is empty
  * and stays empty: an entry here is a defect with no failing test.
  */

@@ -1,4 +1,4 @@
-// M25-16 workspace body, laid out since M25-44 in the four regions of the reference shell: the
+//  workspace body, laid out since in the four regions of the reference shell: the
 // media bin (Media and Sequence tabs), the preview monitor, the inspector and the full-width
 // timeline. Everything reads the accepted Authoring/Production projections through the binding;
 // nothing here holds a second timeline model. The final-render card lives behind the chrome bar's
@@ -241,9 +241,9 @@ export function NleWorkspace({
 }: {
   binding: NleWorkspaceBinding;
   onEdgeGestureActive(active: boolean): void;
-  /** M25-45: where the monitor publishes its status for the chrome bar. */
+  /** where the monitor publishes its status for the chrome bar. */
   monitorStatus?: NleMonitorStatusChannel;
-  /** @internal M25-45 AC45-04: one sample per presented frame, for the hardening harness. */
+  /** @internal AC45-04: one sample per presented frame, for the hardening harness. */
   onPresentationMeasurement?: (sample: PresentationMeasurement) => void;
 }) {
   const { locale, state, authoring, runtime, leaseClient, actions } = binding;
@@ -556,7 +556,7 @@ export function NleWorkspace({
     () => deriveNleMonitorBinding(monitorSnapshot, runtime, leaseClient),
     [monitorSnapshot, runtime, leaseClient],
   );
-  // M25-21: the last presented frame is kept for the same composition workspace and restored
+  // the last presented frame is kept for the same composition workspace and restored
   // paused on the next monitor open; playback state itself is never retained.
   const transportScope =
     authoringV2?.workspaceHandle ?? monitorSnapshot?.workspaceHandle ?? null;
@@ -655,10 +655,10 @@ export function NleWorkspace({
     return () => clearTimeout(timer);
   }, [highlighted, actions]);
 
-  // M25-63 (R9): the save indicator's model. The top bar shows its label; the visually hidden
+  //  (R9): the save indicator's model. The top bar shows its label; the visually hidden
   // live region below announces its sentence and carries the revision as an attribute only.
   const save = saveIndicatorModel(authoring, locale);
-  // M25-44 (one NLE): the retired compact editor was the only place to start a workspace. The
+  //  (one NLE): the retired compact editor was the only place to start a workspace. The
   // empty timeline offers the same action for every state that has no workspace to show.
   const canStart =
     authoring.status === "absent" ||
@@ -666,7 +666,7 @@ export function NleWorkspace({
     authoring.status === "gone" ||
     (authoring.status === "error" && projection === undefined);
 
-  // M25-63: the editor's Import leads the bin toolbar; its status and Media tools card render in
+  // the editor's Import leads the bin toolbar; its status and Media tools card render in
   // the bin-foot slot below the cards (`ImportToEditor` variant "toolbar").
   const [importNotice, setImportNotice] = useState<HTMLDivElement | null>(null);
   const importControl =
@@ -793,7 +793,7 @@ export function NleWorkspace({
                 <p className="h3-nle-note">{text.assets.empty}</p>
               </>
             )}
-            {/* M25-63: the bin-foot notice slot. The editor's Import renders its status and the
+            {/* the bin-foot notice slot. The editor's Import renders its status and the
                 Media tools card here, so they never push the toolbar row apart. */}
             <div className="h3-nle-bin-foot" ref={setImportNotice} />
           </div>

@@ -1,6 +1,6 @@
 // Owned canvas write transaction. This is the only module allowed to call the host's
 // `loadGraphData`; every write and rollback passes the captured active-workflow identity
-// as the fourth argument (M23-19 rule, guarded by scripts/architecture_fitness.py and
+// as the fourth argument ( rule, guarded by scripts/architecture_fitness.py and
 // tests/test_frontend_module_budget.py).
 
 import {
@@ -21,7 +21,7 @@ import {
  *
  * `loadGraphData` makes the host *configure* the graph, and the host announces
  * that to every extension -- including this one, whose configure hook exists to
- * abandon a run when the **user** switches workflows underneath it. M17-20 D11
+ * abandon a run when the **user** switches workflows underneath it. D11
  * made materialization go through that same seam, so without a declaration a run
  * cancelled itself between writing the canvas and compiling it, and only a real
  * host could show it: a stubbed `loadGraphData` fires no host hook.
@@ -101,7 +101,7 @@ export function captureGraphWriteAuthority(
     );
 
   // CRITICAL: reserve the legal tabless 0-to-1 transition without exercising
-  // it. M23-25 validates the complete detached candidate first; that candidate,
+  // it. validates the complete detached candidate first; that candidate,
   // not a disposable copy of the old canvas, is the one permitted null write.
   return Object.freeze({ beginConfigure, workflow: null, workflowStore });
 }

@@ -1,4 +1,4 @@
-// M25-20 corrective (B-66): the three `deferred_negative.surface_*` corpus rows
+//  corrective (B-66): the three `deferred_negative.surface_*` corpus rows
 // (`comfyui_h3_context/core/semantic_conformance.py`'s `AUDIO_NEGATIVE_SURFACES`), each executed
 // on the real integrated shell rather than declared. The corpus says what the M25-owned compact,
 // expanded and fallback surfaces must NOT expose: a preview volume/mute control or a local-only
@@ -20,7 +20,7 @@ test.use({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
 const OVERLAY = '[data-h3-nle-surface="overlay_v1"]';
 const LAUNCHER = '[data-h3-nle-entry="open"]';
 const COMPACT_PANEL = '[data-h3-director-panel="clip_editor"]';
-// M25-44 (one NLE): the refused editor leaves the launcher's unavailable status region; the
+//  (one NLE): the refused editor leaves the launcher's unavailable status region; the
 // `fallback` corpus surface is the Clip editor panel in that disposition.
 const FALLBACK = '[data-h3-nle-unavailable="overlay_v1"]';
 const NAVIGATION = { name: "H3 Context pages" } as const;
@@ -186,7 +186,7 @@ async function observeSurface(
   }, AUDIO_WORDS);
   // Dismiss a product context menu only if one actually opened. GUARD: this press used to be
   // unconditional, and it used to be harmless only because focus fell to `<body>` where the
-  // dialog never saw the key -- the defect M25-21 B3-D12 repaired by making the dialog itself
+  // dialog never saw the key -- the defect B3-D12 repaired by making the dialog itself
   // focusable. Now an unconditional Escape closes the very surface this negative is about, and
   // the surface assertion below would read `compact_ready`.
   if (contextMenuEntries > 0) await page.keyboard.press("Escape");
@@ -220,7 +220,7 @@ function expectAllZero(
 test("compact surface exposes no preview volume/mute control and no local audio exception", async ({
   page,
 }, testInfo) => {
-  // The compact surface is the Clip editor panel with the overlay closed (M25-44: the launcher
+  // The compact surface is the Clip editor panel with the overlay closed (: the launcher
   // and the project summary; no editing surface). The shell is booted
   // and opened through its real launcher (so the media runtime and the timeline are live), then
   // closed through its real close control, and the surface that remains is what is judged.

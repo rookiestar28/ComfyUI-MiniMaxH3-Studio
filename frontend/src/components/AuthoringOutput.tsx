@@ -164,7 +164,7 @@ function OutputBody({
       {state.previewError && <p role="alert">{text.previewError}</p>}
       {state.url && (
         <div className="h3a-output-player">
-          {/* IMPORTANT (M25-21 B3-D1): no UA `controls` bar. It adds volume, mute, playback-rate,
+          {/* IMPORTANT ( B3-D1): no UA `controls` bar. It adds volume, mute, playback-rate,
               download, picture-in-picture and remote-playback targets this extension neither owns,
               localizes nor bounds, and the accepted rule is that no media element exposes UA
               controls. The transport below is the whole owned surface. */}
@@ -184,7 +184,7 @@ function OutputBody({
               )
             }
             onTimeUpdate={(event) => {
-              // A seek in flight owns the position until it lands; see M25-21 B3-D10.
+              // A seek in flight owns the position until it lands; B3-D10.
               if (!event.currentTarget.seeking)
                 setPreviewPosition(event.currentTarget.currentTime);
             }}

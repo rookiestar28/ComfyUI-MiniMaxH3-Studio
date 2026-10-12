@@ -1,4 +1,4 @@
-// M25-51: the transform overlay on the REAL integrated shell. Selection and every completed
+// the transform overlay on the REAL integrated shell. Selection and every completed
 // gesture travel through the normal authoring client into the canonical timeline fixture.
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
@@ -189,7 +189,7 @@ test("linked scale and picture alignment each create one visible transform and o
     name: "Scale (%)",
     exact: true,
   });
-  // M25-64 (R10): 80 % is 8,000 bp.
+  //  (R10): 80 % is 8,000 bp.
   await scaleField.fill("80");
   await scaleField.press("Enter");
   await expect.poll(async () => (await shellSnapshot(page)).receipts).toBe(2);
@@ -240,7 +240,7 @@ test("linked scale and picture alignment each create one visible transform and o
   ).toBe(8000);
 });
 
-// M25-53 D-3: a layer smaller than about a quarter of the picture had no pointer-reachable move
+//  D-3: a layer smaller than about a quarter of the picture had no pointer-reachable move
 // body, because the eight 44 px scale handles sat inside its edges and the rotate handle 44 px
 // below its top edge. The handles are centred on the edges and corners and the rotate handle
 // stands above the layer, so the body inset by 22 px stays the move target.

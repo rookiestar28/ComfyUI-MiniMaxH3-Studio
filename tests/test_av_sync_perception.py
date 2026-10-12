@@ -1,4 +1,4 @@
-"""M12-05 source-owned audiovisual synchronization contracts."""
+"""source-owned audiovisual synchronization contracts."""
 
 from __future__ import annotations
 

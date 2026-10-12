@@ -308,7 +308,7 @@ export function createAppModeController(
     /**
      * Which native H3 anchors the visible canvas offers to connect to.
      *
-     * M17-20 D13. This is a census, not a decision: it reports what is there so
+     *  D13. This is a census, not a decision: it reports what is there so
      * the surface can offer the route and, when there is more than one anchor,
      * require the user to designate. A canvas that cannot be read at all reports
      * tier C, which is the same answer as a canvas with no anchor -- replace or
@@ -474,7 +474,7 @@ export function createAppModeController(
         "incompatible_seam",
         "the public graph restore seam is unavailable",
       );
-    // M17-20 D1/D2: materialization sits behind profile admission. The gate is
+    //  D1/D2: materialization sits behind profile admission. The gate is
     // here -- after the cheap structural refusals, before the first compile,
     // fetch or canvas write -- so a host that cannot run the graph costs the
     // user nothing and, above all, reaches zero queue submissions.
@@ -635,7 +635,7 @@ export function createAppModeController(
         "the repository-owned graph identity is unavailable",
       );
     }
-    // CRITICAL (M24-08, B-M1605-EXIST-01): constructing or configuring an
+    // CRITICAL (, B-M1605-EXIST-01): constructing or configuring an
     // LGraph from a candidate that carries subgraph definitions or the
     // visible workflow's root id publishes candidate widgets through the
     // host's shared graph and widget value stores. Route on those two
@@ -900,7 +900,7 @@ export function createAppModeController(
     try {
       throwIfCancelled(signal);
       if (hostLoad !== undefined) {
-        // M23-37: the candidate is already on the canvas; the same workflow
+        // the candidate is already on the canvas; the same workflow
         // object must still own it.
         assertGraphWriteAuthority(app, hostLoad);
         committedAuthority = hostLoad;
@@ -1099,7 +1099,7 @@ export function createAppModeController(
       await managedAuthority?.onQueueAccepted(result);
       return result;
     } catch (error) {
-      // IMPORTANT: only M23-39 execution terminals remain authoritative here.
+      // IMPORTANT: only execution terminals remain authoritative here.
       // Preserving any other typed callback error would hide ambiguous ownership.
       if (
         queueState === "accepted" &&

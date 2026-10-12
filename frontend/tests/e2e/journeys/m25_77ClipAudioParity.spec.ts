@@ -72,7 +72,7 @@ const POINTS = Object.freeze([
 // GUARD: in this harness the preview does not play the imported file. The shell's lease client
 // answers every audio preview with `syntheticAudioPreview` (`frontend/e2e/nleWorkspaceMedia.ts`):
 // a 440 Hz tone at 0.08 carrying a 24-sample onset marker at 0.8 on source samples
-// [24000, 24024), which the M25-56 observer journeys locate. The final renders the imported file,
+// [24000, 24024), which the observer journeys locate. The final renders the imported file,
 // which has no marker. Clip B plays its source from sample 0, so the marker sits at the middle of
 // its 24-frame fade-in, and a window holding it measures the marker, not the envelope (0.83
 // against a defined 0.25). Each preview window is therefore the capture's window nearest its

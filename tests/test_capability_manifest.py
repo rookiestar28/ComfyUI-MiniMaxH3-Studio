@@ -1,4 +1,4 @@
-"""M10-01 capability maturity and backend-owned binding manifest tests."""
+"""capability maturity and backend-owned binding manifest tests."""
 
 from __future__ import annotations
 

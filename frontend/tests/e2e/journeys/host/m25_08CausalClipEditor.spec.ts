@@ -591,7 +591,7 @@ test("M25-08 exact candidate runs the authorized selected-VIDEO host journey", a
   await page.keyboard.press("Enter");
   await expect(clipEditor).toHaveAttribute("aria-selected", "true");
 
-  // M25-44 (one NLE): the Clip editor function shows the full-editor launcher and the project
+  //  (one NLE): the Clip editor function shows the full-editor launcher and the project
   // summary. The compact editor this journey used to drive (selected-VIDEO preview, playhead,
   // per-clip move) is retired; those behaviours are proven on the full editor by
   // `nleWorkspaceHost` and `nleCausalJourney`. The summary owns the causal lifecycle.

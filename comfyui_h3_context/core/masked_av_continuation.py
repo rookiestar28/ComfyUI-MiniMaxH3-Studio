@@ -1,27 +1,27 @@
-"""Dual-domain masked AV continuation planning and admission (M20-06).
+"""Dual-domain masked AV continuation planning and admission.
 
-Downstream of the M19-08 `dual_domain_av_mask` row.  The row measured the mechanism itself
+Downstream of the `dual_domain_av_mask` row. The row measured the mechanism itself
 affirmatively -- the pinned sampler accepts a NESTED denoise mask and applies one mask per
 domain, with semantics ``1 = generate, 0 = preserve`` and an output blend that makes a fully
 protected domain an exact passthrough -- while measuring native workflow reachability as
 absent (no native node constructs a nested mask value).  This module is the repo-owned half:
 a typed per-domain mask plan on the EXACT latent grids, and an admission that composes the
-M20-05 resume decision with that plan.  The authority is constructible only from an accepted
-matrix whose row is ``SUPPORTED``; the shipped M19-08 state (`unsupported /
+ resume decision with that plan. The authority is constructible only from an accepted
+matrix whose row is ``SUPPORTED``; the shipped state (`unsupported /
 no_native_nested_mask_constructor`) refuses, so nothing can admit a masked continuation until
 this item's own supported-host requalification is accepted and the refreshed matrix is the
 one being consumed.
 
 Masks are planned at the exact per-domain latent grid (video ``T`` steps, audio ``L`` steps,
-both derived from the M20-01 arithmetic and cross-checked against the checkpoint descriptor)
+both derived from the arithmetic and cross-checked against the checkpoint descriptor)
 so the host's ``reshape_mask`` interpolation is the identity and no soft edge is silently
 introduced.  Each domain's plan is the continuation suffix form -- preserve every step below
 ``generate_from``, generate every step at or above it -- whose extremes express the open and
-protect probes the qualification runs.  Frame-level accounting stays in M20-01's
+protect probes the qualification runs. Frame-level accounting stays in 's
 :func:`check_crop_conservation`; this module consumes that constraint and never holds its own
-copy of the grid or conservation rule (AC-M20-01-10).
+copy of the grid or conservation rule (AC--10).
 
-The composition needs no builder of its own: the qualified topology is exactly the M20-05
+The composition needs no builder of its own: the qualified topology is exactly the
 resume fragment with its ``latent_source_node`` pointed at the node that attached the nested
 mask, so callers reuse :func:`~.latent_checkpoint_resume.build_resume_composition`.
 """
@@ -204,7 +204,7 @@ def plan_nested_av_mask(
 ) -> NestedAVMaskPlan:
     """Plan one dual-domain mask on the descriptor's exact grids, refusing any drift.
 
-    The descriptor's temporal extents must equal the M20-01 grid arithmetic for its declared
+    The descriptor's temporal extents must equal the grid arithmetic for its declared
     frame count -- a checkpoint whose latent extents do not match the declared grid cannot be
     masked by declaration, only misdescribed, and this refuses instead.
     """
@@ -294,7 +294,7 @@ def admit_masked_av_continuation(
     claimed descriptor authority must be the real object handed in (never each other's
     claims), the mask and descriptor authorities must be projections of the same accepted
     profile over the same subject, and the frame-level accounting must conserve the target
-    interval exactly (the M20-01 rule, consumed, never copied).
+    interval exactly (the rule, consumed, never copied).
     """
 
     if type(authority) is not MaskedAVAuthority:

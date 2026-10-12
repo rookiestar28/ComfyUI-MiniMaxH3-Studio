@@ -1,6 +1,6 @@
-// M25-16: the single entry to the full editor, rendered only inside the active `clip_editor`
+// the single entry to the full editor, rendered only inside the active `clip_editor`
 // panel, plus the status region shown when the overlay capability is unsupported. Neither renders
-// anything for an audio surface. M25-44 (one NLE): the unsupported state no longer falls back to
+// anything for an audio surface. (one NLE): the unsupported state no longer falls back to
 // a compact editor, so the region carries the surface status alone.
 
 import { useEffect, useId, useRef } from "react";
@@ -23,7 +23,7 @@ export function NleLauncher({
   const text = nleCopy(locale);
   const statusId = useId();
   const unsupported = !supported || surface.status === "compact_unsupported";
-  // GUARD (M25-20 `overlay_close_return_focus.capability_or_mount_failure`): a refusal that
+  // GUARD ( `overlay_close_return_focus.capability_or_mount_failure`): a refusal that
   // answers the user's own open gesture keeps the launcher mounted, so the control the gesture
   // came from is still there for focus to return to, and returns focus to it once, on the
   // transition. Rendering the bare fallback here instead unmounts the focused button, nothing
@@ -74,7 +74,7 @@ export function NleLauncher({
         disabled={busy}
         onClick={() => {
           onOpen();
-          // GUARD (M25-21 B3-D11): a repeat open while expanded is idempotent -- one root, one
+          // GUARD ( B3-D11): a repeat open while expanded is idempotent -- one root, one
           // generation -- and returns the user to that dialog. This launcher sits behind the
           // modal, so leaving focus here strands the keyboard outside the Tab trap.
           if (surface.status === "expanded") focusOpenOverlay();

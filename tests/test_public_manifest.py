@@ -1,4 +1,4 @@
-"""M10-07 public-surface facade and manifest reconciliation tests."""
+"""public-surface facade and manifest reconciliation tests."""
 
 from __future__ import annotations
 

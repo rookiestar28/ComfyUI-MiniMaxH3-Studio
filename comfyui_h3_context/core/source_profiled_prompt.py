@@ -78,7 +78,7 @@ _TIMESTAMP = re.compile(
 )
 # GUARD: this fact is compared between the canonical rendering and the observed document, so the
 # pattern must recognise both the guide prose the renderer writes today and the
-# `event <id> uses <mode>` form that prompts carried before M24-05. If it stops matching, both
+# `event <id> uses <mode>` form that prompts carried before. If it stops matching, both
 # sides yield an empty vector and `semantic.copy_mode` silently admits every substitution.
 _EVENT_COPY = re.compile(
     r"(?P<asset><Video [1-9][0-9]*>) (?:"

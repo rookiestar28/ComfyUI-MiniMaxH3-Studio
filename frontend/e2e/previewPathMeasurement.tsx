@@ -1,4 +1,4 @@
-// M25-45 step 1: the preview-path measurement harness.
+//  step 1: the preview-path measurement harness.
 //
 // It measures the cost of a COMPLETE frame transaction on one real composition canvas -- geometry,
 // source rasterization, readback, colour, blend, allocation and the final write -- for the paths
@@ -12,7 +12,7 @@
 //              exported geometry, colour, dissolve and blend functions in the product's order.
 //   `native`   per layer `globalAlpha` + `globalCompositeOperation` + one `drawImage`, no readback.
 //   `svg`      `native` plus a `feColorMatrix` filter for `color_adjust_v1`.
-// The last two are the rungs M25-45 evaluates; `software` is the incumbent and the fallback.
+// The last two are the rungs evaluates; `software` is the incumbent and the fallback.
 //
 // The video source plays rather than sits on one seeked frame, because a still frame lets the
 // browser reuse an uploaded texture and would understate every path's real cost.

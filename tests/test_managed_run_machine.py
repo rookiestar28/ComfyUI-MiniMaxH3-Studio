@@ -1,4 +1,4 @@
-"""M23-31 focused tests for the dependency-free ManagedRun state machine.
+"""focused tests for the dependency-free ManagedRun state machine.
 
 The machine exists so that one place decides what a run may do next. Every property asserted here
 is one a hand-rolled `if` chain silently loses: the callback phases run in a fixed order, an

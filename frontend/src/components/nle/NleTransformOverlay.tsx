@@ -78,7 +78,7 @@ function positionOverlay(
   element.dataset.h3NleRotateSide = rotateHandleSide(projected, picture);
 }
 
-// M25-53 D-3: the rotate handle stands 66 px above the layer when the clipped picture area has
+//  D-3: the rotate handle stands 66 px above the layer when the clipped picture area has
 // room for it, below it otherwise, and inside the body only when neither edge has room (a layer
 // that fills the picture's height, whose body is large anyway). The picture is centred in its
 // area, so the room below equals the area height less the layer's bottom. Both the render and

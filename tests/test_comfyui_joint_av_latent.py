@@ -1,4 +1,4 @@
-"""M20-05 focused tests for the joint AV latent torch-boundary codec.
+"""focused tests for the joint AV latent torch-boundary codec.
 
 All host behavior is injected through the ``test_only_seams`` gate, so the assertions here
 are about the codec contract: exact byte arithmetic gates every construction, observed
@@ -11,7 +11,7 @@ from __future__ import annotations
 import unittest
 from collections.abc import Mapping
 
-from official_temporal_parity import NATIVE_NODE_SHA256
+from oracles.native_temporal import NATIVE_NODE_SHA256
 
 from comfyui_h3_context.adapters.comfyui_joint_av_latent import (
     DecomposedJointAVLatent,

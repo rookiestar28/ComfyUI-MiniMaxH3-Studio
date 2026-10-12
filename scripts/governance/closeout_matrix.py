@@ -7,7 +7,7 @@ metric that did not move says so; the chain's headline number -- shipped schema 
 move at all, and a closeout record that could not express "unchanged" would have no way to report
 that honestly.
 
-**Blast-radius rows** measure the claim M18-02 made and never checked end to end: that a digest
+**Blast-radius rows** measure the claim made and never checked end to end: that a digest
 computed for one question cannot silently answer another.  Each row is one mutation to one domain's
 input and the set of shipped fingerprint functions that moved.
 

@@ -7,7 +7,7 @@ derives the browser's key set from it, so drift becomes a build failure instead 
 finds.
 
 The extractor reads a module **as data**.  It parses the source with :mod:`ast` and never imports or
-executes it, which is the same posture the M18-01 inventory generator takes and for the same reason:
+executes it, which is the same posture the inventory generator takes and for the same reason:
 a tool that must run product code to describe it can be defeated by the code it is describing.
 
 It also **fails closed**.  A ``to_wire`` whose keys are not string literals -- built in a loop,

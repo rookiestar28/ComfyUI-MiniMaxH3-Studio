@@ -1,6 +1,6 @@
-"""M20-03: the authoring-workspace adapter — one bounded door for reference and timeline commands.
+"""the authoring-workspace adapter — one bounded door for reference and timeline commands.
 
-The Production editor needs the accepted M20-00 reference-set domain and M20-02 timeline domain
+The Production editor needs the accepted reference-set domain and timeline domain
 reachable from the sidebar.  This adapter is that single door, and three rules shape it:
 
 * **The domains stay canonical.**  Every mutation is decoded, bounded, and handed verbatim to
@@ -11,7 +11,7 @@ reachable from the sidebar.  This adapter is that single door, and three rules s
 
 * **Seeding is a claim, not a copy of content.**  A workspace is created from one exact live
   Context workspace through `claim_sidebar_authoring_seed`; each accepted registry asset maps to
-  an M20-00 admitted source with a canonical identity fingerprint and a duration fact.  A timed
+  an admitted source with a canonical identity fingerprint and a duration fact. A timed
   source without a duration fact — or one the H3-Base aggregate cannot hold — is recorded as
   not-admissible with its exact reason and shown, never guessed at and never dropped.
 
@@ -1092,7 +1092,7 @@ class AuthoringWorkspaceRegistry:
             entry = self._entry(snapshot.workspace_handle)
             current = entry.timeline_history_v2 or entry.timeline_history
             # CRITICAL: browser input must never initialize or replace this state. Only an exact
-            # backend-accepted snapshot may bind once; replacement here would bypass M25-11 CAS and
+            # backend-accepted snapshot may bind once; replacement here would bypass CAS and
             # let a later integration silently erase history.
             if current is not None:
                 current_snapshot = self._render_snapshot(current)
@@ -2048,7 +2048,7 @@ class AuthoringWorkspaceRegistry:
         )
 
     def prepare_render_plan(self, handle: str) -> BoundAuthoringRenderPlan:
-        """Internal M25-18 handoff; no browser route or renderer execution is introduced."""
+        """Internal handoff; no browser route or renderer execution is introduced."""
         with self._lock:
             self._prune(self._clock())
             entry = self._entry(handle)

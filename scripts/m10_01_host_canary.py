@@ -1,4 +1,4 @@
-"""Offline M10-01 public-host-seam canary report.
+"""Offline public-host-seam canary report.
 
 The script intentionally does not start ComfyUI or import a frontend. It records the current
 contract result as unsupported until a separately authorized pinned-host seam run exists.

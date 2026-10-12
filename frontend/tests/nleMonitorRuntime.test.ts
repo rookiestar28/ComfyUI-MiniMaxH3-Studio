@@ -672,7 +672,7 @@ describe("NLE monitor rebind keeps the transport (B-M2561-04)", () => {
   });
 });
 
-// M25-55: the kept frame is both the logical position and the new owner's first presentation.
+// the kept frame is both the logical position and the new owner's first presentation.
 // A bootstrap frame-zero publication would make the canvas contradict the cursor during rebind.
 describe("NLE monitor rebind publishes what the new owner presents (B-M2564-12)", () => {
   it("notifies when the kept frame is presented and reports each presented frame", async () => {

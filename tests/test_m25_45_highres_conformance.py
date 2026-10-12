@@ -1,4 +1,4 @@
-"""M25-45 AC45-05: the 1280 x 720 corpus rows, and what must never close one of them.
+"""AC45-05: the 1280 x 720 corpus rows, and what must never close one of them.
 
 The four high-resolution rows exist to answer a question the accepted 320 x 180 corpus cannot: what
 a layer looks like when the preview presents its own shipped cap with sources that carry real
@@ -6,7 +6,7 @@ detail at that size. A row that quietly answers a smaller question -- a legacy 3
 landmark the collector skipped, an expectation derived from the other base -- would look exactly
 like a pass, so each of those is proved here to be something else.
 
-The stage artifacts are synthetic, as in `tests/test_m25_20_conformance_join.py`: the subject is
+The stage artifacts are synthetic, as in `tests/test__conformance_join.py`: the subject is
 what the corpus and the join do with an observation, not a second copy of the runners' own tests.
 """
 
@@ -269,7 +269,7 @@ def test_the_browser_stage_prescribes_full_size_landmarks_for_every_high_resolut
 
 
 def test_the_accepted_base_is_presented_exactly_as_it_always_was() -> None:
-    """M25-45 adds a presentation; it does not change the one 306 accepted rows were observed in."""
+    """adds a presentation; it does not change the one 306 accepted rows were observed in."""
 
     assert BASE_PRESENTATION[CORPUS_BASE]["device_pixel_ratio"] == 1.0
     assert BASE_PRESENTATION[CORPUS_BASE]["pane_css_width"] == 0.0

@@ -1,4 +1,4 @@
-// M25-44: the chrome bar's Export button and its popover, which holds the final-render card that
+// the chrome bar's Export button and its popover, which holds the final-render card that
 // used to sit under the asset bin. The popover is controlled by the overlay root, which owns the
 // edge-first Escape order (popover, then dialog).
 
@@ -78,7 +78,7 @@ function RenderAffordance({ binding }: { binding: NleWorkspaceBinding }) {
         : history?.snapshot;
   const capability = render.capability;
   if (capability === null || !capability.supported || snapshot === undefined) {
-    // M25-33: a read capability that is unsupported for a present snapshot may be a missing media
+    // a read capability that is unsupported for a present snapshot may be a missing media
     // runtime. The card offers setup only when installing can repair it; a host whose renderer is
     // not available keeps the plain sentence alone, and nothing here ever starts a render.
     const mediaTools = binding.mediaTools;

@@ -750,7 +750,7 @@ class ProcessLocalAuthoringSourceBindingStore:
 
 @runtime_checkable
 class AuthoringSourceBindingFactory(Protocol):
-    """M25-01 implementation seam; capture occurs beside the successful node return."""
+    """implementation seam; capture occurs beside the successful node return."""
 
     def capture(
         self,
@@ -904,7 +904,7 @@ def claim_transferred_authoring_source(
     if not isinstance(receipt, AuthoringSourceBindingReceipt) or receipt._exact_registry is None:
         raise AuthoringSourceBindingError("invalid_receipt")
     # CRITICAL: use the receipt-owned exact registry and generation. Accepting a reconstructed
-    # registry here would reopen the fingerprint-only wrong-file claim M25-01 closed.
+    # registry here would reopen the fingerprint-only wrong-file claim closed.
     return claim_exact_authoring_source(
         receipt,
         exact_registry=receipt._exact_registry,

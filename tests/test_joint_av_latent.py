@@ -1,7 +1,7 @@
-"""M20-04 focused tests for the joint AV latent descriptor, authority and receipt.
+"""focused tests for the joint AV latent descriptor, authority and receipt.
 
 The property held apart here is promotion: the artifact family exists only downstream of the
-M19-08 `joint_av_latent_descriptor = supported` row, and no descriptor, receipt, decode path or
+ `joint_av_latent_descriptor = supported` row, and no descriptor, receipt, decode path or
 public projection may manufacture that state.  The second property is exact byte arithmetic:
 the payload is two raw dense domains, so every byte-length claim is an integer equation this
 suite can check against hand-computed values, with no tensor library anywhere.
@@ -13,7 +13,7 @@ import unittest
 from dataclasses import replace
 from typing import Any
 
-from official_temporal_parity import NATIVE_NODE_SHA256
+from oracles.native_temporal import NATIVE_NODE_SHA256
 
 from comfyui_h3_context.core.joint_av_latent import (
     JOINT_AV_LATENT_PUBLIC_SCHEMA,
@@ -49,7 +49,7 @@ _FP = "sha256:" + "ab" * 32
 
 
 def _accepted(status: CapabilityStatus = CapabilityStatus.SUPPORTED) -> AcceptedQualification:
-    """The M19-08 refreshed projection: the descriptor row measured live."""
+    """The refreshed projection: the descriptor row measured live."""
 
     return AcceptedQualification(
         subject_identity=NATIVE_NODE_SHA256,
@@ -171,6 +171,12 @@ class DescriptorTests(unittest.TestCase):
             _descriptor(completed_frames=23)
         with self.assertRaisesRegex(JointAVLatentError, "positive_integer:completed_frames"):
             _descriptor(completed_frames=0)
+
+    def test_requested_extent_requires_an_admissible_frame_lattice(self) -> None:
+        for requested in (1, 4, 6, 21, 23, 3600):
+            with self.subTest(requested=requested):
+                with self.assertRaisesRegex(JointAVLatentError, "requested_frames_off_lattice"):
+                    _descriptor(requested_frames=requested, completed_frames=1)
 
     def test_direct_byte_length_tamper_is_rejected(self) -> None:
         with self.assertRaisesRegex(JointAVLatentError, "latent_byte_arithmetic:video"):

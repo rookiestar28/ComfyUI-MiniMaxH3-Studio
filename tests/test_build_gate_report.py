@@ -1,4 +1,4 @@
-"""HC-04 machine-readable build-stage evidence contracts."""
+"""machine-readable build-stage evidence contracts."""
 
 from __future__ import annotations
 

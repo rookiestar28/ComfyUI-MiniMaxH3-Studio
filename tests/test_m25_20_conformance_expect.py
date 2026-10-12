@@ -1,4 +1,4 @@
-"""The expectation half of the M25-20 three-way comparison.
+"""The expectation half of the three-way comparison.
 
 An expectation is only worth having if it was written from the contract rather than from a run, so
 these tests do two things. They pin what the derivation is allowed to state -- the artifact facts
@@ -523,7 +523,7 @@ def test_a_source_start_burst_rings_wherever_its_owner_places_it() -> None:
     source from frame 0, so that source's first burst lands at output sample 24000 -- and the
     artifact rang to 4 inside a gap interior that began at 26304, while every burst with run-up
     in its source was silent past its own exclusion (B-61, r5 and r6). The gap after such a burst
-    begins one codec frame after the owner's source origin on the output, exactly as B-45 already
+    begins one codec frame after the source origin on the output, exactly as B-45 already
     declared for the first owner at sample 0, whose source origin happens to be the stream's start.
     """
 

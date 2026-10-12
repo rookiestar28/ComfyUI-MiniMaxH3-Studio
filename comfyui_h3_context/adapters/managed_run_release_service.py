@@ -1,7 +1,7 @@
 """The single owner of the release/detach decision and of the mutation it implies.
 
 Plan section 3.4: the HTTP route, the coordinator table and the ManagedRun registry must not each
-derive their own predicate. Before M23-51 the coordinator's `release_sequence` branch *was* the
+derive their own predicate. Before the coordinator's `release_sequence` branch *was* the
 predicate -- it had none, and dropped whatever it was given -- and the obvious repair is to add a
 state check to that branch. That repair is the wrong shape: the same question would then be asked
 again by whatever next needs it, exactly as the cancel question was asked twice with two different
@@ -117,7 +117,7 @@ class ManagedRunReleaseService:
             else:
                 # IMPORTANT: M26 owns a private Production row per serial child. Let that owner
                 # bracket this service's exact ManagedRun mutation, while this service remains the
-                # sole authority deciding whether M23-51 permits removal at all.
+                # sole authority deciding whether permits removal at all.
                 removal_transaction(release_live_sequence)
             return ReleaseOutcome(
                 disposition=ReleaseDisposition.RELEASED.value,

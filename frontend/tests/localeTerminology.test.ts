@@ -1,4 +1,4 @@
-// M25-63 (B-M2563-13): one word for "timeline" per Chinese locale. The editor's timeline is titled
+//  (B-M2563-13): one word for "timeline" per Chinese locale. The editor's timeline is titled
 // 时间线 in zh-CN and 時間軸 in zh-TW; a card command or a Production label that says 时间轴 (or
 // 時間線) on the same screen reads as a different thing. Every source file is scanned, not only
 // the discovered copy tables, so a string outside a locale table cannot reintroduce the other

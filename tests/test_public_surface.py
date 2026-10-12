@@ -1,4 +1,4 @@
-"""M19-02 public surface tests.
+"""public surface tests.
 
 The record exists to make one constraint mechanical and one hazard visible.
 
@@ -211,7 +211,7 @@ class GeneratedSurfaceTests(unittest.TestCase):
         )
 
     def test_every_gate_enforced_name_is_still_a_pure_core_export(self) -> None:
-        """AC-M19-02-07, asserted here as well as by the gate that would catch it later."""
+        """AC--07, asserted here as well as by the gate that would catch it later."""
 
         import comfyui_h3_context.core as core
 
@@ -229,7 +229,7 @@ class GeneratedSurfaceTests(unittest.TestCase):
         self.assertEqual([n for n in core.__all__ if not hasattr(core, n)], [])
 
     def test_the_shadowed_set_is_pinned_and_does_not_grow(self) -> None:
-        """HC-12 retired five non-public shadows; the two live-reader shadows stay pinned."""
+        """retired five non-public shadows; the two live-reader shadows stay pinned."""
 
         names = sorted(item.name for item in self.surface.shadowed)
         self.assertEqual(
@@ -358,7 +358,7 @@ class GeneratedSurfaceTests(unittest.TestCase):
 
 
 class DeferredAdmittedWireTests(unittest.TestCase):
-    """The import-cost half of M19-02: two records that were built at import time now are not."""
+    """The import-cost half of : two records that were built at import time now are not."""
 
     def test_the_deferred_scorecard_wire_matches_its_frozen_fingerprint(self) -> None:
         from comfyui_h3_context.core import fidelity_scorecard as scorecard

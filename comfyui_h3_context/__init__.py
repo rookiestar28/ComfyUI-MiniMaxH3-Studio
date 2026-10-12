@@ -27,6 +27,7 @@ from .adapters.comfyui_generation_profile import (
 from .adapters.comfyui_input_geometry import ensure_input_geometry_route_registered
 from .adapters.comfyui_media_preview import ensure_media_preview_route_registered
 from .adapters.comfyui_media_runtime_setup import ensure_media_runtime_setup_route_registered
+from .adapters.comfyui_perception_status import ensure_perception_host_status_route_registered
 from .adapters.comfyui_production_workspace import ensure_production_route_registered
 from .adapters.comfyui_project_document import ensure_project_document_route_registered
 from .adapters.comfyui_provider_settings import (
@@ -42,6 +43,7 @@ from .adapters.comfyui_sidebar_workspace import (
 )
 from .adapters.comfyui_workspace_state import ensure_workspace_state_route_registered
 from .adapters.managed_sequence_service import ensure_managed_sequence_route_registered
+from .adapters.perception_settings import activate_operator_perception_host
 from .adapters.production_authoring_import_service import (
     ensure_production_authoring_import_route_registered,
 )
@@ -126,8 +128,12 @@ if os.environ.get("H3_CONTEXT_HOST_TWO_ENDED_BRIDGE_CANARY") == "1":
         TWO_ENDED_BRIDGE_CANARY_NODE_ID: "H3 Context (two-ended AV bridge canary)",
     }
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 WEB_DIRECTORY = "web"
+
+# CRITICAL: this bounded operator attempt runs after node registration. Its module owner survives
+# root reload; missing host modules do not consume the attempt, and GET never retries the file.
+activate_operator_perception_host()
 
 # IMPORTANT: route registration is optional and lazy; missing host modules preserve clean import.
 ensure_sidebar_route_registered()
@@ -155,6 +161,7 @@ ensure_workspace_state_route_registered()
 ensure_retained_assets_routes_registered()
 ensure_project_document_route_registered()
 ensure_editor_recovery_route_registered()
+ensure_perception_host_status_route_registered()
 
 __all__ = [
     "NODE_CLASS_MAPPINGS",

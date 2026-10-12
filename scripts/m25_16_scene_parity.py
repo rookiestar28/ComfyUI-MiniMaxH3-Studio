@@ -1,12 +1,12 @@
-"""M25-16: generate the cross-language scene-resolver parity vectors.
+"""generate the cross-language scene-resolver parity vectors.
 
 The browser composition monitor resolves output frames locally with a TypeScript port of
 ``comfyui_h3_context.core.composition_contract.resolve_composition``.  This script derives
-deterministic variants of the accepted M25-10 composition fixture, resolves every output frame
+deterministic variants of the accepted composition fixture, resolves every output frame
 with the backend authority, and writes the canonical resolved-scene wire (or the typed refusal
-code) for each case to ``tests/fixtures/m25_16_scene_resolver_parity_v1.json``.
+code) for each case to ``tests/fixtures/_scene_resolver_parity_v1.json``.
 
-``tests/test_m25_16_scene_resolver_parity.py`` re-derives the vectors and fails when the fixture
+``tests/test__scene_resolver_parity.py`` re-derives the vectors and fails when the fixture
 drifts from the backend; ``frontend/tests/sceneResolver.test.ts`` replays the same vectors
 against the TypeScript port.  Run with ``--write`` to refresh the fixture, ``--check`` to verify.
 """

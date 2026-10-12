@@ -1,6 +1,6 @@
-// M25-16 corrective F4 / parent plan AC11: the causal Production-to-Authoring import journeys on
+//  corrective F4 / parent plan AC11: the causal Production-to-Authoring import journeys on
 // the REAL integrated shell (frontend/e2e/nleShell.tsx, `import=1`) against the real registries
-// and the real import service (`scripts/m25_16_import_fixture.py`). Activation by pointer and by
+// and the real import service (`scripts/_import_fixture.py`). Activation by pointer and by
 // keyboard; first target creation counted separately from the import; existing target reuse;
 // consumed-claim refusal; catalog refresh that leaves the timeline revision alone and highlights
 // the imported asset-bin row; a separate explicit insertion that changes only the timeline
@@ -29,13 +29,40 @@ import {
 const AUTHORING_ROUTE = "/h3-context/v1/authoring/action";
 const PRODUCTION_ROUTE = "/h3-context/v1/production/action";
 const IMPORT_ROUTE = "/h3-context/v1/production/authoring-import";
-// Opening the editor performs the accepted M25-19 read-only capability GET; it starts nothing.
+// Opening the editor performs the accepted read-only capability GET; it starts nothing.
 const CAPABILITY_ROUTE = "/h3-context/v1/authoring/output-capability";
 const MEDIA_RUNTIME_STATUS_ROUTE = "/h3-context/v1/media-runtime";
 const importButton = '[data-h3-nle-control="asset.import_production"]';
 const assetBin = '[data-h3-nle-region="asset-bin"]';
 
 test.use({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
+
+async function waitAcceptedImportSnapshot(
+  page: Page,
+  receipts: number,
+  timelineRevision: number,
+  observe?: (snapshot: Awaited<ReturnType<typeof shellSnapshot>>) => void,
+): Promise<Awaited<ReturnType<typeof shellSnapshot>>> {
+  let accepted: Awaited<ReturnType<typeof shellSnapshot>> | null = null;
+  // IMPORTANT: HTTP receipts precede refreshed history. Return the same ready revision
+  // snapshot; counting receipts alone can expose null V2 state during history refresh.
+  await expect
+    .poll(async () => {
+      const snapshot = await shellSnapshot(page);
+      observe?.(snapshot);
+      if (
+        snapshot.receipts === receipts &&
+        snapshot.authoringStatus === "ready" &&
+        snapshot.authoringStateV2?.timelineRevision === timelineRevision
+      ) {
+        accepted = snapshot;
+        return true;
+      }
+      return false;
+    })
+    .toBe(true);
+  return accepted!;
+}
 
 async function openImportShell(
   page: Page,
@@ -110,7 +137,7 @@ async function expectImport(
 /**
  * The reads the session issues after it published the import outcome.
  *
- * IMPORTANT (M25-44 B-M2544-07): a succeeded import is published first, and the history read and
+ * IMPORTANT ( B-M2544-07): a succeeded import is published first, and the history read and
  * the catalog `read_projection` run after it (`nleWorkspaceImport.ts`: they can never relabel an
  * applied import). Comparing the fixture's action lists at the instant `succeeded` is visible races
  * those reads; wait for the recorded list instead of sampling it once.
@@ -273,10 +300,13 @@ test.describe("AC11 causal import journeys", () => {
       .locator('[data-h3-nle-control="asset.insert"]')
       .click();
     await expect.poll(() => fixture!.transactions.length).toBe(1);
-    await expect.poll(async () => (await shellSnapshot(page)).receipts).toBe(1);
+    const inserted = await waitAcceptedImportSnapshot(
+      page,
+      1,
+      imported.authoringStateV2!.timelineRevision + 1,
+    );
     const insertionTransactionCount = fixture.transactions.length;
 
-    const inserted = await shellSnapshot(page);
     const importedClips = inserted.timelineSnapshot!.clips.filter(
       (clip) =>
         clip.assetId !== null &&
@@ -502,7 +532,7 @@ test.describe("AC11 causal import journeys", () => {
     );
     expect(imported.queuedPrompts).toBe(0);
 
-    // Consumed claim, as the accepted M25-29 contract actually states it: the same ready output
+    // Consumed claim, as the accepted contract actually states it: the same ready output
     // is not imported twice. A second import with fresh identities succeeds idempotently with the
     // row dispositioned `already_imported`; no new asset, no workspace or timeline revision
     // change, and nothing replayed as a transaction. (A stale second request is the separate
@@ -536,175 +566,244 @@ test.describe("AC11 causal import journeys", () => {
 
   test("Undo/Redo traverse the pre-import edit and the insertion while the imported library row persists", async ({
     page,
-  }) => {
+  }, testInfo) => {
     // R2-F4: undoing only the post-import insertion proves retention, not preservation of an
     // older branch. The journey therefore makes an accepted edit A *before* the import and runs
     // edit A -> import -> insert B -> Undo B -> Undo A -> Redo A -> Redo B, asserting content at
     // every transition rather than counts alone.
-    fixture = await openImportShell(page, "ready");
-    const before = await shellSnapshot(page);
-    expect(before.timelineSnapshot).toBeNull();
-    const baseTracks = before.authoringStateV2!.tracks.length;
-    const baseRevision = before.authoringStateV2!.timelineRevision;
+    let releaseHistory: () => void = () => {};
+    let historyHeld = false;
+    const historyBarrier = new Promise<void>((resolve) => {
+      releaseHistory = resolve;
+    });
+    fixture = await openImportShell(page, "ready", {
+      beforeDispatch: async (kind, index) => {
+        if (
+          kind === "authoring" &&
+          fixture?.transactions.length === 2 &&
+          fixture.authoringActions[index] === "read_timeline_history" &&
+          !historyHeld
+        ) {
+          historyHeld = true;
+          await historyBarrier;
+        }
+      },
+    });
+    try {
+      const before = await shellSnapshot(page);
+      expect(before.timelineSnapshot).toBeNull();
+      const baseTracks = before.authoringStateV2!.tracks.length;
+      const baseRevision = before.authoringStateV2!.timelineRevision;
 
-    // Edit A: empty V2 authoring deliberately has no rendered track menu. Use the harness's
-    // real shell dispatch seam for setup so the command still traverses the production action,
-    // registry, receipt and history path before the import interaction under test.
-    const addedTrackId = "pre-import-video-track";
-    await page.evaluate(
-      ({ trackId }) =>
-        window.nleShellHarness.applyTimelineCommands([
-          {
-            kind: "create_track",
-            payload: { track_id: trackId, kind: "video_overlay", order: 0 },
-          },
-        ]),
-      { trackId: addedTrackId },
-    );
-    await expect.poll(async () => (await shellSnapshot(page)).receipts).toBe(1);
-    const edited = await shellSnapshot(page);
-    expect(edited.authoringStateV2?.tracks).toHaveLength(baseTracks + 1);
-    expect(edited.authoringStateV2?.timelineRevision).toBe(baseRevision + 1);
-    expect(
-      edited.authoringStateV2?.tracks.map((track) => track.trackId),
-    ).toContain(addedTrackId);
-    await page.locator('[data-h3-nle-action="close"]').click();
-    await expect(page.locator(shellSurface)).toBeHidden();
+      // Edit A: empty V2 authoring deliberately has no rendered track menu. Use the harness's
+      // real shell dispatch seam for setup so the command still traverses the production action,
+      // registry, receipt and history path before the import interaction under test.
+      const addedTrackId = "pre-import-video-track";
+      await page.evaluate(
+        ({ trackId }) =>
+          window.nleShellHarness.applyTimelineCommands([
+            {
+              kind: "create_track",
+              payload: { track_id: trackId, kind: "video_overlay", order: 0 },
+            },
+          ]),
+        { trackId: addedTrackId },
+      );
+      const edited = await waitAcceptedImportSnapshot(
+        page,
+        1,
+        baseRevision + 1,
+      );
+      expect(edited.authoringStateV2?.tracks).toHaveLength(baseTracks + 1);
+      expect(edited.authoringStateV2?.timelineRevision).toBe(baseRevision + 1);
+      expect(
+        edited.authoringStateV2?.tracks.map((track) => track.trackId),
+      ).toContain(addedTrackId);
+      await page.locator('[data-h3-nle-action="close"]').click();
+      await expect(page.locator(shellSurface)).toBeHidden();
 
-    // The import is not a timeline edit: it advances the workspace, never the timeline.
-    await mediaStage(page);
-    await page.locator(importButton).click();
-    await expectImport(page, "succeeded");
-    const imported = await shellSnapshot(page);
-    const assetId = imported.highlightedAssetIds[0]!;
-    expect(imported.authoringStateV2?.timelineRevision).toBe(baseRevision + 1);
-    expect(imported.authoringStateV2?.workspaceRevision).toBe(
-      (edited.authoringStateV2?.workspaceRevision ?? 0) + 1,
-    );
-    await openOverlay(page);
-    const assetRow = page.locator(
-      `${assetBin} [data-h3-nle-asset="${assetId}"]`,
-    );
-    await expect(assetRow).toBeVisible();
+      // The import is not a timeline edit: it advances the workspace, never the timeline.
+      await mediaStage(page);
+      await page.locator(importButton).click();
+      await expectImport(page, "succeeded");
+      const imported = await shellSnapshot(page);
+      const assetId = imported.highlightedAssetIds[0]!;
+      expect(imported.authoringStateV2?.timelineRevision).toBe(
+        baseRevision + 1,
+      );
+      expect(imported.authoringStateV2?.workspaceRevision).toBe(
+        (edited.authoringStateV2?.workspaceRevision ?? 0) + 1,
+      );
+      await openOverlay(page);
+      const assetRow = page.locator(
+        `${assetBin} [data-h3-nle-asset="${assetId}"]`,
+      );
+      await expect(assetRow).toBeVisible();
 
-    // Insert B: one transaction, one receipt, one clip on the imported asset.
-    await assetRow.locator('[data-h3-nle-control="asset.insert"]').click();
-    await expect.poll(() => fixture!.transactions.length).toBe(2);
-    await expect.poll(async () => (await shellSnapshot(page)).receipts).toBe(2);
-    const inserted = await shellSnapshot(page);
-    expect(
-      inserted.authoringStateV2?.clips.filter(
-        (clip) => clip.assetId === assetId,
-      ),
-    ).toHaveLength(1);
-    expect(inserted.authoringStateV2?.timelineRevision).toBe(baseRevision + 2);
-    expect(inserted.authoringStateV2?.assets.length).toBe(
-      imported.authoringStateV2?.assets.length,
-    );
-
-    const undo = page.locator('[data-h3-nle-control="history.undo"]');
-    const redo = page.locator('[data-h3-nle-control="history.redo"]');
-    const step = async (
-      control: typeof undo,
-      receipts: number,
-    ): Promise<Awaited<ReturnType<typeof shellSnapshot>>> => {
-      await control.click();
-      await expect
-        .poll(async () => (await shellSnapshot(page)).receipts)
-        .toBe(receipts);
-      return shellSnapshot(page);
-    };
-
-    // Undo B: the insertion is gone, edit A survives, the library keeps the imported asset.
-    const undoneB = await step(undo, 3);
-    expect(undoneB.authoringStateV2?.clips).toHaveLength(0);
-    expect(undoneB.authoringStateV2?.tracks).toEqual(
-      edited.authoringStateV2?.tracks,
-    );
-    expect(
-      undoneB.authoringStateV2?.assets.map((asset) => asset.assetId),
-    ).toContain(assetId);
-    await expect(assetRow).toBeVisible();
-    await expect(undo).toBeEnabled();
-
-    // Undo A: the branch that precedes the import is reachable, and crossing that boundary
-    // still does not evict the imported asset or re-run the import.
-    const undoneA = await step(undo, 4);
-    expect(
-      undoneA.authoringStateV2?.tracks.map((track) => track.trackId),
-    ).not.toContain(addedTrackId);
-    expect(undoneA.authoringStateV2?.tracks).toEqual(
-      before.authoringStateV2?.tracks,
-    );
-    expect(undoneA.authoringStateV2?.clips).toEqual(
-      before.authoringStateV2?.clips,
-    );
-    expect(
-      undoneA.authoringStateV2?.assets.map((asset) => asset.assetId),
-    ).toContain(assetId);
-    await expect(assetRow).toBeVisible();
-    expect(fixture.importRequests).toHaveLength(1);
-    // The history cursor is back at the branch root the workspace started from: there is
-    // nothing older to undo, and the import never became an undoable timeline entry.
-    await expect(undo).toBeDisabled();
-    await expect(redo).toBeEnabled();
-
-    // Redo A then Redo B restore the same content in the same order.
-    const redoneA = await step(redo, 5);
-    expect(
-      redoneA.authoringStateV2?.tracks.map((track) => track.trackId),
-    ).toContain(addedTrackId);
-    expect(redoneA.authoringStateV2?.tracks).toEqual(
-      edited.authoringStateV2?.tracks,
-    );
-    expect(redoneA.authoringStateV2?.clips).toHaveLength(0);
-    const redoneB = await step(redo, 6);
-    expect(redoneB.authoringStateV2?.clips).toEqual(
-      inserted.authoringStateV2?.clips,
-    );
-    expect(redoneB.authoringStateV2?.tracks).toEqual(
-      inserted.authoringStateV2?.tracks,
-    );
-    await expect(redo).toBeDisabled();
-    // Undo and Redo are themselves accepted transactions, so the timeline revision keeps
-    // advancing even where the content returns to an earlier state. Identity is the content
-    // and the receipt chain, never the counter.
-    expect(redoneB.authoringStateV2!.timelineRevision).toBeGreaterThan(
-      inserted.authoringStateV2!.timelineRevision,
-    );
-
-    // The import stayed outside the timeline history: exactly the six edits above were
-    // transacted, in order, and no Undo/Redo re-ran the import or created a second target.
-    expect(
-      fixture.transactions.map((transaction) =>
-        (transaction.commands as { kind: string }[]).map(
-          (command) => command.kind,
+      // Insert B: one transaction, one receipt, one clip on the imported asset.
+      await assetRow.locator('[data-h3-nle-control="asset.insert"]').click();
+      await expect.poll(() => fixture!.transactions.length).toBe(2);
+      let observedHeldHistory = false;
+      let insertionWaiterResolved = false;
+      const pendingInsertion = waitAcceptedImportSnapshot(
+        page,
+        2,
+        baseRevision + 2,
+        (snapshot) => {
+          observedHeldHistory ||=
+            historyHeld &&
+            snapshot.receipts === 2 &&
+            snapshot.authoringStatus === "pending" &&
+            snapshot.authoringStateV2 === null;
+        },
+      ).then((snapshot) => {
+        insertionWaiterResolved = true;
+        return snapshot;
+      });
+      await expect.poll(() => observedHeldHistory).toBe(true);
+      const heldSnapshot = await shellSnapshot(page);
+      expect(heldSnapshot.receipts).toBe(2);
+      expect(heldSnapshot.authoringStatus).toBe("pending");
+      expect(heldSnapshot.authoringStateV2).toBeNull();
+      expect(insertionWaiterResolved).toBe(false);
+      releaseHistory();
+      const inserted = await pendingInsertion;
+      await testInfo.attach("import-history-readiness", {
+        body: Buffer.from(
+          JSON.stringify({
+            observedHeldHistory,
+            heldReceipts: heldSnapshot.receipts,
+            heldAuthoringStatus: heldSnapshot.authoringStatus,
+            heldStateNull: heldSnapshot.authoringStateV2 === null,
+            afterReleaseStatus: inserted.authoringStatus,
+            afterReleaseRevision: inserted.authoringStateV2?.timelineRevision,
+            expectedRevision: baseRevision + 2,
+          }),
         ),
-      ),
-    ).toEqual([
-      ["create_track"],
-      ["insert_asset_clip"],
-      ["undo"],
-      ["undo"],
-      ["redo"],
-      ["redo"],
-    ]);
-    expect(fixture.importRequests).toHaveLength(1);
-    expect(fixture.authoringActions).not.toContain(
-      "create_authoring_workspace",
-    );
-    expect(redoneB.authoringWorkspaceHandle).toBe(
-      before.authoringWorkspaceHandle,
-    );
-    // The Media-bin decoration path owns no runtime setup or final-output capability side effect;
-    // the V2 surface performs only its read-only media-runtime status probe across this journey.
-    const foreign = foreignPaths(redoneB.fetchPaths, before.fetchPaths.length);
-    expect(foreign).toEqual([MEDIA_RUNTIME_STATUS_ROUTE]);
-    expect(redoneB.queuedPrompts).toBe(0);
-    expect(redoneB.renderJobRequests).toBe(0);
+        contentType: "application/json",
+      });
+      expect(
+        inserted.authoringStateV2?.clips.filter(
+          (clip) => clip.assetId === assetId,
+        ),
+      ).toHaveLength(1);
+      expect(inserted.authoringStateV2?.timelineRevision).toBe(
+        baseRevision + 2,
+      );
+      expect(inserted.authoringStateV2?.assets.length).toBe(
+        imported.authoringStateV2?.assets.length,
+      );
+
+      const undo = page.locator('[data-h3-nle-control="history.undo"]');
+      const redo = page.locator('[data-h3-nle-control="history.redo"]');
+      const step = async (
+        control: typeof undo,
+        receipts: number,
+      ): Promise<Awaited<ReturnType<typeof shellSnapshot>>> => {
+        await control.click();
+        return waitAcceptedImportSnapshot(
+          page,
+          receipts,
+          baseRevision + receipts,
+        );
+      };
+
+      // Undo B: the insertion is gone, edit A survives, the library keeps the imported asset.
+      const undoneB = await step(undo, 3);
+      expect(undoneB.authoringStateV2?.clips).toHaveLength(0);
+      expect(undoneB.authoringStateV2?.tracks).toEqual(
+        edited.authoringStateV2?.tracks,
+      );
+      expect(
+        undoneB.authoringStateV2?.assets.map((asset) => asset.assetId),
+      ).toContain(assetId);
+      await expect(assetRow).toBeVisible();
+      await expect(undo).toBeEnabled();
+
+      // Undo A: the branch that precedes the import is reachable, and crossing that boundary
+      // still does not evict the imported asset or re-run the import.
+      const undoneA = await step(undo, 4);
+      expect(
+        undoneA.authoringStateV2?.tracks.map((track) => track.trackId),
+      ).not.toContain(addedTrackId);
+      expect(undoneA.authoringStateV2?.tracks).toEqual(
+        before.authoringStateV2?.tracks,
+      );
+      expect(undoneA.authoringStateV2?.clips).toEqual(
+        before.authoringStateV2?.clips,
+      );
+      expect(
+        undoneA.authoringStateV2?.assets.map((asset) => asset.assetId),
+      ).toContain(assetId);
+      await expect(assetRow).toBeVisible();
+      expect(fixture.importRequests).toHaveLength(1);
+      // The history cursor is back at the branch root the workspace started from: there is
+      // nothing older to undo, and the import never became an undoable timeline entry.
+      await expect(undo).toBeDisabled();
+      await expect(redo).toBeEnabled();
+
+      // Redo A then Redo B restore the same content in the same order.
+      const redoneA = await step(redo, 5);
+      expect(
+        redoneA.authoringStateV2?.tracks.map((track) => track.trackId),
+      ).toContain(addedTrackId);
+      expect(redoneA.authoringStateV2?.tracks).toEqual(
+        edited.authoringStateV2?.tracks,
+      );
+      expect(redoneA.authoringStateV2?.clips).toHaveLength(0);
+      const redoneB = await step(redo, 6);
+      expect(redoneB.authoringStateV2?.clips).toEqual(
+        inserted.authoringStateV2?.clips,
+      );
+      expect(redoneB.authoringStateV2?.tracks).toEqual(
+        inserted.authoringStateV2?.tracks,
+      );
+      await expect(redo).toBeDisabled();
+      // Undo and Redo are themselves accepted transactions, so the timeline revision keeps
+      // advancing even where the content returns to an earlier state. Identity is the content
+      // and the receipt chain, never the counter.
+      expect(redoneB.authoringStateV2!.timelineRevision).toBeGreaterThan(
+        inserted.authoringStateV2!.timelineRevision,
+      );
+
+      // The import stayed outside the timeline history: exactly the six edits above were
+      // transacted, in order, and no Undo/Redo re-ran the import or created a second target.
+      expect(
+        fixture.transactions.map((transaction) =>
+          (transaction.commands as { kind: string }[]).map(
+            (command) => command.kind,
+          ),
+        ),
+      ).toEqual([
+        ["create_track"],
+        ["insert_asset_clip"],
+        ["undo"],
+        ["undo"],
+        ["redo"],
+        ["redo"],
+      ]);
+      expect(fixture.importRequests).toHaveLength(1);
+      expect(fixture.authoringActions).not.toContain(
+        "create_authoring_workspace",
+      );
+      expect(redoneB.authoringWorkspaceHandle).toBe(
+        before.authoringWorkspaceHandle,
+      );
+      // The Media-bin decoration path owns no runtime setup or final-output capability side effect;
+      // the V2 surface performs only its read-only media-runtime status probe across this journey.
+      const foreign = foreignPaths(
+        redoneB.fetchPaths,
+        before.fetchPaths.length,
+      );
+      expect(foreign).toEqual([MEDIA_RUNTIME_STATUS_ROUTE]);
+      expect(redoneB.queuedPrompts).toBe(0);
+      expect(redoneB.renderJobRequests).toBe(0);
+    } finally {
+      releaseHistory();
+    }
   });
 
-  // M25-40 AC40-03, integrated with the real registries: a concurrent Production change makes the
+  //  AC40-03, integrated with the real registries: a concurrent Production change makes the
   // captured revision stale, so the real import route refuses with 409. The session reconciles
   // once (Production read, same-project editor ensure and history read), recaptures the exact
   // same output and editor with the moved revision, and imports under a new request identity.
@@ -817,7 +916,7 @@ test.describe("AC11 causal import journeys", () => {
     );
   });
 
-  // M25-40 AC40-03 negative: when the recaptured request is refused again, recovery is spent.
+  //  AC40-03 negative: when the recaptured request is refused again, recovery is spent.
   // There is no third import, no recursive refresh loop and no new identity without a new
   // explicit action; the refusal stays visible and the editor holds no imported asset.
   test("a second known refusal ends recovery without a third import or a loop", async ({

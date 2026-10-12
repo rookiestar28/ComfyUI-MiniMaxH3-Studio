@@ -1,4 +1,4 @@
-// M25-20 F1 corrective, browser half: real per-row observation for the shell-invariant corpus
+//  F1 corrective, browser half: real per-row observation for the shell-invariant corpus
 // rows that `nleSemanticConformance.spec.ts` does not already exercise on the real integrated
 // shell (`overlay_open`, four of the five `overlay_close_return_focus` reasons,
 // `overlay_unavailable_status`, `view_destroy_cleanup`). `global_shell_identity`,
@@ -20,7 +20,7 @@ const OVERLAY = '[data-h3-nle-surface="overlay_v1"]';
 // The product's own launcher, distinct from the harness page's convenience button.
 const LAUNCHER = '[data-h3-nle-entry="open"]';
 const ASSET_BIN = '[data-h3-nle-region="asset-bin"]';
-// M25-44 (one NLE): the launcher's unavailable region carries the surface status alone.
+//  (one NLE): the launcher's unavailable region carries the surface status alone.
 const UNAVAILABLE_STATUS =
   '[data-h3-nle-unavailable="overlay_v1"] [data-h3-nle-status="surface"]';
 const NAVIGATION = { name: "H3 Context pages" } as const;

@@ -1,4 +1,4 @@
-"""M11-03 strict exact OCR and spatial provenance tests."""
+"""strict exact OCR and spatial provenance tests."""
 
 from __future__ import annotations
 

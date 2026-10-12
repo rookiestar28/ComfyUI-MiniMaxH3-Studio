@@ -5,11 +5,14 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import comfyui_h3_context.adapters.ollama_native as ollama_native
 from scripts.security_audit import (
     _audit_license,
+    _audit_metadata,
     _audit_public_markers,
+    _is_internal_path,
     audit_repository,
     audit_runtime_package,
     audit_workflow_text,
@@ -19,6 +22,142 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SecurityAuditTests(unittest.TestCase):
+    @staticmethod
+    def _consumer_metadata_findings(
+        extra: str, requirement: str, *, runtime: bool = False
+    ) -> list[str]:
+        metadata = """[build-system]
+requires = ["setuptools>=80,<84", "wheel>=0.46.2,<0.47"]
+[project]
+authors = [{name = "rookiestar28"}]
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+"""
+        metadata += f'dependencies = ["{requirement}"]\n' if runtime else "dependencies = []\n"
+        metadata += f'[project.optional-dependencies]\n{extra} = ["{requirement}"]\n'
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "pyproject.toml").write_text(metadata, encoding="utf-8")
+            findings: list[str] = []
+            _audit_metadata(root, findings)
+        return findings
+
+    def test_pinned_consumer_dependency_is_admitted_only_in_dev(self) -> None:
+        self.assertEqual(self._consumer_metadata_findings("dev", "griffelib==2.3.0"), [])
+
+    def test_pinned_consumer_dependency_does_not_open_versions_groups_or_other_pins(self) -> None:
+        for extra, requirement, runtime in (
+            ("dev", "griffelib==2.3.1", False),
+            ("dev", "griffelib>=2.3,<3", False),
+            ("dev", "grifFelib==2.3.0", False),
+            ("dev", "griffelib==2.3.0; python_version<'3.11'", False),
+            ("dev", "griffelib @ https://example.invalid/wheel", False),
+            ("dev", "griffe==2.3.0", False),
+            ("dev", "griffe>=2.3,<3", False),
+            ("host-tests", "griffelib==2.3.0", False),
+            ("host-tests", "griffelib>=2.3,<3", False),
+            ("neighbor", "griffelib>=2.3,<3", False),
+            ("dev", "griffelib==2.3.0", True),
+            ("dev", "numpy==2.2.6", False),
+        ):
+            with self.subTest(extra=extra, requirement=requirement, runtime=runtime):
+                self.assertTrue(
+                    self._consumer_metadata_findings(extra, requirement, runtime=runtime)
+                )
+
+    def test_maintainer_process_documents_are_private_in_tracking_and_history(self) -> None:
+        from scripts.public_source_policy import MAINTAINER_DOCUMENTS
+
+        for relative in sorted(MAINTAINER_DOCUMENTS):
+            for spelling in (relative, relative.upper(), relative.replace("/", "\\")):
+                with self.subTest(path=spelling):
+                    self.assertTrue(_is_internal_path(spelling))
+            for label in ("tracked", "history"):
+                with self.subTest(path=relative, boundary=label):
+
+                    def git_lines(
+                        _root: Path,
+                        arguments: list[str],
+                        current_path: str = relative,
+                        current_boundary: str = label,
+                    ) -> tuple[str, ...]:
+                        if arguments == ["log", "--all", "--name-only", "--format="]:
+                            return (current_path,) if current_boundary == "history" else ()
+                        return (current_path,) if current_boundary == "tracked" else ()
+
+                    with (
+                        patch("scripts.security_audit._git_lines", side_effect=git_lines),
+                        patch("scripts.security_audit._audit_metadata"),
+                        patch("scripts.security_audit._audit_license"),
+                        patch("scripts.security_audit.audit_runtime_package", return_value=()),
+                        patch("scripts.security_audit.audit_workflow_text", return_value=()),
+                        patch("scripts.security_audit._audit_public_markers"),
+                    ):
+                        findings = audit_repository(ROOT)
+                    self.assertEqual(
+                        findings,
+                        (f"{label}: internal governance/reference path present: {relative}",),
+                    )
+        self.assertFalse(_is_internal_path("tests/test_security_audit.py"))
+        self.assertFalse(_is_internal_path("tests/acceptance_policy.json"))
+
+    def test_legacy_scanner_baseline_is_private_without_rejecting_current_metadata(self) -> None:
+        for path in (
+            ".secrets.baseline",
+            ".SECRETS.BASELINE",
+            "nested/.secrets.baseline",
+            "nested\\.SECRETS.BASELINE",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(_is_internal_path(path))
+        for path in (
+            "requirements/secret-scan-baseline.json",
+            "nested/.secrets.baseline.old",
+        ):
+            with self.subTest(path=path):
+                self.assertFalse(_is_internal_path(path))
+
+    def test_legacy_scanner_baseline_is_detected_in_tracking_and_history(self) -> None:
+        for tracked, history, expected in (
+            ((".secrets.baseline",), (), "tracked"),
+            ((), (".secrets.baseline",), "history"),
+            (("requirements/secret-scan-baseline.json",), (), None),
+        ):
+            with self.subTest(tracked=tracked, history=history):
+
+                def git_lines(
+                    _root: Path,
+                    arguments: list[str],
+                    tracked_paths: tuple[str, ...] = tracked,
+                    history_paths: tuple[str, ...] = history,
+                ) -> tuple[str, ...]:
+                    if arguments == ["ls-files", "--cached"]:
+                        return tracked_paths
+                    if arguments == ["ls-files", "--cached", "--others", "--exclude-standard"]:
+                        return tracked_paths
+                    self.assertEqual(arguments, ["log", "--all", "--name-only", "--format="])
+                    return history_paths
+
+                with (
+                    patch("scripts.security_audit._git_lines", side_effect=git_lines),
+                    patch("scripts.security_audit._audit_metadata"),
+                    patch("scripts.security_audit._audit_license"),
+                    patch("scripts.security_audit.audit_runtime_package", return_value=()),
+                    patch("scripts.security_audit.audit_workflow_text", return_value=()),
+                    patch("scripts.security_audit._audit_public_markers"),
+                ):
+                    findings = audit_repository(ROOT)
+                if expected is None:
+                    self.assertEqual(findings, ())
+                else:
+                    self.assertEqual(
+                        findings,
+                        (
+                            f"{expected}: internal governance/reference path present: "
+                            ".secrets.baseline",
+                        ),
+                    )
+
     def test_public_marker_scan_classifies_mp4_fixture_without_skipping_its_bytes(self) -> None:
         header = b"\x00\x00\x00\x10ftypisom\x00\x00\x00\x00"
         with tempfile.TemporaryDirectory() as temporary:

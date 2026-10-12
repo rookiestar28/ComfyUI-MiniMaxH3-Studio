@@ -1,4 +1,4 @@
-"""Explicit injected media-decode adapter seam for M11-04.
+"""Explicit injected media-decode adapter seam for.
 
 This adapter is a qualification fixture boundary, not a decoder implementation.  A later caller
 may replace the producer with a bounded ffprobe/ffmpeg integration after host and media gates pass;

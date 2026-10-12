@@ -23,7 +23,7 @@ export default defineConfig({
     // an unrelated shell cannot silently change the qualification venue.
     headless: process.env.H3_CONTEXT_HOST_HEADED !== "1",
     viewport: { width: 1280, height: 900 },
-    // M22-16's explicitly enabled read-only composition must intercept the provider projection
+    // 's explicitly enabled read-only composition must intercept the provider projection
     // before it reaches an older installed backend. Service-worker owned requests bypass
     // Playwright routing unless this one bounded lane blocks them.
     serviceWorkers:

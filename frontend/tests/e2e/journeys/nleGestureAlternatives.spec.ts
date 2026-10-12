@@ -1,4 +1,4 @@
-// M25-53: the gesture alternatives the G1–G18 inventory found unexercised in a real browser.
+// the gesture alternatives the G1–G18 inventory found unexercised in a real browser.
 // Every case drives the accepted shell through the canonical Python core and asserts the exact
 // command the timeline sent, so a keyboard shortcut, a click-only control or a pointer gesture
 // is proven by its effect and never by the presence of a control.
@@ -354,7 +354,7 @@ test("each alignment button commits one transform at its picture edge or centre"
     name: "Scale (%)",
     exact: true,
   });
-  // M25-64 (R10): 50 % is 5,000 bp.
+  //  (R10): 50 % is 5,000 bp.
   await scale.fill("50");
   await scale.press("Enter");
   await receipts(page, 2);

@@ -117,6 +117,28 @@ class RegistryPayloadTests(unittest.TestCase):
             self.assertGreaterEqual(entry["compressed_size"], 0)
             self.assertEqual(entry["size"], len(payloads[entry["path"]]))
 
+    def test_raw_development_comment_bytes_cannot_replace_projected_archive_member(self) -> None:
+        from scripts.public_redaction import redact_blob
+
+        module = importlib.import_module("scripts.registry_payload")
+        (ROOT / ".tmp").mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(
+            prefix="public-payload-binding-", dir=ROOT / ".tmp"
+        ) as temporary:
+            root = Path(temporary)
+            payloads = self._baseline(root)
+            relative = "comfyui_h3_context/fixture.py"
+            raw = b"# M25-88: stable guard\nvalue = 1\n"
+            public = redact_blob(relative, raw)
+            assert raw != public
+            self._write_source(root, relative, public)
+            archive = root / "node.zip"
+            self._write_archive(archive, {**payloads, relative: public})
+            assert self._audit(module, root, archive, {*payloads, relative})["status"] == "PASS"
+            self._write_archive(archive, {**payloads, relative: raw})
+            with self.assertRaisesRegex(module.RegistryPayloadError, "exact source bytes"):
+                self._audit(module, root, archive, {*payloads, relative})
+
     def test_missing_runtime_dependencies_are_rejected_even_when_present_bytes_match(self) -> None:
         module = importlib.import_module("scripts.registry_payload")
         for required in (

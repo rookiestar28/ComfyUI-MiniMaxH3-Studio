@@ -4,8 +4,8 @@ import http from "node:http";
 import { fileURLToPath } from "node:url";
 import { fixturePython } from "./fixturePython";
 
-// M25-16 evidence layer 2: this plugin exists only to give a hermetic Playwright journey a real,
-// running application service to talk to -- see scripts/m25_16_service_loopback.py. It is gated
+//  evidence layer 2: this plugin exists only to give a hermetic Playwright journey a real,
+// running application service to talk to -- see scripts/_service_loopback.py. It is gated
 // behind an explicit env var and does nothing at all unless that var is exactly "1", so every
 // existing hermetic run (and this env var absent) is byte-for-byte unchanged.
 export const SERVICE_LOOPBACK_ENV = "H3_CONTEXT_E2E_SERVICE_LOOPBACK";
@@ -124,7 +124,7 @@ export function serviceLoopbackFixture(): Plugin {
     child = undefined;
     if (proc === undefined) return;
     // Graceful path first: closing stdin is the reliable cross-platform shutdown signal (see
-    // scripts/m25_16_service_loopback.py's `_watch_stdin_close` guard comment for why Windows
+    // scripts/_service_loopback.py's `_watch_stdin_close` guard comment for why Windows
     // cannot rely on SIGTERM here). Force-kill only if it does not exit promptly.
     try {
       proc.stdin.end();

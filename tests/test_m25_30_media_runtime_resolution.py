@@ -1,4 +1,4 @@
-"""M25-30: zero-input media runtime resolution and private configuration.
+"""zero-input media runtime resolution and private configuration.
 
 Fixtures that substitute executable digests are hermetic contract evidence for the resolver; they
 are not native qualification. The one native row admits the exact pinned pair only when a caller

@@ -58,7 +58,7 @@ class SidebarPlanningTimeline(TypedDict):
     start_seconds: int
     end_seconds: float
     effective_frame_count: int
-    # M17-25: the delivered duration in integer milliseconds, so App Mode can
+    # the delivered duration in integer milliseconds, so App Mode can
     # author a duration on the Request node without recomputing the frame grid.
     # There is one alignment authority and it is `core.length`, not the frontend.
     effective_duration_milliseconds: int
@@ -441,11 +441,11 @@ def _safe_exact_text(preview_request: dict[str, object]) -> tuple[dict[str, str]
 def _fidelity_parameters(
     result: PromptFidelityAuditResult,
 ) -> dict[str, list[dict[str, str | int]]]:
-    """The typed parameters M21-01 produced, grouped by diagnostic identity in emission order.
+    """The typed parameters produced, grouped by diagnostic identity in emission order.
 
-    M21-03 section 5. A diagnostic reaches the browser as `{code, severity, message}`, so a
+     section 5. A diagnostic reaches the browser as `{code, severity, message}`, so a
     presentation layer that wants to compose its own localised sentence has the identity but not
-    the values it names. M24-05 computes the pure audit once at the projection boundary so
+    the values it names. computes the pure audit once at the projection boundary so
     readiness and diagnostic parameters cannot observe different results; it still avoids
     threading presentation-only parameters through every fingerprinted `ValidationDiagnostic`.
 

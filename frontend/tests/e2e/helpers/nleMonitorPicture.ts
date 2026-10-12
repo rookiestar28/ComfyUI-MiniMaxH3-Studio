@@ -7,7 +7,7 @@ import { expect, type Page } from "@playwright/test";
  * with the same code. A host row with its own copy of this reader would be free to drift from the
  * hermetic one and answer a slightly different question about the same pixels -- and a fit rule
  * that holds under one reader and not the other is indistinguishable from a product defect until
- * somebody compares the two readers by hand. M25-45 lost three separate debugging rounds to facts
+ * somebody compares the two readers by hand. lost three separate debugging rounds to facts
  * about a source stated somewhere other than the source; this is the same shape, so it has one
  * statement.
  */
@@ -169,7 +169,7 @@ export function expectFit(shot: Picture, where: string): void {
   const seen = `${where}: picture ${shot.canvas.width}x${shot.canvas.height} in area ${shot.area.width}x${shot.area.height} at ${shot.aspect}`;
   expect(Math.abs(shot.canvas.width - width), seen).toBeLessThanOrEqual(1);
   expect(Math.abs(shot.canvas.height - height), seen).toBeLessThanOrEqual(1);
-  // M25-61: the canvas sits at the monitor's own whole-pixel box, never at a flex-centred half
+  // the canvas sits at the monitor's own whole-pixel box, never at a flex-centred half
   // pixel; the transform overlay and its alignment buttons are placed from that same box.
   const left = shot.canvas.x - shot.area.x;
   const top = shot.canvas.y - shot.area.y;
@@ -224,7 +224,7 @@ export async function loseCanvasContext(
 }
 
 /**
- * M25-64 (A64-1, the B-M2563-09 rule): the monitor's visible overlay covers no control that stays
+ *  (A64-1, the B-M2563-09 rule): the monitor's visible overlay covers no control that stays
  * active beneath it. The transport row and every enabled transform handle are checked twice: their
  * box never meets the overlay's box, and the point of the control nearest the overlay's centre
  * still hits the control. Call it with no menu or description open.

@@ -1,4 +1,4 @@
-"""M14-05 terminal fixed-H3 generation disposition contract tests."""
+"""terminal fixed-H3 generation disposition contract tests."""
 
 from __future__ import annotations
 
@@ -6,6 +6,7 @@ import ast
 import importlib
 import json
 import unittest
+from collections.abc import Callable
 from dataclasses import replace
 from pathlib import Path
 
@@ -424,8 +425,16 @@ class FixedH3GenerationTests(unittest.TestCase):
         object.__setattr__(record, "generation_attempt_count", 1)
         object.__setattr__(record, "run_receipts", ("caller.run",))
         object.__setattr__(record, "promotion_authorized", True)
-        for projection in (record.to_wire, record.to_wire_bytes, lambda: record.fingerprint):
-            with self.subTest(projection=projection), self.assertRaises(fixed.FixedH3Error):
+        projections: tuple[Callable[[], object], ...] = (
+            record.to_wire,
+            record.to_wire_bytes,
+            lambda: record.fingerprint,
+        )
+        for projection_case, projection in enumerate(projections):
+            with (
+                self.subTest(projection_case=projection_case),
+                self.assertRaises(fixed.FixedH3Error),
+            ):
                 projection()
 
         family = fixed.FixedH3FamilyReceipt(fixed.FixedH3PromptFamily.RAW_MANUAL)

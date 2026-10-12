@@ -1,4 +1,4 @@
-// M25-21 B3-D61: the sidebar header's metadata block must stay inside the panel at the
+//  B3-D61: the sidebar header's metadata block must stay inside the panel at the
 // constrained-floor width once build provenance has loaded and added the `sources …` and
 // `bundle …` tokens. This is the hermetic reproduction of the supplied-host layout-matrix cell
 // `viewport 480 / panel 422 / constrained-floor / zh-TW / forced colours / reduced motion /

@@ -1,4 +1,4 @@
-"""Generate the M19-02 public surface record: who promises what, and what the hub silently picks.
+"""Generate the public surface record: who promises what, and what the hub silently picks.
 
 Static `ast` throughout for the surfaces themselves.  Deciding whether two definitions of one name
 agree needs their *values*, which cannot be read statically, so that one comparison imports the two

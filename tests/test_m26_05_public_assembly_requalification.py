@@ -1,4 +1,4 @@
-"""M26-05 public assembly refusal and no-effect qualification."""
+"""public assembly refusal and no-effect qualification."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ from typing import cast
 import pytest
 from test_production_import import _m26_subject
 
+from comfyui_h3_context.adapters import comfyui_production_workspace as production_workspace_module
 from comfyui_h3_context.adapters.comfyui_production_workspace import (
     PRODUCTION_ACTION_SCHEMA,
     ProductionWorkbenchError,
@@ -52,7 +53,14 @@ def _assemble_action(
 
 def test_public_assembly_refusals_do_not_allocate_without_authorized_runtime(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    allocations: list[object] = []
+    monkeypatch.setattr(
+        production_workspace_module,
+        "ThreadPoolExecutor",
+        lambda **kwargs: allocations.append(kwargs),
+    )
     # IMPORTANT: compose the accepted canonical materialization/qualification fixture here;
     # replacing it with a synthetic projection would stop testing the real Production registry.
     _context, _proposal, registry, imported, _authority, sequence, receipts = _m26_subject(
@@ -124,5 +132,5 @@ def test_public_assembly_refusals_do_not_allocate_without_authorized_runtime(
 
     entry = registry._entries[current.workspace_handle]
     assert entry.assembly_job is None
-    assert registry._assembly_executor is None
+    assert allocations == []
     assert _snapshot(tmp_path) == baseline

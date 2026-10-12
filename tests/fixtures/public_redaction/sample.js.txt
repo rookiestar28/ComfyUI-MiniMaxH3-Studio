@@ -1,0 +1,4 @@
+// M99-11: Preserve the expression.
+const expression = /[/*]M99-11/g;
+const template = `M99-11 // literal ${1 + 2} /* literal */`;
+/* Keep the expression per RM-999. */

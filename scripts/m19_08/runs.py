@@ -1,6 +1,6 @@
 """Weight-backed probe execution against the explicitly supplied host.
 
-Every run here follows the M19-07 hygiene protocol: the queue must be idle before a probe is
+Every run here follows the hygiene protocol: the queue must be idle before a probe is
 queued, VRAM is snapshotted before and after, the runtime's cached weights are released after,
 and the probe's outputs are removed from the host once observed. The 96 GB standard is judged
 from the host's own `/system_stats`: a run whose device total is at or under the standard is in

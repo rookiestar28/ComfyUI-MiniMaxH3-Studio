@@ -1,4 +1,4 @@
-"""M25-20 corrective: the backend qualification runner actually executes the corpus.
+"""corrective: the backend qualification runner actually executes the corpus.
 
 The post-closeout review's finding F1 was that the 306-row corpus was enumerated and counted but
 never executed. `scripts.nle_semantic_qualify` is the backend qualification runner that closes that
@@ -13,7 +13,7 @@ internal mechanics:
 - the report never carries a path-shaped or URL-shaped string.
 
 These are property tests of the runner's contract, not a restatement of
-`test_m25_20_conformance_cases.py`'s per-recipe correctness proofs.
+`test__conformance_cases.py`'s per-recipe correctness proofs.
 """
 
 from __future__ import annotations
@@ -60,8 +60,8 @@ def test_runner_covers_exactly_every_corpus_row(report: dict[str, object]) -> No
     corpus = build_corpus()
     rows = report["rows"]
     assert isinstance(rows, list)
-    # M25-45 took the corpus from the accepted 306 to 310 by adding one row for each visual layer
-    # class at the shipped 1280 x 720 cap, and M25-77 to 334 with the 22 `clip_audio` rows and the
+    #  took the corpus from the accepted 306 to 310 by adding one row for each visual layer
+    # class at the shipped 1280 x 720 cap, and to 334 with the 22 `clip_audio` rows and the
     # two rows of its `set_clip_audio` command. The pin moves with the corpus and the accepted rows
     # are asserted to still be there, so a growth that quietly replaced a row would fail here.
     assert len(rows) == len(corpus.cases) == 334

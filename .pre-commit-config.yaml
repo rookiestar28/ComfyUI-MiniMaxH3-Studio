@@ -35,6 +35,8 @@ repos:
           # must be listed here too. Without it `RuleBasedStateMachine` resolves to `Any` and the
           # stateful model silently stops being type-checked at all.
           - hypothesis==6.167.1
+          # CRITICAL: keep the static comparator typed in the isolated minimum-runtime hook.
+          - griffelib==2.3.0
       - id: mypy
         alias: mypy-windows
         name: mypy (Python 3.10 / Windows)
@@ -46,6 +48,7 @@ repos:
           - pytest==9.1.1
           - coverage==7.15.4
           - hypothesis==6.167.1
+          - griffelib==2.3.0
 
   - repo: https://github.com/Yelp/detect-secrets
     rev: 68e8b45440415753fff70a312ece8da92ba85b4a  # v1.5.0  # pragma: allowlist secret

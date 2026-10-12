@@ -4,8 +4,8 @@ The member carries the gain, mute and fades of a video clip's embedded audio. It
 is never written: a clip without the member has identity audio, and an explicit identity object is
 refused, so every composition made before the member existed keeps its bytes and its public
 fingerprint. A value other than the identity is admitted only on a clip whose asset has bound
-audio. The shape rows (`tests/fixtures/m25_77_clip_audio_wire_rows_v1.json`) and the admission rows
-(`tests/fixtures/m25_77_clip_audio_admission_rows_v1.json`) are shared with the browser decoders,
+audio. The shape rows (`tests/fixtures/_clip_audio_wire_rows_v1.json`) and the admission rows
+(`tests/fixtures/_clip_audio_admission_rows_v1.json`) are shared with the browser decoders,
 so both ends answer one table.
 """
 

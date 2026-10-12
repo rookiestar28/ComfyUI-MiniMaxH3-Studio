@@ -1,4 +1,4 @@
-"""HC-06 fail-closed visual qualification and contract-only lane tests."""
+"""fail-closed visual qualification and contract-only lane tests."""
 
 from __future__ import annotations
 

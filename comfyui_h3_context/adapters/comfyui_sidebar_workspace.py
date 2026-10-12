@@ -843,7 +843,7 @@ class SidebarProductionSeed:
 
 @dataclass(frozen=True, slots=True)
 class SidebarAuthoringSource:
-    """One content-free admitted source row for the authoring-workspace seed (M20-03)."""
+    """One content-free admitted source row for the authoring-workspace seed."""
 
     asset_id: str
     kind: MediaKind

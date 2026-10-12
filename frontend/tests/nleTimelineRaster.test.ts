@@ -102,7 +102,7 @@ describe("timeline decoration raster", () => {
         .filter((call) => call === "move"),
     ).toHaveLength(1);
     expect(lastRect).toBeGreaterThan(snapBegin);
-    // M25-62: marquee and ghost only. Clip borders and the selection ring are DOM above the
+    // marquee and ghost only. Clip borders and the selection ring are DOM above the
     // raster; the raster no longer strokes a hard-coded outline per clip.
     expect(calls.filter((call) => call === "strokeRect")).toHaveLength(2);
     expect(context.setLineDash).toHaveBeenNthCalledWith(1, [3, 3]);
@@ -187,7 +187,7 @@ describe("timeline decoration raster", () => {
   });
 
   it("M25-61: paints no periodic full-height line; only the snap guide spans the surface", () => {
-    // RED for the owner's 2026-09-26 report: a vertical line every ruler mark was painted through
+    // RED for the 2026-09-26 report: a vertical line every ruler mark was painted through
     // every track and clip. Ticks belong to the ruler only; a scene that still carries a legacy
     // `ticks` list must not reach the canvas.
     let pen = { x: 0, y: 0 };

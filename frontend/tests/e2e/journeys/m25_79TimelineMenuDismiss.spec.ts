@@ -1,4 +1,4 @@
-// M25-79: the timeline's clip and track menus close when a press lands outside them, with either
+// the timeline's clip and track menus close when a press lands outside them, with either
 // mouse button, in the timeline or in another editor area. Before the repair they stayed open after
 // every such press while focus moved on, so Escape then closed the whole editor around a menu that
 // was still mounted. A press sends no command, and a trigger button toggles its own menu.

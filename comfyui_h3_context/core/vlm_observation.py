@@ -1,4 +1,4 @@
-"""Strict source/region VLM observation contracts for M11-02.
+"""Strict source/region VLM observation contracts for.
 
 The parser accepts one complete JSON object from an explicitly selected model adapter and turns it
 into source-owned ``EvidenceRecord`` values.  It never executes model text, mutates hard

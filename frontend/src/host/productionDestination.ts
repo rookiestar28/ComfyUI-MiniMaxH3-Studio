@@ -4,7 +4,7 @@ import type {
 } from "../contracts/productionWorkbenchCodec";
 
 /**
- * M25-36: where the next App Mode Start of one workflow adds its clip.
+ * where the next App Mode Start of one workflow adds its clip.
  *
  * A destination is scoped to the host's live workflow object, never to a title, prompt or the most
  * recent project in the process. The only persisted fact is the last bound project's opaque handle,

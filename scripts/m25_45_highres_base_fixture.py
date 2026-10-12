@@ -1,6 +1,6 @@
 """Generate the 1280 x 720 semantic corpus base from the accepted 320 x 180 one.
 
-M25-45 AC45-05 adds rendering rows whose composition is the shipped preview's own cap, 1280 x 720,
+ AC45-05 adds rendering rows whose composition is the shipped preview's own cap, 1280 x 720,
 with sources that carry real detail at that size rather than a 128-pixel picture enlarged to fill
 it. The composition itself is the accepted base at exactly four times the size -- 320 x 180 times
 four is 1280 x 720 -- so this generator derives it rather than restating it: every relative
@@ -13,7 +13,7 @@ rendered artifact would be judging one picture against another picture's expecta
 again after any change to the accepted base.
 
 Usage:
-    python scripts/m25_45_highres_base_fixture.py [--check]
+    python scripts/_highres_base_fixture.py [--check]
 
 `--check` recomputes and compares without writing, which is what the test suite calls.
 """

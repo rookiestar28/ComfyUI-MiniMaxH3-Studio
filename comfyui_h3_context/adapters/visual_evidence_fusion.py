@@ -1,4 +1,4 @@
-"""Explicit injected visual-evidence fusion adapter seam for M11-07.
+"""Explicit injected visual-evidence fusion adapter seam for.
 
 The adapter executes only a caller-supplied producer.  It never discovers models, launches a
 process, contacts Ollama, opens media, or silently substitutes a provider.

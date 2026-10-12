@@ -167,8 +167,9 @@ def frame_registry(mode: TaskMode) -> ReferenceRegistry:
 
 class BaseRenderingTests(unittest.TestCase):
     def test_t2va_golden_structure_and_determinism(self) -> None:
+        """Repository-authored golden: characterization, not independent guide conformance."""
         document = render_base_prompt(make_plan(TaskMode.T2VA))
-        # M24-05 replaced the label stack and the repository-owned `Declared intent:` suffix with
+        #  replaced the label stack and the repository-owned `Declared intent:` suffix with
         # natural shot prose composed from the same typed content, and stopped repeating a
         # soundscape-owned sound inside the integrated body. The outer three fields, their order,
         # and the timing contract are unchanged.

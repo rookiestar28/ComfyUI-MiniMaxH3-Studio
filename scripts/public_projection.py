@@ -17,10 +17,17 @@ from pathlib import Path, PurePosixPath
 if str(Path(__file__).resolve().parents[1]) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from comfyui_h3_context.core.safe_paths import UnsafePathError, validate_regular_file
 from scripts.product_completeness import (
     CompletenessError,
     require_present,
     required_paths,
+)
+from scripts.public_redaction import (
+    RULE_TABLE_SHA256,
+    TRANSFORM_ID,
+    RedactionRefusal,
+    redact_blobs,
 )
 
 # Compatibility exports preserve existing projection/Registry consumers.
@@ -52,6 +59,30 @@ __all__ = [
 
 ROOT = Path(__file__).resolve().parents[1]
 FULL_SHA = re.compile(r"[0-9a-f]{40}")
+TOOL_INPUTS = (
+    "scripts/public_redaction.py",
+    "scripts/public_redaction_frontend.mjs",
+    "scripts/public_source_policy.py",
+    "governance/contracts/public_redaction_allowlist_v1.json",
+    "frontend/package.json",
+    "frontend/pnpm-lock.yaml",
+)
+
+
+def _loaded_tool_authority() -> dict[str, str]:
+    try:
+        return {
+            path: hashlib.sha256(
+                validate_regular_file(ROOT / path, maximum_bytes=2 * 1024 * 1024).read_bytes()
+            ).hexdigest()
+            for path in TOOL_INPUTS
+        }
+    except (OSError, UnsafePathError):
+        # CRITICAL: absent tooling must refuse at execution, not trap package-only imports.
+        return {}
+
+
+_RUNNING_TOOL_AUTHORITY = _loaded_tool_authority()
 
 
 class ProjectionError(ValueError):
@@ -118,6 +149,37 @@ def _blobs(root: Path, bindings: dict[str, tuple[str, str, str]]) -> dict[str, b
     return {path: values[value[2]] for path, value in bindings.items()}
 
 
+def _tool_authority(payloads: dict[str, bytes]) -> dict[str, str]:
+    """Bind selected candidate inputs to this running transform's owned toolchain."""
+    hashes: dict[str, str] = {}
+    try:
+        for relative in TOOL_INPUTS:
+            path = validate_regular_file(ROOT / relative, maximum_bytes=2 * 1024 * 1024)
+            body = path.read_bytes()
+            # CRITICAL: candidate comments may differ, but the transform itself must be exact;
+            # using helpers from a moving checkout would certify a different public tree.
+            digest = hashlib.sha256(body).hexdigest()
+            if body != payloads.get(relative) or digest != _RUNNING_TOOL_AUTHORITY.get(relative):
+                raise ProjectionError("projection tool authority does not match selected candidate")
+            hashes[relative] = digest
+    except (OSError, UnsafePathError):
+        raise ProjectionError("projection tool authority is unavailable or unsafe") from None
+    return hashes
+
+
+def _changed_lines(source: bytes, public: bytes) -> int:
+    """Count changed physical line bodies without treating Unicode separators as newlines."""
+    delimiter = rb"\r\n|\r|\n"
+    if re.findall(delimiter, source) != re.findall(delimiter, public):
+        raise ProjectionError("projection physical line breaks changed")
+    return sum(
+        left != right
+        for left, right in zip(
+            re.split(delimiter, source), re.split(delimiter, public), strict=True
+        )
+    )
+
+
 def project(
     root: Path, *, source: str, parent: str, output: Path, local_ref: str | None = None
 ) -> dict[str, object]:
@@ -172,6 +234,32 @@ def project(
         if probe.returncode != 1:
             raise ProjectionError("projection ref must not already exist")
     before = snapshot(root)
+    selected_payloads = _blobs(root, selected)
+    tool_authority = _tool_authority(selected_payloads)
+    try:
+        public_payloads = redact_blobs(selected_payloads, toolchain_root=ROOT)
+    except RedactionRefusal as exc:
+        raise ProjectionError("projection redaction refused: " + exc.reason) from None
+    if set(public_payloads) != set(selected_payloads) or any(
+        type(body) is not bytes for body in public_payloads.values()
+    ):
+        raise ProjectionError("projection transformed inventory does not match")
+    changed_lines = {
+        path: _changed_lines(selected_payloads[path], body)
+        for path, body in public_payloads.items()
+    }
+    transformed = {
+        path: (
+            mode,
+            kind,
+            oid
+            if public_payloads[path] == selected_payloads[path]
+            else git(root, "hash-object", "-w", "--stdin", data=public_payloads[path])
+            .decode()
+            .strip(),
+        )
+        for path, (mode, kind, oid) in selected.items()
+    }
     output.mkdir(parents=True)
     with tempfile.TemporaryDirectory(prefix="projection-", dir=output) as directory:
         temporary = Path(directory)
@@ -218,7 +306,7 @@ def project(
         environment = dict(os.environ, GIT_INDEX_FILE=str(temporary / "index"))
         git(root, "read-tree", "--empty", environment=environment)
         rows = "".join(
-            f"{mode} {oid}\t{path}\0" for path, (mode, _, oid) in sorted(selected.items())
+            f"{mode} {oid}\t{path}\0" for path, (mode, _, oid) in sorted(transformed.items())
         )
         git(root, "update-index", "-z", "--index-info", data=rows.encode(), environment=environment)
         tree = git(root, "write-tree", environment=environment).decode().strip()
@@ -227,15 +315,21 @@ def project(
         .decode()
         .strip()
     )
-    if entries(root, commit) != selected or snapshot(root) != before:
+    if entries(root, commit) != transformed or snapshot(root) != before:
         raise ProjectionError("projection blob or source preservation check failed")
     parents = git(root, "rev-list", "--parents", "-n", "1", commit).decode().split()[1:]
     if parents != [parent]:
         raise ProjectionError("projection predecessor does not match")
-    selected_payloads = _blobs(root, selected)
+    if _blobs(root, transformed) != public_payloads:
+        raise ProjectionError("projection transformed blob bytes do not match")
+    if _tool_authority(selected_payloads) != tool_authority:
+        raise ProjectionError("projection tool authority changed before exposure")
     receipt: dict[str, object] = {
-        "schema": "h3-context-public-projection/1",
+        "schema": "h3-context-public-projection/2",
         "status": "PASS",
+        "transform": TRANSFORM_ID,
+        "rule_table_sha256": RULE_TABLE_SHA256,
+        "tool_authority": tool_authority,
         "source_commit": source,
         "public_parent": parent,
         "public_commit": commit,
@@ -245,12 +339,17 @@ def project(
             path: {
                 "mode": mode,
                 "blob": oid,
-                "sha256": hashlib.sha256(selected_payloads[path]).hexdigest(),
+                "sha256": hashlib.sha256(public_payloads[path]).hexdigest(),
+                "public_sha256": hashlib.sha256(public_payloads[path]).hexdigest(),
+                "source_sha256": hashlib.sha256(selected_payloads[path]).hexdigest(),
+                "changed_lines": changed_lines[path],
             }
-            for path, (mode, _, oid) in sorted(selected.items())
+            for path, (mode, _, oid) in sorted(transformed.items())
         },
     }
     (output / "projection.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
+    if _tool_authority(selected_payloads) != tool_authority or snapshot(root) != before:
+        raise ProjectionError("projection authority or source changed before exposure")
     if ref is not None:
         # CRITICAL: CAS-create a local ref only after exact blobs and real index/HEAD are proved.
         git(root, "update-ref", ref, commit, "0" * 40)

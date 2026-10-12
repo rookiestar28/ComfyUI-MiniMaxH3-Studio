@@ -1,4 +1,4 @@
-"""Hermetic coverage for the M22-13 local qualification tool.
+"""Hermetic coverage for the local qualification tool.
 
 Every test here drives the real tool through its injected exchange seam. Nothing opens a socket,
 nothing reads the operator's Ollama installation, and no test asserts that the shipped catalog's

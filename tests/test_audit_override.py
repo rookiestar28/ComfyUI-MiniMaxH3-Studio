@@ -56,7 +56,7 @@ class AuditOverrideTests(unittest.TestCase):
         source = make_report()
         source_wire = source.to_wire()
         source_fingerprint = fingerprint_context_report(source)
-        # M24-05: the manual skeleton now renders the user's own sentence instead of the
+        # the manual skeleton now renders the user's own sentence instead of the
         # former generic fallback, so the simulated edit anchors on that sentence.
         text = source.prompt_document.text.replace(
             "A red kite crosses the sky while the camera follows its arc.",

@@ -2,7 +2,7 @@
 
 The closure tests build the coordinator with its production `_host_private_root` and
 `_host_artifact_store` factories over a `folder_paths` double, so they run the same composition a
-live host runs. On Linux they are the regression for defect D1: before M23-67 every POSIX root went
+live host runs. On Linux they are the regression for defect D1: before every POSIX root went
 through the Windows drive-path grammar and the closure failed with `host_storage_unavailable`.
 """
 

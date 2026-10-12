@@ -1,4 +1,4 @@
-"""M23-31 focused tests for the ManagedRun registry: bounds, locking, pruning and evidence."""
+"""focused tests for the ManagedRun registry: bounds, locking, pruning and evidence."""
 
 from __future__ import annotations
 

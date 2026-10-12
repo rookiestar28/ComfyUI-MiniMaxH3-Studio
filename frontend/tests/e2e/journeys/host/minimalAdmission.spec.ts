@@ -495,7 +495,7 @@ test("M23-29 exact restarted host keeps I2VA authoring topology but admits by so
       sourceFingerprint: expect.stringMatching(/^sha256:[0-9a-f]{64}$/),
     },
   ]);
-  // M23-25 (reconciled by M23-37 on the supplied host): from a tabless start
+  //  (reconciled by on the supplied host): from a tabless start
   // the one candidate write is the explicit-null 0-to-1 bootstrap itself, so
   // the run performs exactly one host load, which attaches exactly one
   // workflow; nothing is loaded ahead of it and nothing after the queue.

@@ -1,4 +1,4 @@
-"""M23-29 D11 regressions for identity-only admission and observed artifacts."""
+"""D11 regressions for identity-only admission and observed artifacts."""
 
 from __future__ import annotations
 

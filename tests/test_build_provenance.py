@@ -1,4 +1,4 @@
-"""M23-24 build provenance, served-byte observation and runtime parity contracts."""
+"""build provenance, served-byte observation and runtime parity contracts."""
 
 from __future__ import annotations
 
@@ -163,7 +163,7 @@ def _compiled_in_identity(bundle: str) -> dict[str, str]:
 
 
 def test_shipped_bundle_and_record_are_a_verified_integration_not_two_fresh_artifacts() -> None:
-    """M25-21 B3-D62: the bundle/record pair the product decodes at runtime must actually agree.
+    """B3-D62: the bundle/record pair the product decodes at runtime must actually agree.
 
     IMPORTANT: `derived_artifacts.py` deliberately does **not** run `pnpm --dir frontend run build`
     (see its `BUNDLE_BUILD` skip: the build needs the untracked `frontend/node_modules`, which must
@@ -440,7 +440,8 @@ class BuildProvenanceRevisionTests(unittest.TestCase):
                 "recorded source tree does not belong to the recorded commit",
             ),
         ):
-            with self.subTest(recorded=recorded):
+            # Semantic labels stay stable across Source/Public, whose real revisions differ.
+            with self.subTest(recorded="unreadable" if recorded is None else "wrong-tree"):
                 buffer = io.StringIO()
                 with (
                     patch.object(provenance_script, "_recorded_revision", return_value=recorded),

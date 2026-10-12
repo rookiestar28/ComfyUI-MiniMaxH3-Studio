@@ -19,7 +19,7 @@ import {
 import { test, expect } from "../../host/fixture";
 
 /**
- * M25-45 AC45-08: the monitor's picture, one real proxy lease, and the transport, full screen and
+ *  AC45-08: the monitor's picture, one real proxy lease, and the transport, full screen and
  * top layer, on the supplied host.
  *
  * The criterion names all four, and the third row exists because reading it against the spec found

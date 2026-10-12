@@ -1,6 +1,6 @@
 /**
- * M25-61: the NLE role tokens are aliases of tokens.css, declared once on the overlay root in
- * nleWorkspace.css. M21-03 audits tokens.css literals only, so this audit resolves each role alias
+ * the NLE role tokens are aliases of tokens.css, declared once on the overlay root in
+ * nleWorkspace.css. audits tokens.css literals only, so this audit resolves each role alias
  * against both palettes and checks the pairs the redesigned editor actually draws.
  */
 

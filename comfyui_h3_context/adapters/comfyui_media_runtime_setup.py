@@ -85,7 +85,7 @@ _REQUEST_KEYS: Mapping[str, frozenset[str]] = {
 }
 
 # Closed wire vocabularies. The browser decoder refuses any value outside them, so every value the
-# service or the manager can emit belongs here, and the M25-33 parity fixture pins both sides.
+# service or the manager can emit belongs here, and the parity fixture pins both sides.
 FEATURE_STATES = ("ready", "setup_required", "unavailable")
 FEATURE_REASONS = frozenset(
     {"activating", "discovering", "activation_failed", "invalid_config"}

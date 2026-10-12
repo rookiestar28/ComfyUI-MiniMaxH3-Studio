@@ -14,10 +14,10 @@ export type TimelineDecorationScene = Readonly<{
   height: number;
   filmstrips: readonly FilmstripPaintInput[];
   waveforms: readonly WaveformPaintInput[];
-  // M25-61: no `ticks`. Periodic ruler ticks painted through every track were the owner's first
+  // no `ticks`. Periodic ruler ticks painted through every track were the first
   // complaint (2026-09-26); ticks live in the ruler only. The snap guide below stays, because it
   // is a transient drag aid, not a periodic line.
-  // M25-62: no `clipOutlines`. The clip border and the selection ring are DOM drawn above this
+  // no `clipOutlines`. The clip border and the selection ring are DOM drawn above this
   // canvas in role colours; a raster outline in a fixed colour doubled them.
   /** `--h3-nle-waveform`, resolved where the overlay's role tokens are mounted. */
   waveformColor?: string;

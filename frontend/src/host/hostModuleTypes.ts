@@ -7,7 +7,7 @@
 // IMPORTANT: every member stays optional or guarded exactly as the seam probes in
 // `hostSeams.ts`, `canvasOwnedWrite.ts` and `queueSeam.ts` check it. Widening a member to
 // required lets a product module read it without probing, which is the direct host read
-// the HC-09 census forbids outside the seam owners.
+// the census forbids outside the seam owners.
 
 export type HostApp = {
   loadApiJson?(prompt: Record<string, unknown>, name?: string): unknown;

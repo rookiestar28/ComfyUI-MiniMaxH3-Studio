@@ -19,7 +19,7 @@ import {
   createManagedSequenceReattachStore,
 } from "../src/host/managedSequenceClient";
 
-// M25-16 evidence layer 2: this harness mounts the REAL shell session and the REAL
+//  evidence layer 2: this harness mounts the REAL shell session and the REAL
 // NleSequencePanel, but every backend client is built over `fetch` against same-origin paths --
 // there is no injected fake response anywhere in this file. Planning, readiness and Production
 // calls issued from the mounted panel leave the page and reach the loopback application service
@@ -109,7 +109,7 @@ function render(): void {
       : undefined;
   root.render(
     <main aria-label="NLE service loopback workspace">
-      {/* M25-63: planning lives in Production only. The harness keeps its flows by
+      {/* planning lives in Production only. The harness keeps its flows by
           mounting Production's planning section beside the editor's Sequence tab, the
           composition the product has when the sidebar and the editor are both open. */}
       <section aria-label="Production">
@@ -213,7 +213,7 @@ window.nleServiceHarness = {
   /**
    * Real bootstrap: reads the loopback's seeded content-free context identity (the one boundary
    * that cannot be reached by a real /prompt-free browser -- see
-   * scripts/m25_16_service_loopback.py's `_seed_sidebar_context`), then creates the Production
+   * scripts/_service_loopback.py's `_seed_sidebar_context`), then creates the Production
    * workspace through the real `/h3-context/v1/production/action` route.
    */
   async bootstrap(seedName: "default" | "multi_shot" = "default") {

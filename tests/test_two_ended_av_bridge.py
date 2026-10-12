@@ -1,9 +1,9 @@
-"""M20-07 focused tests for two-ended bridge planning, admission and accounting.
+"""focused tests for two-ended bridge planning, admission and accounting.
 
 The authority is constructible only from a matrix whose bridge row is SUPPORTED.  Plans are
-grid-exact: contexts on the M20-01 51-frame grid, gaps producible and audio-exact, the left
+grid-exact: contexts on the 51-frame grid, gaps producible and audio-exact, the left
 context boundary audio-exact inside its segment, and every latent slice extent derived and
-cross-checked against the M20-01 arithmetic.  Admission is full binding across the real
+cross-checked against the arithmetic. Admission is full binding across the real
 objects -- both boundary receipts, the plan, the derived mask, the master-audio declaration
 and the three authorities -- with one classified reason per failed domain.
 """
@@ -13,7 +13,7 @@ from __future__ import annotations
 import unittest
 from dataclasses import replace
 
-from official_temporal_parity import NATIVE_NODE_SHA256
+from oracles.native_temporal import NATIVE_NODE_SHA256
 
 from comfyui_h3_context.core.joint_av_latent import (
     JointAVLatentAuthority,
@@ -57,7 +57,7 @@ _BRIDGE_REASON = "pixel_domain_two_ended_composition_executes"
 
 
 def _accepted(bridge: CapabilityStatus = CapabilityStatus.SUPPORTED) -> AcceptedQualification:
-    """The refreshed M19-08 projection this item consumes."""
+    """The refreshed projection this item consumes."""
 
     return AcceptedQualification(
         subject_identity=NATIVE_NODE_SHA256,
@@ -479,7 +479,7 @@ class AdmissionTests(unittest.TestCase):
         self.assertNotIn("authority_subject_mismatch", decision.reason_codes)
 
     def test_unconserved_crop_accounting_refuses(self) -> None:
-        # A tampered produced extent no longer covers contexts plus target; the M20-01
+        # A tampered produced extent no longer covers contexts plus target; the
         # verdict's reason code must surface through the admission refusal.
         tampered = replace(_plan(), produced_frames=124)
         decision = _admit(plan=tampered)

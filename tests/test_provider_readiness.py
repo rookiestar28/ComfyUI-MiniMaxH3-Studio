@@ -43,7 +43,7 @@ MODEL_ID = "model-a"
 DIGEST = "sha256:" + "3" * 64
 #: Ollama publishes bare lowercase hex on `/api/tags`; the repository spells every digest it
 #: stores with the algorithm prefix. Keeping both names here keeps the crossing visible in the
-#: fixtures instead of letting a listing pretend to be already-normalised (M22-13).
+#: fixtures instead of letting a listing pretend to be already-normalised.
 WIRE_DIGEST = DIGEST.removeprefix("sha256:")
 
 
@@ -276,7 +276,7 @@ class ProviderReadinessProbeTests(unittest.TestCase):
         )
 
     def test_an_openai_shaped_listing_past_the_ceiling_also_answers(self) -> None:
-        # M22-19. The Ollama case above has a twin here deliberately. This is the family the item
+        # . The Ollama case above has a twin here deliberately. This is the family the item
         # was written for -- a hosted catalogue is what overflowed the old ceiling -- so it is the
         # likelier target of a future "harden resolve_live_identity" change, and a trap that
         # misses the likely target is not a trap. An oversized listing is an answer either way.
@@ -376,7 +376,7 @@ class ProviderReadinessProbeTests(unittest.TestCase):
         self.assertIsNone(observation.identity)
 
 
-# --- M22-13: a qualified profile has to prove it, and proving it costs exactly two requests ----
+# --- : a qualified profile has to prove it, and proving it costs exactly two requests ----
 
 QUALIFIED_LICENSE = "Fixture licence notice, present only so that it can be hashed away."
 QUALIFIED_LICENSE_SHA = "sha256:" + sha256(QUALIFIED_LICENSE.encode("utf-8")).hexdigest()
@@ -465,7 +465,7 @@ class QualifiedExchange:
 class CrowdedQualifiedExchange(QualifiedExchange):
     """The same qualified runtime, with a lot of other models pulled alongside the pinned one.
 
-    M22-19. `parse_exact_tags_row` carried its own 256-row ceiling on this listing, a third name
+    . `parse_exact_tags_row` carried its own 256-row ceiling on this listing, a third name
     for the bound `_census` already applies. While the census refused at 64 that ceiling could
     never decide anything; raising the census to 512 made it the live bound for the window it
     covers, so a user with this many pulled models was told a reachable, genuinely qualified

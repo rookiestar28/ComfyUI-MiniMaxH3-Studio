@@ -1,4 +1,4 @@
-// M25-20 post-closeout corrective: the prescribed-frame observer, exercised on synthetic buffers.
+//  post-closeout corrective: the prescribed-frame observer, exercised on synthetic buffers.
 //
 // `observePrescribedFrame` and `alphasForTarget` run inside the render-and-browser journey, where
 // nothing can assert against them. These tests pin the rules they port from the Python extractor

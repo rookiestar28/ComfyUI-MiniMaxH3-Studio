@@ -1,7 +1,7 @@
-"""Pure, deterministic M25-17 render planning over accepted composition values.
+"""Pure, deterministic render planning over accepted composition values.
 
 The planner consumes content-free source and font facts.  It does not import adapters, inspect a
-runtime, open media, discover fonts, or qualify a renderer.  M25-18 must revalidate the carried
+runtime, open media, discover fonts, or qualify a renderer. must revalidate the carried
 currentness claim before reading a source and again before publishing an artifact.
 """
 
@@ -51,6 +51,7 @@ RENDER_PRIMITIVE_IDS: Final = (
     "BlendV1",
     "CrossDissolveV1",
     "DrawTextV1",
+    "TextDecorationV1",
     "PrimaryEmbeddedFollowVideoV1",
 )
 RENDERER_QUALIFICATION_ROW_IDS: Final = (
@@ -488,7 +489,7 @@ class RendererCapabilityProfile:
 
 
 def required_unqualified_renderer_profile() -> RendererCapabilityProfile:
-    """Return the exact M25-17 requirement without claiming an executable exists."""
+    """Return the exact requirement without claiming an executable exists."""
 
     provisional = RendererCapabilityProfile(
         schema_version=RENDERER_PROFILE_SCHEMA,
@@ -1213,7 +1214,7 @@ def revalidate_render_plan_currentness(
         or confirmation.manifest_fingerprint != plan.source_manifest_fingerprint
     ):
         raise _reject("stale_snapshot", "render plan snapshot currentness changed")
-    # CRITICAL: a plan handoff is not a lease. M25-18 must supply a freshly revalidated token set
+    # CRITICAL: a plan handoff is not a lease. must supply a freshly revalidated token set
     # before its first source read and before publication; copying this stored claim is not enough.
     if confirmation != plan.source_currentness_claim:
         raise _reject("source_replaced", "render plan source currentness changed")

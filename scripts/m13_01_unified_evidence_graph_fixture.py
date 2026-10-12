@@ -1,4 +1,4 @@
-"""Offline M13-01 unified multimodal evidence graph fixture."""
+"""Offline unified multimodal evidence graph fixture."""
 
 from __future__ import annotations
 

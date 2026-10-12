@@ -35,7 +35,7 @@ import {
 } from "./support/queuePromptTestDouble";
 
 /**
- * M17-20 phase 5, D13 tiers A/B/C.
+ *  phase 5, D13 tiers A/B/C.
  *
  * The connect route joins a Context to a graph this repository did not build.
  * That makes the ownership boundary the whole subject: the repository owns the

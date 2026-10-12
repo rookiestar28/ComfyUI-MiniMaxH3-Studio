@@ -1,5 +1,5 @@
 // Production session: Production intents, workspace ensure, media preview, proposal review and
-// the opaque Production session-storage handle (M23-28 split of entry.tsx).
+// the opaque Production session-storage handle ( split of entry.tsx).
 
 import type {
   ProductionGenerationControl,
@@ -442,7 +442,7 @@ export function createProductionSession(ctx: ShellRuntime) {
         session.productionState = { status: "released" };
         actions.selectPage("context");
       } else if (result.projection !== undefined) {
-        // IMPORTANT (M25-36): the Production view and App Mode must share the same
+        // IMPORTANT: the Production view and App Mode must share the same
         // workflow owner. Showing a project without binding it here lets the next Start
         // silently create or append somewhere else.
         deps.productionDestinations.bindProject(

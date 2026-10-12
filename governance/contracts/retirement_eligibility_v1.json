@@ -1,5 +1,5 @@
 {
-  "fingerprint": "sha256:4021f93f7e7273dc20f83085e136525c833dfc424d071d62c75e5523070757ff",
+  "fingerprint": "sha256:e05fc18eeac0b2d72ec320043a65ecf2faca39305c900483b68dff1b77ded1c5",
   "retired": [
     {
       "contract_id": "comfyui-h3-context://contracts/base_assistant_v1.schema.json",
@@ -9,7 +9,7 @@
         "h3-context-subgraph-fixture/1"
       ],
       "item": "M18-05",
-      "rollback_commit": "aea047c471e3cc87654fc67e64c6b9db6f216cfd",
+      "rollback_commit": "15db3061b5d1c386db46551196a6d164f114baff",
       "schema_path": "comfyui_h3_context/contracts/base_assistant_v1.schema.json",
       "surviving_authority": "comfyui_h3_context/core/base_assistant.py",
       "surviving_references": [],
@@ -26,7 +26,7 @@
         "h3.context.ui.projection.v1"
       ],
       "item": "M18-05",
-      "rollback_commit": "aea047c471e3cc87654fc67e64c6b9db6f216cfd",
+      "rollback_commit": "15db3061b5d1c386db46551196a6d164f114baff",
       "schema_path": "comfyui_h3_context/contracts/ui_projection_v1.schema.json",
       "surviving_authority": "comfyui_h3_context/core/ui_projection.py",
       "surviving_references": [],
@@ -43,7 +43,7 @@
         "h3.context.validation.lifecycle.v1"
       ],
       "item": "M18-05",
-      "rollback_commit": "aea047c471e3cc87654fc67e64c6b9db6f216cfd",
+      "rollback_commit": "15db3061b5d1c386db46551196a6d164f114baff",
       "schema_path": "comfyui_h3_context/contracts/validation_lifecycle_v1.schema.json",
       "surviving_authority": "comfyui_h3_context/core/validation_lifecycle.py",
       "surviving_references": [],
@@ -60,7 +60,7 @@
         "h3.execution.coordinator.v1"
       ],
       "item": "M18-05",
-      "rollback_commit": "aea047c471e3cc87654fc67e64c6b9db6f216cfd",
+      "rollback_commit": "15db3061b5d1c386db46551196a6d164f114baff",
       "schema_path": "comfyui_h3_context/contracts/execution_coordinator_v1.schema.json",
       "surviving_authority": "comfyui_h3_context/core/execution_coordinator.py",
       "surviving_references": [],
@@ -217,6 +217,7 @@
       "hidden_consumers": [],
       "internal_consumers": [
         "scripts/authoring_output_schemas.py",
+        "scripts/change_lane.py",
         "scripts/derived_artifacts.py",
         "tests/fixtures/m23_48_derived_artifact_graph_v1.json"
       ],
@@ -233,6 +234,7 @@
       "hidden_consumers": [],
       "internal_consumers": [
         "scripts/authoring_render_schemas.py",
+        "scripts/change_lane.py",
         "scripts/derived_artifacts.py",
         "tests/fixtures/m23_48_derived_artifact_graph_v1.json",
         "tests/test_m25_authoring_render_jobs.py"
@@ -250,6 +252,7 @@
       "hidden_consumers": [],
       "internal_consumers": [
         "scripts/authoring_render_schemas.py",
+        "scripts/change_lane.py",
         "scripts/derived_artifacts.py",
         "tests/fixtures/m23_48_derived_artifact_graph_v1.json",
         "tests/test_m25_authoring_render_receipts.py"
@@ -1532,6 +1535,20 @@
       "verdict": "blocked"
     },
     {
+      "contract_id": "governance/contracts/perception_host_settings_v1.schema.json",
+      "described_wires": [],
+      "external_consumers": [],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "tests/test_perception_settings.py"
+      ],
+      "reasons": [
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/perception_host_settings_v1.schema.json",
+      "verdict": "no_redundancy"
+    },
+    {
       "contract_id": "governance/contracts/training_authorization_v1.schema.json",
       "described_wires": [
         "h3.training_authorization.terminal.v1"
@@ -1722,6 +1739,24 @@
         "1 reader outside tests and scripts would lose it"
       ],
       "schema_path": "governance/contracts/downstream_producer_v1.schema.json",
+      "verdict": "blocked"
+    },
+    {
+      "contract_id": "h3.native_behaviour_catalogue.v1",
+      "described_wires": [],
+      "external_consumers": [
+        "governance/contracts/native_behaviour_catalogue_v1.json"
+      ],
+      "hidden_consumers": [],
+      "internal_consumers": [
+        "scripts/native_behaviour_catalogue.py",
+        "tests/test_native_behaviour_catalogue.py"
+      ],
+      "reasons": [
+        "1 reader outside tests and scripts would lose it",
+        "states no inventoried wire's shape, so there is no redundancy to remove"
+      ],
+      "schema_path": "governance/contracts/native_behaviour_catalogue_v1.schema.json",
       "verdict": "blocked"
     },
     {

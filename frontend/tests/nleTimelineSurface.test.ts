@@ -1,4 +1,4 @@
-// M25-62: the pure rules of the redesigned timeline surface -- track display names (A62-2), the
+// the pure rules of the redesigned timeline surface -- track display names (A62-2), the
 // R7 clip edit affordances under both pointer modes (A62-4), and the scroll bar that moves the
 // view within the existing clamp (A62-6).
 

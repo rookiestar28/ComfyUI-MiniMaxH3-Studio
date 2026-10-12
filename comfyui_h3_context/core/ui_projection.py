@@ -167,7 +167,7 @@ class BoundedUIProjection:
                     )
                 _safe_field(item["code"], f"{field}.code", 64)
                 _safe_field(item["severity"], f"{field}.severity", 32)
-                # Membership, not just length. The UI-projection JSON Schema M18-05 retired
+                # Membership, not just length. The UI-projection JSON Schema retired
                 # stated this as an enum and the typed authority did not, so a bounded string
                 # of any content crossed the UI boundary calling itself a severity. Checked
                 # against the live `ValidationSeverity` rather than a copied literal list, so

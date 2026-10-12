@@ -1,4 +1,4 @@
-"""Join the M23-28 typed-probe policy to the closed HC-09 census."""
+"""Join the typed-probe policy to the closed census."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from typing import Any, cast
 
 ROOT = Path(__file__).resolve().parents[1]
 # The census stays in the package because `frontend/src` compiles it in; the probe policy
-# has no runtime or bundle reader and moved with M23-55.
+# has no runtime or bundle reader and moved with.
 CONTRACTS = ROOT / "comfyui_h3_context/contracts"
 GOVERNANCE = ROOT / "governance/contracts"
 POLICY = GOVERNANCE / "host_seam_probe_policy_v1.json"

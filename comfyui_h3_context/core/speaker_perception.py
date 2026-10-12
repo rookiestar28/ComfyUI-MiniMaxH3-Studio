@@ -1,4 +1,4 @@
-"""M12-03 source-owned speaker diarization and voice-reference contracts.
+"""source-owned speaker diarization and voice-reference contracts.
 
 Only bounded, redacted turns, hypotheses, and association evidence cross this seam.  Raw audio,
 embeddings, voiceprints, model runtimes, ComfyUI, Ollama, specialist processes, and network clients
@@ -1161,7 +1161,7 @@ def _seed(value: str) -> str:
 
 
 def build_default_speaker_benchmark_plan() -> SpeakerBenchmarkPlan:
-    """Build the frozen M12-03 metadata-only speaker benchmark."""
+    """Build the frozen metadata-only speaker benchmark."""
 
     fixtures = (
         SpeakerBenchmarkFixture(

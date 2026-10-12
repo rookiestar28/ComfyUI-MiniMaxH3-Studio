@@ -1,8 +1,8 @@
-"""M22-01 prompt-model provider contract with one audited egress chokepoint.
+"""prompt-model provider contract with one audited egress chokepoint.
 
 This module is the single authority for *which* prompt-model execution families exist, what each
 one must declare about itself before it can be used, and what an outbound destination has to look
-like before any transport in `M22-03`/`M22-04` is allowed to open a connection to it. It owns no
+like before any transport in ``/`` is allowed to open a connection to it. It owns no
 transport, performs no network access, and selects no provider: a caller names a family explicitly
 or nothing happens at all.
 
@@ -46,7 +46,7 @@ PROMPT_MODEL_CATALOG_V1_SCHEMA = "h3.prompt_model.profiles.v1"
 PROMPT_MODEL_CATALOG_V2_SCHEMA = "h3.prompt_model.profiles.v2"
 PROMPT_MODEL_CATALOG_V3_SCHEMA = "h3.prompt_model.profiles.v3"
 PROMPT_MODEL_CATALOG_V4_SCHEMA = "h3.prompt_model.profiles.v4"
-# M22-13: v3 is the first version that can carry an executed-qualification claim. v1 and v2 stay
+# v3 is the first version that can carry an executed-qualification claim. v1 and v2 stay
 # decodable on purpose -- an older shipped catalog must not become undecodable -- but neither can
 # express `qualified`, so a v1/v2 payload can never smuggle execution authority past this decoder.
 PROMPT_MODEL_CATALOG_V5_SCHEMA = "h3.prompt_model.profiles.v5"
@@ -123,7 +123,7 @@ class PromptModelQualificationState(str, Enum):
 class RemoteQualificationBasis(str, Enum):
     """What a live run actually proved, said out loud rather than inferred from zeros.
 
-    M22-18. `COMPLETION` is the original bar: the provider produced a draft and billed for it.
+    . `COMPLETION` is the original bar: the provider produced a draft and billed for it.
     `REACHABILITY` is weaker and deliberately separate: the service was reached, authenticated,
     routed to the pinned model, and answered about a real content request that it declined to
     bill. The two are disjoint by outcome -- `prompt_model.ok` against `prompt_model.quota` -- so
@@ -275,7 +275,7 @@ def remediation_for(outcome_id: object) -> PromptModelRemediation:
 
 
 class PromptModelContractError(ValueError):
-    """Closed, content-free M22-01 contract failure."""
+    """Closed, content-free contract failure."""
 
     def __init__(self, code: str) -> None:
         self.code = code
@@ -884,7 +884,7 @@ _REMOTE_QUALIFICATION_EVIDENCE_KEYS = frozenset(
         "repository_tree",
     }
 )
-#: M22-18 added `basis` to both wire forms. The key sets are compared with exact equality, so the
+#: added `basis` to both wire forms. The key sets are compared with exact equality, so the
 #: new member is a versioned set that accepts either, exactly as `_LOCAL_QUALIFICATION_EVIDENCE_V4`
 #: does for `kind`. An artifact or catalog entry without the key predates the reachability basis and
 #: can only ever have described a completion, which is what absence is read as.
@@ -1357,7 +1357,7 @@ def build_remote_qualification_evidence(
     ):
         # SECURITY: `request_bytes` and `response_bytes` keep their floor on both bases, and that
         # is the entire reach proof -- a content request was serialized and sent, and the service
-        # answered it. The retained M22-14 Gemini artifact carries `request_bytes: 0` because it
+        # answered it. The retained Gemini artifact carries `request_bytes: 0` because it
         # never got past discovery, and it can therefore qualify on neither basis.
         if key in _ZEROABLE and (not completion or not receipt["usage_present"]):
             # Absent usage has zero token counters; this says nothing about provider charges.
@@ -1455,8 +1455,8 @@ MAX_LICENSE_TEXT_CHARACTERS = 1 << 20
 #: The ingest ceiling for one untrusted provider model listing, shared by every reader of one.
 #: It lives in this module because it is the lowest one that needs it: `prompt_model_session`
 #: imports from here and never the reverse, so a single definition costs no import cycle.
-#: M22-19 raised it from 64, which was sized for a local Ollama tag list and refused a hosted model
-#: catalogue outright: the M22-14 Gemini discovery response was 8339 bytes, on the order of a
+#: raised it from 64, which was sized for a local Ollama tag list and refused a hosted model
+#: catalogue outright: the Gemini discovery response was 8339 bytes, on the order of a
 #: hundred and fifty rows. The response itself is already capped at MAX_PROMPT_MODEL_RESPONSE_BYTES,
 #: so this is the cheaper second guard behind that one and does not need to be tight.
 #: SECURITY: one listing gets one ceiling, and every reader on the readiness path consults this
@@ -1523,7 +1523,7 @@ def parse_exact_tags_row(payload: object, model_id: object) -> ExactTagsRow:
     if not isinstance(rows, Sequence) or isinstance(rows, str | bytes):
         _fail("readiness_tags")
     # SECURITY: bound the array before reading any row, so an oversized listing cannot be paid for
-    # one row at a time. M22-19: this is the same listing `_census` and `resolve_live_identity`
+    # one row at a time. : this is the same listing `_census` and `resolve_live_identity`
     # read, so it is bounded by the same name -- a private ceiling here silently outranked the
     # census one for every Ollama profile with more pulled models than it allowed.
     if len(rows) > MAX_DISCOVERY_ROWS:

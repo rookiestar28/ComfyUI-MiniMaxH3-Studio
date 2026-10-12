@@ -1,4 +1,4 @@
-// M25-21 shared stress workloads. Plan section 14.5: one executed interaction supplies many
+//  shared stress workloads. Plan section 14.5: one executed interaction supplies many
 // assertions, so each workload here runs ONCE and records the stress dimension of every row it
 // serves plus the frozen measurements assigned to it in the coverage manifest. These are the long
 // cases; they run only in `playwright.hardening.config.ts`.
@@ -429,7 +429,7 @@ const LAUNCHER = '[data-h3-nle-entry="open"]';
 /** The focus key the shell restores to on close, as the accepted close-reason matrix asserts it. */
 const LAUNCHER_FOCUS = '[data-h3-focus-key="nle-open-overlay"]';
 const CLOSE = '[data-h3-nle-action="close"]';
-/** M25-44: the launcher's unavailable region; it carries the surface status alone. */
+/** the launcher's unavailable region; it carries the surface status alone. */
 const UNAVAILABLE = '[data-h3-nle-unavailable="overlay_v1"]';
 const UI_ROWS = [
   "ui.global_shell_identity",
@@ -591,7 +591,7 @@ test("UI-CONTRACT-STRESS-V1 shell workload keeps every invariant with zero navig
   await timed("refused_opens_fall_back_and_acquire_nothing", async () => {
     for (let refusal = 0; refusal < 10; refusal += 1) {
       await degradeMediaRuntime(page, true);
-      // IMPORTANT (M25-63 B-M2563-06): the previous open's decorations can still be fetching
+      // IMPORTANT ( B-M2563-06): the previous open's decorations can still be fetching
       // after its close, and each one counts as acquired when its bytes land, inside this
       // refusal. Settle them first, then require that the refused open starts no acquisition
       // at all: an unmoved attempt count also catches one that would land after the check.
@@ -1338,7 +1338,7 @@ const nleDomCounts = (page: Page) =>
     const decorationCanvases = root.querySelectorAll(
       'canvas[data-h3-nle-canvas="timeline_decoration"]',
     ).length;
-    // B-M2563-08: the bin's card thumbnails (M25-48 `MediaThumbnail`) are a third, bounded class:
+    // B-M2563-08: the bin's card thumbnails ( `MediaThumbnail`) are a third, bounded class:
     // named, inside a mounted card's art box, and never more than the cards mounted.
     const thumbnailCanvases = root.querySelectorAll(
       'canvas[data-h3-nle-canvas="bin_thumbnail"]',
@@ -2119,7 +2119,7 @@ test("NLE-STRESS-V1 scheduled edit phase accepts and refuses every command withi
     };
     let commitsPerEditMax = 0;
     let editPhase = "setup";
-    // IMPORTANT (M25-21 B3-D51): a breach of the commit ceiling is recorded with the phase that
+    // IMPORTANT ( B3-D51): a breach of the commit ceiling is recorded with the phase that
     // produced it. A bare maximum cannot be routed to a cause, and the phases differ in kind: a
     // keyboard draft and a pointer drag both render while the user is still deciding, whereas a
     // single activation does not -- so the phase is what says whether a high count is the
@@ -2147,7 +2147,7 @@ test("NLE-STRESS-V1 scheduled edit phase accepts and refuses every command withi
     /**
      * Runs one act and attributes the transactions and commits it produced to it.
      *
-     * IMPORTANT (M25-21 B3-D54): an act that drafts before it commits calls `mark()` at the
+     * IMPORTANT ( B3-D54): an act that drafts before it commits calls `mark` at the
      * moment the user commits, which is where the commit window starts. The frozen measurement is
      * "commits attributed to a single accepted edit"; a keyboard draft before Enter and the
      * intermediate moves of a pointer drag are the live preview the user asked for, and they are
@@ -2159,7 +2159,7 @@ test("NLE-STRESS-V1 scheduled edit phase accepts and refuses every command withi
     const attempt = async (
       act: (mark: () => Promise<void>) => Promise<void>,
     ) => {
-      // IMPORTANT (M25-21 B3-D56): open the window only once the *previous* edit has stopped
+      // IMPORTANT ( B3-D56): open the window only once the *previous* edit has stopped
       // rendering. Accepting an edit re-opens the monitor, and that pair of commits lands after
       // the session has already left `pending`, so sampling here the moment the last attempt
       // returned charges its tail to this one. The trailing commit-state window showed it
@@ -2180,7 +2180,7 @@ test("NLE-STRESS-V1 scheduled edit phase accepts and refuses every command withi
       }
       const sent = oracle.transactions.length;
       await act(async () => {
-        // IMPORTANT (M25-46): Playwright's final pointer move can return before React commits
+        // IMPORTANT: Playwright's final pointer move can return before React commits
         // every move step. Two animation frames put those live-preview commits before the edit
         // window; without this barrier four cross-track previews were falsely attributed to the
         // following pointer-up transaction. Auto-scroll remains covered by its dedicated journey.
@@ -2211,7 +2211,7 @@ test("NLE-STRESS-V1 scheduled edit phase accepts and refuses every command withi
       const commits = after.nleCommits - before.nleCommits;
       commitsPerEditMax = Math.max(commitsPerEditMax, commits);
       counters.editAttempts += 1;
-      // IMPORTANT (M25-21 B3-D56): these three aggregates count *every* attempt, while
+      // IMPORTANT ( B3-D56): these three aggregates count *every* attempt, while
       // `commitOutliers` below stops appending at 24. A capped trace array is how many traces were
       // kept, never how many attempts breached the ceiling, and reading it as a violation count
       // understated the breach once already. The aggregates are bounded by the number of distinct
@@ -2697,7 +2697,7 @@ test("NLE-STRESS-V1 scheduled edit phase accepts and refuses every command withi
       "conflicting_edits_rebase_and_are_presented",
       async () => {
         editPhase = "conflicting_edits";
-        // IMPORTANT (M25-21 B3-D57): the competing edit is committed in *setup*, before the user
+        // IMPORTANT ( B3-D57): the competing edit is committed in *setup*, before the user
         // activates anything, instead of being injected into the browser's own request. Both
         // produce a genuinely stale base -- the core accepts another client's transaction and
         // advances past the revision the browser still holds -- but injecting it put a second
@@ -2739,13 +2739,13 @@ test("NLE-STRESS-V1 scheduled edit phase accepts and refuses every command withi
             (await shellSnapshot(page)).timelineSnapshot!.timelineRevision,
             "the browser must not have learned the new revision before it acts",
           ).toBe(base);
-          // IMPORTANT (M25-21 B3-D54): the window starts at the activation and ends at the
+          // IMPORTANT ( B3-D54): the window starts at the activation and ends at the
           // presentation, which is what this measurement's method says it measures. Starting it
           // outside `attempt` instead timed the harness: `attempt` brackets the act with two
           // snapshot round trips and two `expect.poll`s whose intervals escalate to a second, so
           // a presentation that takes tens of milliseconds was recorded as thousands.
           await attempt(async (mark) => {
-            // IMPORTANT (M25-21 B3-D56): the control has to be ready *before* the clock starts.
+            // IMPORTANT ( B3-D56): the control has to be ready *before* the clock starts.
             // `activate` waits for it to be enabled, and after the previous rebase that wait can
             // be most of a second -- time the user has not spent activating anything. The
             // measurement is activation to presentation, so the wait belongs outside it.

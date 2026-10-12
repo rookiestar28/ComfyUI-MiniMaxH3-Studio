@@ -1,4 +1,4 @@
-"""Offline M11-07 visual evidence fusion and calibration fixture.
+"""Offline visual evidence fusion and calibration fixture.
 
 The fixture merges injected source-owned candidates only.  It never opens media, loads a model,
 launches a process, contacts ComfyUI/Ollama, or claims live calibration quality.

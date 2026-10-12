@@ -95,7 +95,7 @@
   min-block-size: 100%;
 }
 .h3c {
-  /* M21-03. The shipped ladder (#0a0a0b -> #111214 -> #181a1d -> #23262a) spans
+  /* . The shipped ladder (#0a0a0b -> #111214 -> #181a1d -> #23262a) spans
      a narrow band of near-neutral black, so surfaces did not separate and every
      boundary had to be drawn as a line. The replacement is wider and slightly
      cool, which is what lets elevation carry structure and lets the line tokens
@@ -124,12 +124,12 @@
      that composites wins over the audit that does not. */
   --h3-text-muted: #aeb7c3;
   --h3-text-dim: #9aa4b2;
-  /* M17-21 semantic roles. The accepted visual direction allows exactly one
+  /*  semantic roles. The accepted visual direction allows exactly one
      warm shell accent, so the red-orange signal keeps its two legitimate jobs:
      the Production page identity in the navigation, and destructive or failed
      affordances. It was removed from the page header bar, segment selection,
      the sequence track and proposal rows, which is what diluted it before. */
-  /* M21-03 re-tuned the identity hues against the new ladder. The warm signal
+  /*  re-tuned the identity hues against the new ladder. The warm signal
      keeps its two jobs, but the danger *tone* is now its own value: on the
      Production page the identity appears exactly three times (tab underline,
      selected index chip and edge, selected sequence block), and a failed or
@@ -137,8 +137,8 @@
   --h3-signal-orange: #ff6b35;
   --h3-signal-ink: #0d0f13;
   --h3-page-outline-context: #6f8cff;
-  /* M17-23: the single edit target needs an accent that is neither the blue of
-     set selection nor the warm signal AC-M17-21-03 reserves for destructive and
+  /* the single edit target needs an accent that is neither the blue of
+     set selection nor the warm signal AC--03 reserves for destructive and
      failed affordances, so it gets its own role rather than borrowing one. */
   --h3-edit-target: #a78bfa;
   --h3-page-outline-production: var(--h3-signal-orange);
@@ -151,17 +151,17 @@
      and #98a2b0 -- which clears it on a bare surface -- still failed at 3.92 on
      the tinted chip the browser lane composites, because a chip's background is
      the tone at 14% over the card. The audited value is the one that clears
-     both, which is the M17-21 literal this item had no reason to move. */
+     both, which is the literal this item had no reason to move. */
   --h3-tone-idle: #afb6c1;
-  /* M21-03: section headings carry no hue. The name is kept because the
-     M17-12 identity guard reads it, but it now resolves to the top text step
+  /* section headings carry no hue. The name is kept because the
+      identity guard reads it, but it now resolves to the top text step
      -- saturated colour is reserved for state. The frozen identity literal
      #72d6ff survives only in this note, which is where it belongs once no
      heading is tinted. */
   --h3-text-title-accent: var(--h3-text-primary);
   --h3-text-description-strong: #e7ebf0;
   --h3-surface: var(--h3-canvas);
-  /* M21-12: the extension owns a tint, not the host's sidebar ground. The root
+  /* the extension owns a tint, not the host's sidebar ground. The root
      stays visibly translucent; text panels use the conservative dark-palette
      floor required by the black/white-backdrop contrast audit. */
   --h3-plate-alpha: 28%;
@@ -186,7 +186,7 @@
   --h3-border: var(--h3-line-strong);
   --h3-accent: var(--h3-page-outline-context);
   --h3-accent-text: var(--h3-signal-ink);
-  /* M17-22 corrective, from the distinct review of 5156e41. This was
+  /*  corrective, from the distinct review of 5156e41. This was
      `var(--error-text, #ff8585)`. On the pinned host `--error-text` is #ff4444
      and, like the other legacy host variables, does not change with the theme,
      so the panel silently rendered danger text in the host's red: 3.886 on
@@ -208,7 +208,7 @@
   --h3-divider: color-mix(in srgb, var(--h3-control-border) 72%, transparent);
   --h3-operation: var(--p-primary-color, #d5a24b);
   /* Panel outlines are quiet; --h3-line-strong stays for controls that must
-     read as interactive. The two names below were referenced before M17-21
+     read as interactive. The two names below were referenced before
      without ever being defined, which silently dropped a border and a track. */
   --h3-panel-line: var(--h3-line-subtle);
   --h3-border-strong: var(--h3-line-subtle);
@@ -226,7 +226,7 @@
   --h3-stage-audit: #ef8da9;
   --h3-stage-execute: #64d39a;
   --st: 160ms;
-  /* M21-03 type scale. Four sizes plus a deliberately quiet section label, so
+  /*  type scale. Four sizes plus a deliberately quiet section label, so
      content carries the weight instead of the headings. `--h3-t-sec-*` is split
      into parts because `text-transform` and `letter-spacing` cannot travel in a
      `font:` shorthand, and the CJK variant below has to override exactly those
@@ -239,14 +239,14 @@
   --h3-t-sec: 700 9.5px/1.45 var(--h3-font);
   --h3-t-sec-track: 0.11em;
   --h3-t-sec-transform: uppercase;
-  /* M21-03 control material: one light source above. */
+  /*  control material: one light source above. */
   --h3-lift-top: rgba(255, 255, 255, 0.055);
   --h3-lift-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
   --h3-well-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.38);
   --h3-control-height: 26px;
   --h3-control-height-sm: 24px;
   --h3-radius-control: 5px;
-  /* M21-06 D-B2. One state-layer strength for every hover tint, so a hover
+  /*  D-B2. One state-layer strength for every hover tint, so a hover
      never becomes a per-control invention. 10% sits inside the 8-14% band the
      existing `--hv` already uses. */
   --h3-state-hover: 10%;
@@ -262,19 +262,19 @@
     var(--h3-surface) var(--h3-plate-alpha),
     transparent
   );
-  /* M21-03 (user decision, 2026-08-18): the decorative grid is removed. It was
+  /*  (user decision, 2026-08-18): the decorative grid is removed. It was
      most visible exactly where the panel was empty and read as graph paper in
      light mode. Structure comes from elevation and type, not from texture. */
   font: var(--h3-t-body);
 }
-/* M17-22: the light palette activates on the HOST's own signal, not on an
+/* the light palette activates on the HOST's own signal, not on an
    attribute nothing sets. ComfyUI 1.48.7 marks dark with `.dark-theme` on the
    root element and treats bare `:root` as light, so the trigger is "host is
    present and is not signalling dark".
 
    `body.litegraph` (declared in the pinned host's index.html) is what makes the
    absence of `.dark-theme` unambiguous: without it, "no dark signal" would also
-   match the offline and hermetic case, where AC-M17-22-02 requires the accepted
+   match the offline and hermetic case, where AC--02 requires the accepted
    dark appearance. The `:not([data-theme])` guards let a harness or test force
    either palette deterministically and win over the host rule.
 
@@ -287,7 +287,7 @@
 
    One host reference survives and is stated rather than glossed: `--h3-operation`
    is `var(--p-primary-color, #d5a24b)`, whose shape is pinned by the accepted
-   M17-00 contract in tests/m17_00Static.test.ts. It has no consumer anywhere in
+    contract in tests/m17_00Static.test.ts. It has no consumer anywhere in
    this stylesheet, so it cannot affect a rendered colour; folding it away belongs
    to whichever item owns that contract, not here. */
 :root:not([data-theme]):not(.dark-theme) body.litegraph .h3c:not([data-theme]),
@@ -299,7 +299,7 @@
   --h3-surface-2: #ffffff;
   --h3-surface-3: #e4e8ee;
   --h3-well: #f7f9fb;
-  /* M21-03: the shipped grey control fill (#d6dae0) made every field read as
+  /* the shipped grey control fill (#d6dae0) made every field read as
      disabled in light mode. A field here is white with a border. */
   --h3-control: #ffffff;
   --h3-line-subtle: #dfe4ea;
@@ -316,7 +316,7 @@
   --h3-page-outline-context: #3157b8;
   --h3-edit-target: #5b21b6;
   --h3-page-outline-settings: #59616c;
-  /* M21-03 re-audited every tone against the new light ladder: on the darkest
+  /*  re-audited every tone against the new light ladder: on the darkest
      light surface (#e4e8ee) the shipped values scored 4.15-4.49, under AA. */
   --h3-tone-ok: #1b6e47;
   --h3-tone-info: #17629a;
@@ -324,7 +324,7 @@
   --h3-tone-danger: #a32307;
   /* Same finding as the dark idle: a tone sits on a chip tinted with itself,
      which the composited audit measures and the bare-surface audit does not.
-     #565f6c read 3.91 there; this is the M17-21 literal that clears both. */
+     #565f6c read 3.91 there; this is the literal that clears both. */
   --h3-tone-idle: #454e5b;
   --h3-text-title-accent: var(--h3-text-primary);
   --h3-text-description-strong: #252a31;
@@ -335,7 +335,7 @@
   --h3-lift-top: rgba(255, 255, 255, 0.9);
   --h3-lift-shadow: 0 1px 2px rgba(11, 15, 20, 0.14);
   --h3-well-shadow: inset 0 1px 2px rgba(11, 15, 20, 0.1);
-  /* M17-22: these six were never overridden here because the light palette
+  /* these six were never overridden here because the light palette
      never activated, so they were inherited from the dark block and had never
      been contrast-audited on a light surface. Measured against the darkest
      light surface (--h3-surface-3 #e2e5e9) the dark values score 1.27-1.86,
@@ -344,12 +344,12 @@
      (white 5.78-5.83, canvas 5.30-5.34, surface-3 4.57-4.61).
      `--dg` is pinned to the audited light danger colour rather than to the
      host's `--error-text` (#ff4444), which scores only 2.70 on surface-3.
-     M17-22 corrective: it is `--h3-tone-danger`'s #a32307 rather than the
+      corrective: it is `--h3-tone-danger`'s #a32307 rather than the
      identity literal #b72a0d, because `.h3-stage-tab--blocked small` puts this
      colour on --h3-control (#d6dae0 in light) where #b72a0d scores 4.466 -- 
      under AA by a hair, and missed because that element only renders in a
      blocked App Mode state the browser lane never reaches. #a32307 scores 5.34
-     there. The frozen M17-12 identity literal is untouched and still lives on
+     there. The frozen identity literal is untouched and still lives on
      --h3-signal-orange above; this is the danger *role*, not the identity. */
   --h3-stage-intent: #6b38ff;
   --h3-stage-media: #006e8b;
@@ -366,7 +366,7 @@
   padding: 0 0 0.5rem;
 }
 /* IMPORTANT: the page buttons, the two function tabs and the editor launcher are the controls of
-   the frozen M25-21 UI invariant rows, whose touch-target floor is 44 x 44 CSS px; the hardening
+   the frozen UI invariant rows, whose touch-target floor is 44 x 44 CSS px; the hardening
    accessibility cases measure their rendered boxes. Do not lower them to tighten the header. */
 .h3n button {
   border: 1px solid var(--h3-border);
@@ -439,7 +439,7 @@
 .h3c *::after {
   box-sizing: border-box;
 }
-/* IMPORTANT (M25-21 B3-D61): the header wraps. `.h3-context-heading` is `flex: 1 1 auto` with no
+/* IMPORTANT ( B3-D61): the header wraps. `.h3-context-heading` is `flex: 1 1 auto` with no
    `min-width: 0`, so when the loaded provenance metadata leaves it less inline space than its
    title needs, the title overflows its own box and runs under the metadata instead of the row
    reflowing. Wrapping moves the metadata to its own line at constrained widths and changes
@@ -466,7 +466,7 @@
 .h3p,
 .h3s-p,
 .h3a {
-  /* M21-12: page-level copy must never inherit the unknown host ground through
+  /* page-level copy must never inherit the unknown host ground through
      the translucent plate; nested cards may establish a stronger panel. */
   background: var(--h3-panel-1);
 }
@@ -504,7 +504,7 @@
 .h3c[data-shell-status="error"] .h3-context-state-dot {
   background: var(--dg);
 }
-/* IMPORTANT (M25-21 B3-D61): this block must be able to shrink and wrap. When build provenance
+/* IMPORTANT ( B3-D61): this block must be able to shrink and wrap. When build provenance
    loads it gains the `sources …` and `bundle …` tokens, and at the constrained-floor width its
    intrinsic width no longer fits the inline space left by the header's padding and the title beside
    it. With `flex: 0 0 auto` plus `white-space: nowrap` on the container it could do neither and
@@ -536,7 +536,7 @@
   gap: 6px;
   max-width: 320px;
   border: 1px solid var(--h3-border);
-  /* M21-06 D-B3: this is a link the user clicks, so it takes the control shape.
+  /*  D-B3: this is a link the user clicks, so it takes the control shape.
      The pill is reserved for badges, which is what makes a pill mean "not a
      control" anywhere in the panel. */
   border-radius: var(--h3-radius-control);
@@ -1213,7 +1213,7 @@
   padding: 0;
   accent-color: var(--h3-page-outline-context);
 }
-/* M21-03: exactly three button roles. `primary` carries the expected next
+/* exactly three button roles. `primary` carries the expected next
    action and there is at most one per region; the *default* -- a button with no
    `data-variant` -- is secondary and wears the control material below; `danger`
    is destructive intent and is never filled. The former `quiet` variant was a
@@ -1263,7 +1263,7 @@
   font-size: 0.6875rem;
   font-weight: 600;
   line-height: 1.5;
-  /* M17-21 D7: state labels are a fixed vocabulary, so `anywhere` was wrong
+  /*  D7: state labels are a fixed vocabulary, so `anywhere` was wrong
      here — it let "Independent" break to "Independ"/"ent". `break-word` still
      breaks a single token that genuinely cannot fit, which keeps the raw-code
      fallback from overflowing when the frontend has not learned a code yet. */
@@ -1293,7 +1293,7 @@
   color: var(--h3-tone-danger);
   background: color-mix(in srgb, var(--h3-tone-danger) 15%, transparent);
 }
-/* M21-03 order 1: the status band is one row, baseline-aligned, that reads
+/*  order 1: the status band is one row, baseline-aligned, that reads
    left to right as name, where, what state, how far. The progress meter takes
    whatever width is left so the band never grows a second line at 704px. */
 .h3p-i {
@@ -1330,7 +1330,7 @@
   background: var(--h3-surface-1);
   list-style: none;
 }
-/* AC-M21-03-02: five label rows become five marks in fixed order. Colour alone
+/* AC--02: five label rows become five marks in fixed order. Colour alone
    carries nothing -- the group's accessible name states all five in words. */
 .h3p-sp {
   display: inline-flex;
@@ -1399,7 +1399,7 @@
   padding: 0;
   list-style: none;
 }
-/* M17-23 / AC-M17-23-02. Windowing bounds the element cost but not the height:
+/*  / AC--02. Windowing bounds the element cost but not the height:
    a card is 203.5px at the 704px product floor, so even a 32-card page is about
    6,800px of column. The region scrolls inside a declared maximum so the Run
    region and the action groups stay reachable without traversing the list. */
@@ -1438,17 +1438,17 @@
 .h3p-a button {
   min-height: 44px;
 }
-/* M17-21 D7: the segment card is its own query container. The state grid used
+/*  D7: the segment card is its own query container. The state grid used
    to switch to two columns on a `h3-sidebar` query, but a card is narrower than
    the panel around it, so at the 704px product floor a card was given a query
    answer measured against 704 and deformed. The card must be measured, not the
-   panel. M21-03 removed the page grid that made the gap widest; the rule stays,
+   panel. removed the page grid that made the gap widest; the rule stays,
    because the card is still not the panel. */
 .h3p-s > li {
   container-type: inline-size;
   container-name: h3-segment-card;
   display: grid;
-  /* The middle track carries the M17-23 edit-target badge and collapses to zero
+  /* The middle track carries the edit-target badge and collapses to zero
      on every other card, so the two-track geometry above is unchanged. */
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
@@ -1468,7 +1468,7 @@
     var(--h3-surface-3)
   );
 }
-/* AC-M17-23-01. Set membership and the single edit target are different things
+/* AC--01. Set membership and the single edit target are different things
    and are shown differently: the checkbox states membership, this outline plus
    the visible "Editing" badge state the target. The badge carries the meaning;
    the outline only reinforces it, so nothing is signalled by colour alone. */
@@ -1517,7 +1517,7 @@
   padding: 1px 5px;
   color: var(--h3-text-primary);
 }
-/* M17-25. The card shows the duration the segment will actually deliver, not an
+/* . The card shows the duration the segment will actually deliver, not an
    echo of what was asked for. Tabular figures keep the column from shifting as
    the value changes. */
 .h3p-du {
@@ -1562,7 +1562,7 @@
   align-items: center;
   gap: 8px;
 }
-/* M21-03 order 5: the list actions are one row. They stay three named groups,
+/*  order 5: the list actions are one row. They stay three named groups,
    because the names are what a screen-reader user navigates by; what changes is
    that the groups flow inline instead of stacking into three bands of buttons.
    `display: contents` would have dropped the groups from the accessible tree,
@@ -1886,7 +1886,7 @@
     min-width: 56px;
   }
 }
-/* M17-21 D7: two columns only once the card itself can hold them. The widest
+/*  D7: two columns only once the card itself can hold them. The widest
    segment-card state label ("Full recompute required") measures 140px, and a
    two-column grid gives each value track (card - 2 * 5.5rem - 18px gaps) / 2,
    so the switch needs a 31rem card (>= 151px per value) rather than a 440px
@@ -1907,8 +1907,8 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-/* M21-03 AC-01: a 704px-wide, 950px-tall panel is a column, not a grid. The
-   M17-12 bento split it into two unequal tracks, which is what produced the
+/*  AC-01: a 704px-wide, 950px-tall panel is a column, not a grid. The
+    bento split it into two unequal tracks, which is what produced the
    right-column voids; the page is one column at every width now, in the
    section 3.1 order. */
 .h3c .h3p-v {
@@ -2002,7 +2002,7 @@
   min-height: 44px;
 }
 /* ------------------------------------------------------------------------
-   M21-03 visual system: type ramp, CJK variant and control material.
+    visual system: type ramp, CJK variant and control material.
 
    These rules come last among the ordinary rules and first among the
    accessibility overrides below, so `forced-colors` and `prefers-reduced-motion`
@@ -2107,7 +2107,7 @@
   transform: translateY(1px);
   box-shadow: var(--h3-well-shadow);
 }
-/* M21-06 control state. Declared here on purpose.
+/*  control state. Declared here on purpose.
 
    The shared material above ties or beats the nav and tab rules written before
    it, so their background, box-shadow and font-weight were already dead by the
@@ -2152,7 +2152,7 @@
 /* Selected is a saturated fill of the hue the control already owns (D-B1) with
    the ink each palette reserves for saturated fills (D-B5). Every pair is
    recomputed by the contrast audit; none of them is assumed. The raised face
-   stays the M21-03 material -- the fill sits on it, it does not replace it. */
+   stays the material -- the fill sits on it, it does not replace it. */
 .h3c .h3n button[aria-current="page"],
 .h3c .h3-stage-tab[aria-selected="true"],
 .h3c .h3-app-mode-tabs button[aria-selected="true"] {
@@ -2212,7 +2212,7 @@
     var(--h3-accent)
   );
 }
-/* M21-03 AC-08: the prompt highlight.
+/*  AC-08: the prompt highlight.
 
    The overlay and the field must share every metric that decides where a glyph
    lands, or the highlight drifts from the text it marks. They are stacked in one
@@ -2284,7 +2284,7 @@
     caret-color: CanvasText;
   }
 }
-/* M21-03 AC-10: the one notice surface. A transient notice reads as a passing
+/*  AC-10: the one notice surface. A transient notice reads as a passing
    report; a must-read one is bordered and carries its own dismissal, because it
    is not finished until the user says so. */
 .h3-notices {
@@ -2360,7 +2360,7 @@
   .h3c textarea {
     border-color: ButtonText;
   }
-  /* M21-06 brought the stage and App Mode tabs into the same selected state, so
+  /*  brought the stage and App Mode tabs into the same selected state, so
      they join this rule rather than getting a later one that would silently
      shadow it. */
   .h3n button[aria-current="page"],
@@ -2458,7 +2458,7 @@
   pointer-events: none;
 }
 
-/* M21-06. Forced colours discard the hover tint, so the hover state keeps a
+/* . Forced colours discard the hover tint, so the hover state keeps a
    border step there -- a state that is colour-only is no state at all in this
    mode. Selection is handled with the other system-colour rules above. */
 @media (forced-colors: active) {
@@ -2468,7 +2468,7 @@
   }
 }
 
-/* M22-06 provider settings. The section lives inside the existing Settings page
+/*  provider settings. The section lives inside the existing Settings page
    and inherits its control sizing; what it adds is spacing and the two blocks
    that carry consequence -- the disclosure and the consent controls -- which are
    set apart with a rule rather than a colour, so they survive forced-colors and
@@ -2613,7 +2613,7 @@
   color: var(--h3-text-primary);
   min-width: 0;
 }
-/* M25-33 Media tools card. It shares the provider card rhythm through the selector lists above but
+/*  Media tools card. It shares the provider card rhythm through the selector lists above but
    keeps its own class names, so selectors written for the provider section never match it. A
    contextual card takes its own full-width row under the blocked action. */
 .h3s-mt progress {
@@ -2625,8 +2625,8 @@
   flex: 1 1 100%;
   margin-block-start: 0.5rem;
 }
-/* M25-16: the launcher and its unavailable status live in the sidebar; the expanded overlay carries
-   its own inline stylesheet. M25-44: the read-only project summary sits under the launcher. */
+/* the launcher and its unavailable status live in the sidebar; the expanded overlay carries
+   its own inline stylesheet. : the read-only project summary sits under the launcher. */
 .h3-nle-fallback,
 .h3-nle-launcher,
 .h3-nle-summary {
@@ -2668,9 +2668,9 @@
   color: var(--h3-text-muted);
   font-size: 0.75rem;
 }
-/* M25-41: compact icon actions for crowded planning rows. The function hue is never the only cue,
-   because the icon, the accessible name and the description tooltip carry it too. M25-43: the
-   actions tile the row to its right edge on 44 px tall tiles (the frozen M25-21 target size) with an
+/* compact icon actions for crowded planning rows. The function hue is never the only cue,
+   because the icon, the accessible name and the description tooltip carry it too. : the
+   actions tile the row to its right edge on 44 px tall tiles (the frozen target size) with an
    8 px gap. Scoped to `.h3c` so the sidebar and the overlay, whose root also carries `h3c`, render
    the same toolbar. */
 /* The planning block's vertical rhythm. The overlay sheet that spaces `.h3-nle-form` is not loaded

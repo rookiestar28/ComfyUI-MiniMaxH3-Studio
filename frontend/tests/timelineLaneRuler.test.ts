@@ -17,7 +17,7 @@ import {
   timelineXForBoundary,
 } from "../src/runtime/timelineGeometry";
 
-// M25-61 (redesign foundation): one lane transform with a 16 px lead-in before frame 0, and ruler
+//  (redesign foundation): one lane transform with a 16 px lead-in before frame 0, and ruler
 // ticks that live only in the ruler with short labels and minor ticks down to single frames.
 
 describe("lane transform with a lead-in", () => {

@@ -1,5 +1,5 @@
 /**
- * M17-26 — static reader for the locale-keyed copy tables that live in component
+ * static reader for the locale-keyed copy tables that live in component
  * source rather than in `src/i18n/catalog.ts`.
  *
  * Why source parsing rather than importing the tables:
@@ -50,12 +50,14 @@ export type CopyTable = Readonly<{
 export const UNEXPORTED_COPY_TABLES: readonly CopyTable[] = [
   { file: "src/components/nle/nleCopy.ts", identifier: "copy" },
   { file: "src/components/nle/NleInspectorTabs.tsx", identifier: "COPY" },
+  { file: "src/components/nle/NleTextStyleControls.tsx", identifier: "COPY" },
   { file: "src/components/authoringOutputCopy.ts", identifier: "outputCopy" },
   {
     file: "src/components/AuthoringPreviewMonitor.tsx",
     identifier: "copy",
   },
   { file: "src/components/MediaToolsCard.tsx", identifier: "copy" },
+  { file: "src/components/PerceptionHostStatus.tsx", identifier: "copy" },
   { file: "src/components/ProductionWorkbench.tsx", identifier: "copy" },
   { file: "src/components/ProjectFileControls.tsx", identifier: "COPY" },
   { file: "src/components/ProjectRecoveryControls.tsx", identifier: "COPY" },

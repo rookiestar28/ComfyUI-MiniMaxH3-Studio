@@ -1,6 +1,6 @@
-// M25-16 render-capability read ownership. Split from `nleWorkspaceSession.ts` to keep every
-// lifecycle module within the M23-28 line budget. One bounded capability read per overlay open:
-// it reaches no workspace, starts no job and can only enable the accepted M25-19 leaf; a refusal
+//  render-capability read ownership. Split from `nleWorkspaceSession.ts` to keep every
+// lifecycle module within the line budget. One bounded capability read per overlay open:
+// it reaches no workspace, starts no job and can only enable the accepted leaf; a refusal
 // or failure keeps the render affordance noninteractive.
 
 import type { NleWorkspaceState } from "../state/nleWorkspaceState";

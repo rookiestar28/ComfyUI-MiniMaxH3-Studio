@@ -1,6 +1,6 @@
-// M25-16 NLE workspace import slice: the explicit Production-output to Authoring import
-// (M25-29) as issued from the workspace. Split from `nleWorkspaceSession.ts` to keep every
-// lifecycle module within the M23-28 line budget; it owns nothing beyond the in-flight import
+//  NLE workspace import slice: the explicit Production-output to Authoring import
+// as issued from the workspace. Split from `nleWorkspaceSession.ts` to keep every
+// lifecycle module within the line budget; it owns nothing beyond the in-flight import
 // transport and reads shared session state only through the core it is given.
 //
 // Every import is one existing accepted action with one retained idempotent request identity.

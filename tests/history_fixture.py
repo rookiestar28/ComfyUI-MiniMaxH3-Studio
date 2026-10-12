@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -11,9 +12,23 @@ from contextlib import contextmanager
 from pathlib import Path
 
 
+def git_environment() -> dict[str, str]:
+    # CRITICAL: inherited Git steering can redirect even `git init`/`git add` into the
+    # caller's real repository. Sanitize each child, never the parent's environment.
+    return {
+        name: value for name, value in os.environ.items() if not name.upper().startswith("GIT_")
+    }
+
+
 def git(root: Path, *arguments: str) -> str:
     return subprocess.run(
-        ["git", *arguments], cwd=root, capture_output=True, text=True, check=True
+        ["git", *arguments],
+        cwd=root,
+        env=git_environment(),
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=30,
     ).stdout.strip()
 
 
@@ -24,8 +39,10 @@ def require_history(root: Path, commits: Sequence[str]) -> None:
         if subprocess.run(
             ["git", "cat-file", "-e", f"{commit}^{{commit}}"],
             cwd=root,
+            env=git_environment(),
             capture_output=True,
             check=False,
+            timeout=30,
         ).returncode
     ]
     if missing:

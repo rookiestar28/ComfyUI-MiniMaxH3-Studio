@@ -1,4 +1,4 @@
-"""M22-06 provider settings: the canonical state the Settings surface renders and issues intents at.
+"""provider settings: the canonical state the Settings surface renders and issues intents at.
 
 The browser owns none of this. It renders an allowlisted projection and sends intents; readiness is
 decided here, the disclosure is composed here from typed facts, and the consent ledger and the
@@ -8,12 +8,12 @@ weaken a consent decision.
 The disclosure is composed from facts, never from a sentence. `ProviderSetup.disclosure()` returns
 one English line built for an evidence log; a surface that has to be independently verifiable in
 three locales cannot be built by translating it. What a request transmits is a property of the
-`M22-01` route row for the family and of the pinned profile's declared capabilities, so those are
+`` route row for the family and of the pinned profile's declared capabilities, so those are
 what the projection carries, and each locale renders the same facts rather than a translation of a
 paraphrase of them.
 
 Nothing here is persisted. A consent decision and a credential last for the session that made them,
-which is `M22-04`'s design and not an omission -- and because that is surprising, the projection
+which is ``'s design and not an omission -- and because that is surprising, the projection
 says so, in every locale, wherever a grant control is offered.
 """
 
@@ -79,7 +79,7 @@ PROVIDER_SETTINGS_SCHEMA = "h3.context.provider_settings.v3"
 #: dangerous: rows the provider sent and the session accepted would be judged while never being
 #: rendered, so the user could neither see nor audit the data a decision was made from. That is
 #: the defect `test_an_exact_candidate_after_the_old_ui_window_remains_selectable` was written
-#: for. M22-19 raised the ingest ceiling to 512 and this window rose with it, deliberately.
+#: for. raised the ingest ceiling to 512 and this window rose with it, deliberately.
 MAX_PROJECTED_CANDIDATES = MAX_DISCOVERY_ROWS
 
 #: A consent decision and a credential are session-scoped by construction. This value is projected
@@ -430,7 +430,7 @@ class ProviderSettingsProjection:
             _fail("projection_assisted_authoring")
         # Authorization is checked as an implication, not an equality. Ready and qualified are
         # necessary and the projection can see both, so a surface claiming authority without them
-        # is refused here. They are not sufficient -- M22-13 also requires the exact weights to
+        # is refused here. They are not sufficient -- also requires the exact weights to
         # have been observed this session -- and that proof is deliberately not projected, so the
         # projection must be able to accept a withheld authorization it cannot explain.
         if self.assisted_authoring.authorized_for_this_action and not (
@@ -480,7 +480,7 @@ class ReadinessObservation:
     reachable: bool
     outcome: PromptModelOutcome | None = None
     candidates: tuple[DiscoveryCandidate, ...] = ()
-    #: M22-13. Present only when a qualified profile was observed running the exact weights it was
+    #:. Present only when a qualified profile was observed running the exact weights it was
     #: qualified against. Absent is the normal case, and absent never means "probably fine": a
     #: catalog-only profile, an unqualified family and a mismatched identity all produce no
     #: identity, so a caller that requires one cannot accidentally accept any of them. It is the
@@ -719,7 +719,7 @@ class ProviderSettingsState:
                 PromptModelOutcomeId.CAPABILITY_MISMATCH,
                 PromptModelRemediation.SELECT_MODEL,
             )
-        # M22-13. This function, not the projection, is what admits a real execution: the product
+        # . This function, not the projection, is what admits a real execution: the product
         # route reaches `begin_assisted_execution` and never reads `authorized_for_this_action`.
         # So the requirement that the exact qualified identity was observed this session has to be
         # enforced here too, or the surface would refuse an action the backend would still perform.
@@ -830,7 +830,7 @@ class ProviderSettingsState:
 
         self._reachable.pop(self._selected, None)
         self._outcome = None
-        # M22-13. Readiness evidence is the most perishable thing here: it names an exact set of
+        # . Readiness evidence is the most perishable thing here: it names an exact set of
         # weights observed at one moment. Anything that invalidates the observation invalidates it.
         self._readiness_evidence = None
         if clear_candidates:
@@ -1028,7 +1028,7 @@ class ProviderSettingsState:
                     profile is not None
                     and profile.qualification_state is PromptModelQualificationState.QUALIFIED
                     and readiness is ProviderReadiness.READY
-                    # M22-13. A qualified row plus a reachable host is not authority: the exact
+                    # . A qualified row plus a reachable host is not authority: the exact
                     # qualified identity has to have been observed this session under these
                     # counters. Every other fact here can be true of a provider that swapped it.
                     and self._readiness_proof_matches(profile)

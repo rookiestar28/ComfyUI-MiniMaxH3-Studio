@@ -1,4 +1,4 @@
-"""M25-10: closed public composition contract and pure frame resolver.
+"""closed public composition contract and pure frame resolver.
 
 This module deliberately owns values only.  It imports no ComfyUI, media, HTTP, provider, GPU, or
 browser runtime and never accepts a source path or URL.  Later runtime/render items consume its
@@ -278,7 +278,7 @@ def _rational(
 
 def _source_time_base(value: object, name: str) -> Rational:
     # IMPORTANT: source clocks are observed media facts, not output-rate controls. Keep their
-    # exact-integer bound separate or the accepted 1/12288 M25-09 corpus is rejected as invalid.
+    # exact-integer bound separate or the accepted 1/12288 corpus is rejected as invalid.
     return _rational(
         value,
         name,
@@ -544,6 +544,29 @@ def _rgba(value: object, name: str, nullable: bool = False) -> tuple[int, int, i
 
 
 @dataclass(frozen=True, slots=True)
+class TextStroke:
+    rgba: tuple[int, int, int, int]
+    width_px: int
+
+    def to_wire(self) -> dict[str, object]:
+        return {"rgba": list(self.rgba), "width_px": self.width_px}
+
+
+@dataclass(frozen=True, slots=True)
+class TextShadow:
+    rgba: tuple[int, int, int, int]
+    offset_x_px: int
+    offset_y_px: int
+
+    def to_wire(self) -> dict[str, object]:
+        return {
+            "rgba": list(self.rgba),
+            "offset_x_px": self.offset_x_px,
+            "offset_y_px": self.offset_y_px,
+        }
+
+
+@dataclass(frozen=True, slots=True)
 class TextStyle:
     content: str
     font_asset_id: str
@@ -554,9 +577,12 @@ class TextStyle:
     line_height_bp: int
     fill_rgba: tuple[int, int, int, int]
     background_rgba: tuple[int, int, int, int] | None
+    stroke: TextStroke | None = None
+    shadow: TextShadow | None = None
+    background_padding_px: int | None = None
 
     def to_wire(self) -> dict[str, object]:
-        return {
+        wire: dict[str, object] = {
             "content": self.content,
             "font_asset_id": self.font_asset_id,
             "size_px": self.size_px,
@@ -567,11 +593,23 @@ class TextStyle:
             "fill_rgba": list(self.fill_rgba),
             "background_rgba": None if self.background_rgba is None else list(self.background_rgba),
         }
+        if self.stroke is not None:
+            wire["stroke"] = self.stroke.to_wire()
+        if self.shadow is not None:
+            wire["shadow"] = self.shadow.to_wire()
+        if self.background_padding_px is not None:
+            wire["background_padding_px"] = self.background_padding_px
+        return wire
 
 
 def _text(value: object, name: str) -> TextStyle | None:
     if value is None:
         return None
+    optional = tuple(
+        key
+        for key in ("stroke", "shadow", "background_padding_px")
+        if isinstance(value, Mapping) and key in value
+    )
     wire = _mapping(
         value,
         (
@@ -584,7 +622,8 @@ def _text(value: object, name: str) -> TextStyle | None:
             "line_height_bp",
             "fill_rgba",
             "background_rgba",
-        ),
+        )
+        + optional,
         name,
     )
     content = wire["content"]
@@ -607,6 +646,28 @@ def _text(value: object, name: str) -> TextStyle | None:
     fill = _rgba(wire["fill_rgba"], f"{name}.fill_rgba")
     if fill is None:
         raise _reject("invalid_contract", f"{name}.fill_rgba is required")
+    stroke = None
+    if "stroke" in wire:
+        stroke_wire = _mapping(wire["stroke"], ("rgba", "width_px"), f"{name}.stroke")
+        stroke_color = _decoration_rgba(stroke_wire["rgba"], f"{name}.stroke.rgba")
+        stroke = TextStroke(
+            stroke_color, _integer(stroke_wire["width_px"], f"{name}.stroke.width_px", 1, 32)
+        )
+    shadow = None
+    if "shadow" in wire:
+        shadow_wire = _mapping(
+            wire["shadow"], ("rgba", "offset_x_px", "offset_y_px"), f"{name}.shadow"
+        )
+        shadow = TextShadow(
+            _decoration_rgba(shadow_wire["rgba"], f"{name}.shadow.rgba"),
+            _integer(shadow_wire["offset_x_px"], f"{name}.shadow.offset_x_px", -64, 64),
+            _integer(shadow_wire["offset_y_px"], f"{name}.shadow.offset_y_px", -64, 64),
+        )
+    padding = None
+    if "background_padding_px" in wire:
+        padding = _integer(wire["background_padding_px"], f"{name}.background_padding_px", 1, 64)
+        if wire["background_rgba"] is None:
+            raise _reject("invalid_contract", f"{name}.padding requires a background")
     return TextStyle(
         content,
         _identifier(wire["font_asset_id"], f"{name}.font_asset_id"),
@@ -617,7 +678,19 @@ def _text(value: object, name: str) -> TextStyle | None:
         _integer(wire["line_height_bp"], f"{name}.line_height_bp", 7_500, 30_000),
         fill,
         _rgba(wire["background_rgba"], f"{name}.background_rgba", nullable=True),
+        stroke,
+        shadow,
+        padding,
     )
+
+
+def _decoration_rgba(value: object, name: str) -> tuple[int, int, int, int]:
+    color = _rgba(value, name)
+    # CRITICAL: absence is the canonical disabled decoration. Alpha-zero members would
+    # give the same style two wires/fingerprints; zero-offset visible shadows remain valid.
+    if color is None or color[3] == 0:
+        raise _reject("invalid_contract", f"{name} disabled decoration must be omitted")
+    return color
 
 
 @dataclass(frozen=True, slots=True)
@@ -1458,7 +1531,7 @@ def decode_public_snapshot(value: object) -> PublicCompositionSnapshot:
         and track_by_id[clip.track_id].kind in ("primary_video", "video_overlay")
     )
     # IMPORTANT: this is an admission bound from the accepted engine profile, not a runtime hint.
-    # Allowing a third overlapping VIDEO here would force M25-12 either to hide a layer or allocate
+    # Allowing a third overlapping VIDEO here would force either to hide a layer or allocate
     # outside its qualified owner budget, making the public fingerprint describe an
     # unrenderable scene.
     if any(
@@ -1839,6 +1912,12 @@ def resolve_composition(snapshot: PublicCompositionSnapshot, frame: int) -> Reso
             operation_ids.append("CrossDissolveV1")
         if track.kind == "text_overlay":
             operation_ids.append("DrawTextV1")
+            if clip.text is not None and (
+                clip.text.stroke is not None
+                or clip.text.shadow is not None
+                or clip.text.background_padding_px is not None
+            ):
+                operation_ids.append("TextDecorationV1")
         layers.append(
             ResolvedLayer(
                 clip.clip_id,

@@ -1,4 +1,4 @@
-// M25-33 AC33-03/04/05: the Media tools session reads only when a surface can use it, shares the
+//  AC33-03/04/05: the Media tools session reads only when a surface can use it, shares the
 // one setup job, stops polling at a terminal state or on release, and runs a captured action once
 // only after every identity it captured still holds.
 

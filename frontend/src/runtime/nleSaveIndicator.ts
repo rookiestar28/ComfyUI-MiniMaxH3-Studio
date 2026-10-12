@@ -1,4 +1,4 @@
-// M25-63 (R9): the save indicator in the clip editor's top bar. It replaces the timeline footer's
+//  (R9): the save indicator in the clip editor's top bar. It replaces the timeline footer's
 // status sentence as the visible save state. Every branch of that sentence maps to one state here,
 // in the same precedence; the sentence itself survives verbatim as the tooltip and the visually
 // hidden live region, except that an accepted timeline now reads "Saved." instead of naming its

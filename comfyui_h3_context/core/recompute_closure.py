@@ -183,9 +183,9 @@ def extend_recompute_plan(
     forced_reason_codes: tuple[tuple[str, tuple[str, ...]], ...] = (),
     requested_segment_ids: tuple[str, ...] | None = None,
 ) -> RecomputePlan:
-    """Add bounded dirty origins while keeping M17-02 graph propagation authoritative.
+    """Add bounded dirty origins while keeping graph propagation authoritative.
 
-    M17-09 and later composition layers may discover an external invalidation (for example an
+     and later composition layers may discover an external invalidation (for example an
     unusable artifact receipt). They must not reimplement dependency traversal. This helper
     reuses the same inspected downstream graph and preserves any structural or missing-predecessor
     block already present in ``base_plan``.

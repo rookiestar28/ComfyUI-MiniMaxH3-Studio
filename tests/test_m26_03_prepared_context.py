@@ -1,4 +1,4 @@
-"""M26-03 closed prepared Context read and real lower-consumer coverage."""
+"""closed prepared Context read and real lower-consumer coverage."""
 
 from __future__ import annotations
 

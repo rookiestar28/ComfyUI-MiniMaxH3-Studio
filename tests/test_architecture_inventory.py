@@ -1,4 +1,4 @@
-"""M19-01 architecture inventory tests.
+"""architecture inventory tests.
 
 The baseline is only worth having if it refuses to record the things that would make it a lie.
 Most of these are about what it will not hold: a forbidden pure-core dependency, a layer inversion,
@@ -325,14 +325,14 @@ class GeneratedInventoryTests(unittest.TestCase):
         }
         self.assertEqual(recorded_abi, abi)
         self.assertEqual(recorded_criteria, criteria)
-        # Every ABI row is M19-02's, because export reduction is the only cohort that can drop a
+        # Every ABI row is 's, because export reduction is the only cohort that can drop a
         # name from core.__all__ and break `describe_public_callable`.
         for item in self.inventory.bindings:
             if item.kind == "public_python_abi":
                 self.assertEqual(item.owner, "M19-02")
 
     def test_the_criteria_concentrate_on_the_frontend_cohort(self) -> None:
-        """20 of 23 criteria are vitest rows, which is not what M19-04's size suggests."""
+        """20 of 23 criteria are vitest rows, which is not what 's size suggests."""
 
         owners = [item.owner for item in self.inventory.bindings if item.kind == "criterion"]
         self.assertGreaterEqual(owners.count("M19-04"), 20)

@@ -5,7 +5,7 @@ PCM, the base derived from the accepted one, the 22 rows and the edits that reac
 the expectation states and the level it states there, the comparator's bound, the extractor's
 measurement of a window, the join's reading of it and the render stage's prescription. The rows
 themselves are rendered by the render stage on the pinned pair; the levels a real program produces
-are held to the definition in `tests/test_m25_77_clip_audio_amplitude.py`.
+are held to the definition in `tests/test__clip_audio_amplitude.py`.
 """
 
 from __future__ import annotations

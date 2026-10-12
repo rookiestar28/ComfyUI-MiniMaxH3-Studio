@@ -1,6 +1,6 @@
-"""M23-46 exact-byte Python/TypeScript semantic differential corpus.
+"""exact-byte Python/TypeScript semantic differential corpus.
 
-The corpus is generated from the accepted M25-10 fixture.  Product validators stay independent;
+The corpus is generated from the accepted fixture. Product validators stay independent;
 this test-only runner normalizes only stable fingerprints, projections, and rejection fields.
 """
 

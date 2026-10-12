@@ -1,5 +1,9 @@
 import {
   ENGINE_PROFILE_ID,
+  admittedTextLineCount,
+  hasTextDecorations,
+  type TextStroke,
+  type TextShadow,
   type PublicCompositionSnapshot,
   type ResolvedCompositionScene,
 } from "../contracts/compositionCodec";
@@ -51,7 +55,7 @@ export type PreviewBox = Readonly<{
  * The rung a composition renders on.
  *
  * `native` draws each layer straight onto the one canvas with the engine's own alpha, blend and
- * colour filter; `software` is the incumbent read-modify-write transaction. M25-45's measured
+ * colour filter; `software` is the incumbent read-modify-write transaction. 's measured
  * matrix chose between them: see the item's implementation record, decisions D1 to D4.
  */
 export type PreviewPath = "native" | "software";
@@ -168,7 +172,7 @@ function channel(value: number): number {
   return Math.floor(clamp(value) * 255 + 0.5);
 }
 
-/** The surface the preview presented before M25-45, and still its floor. */
+/** The surface the preview presented before, and still its floor. */
 export const PREVIEW_LEGACY_MAX_SIDE_PX = 320;
 export const PREVIEW_LEGACY_MAX_PIXELS = 102_400;
 /** The native rung may present the admitted output at its full 1080p raster. */
@@ -177,7 +181,7 @@ export const PREVIEW_MAX_PIXELS = 2_073_600;
 /**
  * The software rung's own ceiling (implementation record, decision D4).
  *
- * IMPORTANT (M25-45): this is lower than the shipped cap on purpose. The measured matrix puts the
+ * IMPORTANT: this is lower than the shipped cap on purpose. The measured matrix puts the
  * software transaction at 26.1 ms p95 for three layers with colour at this size and 60.7 ms at the
  * next step up, against a 50 ms budget -- and its delivered frame interval degrades with it, to
  * 150 ms at the full cap. Raising this number to "look sharper" does not make the fallback
@@ -203,7 +207,7 @@ function scaleWithin(
 /**
  * The backing store for a composition presented in a measured picture box.
  *
- * IMPORTANT (M25-45): the legacy size is a scale FLOOR, not a separate width and height. Taking
+ * IMPORTANT: the legacy size is a scale FLOOR, not a separate width and height. Taking
  * the larger of each side independently would stretch a composition whose legacy size is limited
  * by the other side, and a preview that is not the output's aspect ratio is not evidence of
  * anything. The box is in CSS pixels and the backing is in device pixels, so the ratio multiplies
@@ -498,7 +502,7 @@ function adjustVisualColorInPlace(
   )
     return result;
 
-  // GUARD (M25-20 B-64): the preview predicts the final artifact, and the final artifact is the
+  // GUARD ( B-64): the preview predicts the final artifact, and the final artifact is the
   // native renderer's `eq` filter run on 8-bit full-range BT.709 planes. Each plane is an integer
   // between the conversion and the adjustment, and each plane saturates on its own: a chroma
   // plane driven past 255 by a saturation of 2.0 clamps there while the luma stays where it was.
@@ -635,7 +639,7 @@ const BLEND_OPERATIONS: Readonly<
 /**
  * One plane of the pinned `eq` filter as an affine map `value -> value * scale + offset`.
  *
- * IMPORTANT (M25-45): this is `eqPlane` above without its saturating clamp, and the
+ * IMPORTANT: this is `eqPlane` above without its saturating clamp, and the
  * `- contrast_fixed / 32` term is what makes contrast pivot around mid grey. Dropping it moves
  * every channel of every pixel by tens of code values -- it is the whole difference between a
  * filter that matches the renderer within 8 and one that is 163 away (bug register B-M2545-02).
@@ -660,7 +664,7 @@ function eqPlaneTerms(
 /**
  * The colour adjustment as the two sRGB `feColorMatrix` stages that the renderer's `eq` is.
  *
- * IMPORTANT (M25-45, bug register B-M2545-22): this cannot be one matrix, however algebraically
+ * IMPORTANT (, bug register B-M2545-22): this cannot be one matrix, however algebraically
  * inviting that is. The renderer runs `eq` on three separate 8-bit planes, and each plane
  * saturates on its own before the inverse colour-space map reads it: a brightness that lifts luma
  * past white leaves the chroma planes where they were, so a bright red comes back (255, 221, 221)
@@ -736,7 +740,9 @@ export function validateVisualText(content: string): readonly string[] {
   )
     fail("invalid_contract", "text is outside the closed preview policy");
   const lines = content.split(/\r?\n/u);
-  if (lines.length > 32)
+  // CRITICAL: admission excludes a terminal LF; its empty layout band still positions
+  // preceding glyphs. Counting bands rejects already-admitted 32-line snapshots.
+  if (admittedTextLineCount(content) > 32)
     fail("invalid_contract", "text exceeds the preview line budget");
   return Object.freeze(lines);
 }
@@ -913,6 +919,17 @@ function drawText(
     text.backgroundRgba === null
       ? null
       : rgba(text.backgroundRgba, "text background");
+  const stroke = text.stroke as TextStroke | undefined;
+  const shadow = text.shadow as TextShadow | undefined;
+  const padding =
+    text.backgroundPaddingPx === undefined
+      ? 0
+      : finiteInteger(
+          text.backgroundPaddingPx,
+          1,
+          64,
+          "text background padding",
+        );
 
   context.save();
   context.translate(
@@ -947,10 +964,8 @@ function drawText(
   if (!Number.isFinite(ascent) || !Number.isFinite(descent))
     fail("canvas_unavailable", "packaged font bounds are unavailable");
   const top = (outputHeight - lines.length * lineAdvance) / 2;
-  context.fillStyle = cssRgba(fill);
-  for (let index = 0; index < lines.length; index += 1) {
-    const line = lines[index]!;
-    if (line.length === 0) continue;
+  const rows = lines.flatMap((line, index) => {
+    if (line.length === 0) return [];
     const measured = measureTabbedLine(context, line);
     const x =
       align === "left"
@@ -959,14 +974,45 @@ function drawText(
           ? (outputWidth - measured.width) / 2
           : outputWidth - measured.width;
     const lineTop = top + index * lineAdvance;
-    if (background !== null) {
-      context.fillStyle = cssRgba(background);
-      context.fillRect(x, lineTop, measured.width, lineAdvance);
-      context.fillStyle = cssRgba(fill);
-    }
     const baseline = lineTop + (lineAdvance + ascent - descent) / 2;
-    for (const chunk of measured.chunks)
-      context.fillText(chunk.text, x + chunk.x, baseline);
+    return [{ measured, x, lineTop, baseline }];
+  });
+  // CRITICAL: paint every background before ANY glyph; an interleaved later box erases
+  // the preceding shadow. Band geometry is independent of font ink and decorations.
+  if (background !== null) {
+    context.fillStyle = cssRgba(background);
+    for (const row of rows)
+      context.fillRect(
+        row.x - padding,
+        row.lineTop - padding,
+        row.measured.width + 2 * padding,
+        lineAdvance + 2 * padding,
+      );
+  }
+  context.lineJoin = "round";
+  context.lineCap = "round";
+  if (stroke !== undefined) context.lineWidth = 2 * stroke.widthPx;
+  for (const row of rows) {
+    if (shadow !== undefined) {
+      // CRITICAL: Canvas native shadow offsets ignore clip scale/rotation. Translate literal
+      // glyphs here, including their stroke silhouette; (0,0) is a visible valid shadow.
+      context.fillStyle = cssRgba(rgba(shadow.rgba, "text shadow"));
+      context.strokeStyle = context.fillStyle;
+      for (const chunk of row.measured.chunks) {
+        const x = row.x + chunk.x + shadow.offsetXPx;
+        const y = row.baseline + shadow.offsetYPx;
+        if (stroke !== undefined) context.strokeText(chunk.text, x, y);
+        context.fillText(chunk.text, x, y);
+      }
+    }
+    context.fillStyle = cssRgba(fill);
+    if (stroke !== undefined)
+      context.strokeStyle = cssRgba(rgba(stroke.rgba, "text stroke"));
+    for (const chunk of row.measured.chunks) {
+      if (stroke !== undefined)
+        context.strokeText(chunk.text, row.x + chunk.x, row.baseline);
+      context.fillText(chunk.text, row.x + chunk.x, row.baseline);
+    }
   }
   context.restore();
 }
@@ -1143,6 +1189,8 @@ function validateScene(
     expectedOperations.push("OpacityV1", "BlendV1");
     if (transition.elapsed !== null) expectedOperations.push("CrossDissolveV1");
     if (clip.text !== null) expectedOperations.push("DrawTextV1");
+    if (hasTextDecorations(clip.text))
+      expectedOperations.push("TextDecorationV1");
     if (!sameValue(layer.operationIds, expectedOperations))
       fail(
         "invalid_contract",
@@ -1254,7 +1302,7 @@ function blockerFrom(error: unknown): VisualCompositorBlocker {
 /**
  * The owned `<svg>` holding one `<filter>` per distinct colour adjustment in the composition.
  *
- * IMPORTANT (M25-45, bug register B-M2545-01): `url(#id)` resolves by document id, so the host
+ * IMPORTANT (, bug register B-M2545-01): `url(#id)` resolves by document id, so the host
  * element must never carry a filter's id -- an unresolvable reference makes `context.filter` a
  * silent no-op, which looks exactly like a fast and perfectly accurate filter. The host is
  * appended beside the canvas, inside the extension's own root, and removed on close; no foreign
@@ -1425,12 +1473,12 @@ export function createVisualCompositor(
   // been probed to reproduce. Anything else -- a future effect kind, or a browser whose filter
   // does not apply -- takes the incumbent software transaction whole, at its own lower cap.
   //
-  // IMPORTANT (M25-45): the corpus is the arbiter of this table, not the clock. A rung is
+  // IMPORTANT: the corpus is the arbiter of this table, not the clock. A rung is
   // eligible because its picture matched the software path within the frozen tolerance on every
   // measured cell (implementation record D1, D2), and the semantic corpus re-proves it on the
   // shipped path. Never widen this table because a class "should" be safe or because the fast
   // path is faster: a rung that renders a different picture is not an optimization, it is a
-  // silent divergence between the preview and the final render that M25-20 exists to prevent.
+  // silent divergence between the preview and the final render that exists to prevent.
   const effectsFor = (subject: PublicCompositionSnapshot) => {
     const effects = new Map<string, VisualEffect>();
     for (const clip of subject.clips) {
@@ -1780,7 +1828,7 @@ export function createVisualCompositor(
   /**
    * Re-set the backing store for a newly measured picture box.
    *
-   * IMPORTANT (M25-45): it paints no old pixels. Resizing a canvas discards its contents, and a
+   * IMPORTANT: it paints no old pixels. Resizing a canvas discards its contents, and a
    * frame reconstructed from a stale observation after a seek, a replace or a revoked lease is a
    * receipt for something the session is no longer showing. The caller re-renders the current
    * frame; an unchanged quantized size does no work at all, so a stream of identical observations

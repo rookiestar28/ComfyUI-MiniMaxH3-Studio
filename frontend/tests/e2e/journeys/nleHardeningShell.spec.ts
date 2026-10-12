@@ -1,4 +1,4 @@
-// M25-21 hardening of the seven frozen SidebarEditorUiInvariantV1 rows on the REAL integrated
+//  hardening of the seven frozen SidebarEditorUiInvariantV1 rows on the REAL integrated
 // shell. Each row has its own accessibility case and its own recovery case (the long
 // UI-CONTRACT-STRESS-V1 workload lives in `nleHardeningStress.spec.ts`). Every case counts the
 // unrequested effects of its navigation or lifecycle interaction -- timeline transactions, render
@@ -10,6 +10,7 @@ import { EXPORT_BUTTON, openExportPanel } from "../helpers/nleExport";
 import { Checks, hardeningEvidence } from "../helpers/nleHardeningEvidence";
 import {
   startImportFixture,
+  expectImportBootstrap,
   type ImportFixture,
 } from "../helpers/nleImportFixture";
 import {
@@ -34,7 +35,7 @@ const HEADING = `${OVERLAY} .h3-nle-header h2`;
 const LAUNCHER = '[data-h3-nle-entry="open"]';
 const LAUNCHER_FOCUS = '[data-h3-focus-key="nle-open-overlay"]';
 const CLOSE = '[data-h3-nle-action="close"]';
-/** M25-44: the launcher's unavailable region; it carries the surface status alone. */
+/** the launcher's unavailable region; it carries the surface status alone. */
 const UNAVAILABLE = '[data-h3-nle-unavailable="overlay_v1"]';
 const PAGE_IDS = ["context", "production", "settings"] as const;
 
@@ -48,7 +49,7 @@ type Effects = Readonly<{
 
 /**
  * The bounded reads a view may make: the render-capability read, the Settings page's own
- * projection reads and the Media tools status read (M25-33: Settings reads it once, a refused
+ * projection reads and the Media tools status read (: Settings reads it once, a refused
  * contextual surface reads why). Every other path (the harness records paths, not methods) counts
  * as work.
  * IMPORTANT: admit exactly the status GET path; `/h3-context/v1/media-runtime/setup` is the
@@ -161,7 +162,7 @@ async function restoreMediaRuntime(page: Page) {
 }
 
 /**
- * M25-50 removed the Track form these rows once drafted in. The retained draft is now an
+ *  removed the Track form these rows once drafted in. The retained draft is now an
  * uncommitted Basic-tab edit of the selected clip: the inspector writes it to its retention slot
  * while it differs from the accepted value, and the selection it belongs to is accepted timeline
  * state, so a reopen or a remount shows the same clip, the same tab and the same unsent number.
@@ -358,6 +359,7 @@ test.afterEach(async () => {
     await page.goto(
       "/nleShell.html?import=1&target=ready&segments=2&viewDestroy=1",
     );
+    await expectImportBootstrap(importFixture);
     await productionPage(page);
     // The relation control needs exactly one selected segment. Selection is a backend
     // `set_selection` action (setup, before the effect counters start); the controlled checkbox
@@ -625,7 +627,7 @@ test.afterEach(async () => {
       expect(await focusInDialog(page)).toBe(true);
       await page.keyboard.press("Tab");
       expect(await focusInDialog(page)).toBe(true);
-      // The chrome bar's first control (M25-44: Export, then Close).
+      // The chrome bar's first control (: Export, then Close).
       await expect(page.locator(EXPORT_BUTTON)).toBeFocused();
       let presses = 0;
       for (; presses < 40; presses += 1) {
@@ -640,7 +642,7 @@ test.afterEach(async () => {
     await checks.step(
       "a_press_on_static_dialog_content_keeps_focus_inside",
       async () => {
-        // M25-63: the surface status is visually hidden; the save indicator is the chrome bar's
+        // the surface status is visually hidden; the save indicator is the chrome bar's
         // static, non-focusable content now.
         await page.locator(`${OVERLAY} .h3-nle-header .h3-nle-save`).click();
         expect(await focusInDialog(page)).toBe(true);

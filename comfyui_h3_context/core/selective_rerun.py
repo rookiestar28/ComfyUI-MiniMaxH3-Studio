@@ -1,4 +1,4 @@
-"""Pure selective rerun planning over the M17-02, M17-07 and M17-08 authorities.
+"""Pure selective rerun planning over the, and authorities.
 
 This module only composes content-free identities and store inspection evidence. It never reads
 artifact bytes, opens a path, contacts a host, submits a prompt, or owns generation lifecycle.
@@ -57,7 +57,7 @@ class SelectiveRerunDisposition(str, Enum):
 
 
 class ArtifactReuseStatus(str, Enum):
-    """Content-free status values accepted from the private M17-07 store adapter."""
+    """Content-free status values accepted from the private store adapter."""
 
     REUSABLE = "reusable"
     MISSING = "missing"
@@ -722,7 +722,7 @@ def build_approved_generation_sequence_plan(
     artifact_evidence: tuple[SelectiveArtifactEvidence, ...] = (),
     approval_inspected_at_ms: int | None = None,
 ) -> GenerationSequencePlan:
-    """Bind approval and fresh store evidence, then delegate lifecycle to M17-08.
+    """Bind approval and fresh store evidence, then delegate lifecycle to.
 
     Reused receipts must be re-inspected at the approval boundary. The initial planning
     inspection is bound into the plan, while this fresh evidence prevents an expired,

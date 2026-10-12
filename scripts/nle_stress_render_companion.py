@@ -1,4 +1,4 @@
-"""M25-21 ``NLE-STRESS-RENDER-V1``: the repository-local backend render companion.
+"""``NLE-STRESS-RENDER-V1``: the repository-local backend render companion.
 
 The hardening plan (Section 14.1) separates the 600-second editing/preview fixture from a
 60-second *rendering* companion, and Section 14.2 requires that the backend RSS measurement come
@@ -8,7 +8,7 @@ the initialized idle baseline. This module is that fixture process.
 
 What it actually does, in one process:
 
-* builds the accepted render runtime exactly as the M25-20 render stage does -- the same
+* builds the accepted render runtime exactly as the render stage does -- the same
   digest-pinned renderer/probe pair, the same synthesized content-free sources, the same real
   ``RuntimeComfySourceFactory``/``ReferenceRegistry`` -- by importing that stage rather than
   re-implementing it (``scripts.nle_semantic_render``);
@@ -747,7 +747,7 @@ def run(
     job_count: int = COMPANION_JOBS,
 ) -> dict[str, Any]:
     # The pair is verified against the packaged renderer qualification by the same resolver the
-    # M25-20 render stage uses; this script holds no tool path of its own and discovers none.
+    #  render stage uses; this script holds no tool path of its own and discovers none.
     qualification = json.loads(extractor.QUALIFICATION_PATH.read_text(encoding="utf-8"))
     build_started = time.monotonic()
     runtime = _build_runtime(

@@ -1,4 +1,4 @@
-"""Hermetic and live-authorization guards for the M22-15 qualification tool."""
+"""Hermetic and live-authorization guards for the qualification tool."""
 
 from __future__ import annotations
 

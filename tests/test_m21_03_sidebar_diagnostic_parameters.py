@@ -1,4 +1,4 @@
-"""M21-03 sidebar projection carries M21-01's typed diagnostic parameters.
+"""sidebar projection carries 's typed diagnostic parameters.
 
 The browser composes a localised diagnostic sentence from a stable identity plus typed
 parameters. `ValidationDiagnostic` carries neither, so `build_sidebar_workspace_projection`
@@ -160,7 +160,7 @@ class SidebarDiagnosticParameterTests(unittest.TestCase):
         )
 
     def test_the_informational_length_band_never_reaches_the_projection(self) -> None:
-        # It is excluded from the validation stream by M21-01, so no projection diagnostic can
+        # It is excluded from the validation stream by, so no projection diagnostic can
         # carry it and the attachment must not invent one.
         codes = {item["code"] for item in _diagnostics(_report())}
         self.assertNotIn("fidelity.description.length_band", codes)
@@ -171,7 +171,7 @@ class SidebarDiagnosticParameterTests(unittest.TestCase):
             validator.validate(_project(_report(inserted)).to_wire())
 
     def test_an_unauditable_report_fails_closed_before_app_mode_projection(self) -> None:
-        # M24-05 made the same audit authoritative for explicit guide readiness. If it refuses,
+        #  made the same audit authoritative for explicit guide readiness. If it refuses,
         # App Mode must not silently drop that field and display a structurally ready workspace.
         report = _report("Then the camera pans right across the room.")
         with (

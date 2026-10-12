@@ -416,7 +416,7 @@ describe("overlay_v1 geometry", () => {
   it("uses the default size inside a large viewport and clamps inside small ones", () => {
     const large = { width: 1920, height: 1080 };
     expect(overlayMargin(large)).toBe(16);
-    // M25-44: the workspace opens at the viewport minus the margin, not at a size ceiling.
+    // the workspace opens at the viewport minus the margin, not at a size ceiling.
     expect(overlayDefaultBounds(large)).toEqual({ width: 1888, height: 1048 });
     expect(overlayMinimum(large)).toEqual({ width: 720, height: 480 });
     const small = { width: 700, height: 500 };

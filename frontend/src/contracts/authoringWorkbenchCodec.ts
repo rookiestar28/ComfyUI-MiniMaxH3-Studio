@@ -1,5 +1,5 @@
-// M20-03: the authoring-workbench wire codec. The backend domains (M20-00 reference set,
-// M20-02 timeline) stay canonical: this codec validates structure and internal consistency,
+// the authoring-workbench wire codec. The backend domains ( reference set,
+//  timeline) stay canonical: this codec validates structure and internal consistency,
 // and never recomputes a label, pairing, capacity or geometry rule — restating any of them
 // here would recreate the second authority the chain exists to prevent.
 
@@ -15,6 +15,8 @@ import {
   CLIP_AUDIO_GAIN_MIN_MB,
   compositionClipWireKeys,
   compositionContractFingerprint,
+  compositionTextStyleKeys,
+  decodeTextDecorations,
   decodeClipAudio,
   decodeCompositionAudioExtension,
   decodeCompositionBlocker,
@@ -32,7 +34,6 @@ import {
 import {
   cropKeys,
   effectKeys,
-  textStyleKeys,
   transform2DKeys,
   transitionKeys,
 } from "./generatedSurface";
@@ -61,7 +62,7 @@ export const TIMELINE_RECEIPT_SCHEMA_V2 =
   "h3.context.timeline_receipt.v2" as const;
 export const TIMELINE_HISTORY_PROJECTION_SCHEMA_V2 =
   "h3.context.timeline_history_projection.v2" as const;
-// The one frozen availability producer identity (M20-00 metadata); the backend
+// The one frozen availability producer identity ( metadata); the backend
 // refuses any other value at its wire, and this constant is the only place the
 // frontend spells it.
 export const AUTHORING_AVAILABILITY_PRODUCER =
@@ -1164,9 +1165,7 @@ function validateTextStyle(
   name: string,
   { includeContent }: Readonly<{ includeContent: boolean }>,
 ): void {
-  const keys = includeContent
-    ? textStyleKeys
-    : textStyleKeys.filter((key) => key !== "content");
+  const keys = compositionTextStyleKeys(value, includeContent);
   const wire = object(value, keys, name);
   if (includeContent) validateTextContent(wire.content, `${name}.content`);
   exactString(wire.font_asset_id, identifier, `${name}.font_asset_id`);
@@ -1180,6 +1179,7 @@ function validateTextStyle(
   validateRgba(wire.fill_rgba, `${name}.fill_rgba`);
   if (wire.background_rgba !== null)
     validateRgba(wire.background_rgba, `${name}.background_rgba`);
+  decodeTextDecorations(wire, name);
 }
 
 function validateTransition(value: unknown, name: string): number {

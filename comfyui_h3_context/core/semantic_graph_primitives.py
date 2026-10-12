@@ -1,6 +1,6 @@
 """Vocabulary shared by every layer of the semantic graph comparator.
 
-Schema identifiers, the frozen evaluation constants M14-01 terminated on, the size limits that bound
+Schema identifiers, the frozen evaluation constants terminated on, the size limits that bound
 untrusted input, the one error type, the six kinds, and the scalar readers that refuse rather than
 coerce.
 

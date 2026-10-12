@@ -1,4 +1,4 @@
-// M25-16 hermetic harness: the real `overlay_v1` root and workspace, mounted from the accepted
+//  hermetic harness: the real `overlay_v1` root and workspace, mounted from the accepted
 // smoke/virtualized fixtures against a stub authoring seam that accepts every transaction
 // after one tick. The page records React commit durations, timeline intents and close reasons
 // so the journey can assert the frozen budgets without any host, backend or media.
@@ -24,6 +24,7 @@ import type {
   AuthoringViewState,
 } from "../src/state/authoringViewState";
 import { NleOverlay } from "../src/components/nle/NleOverlay";
+import { createSidebarRetention } from "../src/state/sidebarRetention";
 import type { NleWorkspaceBinding } from "../src/components/nle/nleWorkspaceBinding";
 import type {
   TimelineCommandWire,
@@ -133,7 +134,7 @@ const zeroClips = new URLSearchParams(location.search).get("zeroClips") === "1";
 const filmstrip = new URLSearchParams(location.search).get("filmstrip") === "1";
 const loseMoveReply =
   new URLSearchParams(location.search).get("loseMoveReply") === "1";
-// M25-41 measures the sequence pane toolbar in every locale; every other journey keeps English.
+//  measures the sequence pane toolbar in every locale; every other journey keeps English.
 const requestedLocale = new URLSearchParams(location.search).get("locale");
 const harnessLocale: Locale = (SUPPORTED_LOCALES as readonly string[]).includes(
   requestedLocale ?? "",
@@ -362,7 +363,7 @@ function prepareSnapshotWire(wire: Record<string, unknown>) {
       dts: frameIndex * durationTicks,
       duration_ticks: durationTicks,
     }));
-    // Keep frame zero as an explicit decoration window. The accepted M25-48 scheduler holds
+    // Keep frame zero as an explicit decoration window. The accepted scheduler holds
     // playback priority until the monitor releases its source authority; a clip at the initial
     // playhead would correctly defer both thumbnails and filmstrips and make this presentation
     // fixture prove only starvation-by-active-playback rather than filmstrip acquisition.
@@ -475,6 +476,11 @@ function receiptFor(
 }
 
 function Harness() {
+  const [retention] = useState(() =>
+    new URLSearchParams(location.search).get("retention") === "1"
+      ? createSidebarRetention()
+      : undefined,
+  );
   useEffect(() => {
     record.parentCommits++;
   });
@@ -761,7 +767,7 @@ function Harness() {
             command.kind === "move_clip" || command.kind === "move_group",
         )
       ) {
-        // M25-46: the backend accepted the transaction but the caller lost that reply. Publish the
+        // the backend accepted the transaction but the caller lost that reply. Publish the
         // uncertain outcome first, then only the read-only history result; never retry the edit.
         setAuthoring(
           (current) =>
@@ -824,6 +830,7 @@ function Harness() {
   const noop = async () => undefined;
   const binding: NleWorkspaceBinding = {
     locale: harnessLocale,
+    retention,
     state,
     authoring,
     production: { status: "absent" },
@@ -878,7 +885,7 @@ function Harness() {
       resize: (requested) =>
         patchSurface({ bounds: clampOverlayBounds(viewport(), requested) }),
       selectPane: (pane) => patchSurface({ pane }),
-      // M25-44: splitter positions are mount memory and survive close and reopen in this page.
+      // splitter positions are mount memory and survive close and reopen in this page.
       setLayout: (layout) => patchSurface({ layout }),
       startAuthoring: noop,
       timeline: timeline as NleWorkspaceBinding["actions"]["timeline"],

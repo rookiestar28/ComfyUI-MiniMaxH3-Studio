@@ -1,6 +1,6 @@
-"""M20-00: the reference-set authoring and soundtrack-ownership domain.
+"""the reference-set authoring and soundtrack-ownership domain.
 
-Later timeline authoring (`M20-02`) and the accessible Production editor (`M20-03`) need one pure
+Later timeline authoring (``) and the accessible Production editor (``) need one pure
 place that owns which admitted sources are selected, in what order, with which sparse soundtrack
 ownership, and how much capacity remains.  This module is that place, and three decisions shape it:
 
@@ -1102,7 +1102,7 @@ def apply_video_source_batch(
 
     Validation is performed against an unpublished staged state so capacity and duplicate errors
     cannot expose a prefix.  This is intentionally narrower than the ordinary command vocabulary:
-    M25-29 imports generated VIDEO only and creates no soundtrack relation.
+     imports generated VIDEO only and creates no soundtrack relation.
     """
 
     if not isinstance(state, ReferenceSetState):

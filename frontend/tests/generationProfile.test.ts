@@ -25,7 +25,7 @@ import {
 } from "./support/generationProfileFixture";
 
 /**
- * M17-20 phase 2d. The browser gates on the backend's capability decision and
+ *  phase 2d. The browser gates on the backend's capability decision and
  * owns none of it (D1), so these rows are about two things: refusing a payload
  * that is not that decision, and reading the decision the same way the backend
  * wrote it.
@@ -331,7 +331,7 @@ describe("admission reads the decision and applies it per route", () => {
 });
 
 /**
- * M17-28. A host holding official weights under other names or other folders was
+ * . A host holding official weights under other names or other folders was
  * being told the weights were missing. Admission now accepts them, which makes a
  * second fact load-bearing: the materialized workflow still names the template's
  * own default, so a relocated host is neither "missing" nor "ready".

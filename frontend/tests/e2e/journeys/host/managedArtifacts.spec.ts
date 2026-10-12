@@ -1109,13 +1109,13 @@ test("M25-38 supplied host excludes failed Starts and commits ordinary Start plu
 });
 
 /**
- * M17-30 supported-host row.
+ *  supported-host row.
  *
  * The official I2VA template is loaded as the visible canvas so the native
  * anchor, media wiring and artifact sink are graph-owned, not selected by this
  * repository's materialization route. The candidate sidebar must
  * offer connect with no sidebar media selection and despite any materialization
- * admission notice. M23-38 also requires the intercepted envelope to carry one
+ * admission notice. also requires the intercepted envelope to carry one
  * typed frame Registry whose source link exactly matches the native anchor.
  * The page-local queue seam is replaced and never called through: this verifies
  * one real host splice and one submission attempt while loading no model and

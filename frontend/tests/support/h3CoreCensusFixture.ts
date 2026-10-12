@@ -1,7 +1,7 @@
 const H3_SUBGRAPH_ID = "4c314f31-ecda-4b08-ae98-faaba1bf613f";
 
 /**
- * Content-free projection of the ComfyUI 0.33 graph shape supplied for M23-11.
+ * Content-free projection of the ComfyUI 0.33 graph shape supplied for.
  *
  * The fixture deliberately keeps only public node identity, reachable subgraph
  * placement and the incidental port-presentation members that triggered the

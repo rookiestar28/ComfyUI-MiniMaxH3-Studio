@@ -1,4 +1,4 @@
-"""M23-18 bounded ComfyUI input-identity preflight regressions."""
+"""bounded ComfyUI input-identity preflight regressions."""
 
 from __future__ import annotations
 

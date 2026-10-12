@@ -196,7 +196,7 @@ export async function captureM17CanonicalIdentity(page: Page) {
     };
   });
 }
-// M23-26 registration phase Seven.
+//  registration phase Seven.
 // prettier-ignore
 import type { HostOfficialAssetManifest, CandidateInjectionState, LayoutState, AppModePhase, LayoutGridKind, LayoutVariant, LayoutPlacement, LayoutWidthMode, LayoutLocale, LayoutTheme, LayoutLifecycle, HostPersistenceSnapshot, LayoutCaptureEvidence, LayoutEvidenceJoin, LayoutEvidenceRow, LayoutCell, LayoutStateContract, LayoutRect, LayoutOwnerStyle, LayoutControlGeometry, LayoutNavigationTab, LayoutHeaderGeometry, LayoutFocusTargetKind, LayoutMeasurement, SerializedGraph, ManagedRouteReceipt, HostAssetResolutionReceipt, SampleProgress, RealI2vaArtifactMetadata, RealI2vaEnvironment } from "./environment";
 // prettier-ignore
@@ -519,7 +519,7 @@ export async function runRegistrationPhaseSeven(
     "after_subgraph_projection",
   );
 
-  // M17-00: drive the supported extension setting and followed Comfy.Locale
+  // drive the supported extension setting and followed Comfy.Locale
   // event while preserving the exact projected draft, page, focus, and root.
   const repeatedSetupLauncherCount = await page.evaluate(() => {
     const app = (window as unknown as { comfyAPI: { app: { app: any } } })

@@ -1,17 +1,17 @@
-"""M20-06 focused tests for dual-domain mask planning and continuation admission.
+"""focused tests for dual-domain mask planning and continuation admission.
 
 The authority is constructible only from a matrix whose mask row is SUPPORTED -- the shipped
-M19-08 state refuses -- and admission is full binding across the real objects: the resume
+ state refuses -- and admission is full binding across the real objects: the resume
 decision, the receipt it admitted, the plan's descriptor, and the one descriptor authority
 everything must agree on.  Mask plans live on the exact latent grids; a descriptor whose
-extents do not match the M20-01 arithmetic cannot be planned against, only refused.
+extents do not match the arithmetic cannot be planned against, only refused.
 """
 
 from __future__ import annotations
 
 import unittest
 
-from official_temporal_parity import NATIVE_NODE_SHA256
+from oracles.native_temporal import NATIVE_NODE_SHA256
 
 from comfyui_h3_context.core.joint_av_latent import (
     JointAVLatentAuthority,
@@ -53,7 +53,7 @@ _REFRESH_REASON = "repo_owned_nested_mask_constructor_executes"
 
 
 def _accepted(mask: CapabilityStatus = CapabilityStatus.SUPPORTED) -> AcceptedQualification:
-    """The M19-08 projection as refreshed by this item's own qualification run."""
+    """The projection as refreshed by this item's own qualification run."""
 
     return AcceptedQualification(
         subject_identity=NATIVE_NODE_SHA256,
@@ -91,7 +91,7 @@ _RESUME_AUTHORITY = build_latent_resume_authority(_PROFILE)
 
 _BOUNDARY = LatentCheckpointBoundary(total_steps=4, completed_steps=2, seed=1, requested_frames=22)
 
-#: The M20-05 live-measured grids for 22 frames: video T=7, audio L=37.
+#: The live-measured grids for 22 frames: video T=7, audio L=37.
 _VIDEO_SHAPE = (1, 24, 7, 16, 24)
 _AUDIO_SHAPE = (1, 32, 2, 37)
 

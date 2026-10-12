@@ -1,4 +1,4 @@
-// M25-16 test binding: a complete `NleWorkspaceBinding` whose every action is a spy, an
+//  test binding: a complete `NleWorkspaceBinding` whose every action is a spy, an
 // `available` runtime disposition built from the accepted qualification, and content-free
 // output/lease clients that must never be called by rendering alone.
 

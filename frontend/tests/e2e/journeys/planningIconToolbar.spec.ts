@@ -1,8 +1,8 @@
 import { expect, test, type Page } from "../fixtures/h3Page";
 
 /**
- * M25-41: the whole-video sequence planning actions are icon buttons with one description tooltip
- * per group. M25-43: they tile one shared set of five equal columns across every group, the full
+ * the whole-video sequence planning actions are icon buttons with one description tooltip
+ * per group. : they tile one shared set of five equal columns across every group, the full
  * row reaching the right edge, and the pointer shows each action's availability. Measured in a real layout engine on the
  * shipped stylesheet, because a crowded row of wrapping text buttons satisfies every "no horizontal
  * overflow" check the sidebar already had.
@@ -494,7 +494,7 @@ test.describe("M25-41 sidebar planning toolbar", () => {
     }
   });
 
-  // M25-63: planning happens in Production only. The editor's Sequence tab has no planning
+  // planning happens in Production only. The editor's Sequence tab has no planning
   // toolbar and keeps the readiness request and the run controls; the Production cases above keep
   // pinning the toolbar.
   test("the full editor's Sequence tab has no planning toolbar and keeps its run controls", async ({
@@ -619,7 +619,7 @@ test.describe("M25-41 sidebar planning toolbar", () => {
     await page.goto("/nleWorkspace.html?locale=en");
     await page.getByRole("button", { name: "Open full editor" }).click();
     await page.locator('[data-h3-nle-pane="sequence"]').first().click();
-    // M25-63: the editor's Sequence tab keeps only the readiness request as an icon action.
+    // the editor's Sequence tab keeps only the readiness request as an icon action.
     const overlaySection = '.h3c [data-h3-nle-region="sequence"]';
     await expect(page.locator(overlaySection)).toBeVisible();
     const overlay = await cursors(overlaySection);

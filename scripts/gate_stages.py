@@ -24,7 +24,7 @@ Measuring that set against every stage instead would make it vacuous, since thre
 declare the whole tree.  The runner scripts and this file are folded in too, so editing a stage's
 command or this table discards all state.
 
-Item M23-02.
+Item.
 """
 
 from __future__ import annotations
@@ -108,7 +108,7 @@ STAGE_NAMES = tuple(stage.name for stage in STAGES)
 SMOKE_CASES = tuple(
     (f"journeys/{name}.spec.ts", title)
     for name, titles in {
-        # M25-44: the compact editor's drag and playhead cases left with that surface; the
+        # the compact editor's drag and playhead cases left with that surface; the
         # reference shell's four cases take their places.
         "nleReferenceShell": (
             "reference shell opens at viewport bounds with exactly four regions in proportion",
@@ -502,7 +502,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         return int(args.func(args))
-    except (OSError, ValueError, TypeError, KeyError, subprocess.SubprocessError) as exc:
+    except Exception as exc:  # noqa: BLE001 - exit 1 is exclusively a verified cache hit
         # Status 1 is reserved for a proven cache hit, never an input-discovery failure.
         print(f"Gate input validation failed ({type(exc).__name__}); no PASS recorded.")
         return 2

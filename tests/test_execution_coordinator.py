@@ -1,4 +1,4 @@
-"""M10-04 coordinator, ownership, cache-scope, progress, and cleanup tests."""
+"""coordinator, ownership, cache-scope, progress, and cleanup tests."""
 
 from __future__ import annotations
 

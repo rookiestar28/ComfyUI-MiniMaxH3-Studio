@@ -1,4 +1,4 @@
-"""Offline M11-06 action/state/motion/camera/edit/style fixture.
+"""Offline action/state/motion/camera/edit/style fixture.
 
 The fixture injects timestamped claims only.  It never opens media, loads a temporal model,
 launches a process, contacts ComfyUI/Ollama, or claims live temporal quality.

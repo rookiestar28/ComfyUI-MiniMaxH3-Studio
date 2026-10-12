@@ -1,4 +1,4 @@
-"""M25-20: the bounded offline extraction and qualification entry point.
+"""the bounded offline extraction and qualification entry point.
 
 This is the tooling half of the independent final observation. It constructs its own decoder command
 lines, streams the result past a bounded buffer, hands the bytes to the pure extractor in
@@ -1376,7 +1376,7 @@ def observe_artifact(
         # forced onto the nearest label.
         "audio_onsets": audio_onsets,
         "silences": silences,
-        # M25-77: the level of every prescribed window, read from this decode alone.
+        # the level of every prescribed window, read from this decode alone.
         "audio_levels": audio_levels,
     }
 

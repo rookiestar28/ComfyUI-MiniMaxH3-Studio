@@ -1,4 +1,4 @@
-"""M24-05 native keyframe/development declarations stay explicit and fail closed."""
+"""native keyframe/development declarations stay explicit and fail closed."""
 
 from __future__ import annotations
 

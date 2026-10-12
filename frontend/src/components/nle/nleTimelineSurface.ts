@@ -1,4 +1,4 @@
-// M25-62: the pure rules of the redesigned timeline surface. Track display names replace the raw
+// the pure rules of the redesigned timeline surface. Track display names replace the raw
 // ids in visible text (R5), the clip edit affordances implement R7 for both pointer modes (R2),
 // and the scroll bar maps the view onto a thumb within the one existing view clamp.
 
@@ -48,7 +48,7 @@ export function trackDisplayNames(
 
 /**
  * R5: each media asset's bin card name ("Clip 01"), numbered over the non-font assets in snapshot
- * order. M25-64: the timeline and the inspector's clip header both name a clip from this one map,
+ * order. : the timeline and the inspector's clip header both name a clip from this one map,
  * so the two never disagree.
  */
 export function assetDisplayNames(

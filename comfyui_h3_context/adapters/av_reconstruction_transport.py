@@ -1,4 +1,4 @@
-"""M20-08: owned incremental segment transport over exact accepted artifacts.
+"""owned incremental segment transport over exact accepted artifacts.
 
 The reconstruction executor used to require every admitted input as one complete in-memory
 ``bytes`` payload. This module is the bounded alternative: an ``AVSegmentSource`` declares the

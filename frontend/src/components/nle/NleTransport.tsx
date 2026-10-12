@@ -1,15 +1,15 @@
-// M25-45: the monitor's transport -- one row of current/total timecode and five icon controls. It
-// issues no M25-11 command and touches no revision or history: it is `local_transport` exactly as
+// the monitor's transport -- one row of current/total timecode and five icon controls. It
+// issues no command and touches no revision or history: it is `local_transport` exactly as
 // the range input it replaces was, and the fit/100% toggle and full screen are views of the same
 // composition, never edits of it.
 //
-// M25-64 (row #25, R7): the timecode on the left, the step and play controls centred, and the view
+//  (row #25, R7): the timecode on the left, the step and play controls centred, and the view
 // controls on the right, borderless, with a round Play. The view pair is its own icon group: one
 // group cannot hold a centred group and a right-aligned one without `display: contents`, which
 // would break the description's placement and resting box (B-M2561-07), both measured from the
 // group's own rectangle.
 
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { memo, useEffect, useRef, useState, type RefObject } from "react";
 import { formatTimelineTimecode } from "../../runtime/timelineNavigation";
 import type { Locale } from "../../i18n/catalog";
 import { NleIconButton, NleIconGroup } from "./NleIconActions";
@@ -25,7 +25,7 @@ function timecode(frame: number | null, fps: number): string {
   return formatTimelineTimecode(frame, fps);
 }
 
-export function NleTransport({
+function NleTransportView({
   locale,
   playing,
   controlsAvailable,
@@ -75,7 +75,7 @@ export function NleTransport({
     return () => document.removeEventListener("fullscreenchange", sync);
   }, [fullscreenTarget]);
 
-  // IMPORTANT (M25-45): while this monitor owns the screen, Escape leaves full screen and goes no
+  // IMPORTANT: while this monitor owns the screen, Escape leaves full screen and goes no
   // further. The listener is on the document in the capture phase because entering full screen can
   // move focus off the dialog's subtree entirely -- Chromium focuses the fullscreen element, which
   // carries no tabindex -- and the dialog's own Escape handler then never sees the key, so the
@@ -238,3 +238,9 @@ export function NleTransport({
     </div>
   );
 }
+
+// IMPORTANT: every accepted edit re-renders the monitor, and nothing the transport shows changes
+// with it. Keep this boundary, and keep the monitor's handlers stable (its committed transport
+// delegates): an inline handler here re-renders the row and its five icon actions on each commit,
+// which is the editor's measured commit-cost budget (16 ms p95) on slower runners.
+export const NleTransport = memo(NleTransportView);

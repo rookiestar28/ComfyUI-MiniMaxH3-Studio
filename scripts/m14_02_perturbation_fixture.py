@@ -1,4 +1,4 @@
-"""Build and verify the frozen M14-02 deterministic perturbation corpus."""
+"""Build and verify the frozen deterministic perturbation corpus."""
 
 from __future__ import annotations
 

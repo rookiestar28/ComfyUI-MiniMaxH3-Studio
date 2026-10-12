@@ -1,6 +1,6 @@
-"""Source-owned detection, segmentation, tracking, and cross-shot re-ID contracts for M11-05.
+"""Source-owned detection, segmentation, tracking, and cross-shot re-ID contracts for.
 
-The module is pure Python.  It consumes an already admitted M11-04 decode document and records
+The module is pure Python. It consumes an already admitted decode document and records
 bounded, timestamped observations without importing a detector, segmenter, embedding runtime, or
 provider SDK.  Identity-sensitive values are opt-in and portable receipts contain fingerprints,
 never vectors or private media.

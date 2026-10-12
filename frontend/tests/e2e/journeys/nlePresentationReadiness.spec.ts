@@ -32,7 +32,7 @@ import {
 
 // The same two selectors the semantic sweep uses, so these cases watch exactly the surface whose
 // readiness they are about.
-// The monitor's own canvas, by its role marker: since M25-49 the media bin's card art canvases
+// The monitor's own canvas, by its role marker: since the media bin's card art canvases
 // precede the monitor in document order, so the first canvas under the overlay surface is a
 // zero-backing thumbnail, not the presented composition.
 const MONITOR_CANVAS =

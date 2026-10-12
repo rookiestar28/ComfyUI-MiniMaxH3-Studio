@@ -18,6 +18,63 @@ from comfyui_h3_context.adapters.authoring_render_service import RenderServiceEr
 from comfyui_h3_context.core.authoring_render_jobs import RenderJobLimits
 
 
+def _qualification_report() -> dict[str, Any]:
+    from comfyui_h3_context.adapters import authoring_renderer_qualification as qualification
+
+    document = json.loads(qualification._EVIDENCE.read_bytes())
+    if document["schema"] == "h3.authoring.native_renderer_qualification.v1":
+        return dict(document)
+    implementation = qualification.renderer_implementation_fingerprints()
+    matches = [
+        report
+        for report in document["subjects"].values()
+        if report["implementation"] == implementation
+    ]
+    assert len(matches) == 1
+    return dict(matches[0])
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "font_manifest_invalid",
+        "font_artifact_missing",
+        "font_artifact_hash_mismatch",
+        "font_license_missing",
+        "font_license_hash_mismatch",
+        "font_asset_unsupported",
+        "font_style_unsupported",
+        "font_glyph_unsupported",
+    ],
+)
+def test_font_refusal_maps_to_closed_qualification_failure(
+    monkeypatch: pytest.MonkeyPatch, code: str
+) -> None:
+    from comfyui_h3_context.adapters import authoring_renderer_qualification as qualification
+    from comfyui_h3_context.adapters.authoring_fonts import AuthoringFontError
+
+    # Reach the font predicate independently of a pending native implementation reissue.
+    implementation = _qualification_report()["implementation"]
+    monkeypatch.setattr(
+        qualification, "renderer_implementation_fingerprints", lambda: implementation
+    )
+    called = False
+
+    def refuse() -> None:
+        nonlocal called
+        called = True
+        raise AuthoringFontError(code, "private supplied font details")
+
+    monkeypatch.setattr(qualification, "load_packaged_font_manifest", refuse)
+    with pytest.raises(RenderServiceError) as raised:
+        qualification.load_renderer_qualification()
+    assert called
+    assert raised.value.code == "runtime_unavailable"
+    assert "private supplied font details" not in str(raised.value)
+    assert raised.value.__cause__ is None
+    assert raised.value.__suppress_context__
+
+
 @pytest.mark.parametrize("failure", [None, "probe", "cleanup"])
 @pytest.mark.skipif(
     sys.platform != "win32", reason="native output-store lifetime uses Windows pins"
@@ -169,7 +226,7 @@ def test_packaged_qualification_rejects_missing_corrupt_or_stale_subject(
     from comfyui_h3_context.adapters import authoring_renderer_qualification as qualification
     from comfyui_h3_context.core.canonical import canonical_fingerprint
 
-    wire = json.loads(qualification._EVIDENCE.read_bytes())
+    wire = _qualification_report()
     path = tmp_path / "qualification.json"
     monkeypatch.setattr(qualification, "_EVIDENCE", path)
     if mutation == "missing":
@@ -197,9 +254,10 @@ def test_packaged_qualification_rejects_missing_corrupt_or_stale_subject(
 
 def test_packaged_qualification_matches_current_owned_implementation() -> None:
     from comfyui_h3_context.adapters import authoring_renderer_qualification as qualification
+    from comfyui_h3_context.core.canonical import canonical_fingerprint
 
     identity = qualification.load_renderer_qualification()
-    assert identity.qualification_fingerprint == qualification._ACCEPTED_EVIDENCE
+    assert identity.qualification_fingerprint == canonical_fingerprint(_qualification_report())
 
 
 def test_generated_source_drift_revokes_renderer_qualification(
@@ -214,7 +272,7 @@ def test_generated_source_drift_revokes_renderer_qualification(
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes((qualification._PACKAGE / relative).read_bytes())
     # Synthetic reader evidence isolates drift rejection; it never qualifies a native runtime.
-    wire = json.loads(qualification._EVIDENCE.read_bytes())
+    wire = _qualification_report()
     monkeypatch.setattr(qualification, "_PACKAGE", tmp_path)
     wire["implementation"] = qualification.renderer_implementation_fingerprints()
     evidence = tmp_path / "reader-evidence.json"
@@ -247,7 +305,7 @@ def test_clip_audio_drift_revokes_renderer_qualification(
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes((qualification._PACKAGE / relative).read_bytes())
     # Synthetic reader evidence isolates drift rejection; it never qualifies a native runtime.
-    wire = json.loads(qualification._EVIDENCE.read_bytes())
+    wire = _qualification_report()
     monkeypatch.setattr(qualification, "_PACKAGE", tmp_path)
     wire["implementation"] = qualification.renderer_implementation_fingerprints()
     evidence = tmp_path / "reader-evidence.json"
@@ -274,7 +332,7 @@ def test_retained_source_drift_revokes_renderer_qualification(
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes((qualification._PACKAGE / relative).read_bytes())
     # Synthetic evidence tests the reader only; it never qualifies an executable.
-    wire = json.loads(qualification._EVIDENCE.read_bytes())
+    wire = _qualification_report()
     monkeypatch.setattr(qualification, "_PACKAGE", tmp_path)
     wire["implementation"] = qualification.renderer_implementation_fingerprints()
     evidence = tmp_path / "reader-evidence.json"

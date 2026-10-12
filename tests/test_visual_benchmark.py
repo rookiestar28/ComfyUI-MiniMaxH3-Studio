@@ -1,4 +1,4 @@
-"""M11-01 frozen visual benchmark and adapter-selection contract tests."""
+"""frozen visual benchmark and adapter-selection contract tests."""
 
 from __future__ import annotations
 

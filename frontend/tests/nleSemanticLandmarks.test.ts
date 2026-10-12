@@ -1,4 +1,4 @@
-// M25-20: the browser landmark collector, exercised on synthetic buffers.
+// the browser landmark collector, exercised on synthetic buffers.
 //
 // The collector runs inside the page during the conformance journey, where nothing can assert
 // against it. These tests are where its rules are actually pinned, and they are deliberately the

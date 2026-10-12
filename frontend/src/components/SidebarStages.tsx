@@ -221,7 +221,7 @@ export function SidebarStages({
   const savedEditor = useRef({ start: 0, end: 0, top: 0, left: 0 });
   const restoreEditor = useRef(false);
   const notices = useNotices();
-  // M21-03 AC-09. A remediation's effect is a declared intent, never an
+  //  AC-09. A remediation's effect is a declared intent, never an
   // inference. `focus_prompt` is the only one this build performs, and it does
   // exactly what its name says: open Audit and put the caret in the prompt.
   const runRemediation = (intent: "focus_prompt", code: string): void => {
@@ -648,7 +648,7 @@ export function SidebarStages({
             ) : null}
             <div hidden={readerOpen}>
               <label htmlFor="h3-prompt-revision">{text.promptRevision}</label>
-              {/* M21-03 AC-08. The highlight is an overlay behind a textarea whose
+              {/*  AC-08. The highlight is an overlay behind a textarea whose
                 own text is transparent, so the editable value is never rewritten
                 and the bytes staged are the bytes typed. The overlay is
                 `aria-hidden` and inert: a screen reader and the keyboard both
@@ -1061,7 +1061,7 @@ export function SidebarStages({
         ) : null}
       </section>
 
-      {/* M21-03 AC-10, AC-11: one notice surface for the whole panel. */}
+      {/*  AC-10, AC-11: one notice surface for the whole panel. */}
       <NoticeSurface locale={locale} controller={notices} />
       {/* AC-06 of the plan's scope list: the expectation is stated where the
           action is taken, not in a help panel the user has already left. It is

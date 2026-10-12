@@ -1,5 +1,5 @@
 /**
- * M18-02: the browser half of the one cross-language identity in this repository.
+ * the browser half of the one cross-language identity in this repository.
  *
  * `sidebarHost.ts` fingerprints the workspace prompt here and compares the result against the
  * backend-produced value, so the two canonicalizers must agree or that comparison is meaningless.
@@ -109,7 +109,7 @@ describe("canonical string identity across Python and the browser", () => {
   });
 
   it("refuses a string past the limit in UTF-16 units but not in code points", () => {
-    // The M18-02 split, from the browser's side: this was always refused here, and Python used to
+    // The split, from the browser's side: this was always refused here, and Python used to
     // accept it and hand sidebarHost.ts a fingerprint this runtime could not reproduce.
     const astral = String.fromCodePoint(0x1f600).repeat(65_536 / 2 + 1);
     expect(astral.length).toBeGreaterThan(65_536);

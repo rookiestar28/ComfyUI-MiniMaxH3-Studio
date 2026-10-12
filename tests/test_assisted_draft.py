@@ -1,4 +1,4 @@
-"""M22-05 assisted drafting, deterministic audit and single bounded repair tests."""
+"""assisted drafting, deterministic audit and single bounded repair tests."""
 
 from __future__ import annotations
 
@@ -73,7 +73,7 @@ def body(text: str) -> str:
 PLAN = build_plan()
 TEMPLATE = build_template(PLAN)
 CLEAN_TEXT = TEMPLATE.text
-# "contact sheet" is one of the internal-vocabulary terms the M21-01 audit blocks on, so this is a
+# "contact sheet" is one of the internal-vocabulary terms the audit blocks on, so this is a
 # candidate that genuinely fails the real audit rather than a stubbed one.
 DIRTY_TEXT = body(
     "A red kite drifts above a quiet field, arranged as a contact sheet of moments. " + DIALOGUE

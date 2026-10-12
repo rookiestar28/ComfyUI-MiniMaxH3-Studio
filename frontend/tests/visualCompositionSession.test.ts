@@ -46,7 +46,7 @@ vi.mock("../src/runtime/visualCompositor", () => ({
     );
     // The backing the stub reports is stateful, exactly as the real compositor's is: `resize`
     // adopts a new one and every later receipt reports it. A stub with a constant size cannot
-    // express a repaint that is owed because the backing changed (M25-45 B-M2545-28).
+    // express a repaint that is owed because the backing changed ( B-M2545-28).
     let previewWidth = 320;
     let previewHeight = 180;
     const receipt = (frame: number | null, generation: number) =>

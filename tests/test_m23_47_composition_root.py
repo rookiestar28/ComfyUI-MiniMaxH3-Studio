@@ -1,4 +1,4 @@
-"""M23-47: the process's long-lived registries are composed, not assigned at import.
+"""the process's long-lived registries are composed, not assigned at import.
 
 Five adapters built their registry as a module-level assignment and a sixth built its coordinator
 lazily while reaching into another module's private `_REGISTRY`. Every one of those registries
@@ -149,7 +149,7 @@ class TheCompositionRootOwnsIdentityTests(unittest.TestCase):
                 self.assertIs(composition_root.get(name), first)
 
     def test_the_coordinator_and_the_production_route_share_one_registry(self) -> None:
-        # CRITICAL: since M23-31 the coordinator's constructor binds the process's live-sequence
+        # CRITICAL: since the coordinator's constructor binds the process's live-sequence
         # authority onto the production registry, and binding twice is refused. Two instances would
         # therefore not merely disagree -- the second construction would fail a request that did
         # nothing wrong. This is the invariant the composition root exists to hold.
@@ -198,14 +198,15 @@ class AnUnknownComponentIsRefusedTests(unittest.TestCase):
     def test_every_entry_point_refuses_a_name_this_process_does_not_own(self) -> None:
         from comfyui_h3_context.adapters.comfyui_sidebar_workspace import SidebarWorkspaceRegistry
 
-        for call in (
+        calls: tuple[Callable[[], object], ...] = (
             lambda: composition_root.get("not_a_component"),
             lambda: composition_root.install("not_a_component", object()),
             lambda: composition_root.reset("not_a_component"),
             lambda: composition_root.component("not_a_component", SidebarWorkspaceRegistry),
             lambda: composition_root.installed("not_a_component"),
-        ):
-            with self.subTest(call=call):
+        )
+        for call_case, call in enumerate(calls):
+            with self.subTest(call_case=call_case):
                 with self.assertRaises(composition_root.CompositionError):
                     call()
 
@@ -213,7 +214,7 @@ class AnUnknownComponentIsRefusedTests(unittest.TestCase):
 class TheAdapterFactoryIsTheOnlyConstructionSiteTests(unittest.TestCase):
     """Each adapter's `build_*` is on the live path, not a second copy nothing calls.
 
-    M23-47 shipped six factories whose docstrings said "called only by the composition root" while
+     shipped six factories whose docstrings said "called only by the composition root" while
     `_build` constructed each class inline instead. Nothing called them and nothing failed: the two
     copies were identical on the day they were written. The failure is a later one -- a factory
     gains an argument, `_build` stays behind, and the process silently runs the stale construction,

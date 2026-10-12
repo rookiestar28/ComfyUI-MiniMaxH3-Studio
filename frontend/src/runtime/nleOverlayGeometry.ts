@@ -1,9 +1,9 @@
-// M25-16: pure geometry for the extension-owned `overlay_v1` surface.
+// pure geometry for the extension-owned `overlay_v1` surface.
 //
 // The margins and minimums are frozen plan inputs (Section 6 "Bounds and responsive behavior").
-// M25-44 (reference shell, master plan section 2.1): the workspace opens at the visual viewport
+//  (reference shell, master plan section 2.1): the workspace opens at the visual viewport
 // minus the margin, and the four regions exist at every width, so there is no default size ceiling
-// and no pane breakpoint. Geometry is bounded session memory (M25-21 retention, re-clamped on every
+// and no pane breakpoint. Geometry is bounded session memory ( retention, re-clamped on every
 // explicit open); it never enters storage, URLs, the backend projection or host settings.
 
 import type { NleBinTab } from "../contracts/nleReferenceUiContract";
@@ -17,7 +17,7 @@ export const OVERLAY_MIN_HEIGHT = 480;
 
 export type OverlayViewport = Readonly<{ width: number; height: number }>;
 export type OverlayBounds = Readonly<{ width: number; height: number }>;
-/** M25-44: the tab shown in R1; the inspector is permanently R3. */
+/** the tab shown in R1; the inspector is permanently R3. */
 export type OverlayInternalPane = NleBinTab;
 
 function finitePositive(value: number): number {
@@ -48,7 +48,7 @@ export function overlayMinimum(viewport: OverlayViewport): OverlayBounds {
   });
 }
 
-/** M25-44: the workspace opens at the whole viewport minus the margin. */
+/** the workspace opens at the whole viewport minus the margin. */
 export function overlayDefaultBounds(viewport: OverlayViewport): OverlayBounds {
   const available = overlayAvailable(viewport);
   return Object.freeze({
@@ -88,7 +88,7 @@ const OVERLAY_INTERNAL_PANES: readonly unknown[] = [
 ];
 
 /**
- * A retained R1 tab only when it is still one of the bin tabs. A value retained before M25-44
+ * A retained R1 tab only when it is still one of the bin tabs. A value retained before
  * (`inspector`, the old switched pane) opens the Media tab: the inspector is always visible now.
  */
 export function overlayPaneOrDefault(pane: unknown): OverlayInternalPane {

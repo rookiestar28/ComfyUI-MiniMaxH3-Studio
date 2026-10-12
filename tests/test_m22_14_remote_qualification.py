@@ -1,4 +1,4 @@
-"""Hermetic execution and live-authorization guards for the M22-14 qualification tool."""
+"""Hermetic execution and live-authorization guards for the qualification tool."""
 
 from __future__ import annotations
 
@@ -159,7 +159,7 @@ class RemoteQualificationToolTests(unittest.TestCase):
                 self.assertEqual(evidence["observed_transmissions"], 2)
                 self.assertTrue(evidence["receipt_valid"])
                 self.assertFalse(evidence["catalog_promotion_performed"])
-                # M22-18 AC-05. The hermetic exchange answers with a real fixture completion, so a
+                #  AC-05. The hermetic exchange answers with a real fixture completion, so a
                 # hermetic run must never be able to reach the weaker reachability basis.
                 self.assertEqual(evidence["basis"], "completion")
                 serialized = json.dumps(evidence)

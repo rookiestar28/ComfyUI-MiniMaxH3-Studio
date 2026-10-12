@@ -1,4 +1,4 @@
-// M25-63: planning lives in Production only. Suites that exercised the planning flow through the
+// planning lives in Production only. Suites that exercised the planning flow through the
 // editor's Sequence tab mount the product's composition instead -- Production's planning section
 // beside the editor's Sequence tab, as when the sidebar and the editor are both open -- so their
 // flows are unchanged. The editor's own tab is the `[data-h3-nle-region="sequence"]` subtree.

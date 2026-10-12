@@ -1,4 +1,4 @@
-"""M12-05 source-owned audiovisual synchronization contracts.
+"""source-owned audiovisual synchronization contracts.
 
 Only bounded, redacted relation descriptors and injected benchmark metadata cross this seam.  Media
 decoders, ComfyUI, Ollama, specialist runtimes, and network clients remain outside the pure core.

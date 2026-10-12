@@ -1,4 +1,4 @@
-// M25-16: the closed, versioned expanded-editor surface capability.
+// the closed, versioned expanded-editor surface capability.
 //
 // The value is frontend-owned and derived only from the evaluated browser runtime disposition
 // and the owned mount admission. It carries no DOM reference, no inferred backend readiness, no

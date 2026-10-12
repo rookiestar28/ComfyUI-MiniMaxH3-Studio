@@ -1,4 +1,4 @@
-// M25-20 post-closeout corrective, browser half: pure landmark extraction from the monitor canvas's
+//  post-closeout corrective, browser half: pure landmark extraction from the monitor canvas's
 // own backing pixels, at the points the composition prescribes. This is a port, rule for rule, of
 // the independent extractor in `scripts/nle_semantic_conformance.py` (`observe_artifact`'s per-frame
 // half): a colour sample is a 5x5 mean at a prescribed canvas point; the source identity is read

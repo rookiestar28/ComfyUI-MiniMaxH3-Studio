@@ -23,7 +23,7 @@ const asset = {
 
 // B-M2563-05: the painter maps output frames into the source's time base, so every input names
 // the timeline's frame rate. This fixture is a 10 fps source (one 1/10 s tick per frame) on a
-// 10 fps timeline, where the mapping is the identity the M25-49 cases always assumed.
+// 10 fps timeline, where the mapping is the identity the cases always assumed.
 const input = (
   overrides: Partial<FilmstripPaintInput> = {},
 ): FilmstripPaintInput => ({

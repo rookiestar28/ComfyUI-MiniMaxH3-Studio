@@ -21,7 +21,7 @@ import { loadSyntheticTemplate } from "./support/templateFixture";
 import { fixtureBackedAppModeHost } from "./support/hostSeamTestDouble";
 
 /**
- * M17-20 phase 5b, plan section 5 lane 3.
+ *  phase 5b, plan section 5 lane 3.
  *
  * Every other lane in this item stops at the queue seam, because that is where
  * App Mode's authority stops. These rows carry on past it with a model-free
@@ -31,7 +31,7 @@ import { fixtureBackedAppModeHost } from "./support/hostSeamTestDouble";
  * and that an edited revision reaches a different one.
  *
  * The lane claims nothing about output. No weight is resolved and no frame is
- * produced here; AC-M17-20-08 keeps that claim for the separately authorized
+ * produced here; AC--08 keeps that claim for the separately authorized
  * weight-backed sample, and a green run of this file is not evidence for it.
  */
 

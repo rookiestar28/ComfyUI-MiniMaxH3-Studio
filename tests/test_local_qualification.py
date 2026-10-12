@@ -1,4 +1,4 @@
-"""M14-04 bounded local perception/fusion/planner qualification tests."""
+"""bounded local perception/fusion/planner qualification tests."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""M13-03 cross-modal temporal event and causality alignment tests."""
+"""cross-modal temporal event and causality alignment tests."""
 
 from __future__ import annotations
 

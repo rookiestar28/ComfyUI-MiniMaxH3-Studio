@@ -1,4 +1,4 @@
-"""Visible, model-free M13-06/07/08 adapters for local reconstruction."""
+"""Visible, model-free /07/08 adapters for local reconstruction."""
 
 from __future__ import annotations
 

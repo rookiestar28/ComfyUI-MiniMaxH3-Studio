@@ -123,7 +123,7 @@ class H3ContextRequestNode:
                     "FLOAT",
                     {
                         # `MAX_FRAME_COUNT / FPS` is 150.0 s and was the bound here
-                        # until M17-25 distinct review: it admits about 313 ms of
+                        # until distinct review: it admits about 313 ms of
                         # durations that always fail, because 3593..3600 frames sit
                         # inside the host range yet align above it. The bound is now
                         # the largest duration that actually resolves. Zero is kept

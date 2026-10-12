@@ -1,4 +1,4 @@
-// M25-44: one of the three reference-shell splitters, following the WAI-ARIA window splitter
+// one of the three reference-shell splitters, following the WAI-ARIA window splitter
 // pattern. A pointer drag, the arrow keys (Shift for a coarse step), Home and End move it; Enter
 // and a double click reset it. Enter does not collapse a pane, because no region may disappear.
 // Every move is a local view change: nothing here issues a command.

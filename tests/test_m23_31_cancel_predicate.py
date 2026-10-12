@@ -1,6 +1,6 @@
-"""M23-31: the cancel question is decided once, over one authority.
+"""the cancel question is decided once, over one authority.
 
-The follow-up routed here from the M23-23 review. `_cancel` decided the same question twice with
+The follow-up routed here from the review. `_cancel` decided the same question twice with
 two different predicates: the recorded transition tested the runtime's job state, while the
 disposition returned to the client tested whether `entry.queue_prompt_id` was set. The two are not
 equivalent, so the response could contradict the state it accompanied.
@@ -10,7 +10,7 @@ the rest of its life; once it terminalizes, its runtime leaves SUBMITTED/RUNNING
 took the `cancel_generation_sequence` branch -- recorded `cancelled` -- while the prompt id was
 still set, so the client was told `unknown_ownership`.
 
-The helpers come from the M23-15 suite deliberately: this asserts a behaviour change in the same
+The helpers come from the suite deliberately: this asserts a behaviour change in the same
 system those tests cover, so it must be driven through the same public dispatch surface rather than
 through a rebuilt fixture that could drift from it.
 """

@@ -1,4 +1,4 @@
-// M25-33 Media tools session: status reads, the one setup job, and the validated continuation of
+//  Media tools session: status reads, the one setup job, and the validated continuation of
 // the user action a setup interrupted.
 //
 // Reads happen only when someone can use them: the first Settings open, a contextual surface that
@@ -276,7 +276,7 @@ export function createMediaRuntimeSession(ctx: ShellRuntime) {
           importStatus !== "importing" &&
           importStatus !== "ensuring_target" &&
           importStatus !== "uncertain" &&
-          // IMPORTANT (M25-36): a generated segment can advance the project revision while
+          // IMPORTANT: a generated segment can advance the project revision while
           // setup is running. The selected ready outputs are the import authority; pinning the
           // revision here discards that still-valid action after every automatic append.
           production.selectedSegmentIds.length === intent.segmentIds.length &&

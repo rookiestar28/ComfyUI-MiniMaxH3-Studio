@@ -1,9 +1,9 @@
-"""Torch boundary for M20-04 joint AV latent checkpoints.
+"""Torch boundary for joint AV latent checkpoints.
 
 The host's joint AV latent is ``{"samples": comfy.nested_tensor.NestedTensor((video, audio))}``
 -- a plain two-tensor wrapper from the pinned native source, not ``torch.nested`` -- so the
 codec here is exact per-domain dense decomposition and reconstruction.  Decompose reads the
-two dense sub-tensors into the headerless video-bytes-then-audio-bytes payload the M20-04
+two dense sub-tensors into the headerless video-bytes-then-audio-bytes payload the
 store persists, building the authority-gated descriptor from observed shape/dtype facts.
 Reconstruct validates buffer lengths against the descriptor's exact byte arithmetic BEFORE
 any tensor is constructed, then reassembles the host pair.

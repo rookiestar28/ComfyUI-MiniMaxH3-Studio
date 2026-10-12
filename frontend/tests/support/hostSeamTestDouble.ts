@@ -213,7 +213,7 @@ function validateFixtureBackedValues(app: AppModeApp, api: AppModeApi): void {
 }
 
 /**
- * Create an App Mode test host through the HC-09 shape authority while retaining
+ * Create an App Mode test host through the shape authority while retaining
  * the exact generic mock types supplied by each focused test.
  */
 export function fixtureBackedAppModeHost<
@@ -342,7 +342,7 @@ export function fixtureBackedAppModeHost<
         })
       : constructorBoundApp
   ) as App;
-  // IMPORTANT: HC-09 validates the steady-state object shape, while an explicitly selected
+  // IMPORTANT: validates the steady-state object shape, while an explicitly selected
   // lifecycle catalogue row must retain its pre-attach null state or fresh-start tests go green
   // against a workflow authority the supported host has not created yet.
   validateFixtureBackedValues(fixtureApp, api);

@@ -1,4 +1,4 @@
-// M25-21 section 14.4, Clip editor row: the overlay geometry and pane apply only on an explicit
+//  section 14.4, Clip editor row: the overlay geometry and pane apply only on an explicit
 // open (clamped to the current viewport), the timeline view and inspector drafts survive view
 // release for the same authority, the monitor returns paused at the retained frame, and stale
 // revision-bound drafts are dropped with a visible notice. Nothing here is replayed on remount.
@@ -648,7 +648,7 @@ describe("M25-21 NLE paused playhead restoration", () => {
   });
 
   it("retains the position the user asked for before the media presents it", async () => {
-    // M25-21 B3-D33: a seek the user has made but the media has not presented yet is still their
+    //  B3-D33: a seek the user has made but the media has not presented yet is still their
     // position -- the transport shows it (B3-D10) -- so releasing the view immediately after a
     // seek must not retain the frame the seek moved away from.
     const monitor = monitorHarness();

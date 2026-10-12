@@ -1,4 +1,4 @@
-"""M10-02 media admission, probe, timestamp, and subprocess-boundary tests."""
+"""media admission, probe, timestamp, and subprocess-boundary tests."""
 
 from __future__ import annotations
 

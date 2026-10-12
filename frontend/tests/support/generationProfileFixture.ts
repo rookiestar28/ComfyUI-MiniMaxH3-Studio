@@ -81,7 +81,7 @@ export function generationProfileWire(
 }
 
 /**
- * M17-28. Every required weight is installed; at least one is not under the name
+ * . Every required weight is installed; at least one is not under the name
  * the materialized workflow carries. It names slots like `MISSING_ASSET` does and
  * shares its remediation, which is exactly why the rows below check that the two
  * are still told apart.

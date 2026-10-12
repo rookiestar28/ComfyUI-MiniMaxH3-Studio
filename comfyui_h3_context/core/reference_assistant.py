@@ -109,7 +109,7 @@ def migrate_reference_assistant_widgets(
         raise ReferenceAssistantMigrationError("legacy user_intent must be a string")
     if isinstance(frame_count, bool) or not isinstance(frame_count, int):
         raise ReferenceAssistantMigrationError("legacy frame_count must be an integer")
-    # M17-25: the legacy widget authored a frame count. It is converted here into
+    # the legacy widget authored a frame count. It is converted here into
     # the duration that produces exactly the length alignment would have given it,
     # and the conversion is reported through `snapped` rather than applied
     # silently. Values outside the accepted range fail rather than clamp.

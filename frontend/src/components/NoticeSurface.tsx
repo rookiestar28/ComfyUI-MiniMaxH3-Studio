@@ -4,7 +4,7 @@ import type { Locale } from "../i18n/catalog";
 import { translate } from "../i18n/catalog";
 
 /**
- * M21-03 AC-10, AC-11 — the one notice surface.
+ *  AC-10, AC-11 — the one notice surface.
  *
  * Two tiers, and the difference between them is who decides when the notice is
  * finished:
@@ -21,7 +21,7 @@ import { translate } from "../i18n/catalog";
  * refuses dismissal for `SELF_DISMISS_GUARD_MS` after it appears.
  *
  * There is exactly one notice mechanism in this frontend, and it is this file.
- * Adding a second would put the product back where `M17-12` left it, with error
+ * Adding a second would put the product back where `` left it, with error
  * prose written inline at each call site.
  */
 

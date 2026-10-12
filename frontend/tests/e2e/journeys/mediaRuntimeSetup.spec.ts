@@ -1,8 +1,8 @@
-// M25-33 AC33-02/03/04/06/09: the Media tools card on the REAL integrated shell
+//  AC33-02/03/04/06/09: the Media tools card on the REAL integrated shell
 // (frontend/e2e/nleShell.tsx, `mediaSetup=1`). The media runtime status, setup and job routes, the
 // output capability read and the clip preview route are answered by one stateful double per test
 // (`helpers/mediaRuntimeDouble.ts`) whose wires are the backend-generated v3 samples; import
-// requests reach the real import service (`scripts/m25_16_import_fixture.py`). Every row drives a
+// requests reach the real import service (`scripts/_import_fixture.py`). Every row drives a
 // real transition -- a click or a key, a poll, a settled job -- and reads the outcome from the
 // product's own session and request counters, never from a seeded state.
 import { test, expect, type Locator, type Page } from "@playwright/test";
@@ -14,6 +14,7 @@ import {
 } from "../helpers/mediaRuntimeDouble";
 import {
   startImportFixture,
+  expectImportBootstrap,
   type ImportFixture,
 } from "../helpers/nleImportFixture";
 import { openExportPanel } from "../helpers/nleExport";
@@ -34,7 +35,7 @@ const mediaRuntime = async (page: Page) =>
   (await shellSnapshot(page)).mediaRuntime;
 
 /**
- * M25-48 re-homed the Production import into the full editor's Media pane (B-M2561-01): the
+ *  re-homed the Production import into the full editor's Media pane (B-M2561-01): the
  * Production page's Clip editor function opens the editor, and the import control and its Media
  * tools card live in that pane.
  */
@@ -300,6 +301,7 @@ test.describe("import install-and-continue", () => {
       refuse: (kind, index) => (kind === "import" && index === 0 ? 503 : null),
     });
     await openShell(page, double, { import: "1", target: "ready", ...params });
+    await expectImportBootstrap(fixture);
     await openImportPane(page);
     await expect(page.locator(importButton)).toBeEnabled();
     await page.locator(importButton).click();
@@ -354,7 +356,7 @@ test.describe("import install-and-continue", () => {
     expect((await mediaRuntime(page)).resumeKind).toBeNull();
   });
 
-  // B-M2561-01: since M25-48 the import waits inside the modal editor, and the selection lives on
+  // B-M2561-01: since the import waits inside the modal editor, and the selection lives on
   // the Production function under it. Changing the selection therefore means closing the editor
   // first, and closing it drops the waiting import (the leaving rule above). The `select_again`
   // guard for a projection that changed underneath a waiting import is proven by the replaced
@@ -433,7 +435,7 @@ test.describe("import install-and-continue", () => {
 
 test.describe("preview and render install-and-continue", () => {
   test("clip preview reopens once after install", async ({ page }) => {
-    // M25-44 (one NLE): the selected-clip source preview lives in the full editor's monitor, which
+    //  (one NLE): the selected-clip source preview lives in the full editor's monitor, which
     // offers it when this browser cannot composite (no 2D canvas); its Media tools card is the
     // overlay placement inside the monitor region.
     await page.addInitScript(() => {

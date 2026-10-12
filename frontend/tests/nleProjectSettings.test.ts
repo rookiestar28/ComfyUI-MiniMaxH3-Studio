@@ -1,4 +1,4 @@
-// M25-64 (rows #26 and #28): the monitor header and the inspector's Project settings read the
+//  (rows #26 and #28): the monitor header and the inspector's Project settings read the
 // accepted output profile through one reader. Every fact comes from the output; an absent or
 // malformed one is omitted, never defaulted, and no codec token reaches a reader.
 

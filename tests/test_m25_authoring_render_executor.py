@@ -270,19 +270,16 @@ def test_tabbed_text_keeps_literal_lines_and_pins_without_expanding_tabs(
             control=process_control(),
         )
         assert prepared.text_path.read_bytes() == title.content.encode()
-        if align == "left":
-            assert not prepared.lines
-        else:
-            assert [path.read_bytes() if path else b"" for path, _ in prepared.lines] == [
-                b"H\tH",
-                b"HHHHH",
-                b"",
-            ]
-            for path, fingerprint in prepared.lines:
-                assert (
-                    fingerprint
-                    == "sha256:" + hashlib.sha256(path.read_bytes() if path else b"").hexdigest()
-                )
+        assert [path.read_bytes() if path else b"" for path, _ in prepared.lines] == [
+            b"H\tH",
+            b"HHHHH",
+            b"",
+        ]
+        for path, fingerprint in prepared.lines:
+            assert (
+                fingerprint
+                == "sha256:" + hashlib.sha256(path.read_bytes() if path else b"").hexdigest()
+            )
     finally:
         store.close()
 
@@ -346,12 +343,14 @@ def test_full_preparation_deduplicates_resolved_title_frames(
         )
         assert len(prepared.media) == len(prepared.texts) == 1
         assert prepared.texts[0].clip_id == title["clip_id"]
-        assert len(list(stage.output_path.parent.iterdir())) == (5 if tabbed else 3)
+        assert len(list(stage.output_path.parent.iterdir())) == 3 + len(
+            [path for path, _ in prepared.texts[0].lines if path is not None]
+        )
         if tabbed:
             from comfyui_h3_context.adapters.authoring_render_graph import build_render_graph
 
             graph = build_render_graph(plan=bound.plan, prepared=prepared).filter_graph
-            assert graph.count("text_align=L:tabsize=4") == 2
+            assert graph.count("text_align=L:tabsize=4") == 4  # two bands, then two glyphs
             assert "text_align=C" not in graph and title["text"]["content"] not in graph
             for path, _ in prepared.texts[0].lines:
                 assert path is not None and path.name in graph

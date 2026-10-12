@@ -1,4 +1,4 @@
-// M25-64 (rows #26 and #28): the output profile's facts, read once for the monitor header and the
+//  (rows #26 and #28): the output profile's facts, read once for the monitor header and the
 // inspector's Project settings. The codec types the snapshot's `output` as
 // `Record<string, unknown>`, so this is the one typed reader of it.
 //
@@ -107,7 +107,7 @@ export function projectSettings(
       value: fill(copy.fps, { fps }),
       mono: false,
     });
-  // Duration is the output's own frame count (M25-57 may later change what that count covers);
+  // Duration is the output's own frame count ( may later change what that count covers);
   // a timecode needs the rate it counts in, so both must be present.
   const frames = output?.durationFrames;
   if (

@@ -1,7 +1,7 @@
-"""Private durable checkpoint store for joint AV latent artifacts (M20-04).
+"""Private durable checkpoint store for joint AV latent artifacts.
 
 One bounded private store rooted only at an explicit caller-owned directory, mirroring the
-accepted ``PrivateSegmentArtifactStore`` safety model for the M20-04 checkpoint family: same
+accepted ``PrivateSegmentArtifactStore`` safety model for the checkpoint family: same
 same-root policy/lock/quota coordination, same atomic no-clobber publication, same bounded
 aggregate-before-mutation recovery, same Windows junction/reparse/TOCTOU defenses -- imported
 from ``segment_artifact_store`` rather than reimplemented, per the accepted
@@ -629,7 +629,7 @@ class PrivateJointAVLatentStore:
     ) -> tuple[int, str]:
         """Stream one exact reusable checkpoint into a caller-owned new file.
 
-        The M20-08 bounded-chunk primitive: the payload never exists in memory beyond one
+        The bounded-chunk primitive: the payload never exists in memory beyond one
         chunk, the destination is created exclusively, and a length or fingerprint divergence
         removes the partial copy and fails closed.
         """

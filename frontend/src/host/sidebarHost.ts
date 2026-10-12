@@ -504,7 +504,7 @@ export function createSidebarHost(dependencies: {
         attempt(() => disposeRegistration(ownedRegistration));
       const tabs = probeSidebarTabManager(dependencies.app);
       if (tabs.status === "ready" && tabRegistered) {
-        // IMPORTANT (M23-28): `getSidebarTabs` is observed-but-undocumented. When
+        // IMPORTANT: `getSidebarTabs` is observed-but-undocumented. When
         // it is absent the extension-owned token `tabRegistered` is the only
         // authority; never invent an enumeration from host internals.
         let shouldUnregister = true;
@@ -557,7 +557,7 @@ export function createSidebarHost(dependencies: {
 
   return {
     register(next: Registration): void {
-      // IMPORTANT (M23-28): an absent unregister seam leaves the host tab alive. Retain the
+      // IMPORTANT: an absent unregister seam leaves the host tab alive. Retain the
       // extension-owned token as an idempotence guard or a later register call duplicates it.
       if (
         registration !== undefined ||
@@ -575,7 +575,7 @@ export function createSidebarHost(dependencies: {
         );
       }
       const manager = tabs.value;
-      // IMPORTANT (M23-28 named fallback): registration needs only the documented
+      // IMPORTANT ( named fallback): registration needs only the documented
       // `registerSidebarTab`. `getSidebarTabs` and `unregisterSidebarTab` are
       // observed-but-undocumented; when enumeration is absent, registration
       // proceeds on the extension-owned token and duplicate detection is the

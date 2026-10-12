@@ -1,4 +1,4 @@
-// Typed host-seam probes (M23-28).
+// Typed host-seam probes.
 //
 // Every product read of a ComfyUI `app`/`api`/LiteGraph member goes through exactly one owner
 // module per seam family:

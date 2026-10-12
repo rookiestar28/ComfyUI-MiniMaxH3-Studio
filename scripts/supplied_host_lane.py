@@ -865,7 +865,7 @@ def admit_results(
 def retain_composited_timeline_capture(
     evidence: Mapping[str, object], *, evidence_dir: Path, attempt: str
 ) -> Mapping[str, object]:
-    """Retain the original bounded M25-52 timeline PNG outside the sanitized JSON receipt."""
+    """Retain the original bounded timeline PNG outside the sanitized JSON receipt."""
     if re.fullmatch(r"[a-z0-9][a-z0-9-]{0,47}", attempt) is None:
         raise AdmissionError("timeline capture attempt label is invalid")
     decorations = evidence.get("decorations")

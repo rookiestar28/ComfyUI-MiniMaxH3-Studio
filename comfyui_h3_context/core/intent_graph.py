@@ -550,7 +550,7 @@ class IntentGraph:
         GUARD: silence is a claim, never an absence. `EXPLICIT_COMPLETE_SILENCE` is what
         authorizes `overall_soundscape: N/A` downstream, so it cannot coexist with a declared
         audible item, and `DESCRIBED` cannot be asserted without an item that actually reaches the
-        soundscape. Relaxing either direction re-creates the M24-05 defect one layer lower, where
+        soundscape. Relaxing either direction re-creates the defect one layer lower, where
         the renderer can no longer tell an unstated soundscape from a requested silent one.
         """
 

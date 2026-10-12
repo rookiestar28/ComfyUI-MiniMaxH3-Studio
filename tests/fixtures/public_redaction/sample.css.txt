@@ -1,0 +1,3 @@
+/* M99-11: Preserve the declaration. */
+.example { content: "/* M99-11 */"; color: red; }
+/* RM-999 */

@@ -1,12 +1,12 @@
-// M25-46: the one continuous frame/pixel authority shared by timeline rendering, gestures,
+// the one continuous frame/pixel authority shared by timeline rendering, gestures,
 // navigation and the decoration raster. Frames address presented samples [0, duration), while
 // boundaries address edit edges [0, duration]; keeping the domains explicit prevents end trims
 // and ruler seeks from disagreeing at the composition boundary.
 
-// M25-62 (R3, D-2): the two-line 112 px header of the redesign.
+//  (R3, D-2): the two-line 112 px header of the redesign.
 export const TRACK_HEADER_WIDTH_PX = 112;
 /**
- * M25-62 (R2, B-M2562-01): a coarse pointer keeps today's touch-safe 160 px header. Its menu
+ *  (R2, B-M2562-01): a coarse pointer keeps today's touch-safe 160 px header. Its menu
  * trigger and both toggles are 44 px targets side by side, and three of them cannot fit in 112 px
  * without the toggles covering the trigger.
  *
@@ -19,7 +19,7 @@ export function trackHeaderWidthPx(coarse: boolean): number {
   return coarse ? COARSE_TRACK_HEADER_WIDTH_PX : TRACK_HEADER_WIDTH_PX;
 }
 /**
- * M25-61: an empty inset between the track header and frame 0. Without it the first clip's edge,
+ * an empty inset between the track header and frame 0. Without it the first clip's edge,
  * the frame-0 playhead and the header edge share one pixel column, and the playhead disappears
  * under the clip (review UX-09).
  *
@@ -402,7 +402,7 @@ export function rulerMarks(
 const MINOR_DIVISIONS = Object.freeze([12, 6, 5, 4, 2]);
 
 /**
- * M25-61: unlabelled minor ticks between the major marks, drawn in the ruler only. The major
+ * unlabelled minor ticks between the major marks, drawn in the ruler only. The major
  * stride is divided by the largest of 12, 6, 5, 4 or 2 that divides it evenly while keeping the
  * ticks at least `RULER_MIN_MINOR_SPACING_PX` apart; at 6 px per frame and above this reaches
  * every frame. `x` is frame-origin relative, like `rulerMarks`.
@@ -441,7 +441,7 @@ export function rulerMinorTicks(
 }
 
 /**
- * M25-61: the ruler's short label. A whole second reads `MM:SS` (`H:MM:SS` from one hour); a mark
+ * the ruler's short label. A whole second reads `MM:SS` (`H:MM:SS` from one hour); a mark
  * inside a second reads the frame within that second, `NNf`. The full `HH:MM:SS:FF` timecode stays
  * with `formatTimelineTimecode` for the transport and the ruler's accessible value.
  */

@@ -18,6 +18,23 @@ implementation.
 
 <details>
 
+<summary><strong>1.2.0 — Title decorations, editor updates and local perception setup</strong></summary>
+
+- Style titles with strokes, sharp shadows and background padding. Preserve literal line breaks
+  in preview and final rendering, and enable or reset each decoration separately.
+- Save accepted title styles in project files and acknowledged draft recovery. Older 1.1.0
+  readers refuse the new optional decoration settings rather than silently discarding them.
+- Configure qualified local visual or audio analysis through an operator-owned startup file,
+  then inspect readiness in **Settings → Local perception**. Execution requires its supported
+  native Windows setup; refreshing status does not launch a model or change configuration.
+- The timeline toggle is now called **Ripple edits** and keeps its existing edited-track scope.
+- Reduce repeated redraws of unchanged timeline, monitor and media controls during
+  edits. Keep seeking and toolbar actions synchronized with the current editor state.
+
+</details>
+
+<details>
+
 <summary><strong>1.1.0 — Project files, recovery and editor improvements</strong></summary>
 
 - Save and open editable `.h3proj` projects, with explicit relinking when media is missing.
@@ -251,9 +268,17 @@ Open **MiniMax H3 Studio** from the ComfyUI sidebar. It has three pages:
 | ---------- | --------------------------------------------------------------------------------------------- |
 | Context    | Choose a task mode, describe the video, pick references, review the prompt and start App Mode |
 | Production | Your generated clips as a project, longer-video planning, and the entry to the clip editor    |
-| Settings   | Language, the media tools and the optional assisted-authoring provider                        |
+| Settings   | Language, media tools, local-perception status and the optional assisted-authoring provider |
 
 **Settings → Language** offers **Automatic (ComfyUI locale)**, English, 繁體中文 and 简体中文.
+
+**Settings → Local perception** shows whether the host's existing visual and audio setup is
+available. **Refresh status** reads its readiness; it does not install dependencies, launch a
+model or reread startup configuration. Local perception runs only on its supported native
+Windows setup. Ask the host operator to configure it using the
+[local-perception setup instructions](docs/HOST_INTEGRATION.md#local-perception-visual-and-audio),
+then restart ComfyUI after changing the startup file. These host settings are separate from
+assisted-authoring provider connections and cannot be edited on this page.
 
 The prompt is built on the ComfyUI host by the same nodes you can use on the canvas, so the sidebar
 and the canvas never disagree.
@@ -510,14 +535,14 @@ tracks, 128 clips and 2.5 minutes in total.
   With a clip focused, **Enter** starts a keyboard move: arrow keys move it, **Alt+Up/Down** changes
   track, **Enter** applies and **Escape** cancels.
 - **Trimming**: drag a selected clip's edge, or focus the edge and use the arrow keys, **Enter** and
-  **Escape**. Turn on **Main-track ripple** to make trims and deletes shift the clips that follow on
+  **Escape**. Turn on **Ripple edits** to make trims and deletes shift the clips that follow on
   the same track.
 - **Roll edits** move a shared cut between two neighbouring clips with the handle on the cut.
 - **Clip menu** (right-click a clip): one-frame trims, **Replace clip asset**, **Slip clip**,
   **Slide clip**, **Merge clips** with the next one, and **Clip enabled**. Menus close when you
   press elsewhere.
 - **Toolbar**: **Undo**, **Redo**, **Split at playhead**, **Trim start to playhead**, **Trim end to
-  playhead**, **Delete** (or **Ripple delete**), **Snapping**, **Main-track ripple**, zoom and
+  playhead**, **Delete** (or **Ripple delete**), **Snapping**, **Ripple edits**, zoom and
   **Fit timeline**. **More timeline tools** adds roll edits, numeric moves, selection, clip
   navigation and panning.
 - **Ruler**: click or drag to move the playhead. **Ctrl** + mouse wheel zooms; **Shift** + wheel
@@ -563,11 +588,19 @@ Select a clip to edit its properties. The tabs depend on the clip:
 | Basic      | Scale, position, rotation, anchor and alignment; opacity and blend mode         |
 | Crop       | The four edges                                                                  |
 | Colour     | Brightness, contrast and saturation (choose **Color adjustment** as the effect) |
-| Text       | A title's text, size, weight and colour                                         |
+| Text       | Text, font style, alignment, spacing, colour, stroke, shadow and background     |
 | Transition | A **Cross dissolve** with the neighbouring clip, and its length in frames       |
 | Audio      | Volume (−60 to +12 dB), mute, fade in and fade out (up to 10 seconds each)      |
 
 The **Text** tab appears for titles and the **Audio** tab for videos with sound.
+
+Titles preserve literal line breaks, including blank and trailing lines. Text alignment places
+each line inside the title canvas; clip alignment in **Basic** places the whole canvas. Stroke
+width is 1–32 px, shadow offsets are −64 to +64 px, and background padding is 0–64 px. Zero
+padding removes the extra padding. Each decoration has its own enable switch and Reset; changing
+one group preserves the other title settings. Decoration opacity is 1–255, while fill and
+background opacity also allow zero. Shadows use a sharp edge and follow the clip's scale and
+rotation.
 
 - Sliders apply when you release them. Number fields apply on **Enter** or the group's apply
   button; moving focus away does not apply them. **Escape** cancels a change, and **Reset** restores
@@ -857,9 +890,11 @@ Review workflows and screenshots before sharing them. More detail is in
 - **Previews** in the monitor are approximate; check the rendered file.
 - **Quality**: validation and guide readiness check the prompt, not the visual result, and do not
   make this equivalent to MiniMax's own implementation.
-- **Visual timeline**: the **H3 Full Reference Timeline Producer** cannot be queued in this release,
-  with or without a connected `visual_result` (validation reports `perception_profile_unavailable`).
-  Write full-reference prompts with the Plan and Compiler nodes instead.
+- **Local perception** requires the qualified native Windows setup described in the host
+  integration guide. An unavailable status does not install a model or fall back to a provider.
+- **Visual timeline**: the **H3 Full Reference Timeline Producer** needs a connected, qualified
+  result from the **Visual Perception Producer** and an operator-configured local visual profile.
+  Its timeline remains partial; without that setup, write prompts with the Plan and Compiler nodes.
 - **Official Context-IR** needs a host-supplied connection.
 
 ## Troubleshooting

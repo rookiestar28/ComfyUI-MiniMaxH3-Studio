@@ -477,7 +477,7 @@ export function assertLayoutMeasurement(
   }
   if (contract.focusTargetRequired)
     expect(measurement.focusContainedInPanel, diagnostic).toBe(true);
-  // IMPORTANT (M25-21 B3-D62): require the populated metadata state before measuring it. The
+  // IMPORTANT ( B3-D62): require the populated metadata state before measuring it. The
   // `sources …` and `bundle …` spans exist only when the production `buildProvenanceClient`
   // accepted the shipped bundle/record pair; a stale pair makes it throw, and the block collapses
   // to version + link, which fits at every width. Without this the containment assertions below
@@ -564,7 +564,7 @@ export function assertLayoutMeasurement(
   expect(header.borderBottomWidth, diagnostic).toBe("1px");
   expect(header.borderBottomStyle, diagnostic).toBe("solid");
   if (!cell.accessibilityVariant) {
-    // HC-19: the guard is load-bearing. An undefined `--h3-panel-1` would make
+    // the guard is load-bearing. An undefined `--h3-panel-1` would make
     // both sides resolve to a transparent black and the comparison below would
     // pass while asserting nothing.
     expect(header.expectedHeaderBackground, diagnostic).not.toBe(
@@ -595,7 +595,7 @@ export function assertLayoutMeasurement(
   expect(header.dot.right, diagnostic).toBeLessThanOrEqual(
     header.title.left + 1,
   );
-  // IMPORTANT (M25-21 B3-D70): the header and its metadata block wrap by design
+  // IMPORTANT ( B3-D70): the header and its metadata block wrap by design
   // (B3-D61), so at a constrained width the version and GitHub link move onto a
   // following line. Reading order is therefore "later on the same line OR wholly
   // below", never plain `right <= next.left`, which a correctly wrapped header
@@ -653,7 +653,7 @@ export function assertLayoutMeasurement(
     expect(measurement.forcedColors, diagnostic).toBe(true);
   }
 }
-// M23-26 registration phase Three.
+//  registration phase Three.
 // prettier-ignore
 import type { HostOfficialAssetManifest, CandidateInjectionState, SerializedGraph, ManagedRouteReceipt, HostAssetResolutionReceipt, SampleProgress, RealI2vaArtifactMetadata, RealI2vaEnvironment, FrontendPerformanceReceipt } from "./environment";
 // prettier-ignore
@@ -731,8 +731,8 @@ export async function runRegistrationPhaseThree(
     }
 
     if (target === "presentation-only") {
-      // Reconciled by M23-37: ambiguity now means multiple native H3 anchors
-      // awaiting the user's designation (the M17-30 row's subject). Two owned
+      // Reconciled by : ambiguity now means multiple native H3 anchors
+      // awaiting the user's designation (the row's subject). Two owned
       // shells with no native anchor are simply a canvas that holds nodes, so
       // the decision this matrix captures presents as dirty_graph.
       const dirtyReason = appModeContainer.locator(
@@ -757,7 +757,7 @@ export async function runRegistrationPhaseThree(
 
       const actionOwner = appModeContainer.locator(".h3-app-mode-actions");
       await expect(actionOwner).toHaveCount(1);
-      // IMPORTANT: assert owned action identities, not a closed button total; M25-36 adds
+      // IMPORTANT: assert owned action identities, not a closed button total; adds
       // New project independently, and a total count would reject a valid host projection.
       for (const actionName of [
         "New project",

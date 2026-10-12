@@ -4,7 +4,7 @@ A clip's gain, mute and fades are applied by the final render and by the preview
 node; neither derivative -- the video proxy or the audio preview -- carries them, and the
 derivative key holds no clip-wire member. So `set_clip_audio` must leave every derivative as it
 was: no generation, no spawn, no executable hash, the same derivative fingerprints. These tests
-drive the accepted modules with the counters of `test_m25_74_derivative_rework_counts`, once for
+drive the accepted modules with the counters of `test__derivative_rework_counts`, once for
 each source origin, with the audio edit where that file makes a picture edit.
 """
 

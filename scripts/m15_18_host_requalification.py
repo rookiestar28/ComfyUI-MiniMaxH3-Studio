@@ -1,4 +1,4 @@
-"""Run M15-18 exact host profiles and export clean pinned co-installation sources."""
+"""Run exact host profiles and export clean pinned co-installation sources."""
 
 from __future__ import annotations
 

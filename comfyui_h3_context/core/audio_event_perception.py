@@ -1,4 +1,4 @@
-"""M12-04 source-owned music, ambience, Foley, and sound-event contracts.
+"""source-owned music, ambience, Foley, and sound-event contracts.
 
 Only bounded, redacted event descriptors and injected benchmark metadata cross this seam.  Samples,
 decoders, ComfyUI, Ollama, PANNs, BEATs, CLAP, specialist runtimes, and network clients remain
@@ -1002,7 +1002,7 @@ def _seed(value: str) -> str:
 
 
 def build_default_audio_event_benchmark_plan() -> AudioEventBenchmarkPlan:
-    """Build the frozen M12-04 metadata-only event bake-off benchmark."""
+    """Build the frozen metadata-only event bake-off benchmark."""
 
     fixtures = (
         AudioEventBenchmarkFixture(

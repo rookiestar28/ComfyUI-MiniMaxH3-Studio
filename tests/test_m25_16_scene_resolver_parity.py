@@ -1,7 +1,7 @@
-"""M25-16: the scene-resolver parity fixture must equal the backend authority.
+"""the scene-resolver parity fixture must equal the backend authority.
 
 The browser composition monitor resolves frames locally with a TypeScript port of
-``resolve_composition``.  ``scripts/m25_16_scene_parity.py`` derives the shared vectors from the
+``resolve_composition``. ``scripts/_scene_parity.py`` derives the shared vectors from the
 backend; this test fails when the committed fixture no longer matches what the backend resolves,
 so a backend change cannot leave the frontend replaying stale expectations.
 """

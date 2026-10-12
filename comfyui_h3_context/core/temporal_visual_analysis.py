@@ -1,6 +1,6 @@
-"""Source-PTS action, state, motion, camera, edit, and style contracts for M11-06.
+"""Source-PTS action, state, motion, camera, edit, and style contracts for.
 
-This pure-core module consumes an M11-05 ``TrackingDocument`` and records separate temporal
+This pure-core module consumes an ``TrackingDocument`` and records separate temporal
 claims.  It does not import optical-flow, action-recognition, style, GPU, ComfyUI, or provider
 runtimes.  Claims remain inspectable when models disagree or a capability is unsupported.
 """

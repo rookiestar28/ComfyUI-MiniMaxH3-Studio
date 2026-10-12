@@ -1,6 +1,6 @@
 """What this package is made of, which seams can move, and which are pinned by something.
 
-M19-01 is the baseline the rest of the M19 chain is measured against.  Its job is not to describe
+ is the baseline the rest of the M19 chain is measured against. Its job is not to describe
 the architecture -- prose already does that -- but to make three questions answerable mechanically,
 because each one has an obvious wrong answer that a scan will happily produce.
 
@@ -24,7 +24,7 @@ which test covers which module is to attribute a hub symbol back to where it is 
 defined by two modules attribute to neither.
 
 Whatever survives all four rules unresolved is ``NEED_EVIDENCE`` and blocks a move.  It is never
-"unused": M18-01's rule holds that an undiscovered consumer is not an absent one.
+"unused": 's rule holds that an undiscovered consumer is not an absent one.
 
 This module reads no file, parses no source and imports no host.  It is the typed shape the
 generator fills.

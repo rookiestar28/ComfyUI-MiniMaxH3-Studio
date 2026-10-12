@@ -115,7 +115,7 @@ def _required_labels(plan: ContextPlan) -> set[str]:
     prompt because the plan binds the asset to something -- a subject's source, a sound's source, a
     retained element, a copied event -- or because the mode instruction names it as a keyframe.
     An asset the author attached and never bound earns no invented role, so its absence is not a
-    renderer defect; M24-05 reports it as `fidelity.reference.unused` instead. Widening this back
+    renderer defect; reports it as `fidelity.reference.unused` instead. Widening this back
     to every registry label turns that honest omission into a blocking lint error and refuses the
     report.
     """

@@ -155,7 +155,7 @@ test("M17-20 authorized weight-backed sample writes a real artifact and a second
       })
       .toBeGreaterThan(0);
     // Every official role the profile requires resolved against what this host
-    // actually has installed (M17-29). The maintainer's standing designation
+    // actually has installed. The maintainer's standing designation
     // accepts any MiniMax H3 weight that shares a name with the ComfyUI
     // HuggingFace repository, so the precision variant carries no meaning here
     // and this row must never pin one: it asserts that the roles resolved to
@@ -170,7 +170,7 @@ test("M17-20 authorized weight-backed sample writes a real artifact and a second
     expect(result.errors).toEqual([]);
     const names = reportedArtifactNames(result.outputs);
     expect(names.length).toBeGreaterThan(0);
-    // Settle the shell to `projected` before returning (the M23-19 row does
+    // Settle the shell to `projected` before returning (the row does
     // the same): the caller's next step is `edit-app-mode-setup`, and editing
     // while output verification is still consuming the projection re-enters
     // setup without the image-source inventory, so the next configure sees a
@@ -186,7 +186,7 @@ test("M17-20 authorized weight-backed sample writes a real artifact and a second
   );
   expect(first.some((name) => name.includes("h3-context"))).toBe(true);
 
-  // AC-M17-20-04: an edited revision materializes its own graph and writes its
+  // AC--04: an edited revision materializes its own graph and writes its
   // own artifact; the previous one cannot satisfy it.
   await container.locator('[data-h3-focus-key="page-context"]').click();
   const edit = container.locator('[data-h3-focus-key="edit-app-mode-setup"]');
@@ -200,7 +200,7 @@ test("M17-20 authorized weight-backed sample writes a real artifact and a second
 });
 
 /**
- * M17-14 closeout sample.
+ *  closeout sample.
  *
  * Every accepted item has already been proved on this host in its own lane. What no lane asserts is
  * the joined shell: that the three pages a user moves between are the accepted three, in the
@@ -208,7 +208,7 @@ test("M17-20 authorized weight-backed sample writes a real artifact and a second
  * language authority is one hidden descriptor whose write reads back exactly, and that the
  * Production route this repository owns answers on the same host in the same session.
  *
- * It runs no model, resolves no weight and queues nothing. M17-20's accepted lane and its authorized
+ * It runs no model, resolves no weight and queues nothing. 's accepted lane and its authorized
  * weight-backed sample own that evidence; repeating it here would spend a real generation to learn
  * nothing new.
  */

@@ -1,4 +1,4 @@
-"""M18-04 compact public manifest and v1 projection tests.
+"""compact public manifest and v1 projection tests.
 
 The claim is that v1 loses nothing by becoming a projection of v2, and the only honest way to check
 that is byte equality: the projected v1 wire must equal the wire v1 builds for itself, and the v1
@@ -60,7 +60,7 @@ def _canonical(value: object) -> str:
 
 
 class ProjectionTests(unittest.TestCase):
-    """AC-M18-04-03: v1 does not change. It is produced differently, and that is all."""
+    """AC--03: v1 does not change. It is produced differently, and that is all."""
 
     v1: Any
     v2: Any
@@ -128,7 +128,7 @@ class ProjectionTests(unittest.TestCase):
         self.assertEqual([error.message for error in errors], [])
 
     def test_the_v2_wire_carries_no_derived_section(self) -> None:
-        """AC-M18-04-01: a derived view must not be serialized as a parallel authority."""
+        """AC--01: a derived view must not be serialized as a parallel authority."""
 
         wire = self.v2.to_wire()
         for absent in ("bindings", "reachability", "object_info"):
@@ -138,7 +138,7 @@ class ProjectionTests(unittest.TestCase):
 
 
 class DerivedViewTests(unittest.TestCase):
-    """AC-M18-04-02: a cheaper view that refuses less is not the same view."""
+    """AC--02: a cheaper view that refuses less is not the same view."""
 
     v2: Any
 

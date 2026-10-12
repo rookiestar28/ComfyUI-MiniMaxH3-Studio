@@ -1,5 +1,5 @@
 /**
- * M18-03: the browser half of the one structural authority for cross-language wires.
+ * the browser half of the one structural authority for cross-language wires.
  *
  * Seventeen key sets used to be written out by hand in six codecs, next to the Python `to_wire`
  * that actually decides them. They now come from `generatedSurface.ts`, which is generated from

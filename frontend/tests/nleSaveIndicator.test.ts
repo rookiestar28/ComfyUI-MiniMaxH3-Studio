@@ -1,4 +1,4 @@
-// M25-63 (R9): the top bar's save indicator. One pure model maps every branch the retired footer
+//  (R9): the top bar's save indicator. One pure model maps every branch the retired footer
 // status had to a state, a short label, the full sentence and the live-region text; the revision
 // number leaves the visible text and survives only as an exact attribute value.
 
@@ -54,7 +54,7 @@ function unknownOutcome(
   };
 }
 
-// The footer sentence as the workspace rendered it before M25-63 (NleWorkspace.tsx at b9198b93,
+// The footer sentence as the workspace rendered it before (NleWorkspace.tsx at b9198b93,
 // `timelineStatus` plus the receipt suffix), kept here as the independent reference that the
 // live region must still announce for every state except `saved`.
 function footerSentence(authoring: AuthoringViewState, locale: Locale) {

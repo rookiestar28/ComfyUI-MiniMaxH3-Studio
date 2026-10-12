@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic, network-free M10-03 model-manifest fixture."""
+"""Deterministic, network-free model-manifest fixture."""
 
 from __future__ import annotations
 

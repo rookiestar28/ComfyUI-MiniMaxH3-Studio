@@ -9,7 +9,7 @@ import {
 } from "../src/runtime/clipAudioEnvelope";
 
 // The preview's statement of the clip audio envelope, held to the table generated from the
-// Python statement (`scripts/m25_77_clip_audio_envelope_fixture.py`), and its schedule held to
+// Python statement (`scripts/_clip_audio_envelope_fixture.py`), and its schedule held to
 // that statement at every sample frame through the Web Audio automation it writes.
 
 type Wire = Readonly<{

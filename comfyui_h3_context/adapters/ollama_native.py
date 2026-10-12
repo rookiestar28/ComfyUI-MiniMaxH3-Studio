@@ -1,4 +1,4 @@
-"""Explicit loopback Ollama native-API fallback for M10-03.
+"""Explicit loopback Ollama native-API fallback for.
 
 This module is optional and never imported by the pure core. It exposes a narrow transport and
 adapter: only version/tags/show/ps/chat/generate paths are accepted, redirects and credentials are
@@ -143,6 +143,18 @@ def _endpoint_parts(endpoint: str) -> tuple[SplitResult, str, int]:
         raise ModelTransportError("Ollama endpoint syntax is invalid")
     if parsed.scheme != "http" or parsed.username is not None or parsed.password is not None:
         raise ModelTransportError("Ollama endpoint must be credential-free loopback HTTP")
+    if "[" in parsed.netloc or "]" in parsed.netloc:
+        # CRITICAL: older urlsplit accepts stray brackets and invalid enclosed literals.
+        # Validate the whole IPv6 authority here; a modern parser exception is not the boundary.
+        bracketed = re.fullmatch(r"\[([^\[\]]+)\](?::[^\[\]]*)?", parsed.netloc)
+        literal = None
+        if bracketed is not None:
+            try:
+                literal = ipaddress.IPv6Address(bracketed.group(1))
+            except ValueError:
+                pass
+        if literal is None:
+            raise ModelTransportError("Ollama endpoint syntax is invalid")
     if parsed.query or parsed.fragment:
         raise ModelTransportError("Ollama endpoint must not contain query or fragment data")
     if parsed.path not in {"", "/", "/api"}:
@@ -344,7 +356,7 @@ _SEMANTIC_CONNECT_PENDING = frozenset(
 
 
 class SemanticDeadlineOllamaTransport:
-    """Exact cumulative-deadline HTTP/1.1 transport for the M17-16 semantic lane."""
+    """Exact cumulative-deadline HTTP/1.1 transport for the semantic lane."""
 
     def __init__(self, expected_model_id: str) -> None:
         if (
@@ -1181,7 +1193,7 @@ _SEMANTIC_UNLOAD_KEYS = frozenset(
 
 
 class SemanticOllamaExecutionError(RuntimeError):
-    """A content-free, terminal M17-16 provider outcome."""
+    """A content-free, terminal provider outcome."""
 
     def __init__(self, code: str) -> None:
         self.code = code
@@ -1421,7 +1433,7 @@ def _validate_semantic_response_json(
     *,
     path: str | None = None,
 ) -> dict[str, object]:
-    """Validate the complete decoded M17-16 response envelope before field selection."""
+    """Validate the complete decoded response envelope before field selection."""
 
     def valid_text(item: object, maximum: int) -> bool:
         if type(item) is not str or not item or len(item) > maximum:
@@ -1885,7 +1897,7 @@ def _semantic_chat_payload(
     profile: SemanticExecutionProfile,
     generation: ModelGenerationRequest,
 ) -> dict[str, object]:
-    """Build the sole exact M17-16 chat payload without retaining private content."""
+    """Build the sole exact chat payload without retaining private content."""
 
     payload: dict[str, object] = {
         "model": profile.model_id,

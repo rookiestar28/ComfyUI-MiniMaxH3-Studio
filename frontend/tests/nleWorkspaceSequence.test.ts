@@ -1,4 +1,4 @@
-// M25-16 planning → readiness → managed serial sequence inside the workspace session: every
+//  planning → readiness → managed serial sequence inside the workspace session: every
 // step is an explicit action bound to exact identities, a material edit invalidates admission
 // and approval, readiness is requested explicitly, the start is refused without exact-plan
 // qualification, B1 detach/reattach/resume map runner dispositions to typed UI states, and the

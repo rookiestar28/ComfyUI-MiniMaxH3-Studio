@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// M25-21: run the hardening lane (`playwright.hardening.config.ts`) and gather every
+// run the hardening lane (`playwright.hardening.config.ts`) and gather every
 // `nle_hardening.*` attachment, together with the collected ID and final status of the test that
 // attached it, into one `h3.context.nle_hardening_observations.v1` document for
 // `scripts/nle_hardening_report.py`. The join -- not this script -- decides what passed: an
@@ -16,7 +16,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { release, tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-// GUARD (M25-20 B-69): the declared dependency, never the transitive `playwright-core`.
+// GUARD ( B-69): the declared dependency, never the transitive `playwright-core`.
 import { chromium } from "@playwright/test";
 
 const SCHEMA = "h3.context.nle_hardening_observations.v1";

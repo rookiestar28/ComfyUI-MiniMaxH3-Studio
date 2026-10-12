@@ -1,4 +1,4 @@
-// M25-16 overlay lifecycle: the session state machine (open, mounted, close reasons, mount
+//  overlay lifecycle: the session state machine (open, mounted, close reasons, mount
 // failure, capability refusal, view destroy, resize clamp) and the `overlay_v1` root (heading
 // focus, Escape edge-first, close button, Tab trap, resize handle, focus return, mount failure).
 
@@ -725,7 +725,7 @@ describe("M25-16 overlay_v1 root", () => {
   });
 });
 
-// M25-20 `SidebarEditorUiInvariantV1.overlay_close_return_focus`: one case per non-destroy close
+//  `SidebarEditorUiInvariantV1.overlay_close_return_focus`: one case per non-destroy close
 // reason with its exact destination, plus the ordered fallback the policy falls back through.
 //
 // The pre-existing coverage proved the launcher case and asserted only that a function switch does
@@ -780,7 +780,7 @@ describe("M25-20 overlay close return-focus destinations", () => {
   });
 });
 
-// M25-20 `overlay_close_return_focus.capability_or_mount_failure` through the real launcher: the
+//  `overlay_close_return_focus.capability_or_mount_failure` through the real launcher: the
 // pure policy above resolved to the launcher, but the launcher itself unmounted on the refusal
 // that answered its own click and nothing ran the policy for the synchronous capability
 // refusal, so the browser row observed focus dropped on `document.body` (B-63).
@@ -888,7 +888,7 @@ describe("M25-20 the launcher survives the refusal that answers its own gesture"
     expect(
       view.container.querySelector('[data-h3-focus-key="nle-open-overlay"]'),
     ).toBeNull();
-    // M25-44 (one NLE): the region carries the surface status alone; no compact editor remains.
+    //  (one NLE): the region carries the surface status alone; no compact editor remains.
     const region = view.container.querySelector(
       '[data-h3-nle-unavailable="overlay_v1"]',
     );

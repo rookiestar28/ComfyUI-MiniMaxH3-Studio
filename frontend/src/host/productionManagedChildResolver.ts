@@ -458,7 +458,7 @@ function inputsFromPreparedContext(
     frame_count: prepared.frame_count,
   };
   // ReferenceRegistry asset IDs are semantic identities, not ComfyUI loader
-  // node IDs. Media modes stay closed until the retained M26-04 binding maps
+  // node IDs. Media modes stay closed until the retained binding maps
   // each exact asset to a repository-owned host source.
   if (
     prepared.task_mode !== "t2va" ||

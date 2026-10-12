@@ -1,6 +1,6 @@
 // Extension registration: builds the one `registerExtension` payload (setup, configure hooks,
 // performance receipt and disposal) from the session and feature handles. `entry.tsx` registers
-// it exactly once (M23-28 split of entry.tsx).
+// it exactly once ( split of entry.tsx).
 
 import { graphFingerprint as appModeFingerprint } from "../host/appMode";
 import { createLanguageSettingsAdapter } from "../host/languageSettings";
@@ -36,7 +36,7 @@ export function createExtensionRegistration(ctx: ShellRuntime) {
     else actions.projectRecoveryLeave?.();
   };
 
-  // CRITICAL (M25-21 section 14.4): view release is host collapse, hide or takeover, not the end of
+  // CRITICAL ( section 14.4): view release is host collapse, hide or takeover, not the end of
   // the session. It stops owned playback, polling, leases, requests and listeners, and it must
   // leave `session.retention` alone. Clearing it here to "clean up" silently throws away the
   // user's unsent drafts and view settings on every collapse. Only `disposeExtension` clears it.
@@ -47,17 +47,18 @@ export function createExtensionRegistration(ctx: ShellRuntime) {
     // takeover without destroy can leave the serial sequence attached to a vanished client.
     void actions.detachManagedSerialSequence();
     actions.captureViewFocus();
-    // M25-16: full view destroy records `view_destroy` and resets overlay mount memory before
+    // full view destroy records `view_destroy` and resets overlay mount memory before
     // render authority is cleared; the portal root unmounts with the React tree.
     actions.nleDisposeOverlay();
     actions.nleStopOwnerRenewal();
     // Clear render authority before close/abort actions can publish another state update.
     session.container = undefined;
     actions.releaseProviderSession();
-    // M25-33: stop job polling and drop the continuation; reopening re-reads the running job.
+    // stop job polling and drop the continuation; reopening re-reads the running job.
     actions.releaseMediaRuntime();
     actions.workspaceStateLeave?.();
     actions.retainedAssetsLeave?.();
+    actions.perceptionHostLeave?.();
     actions.projectFileDispose?.();
     actions.closeSemanticProposalReview();
     deps.productionProposalDispatcher.clearSensitive();
@@ -277,6 +278,7 @@ export function createExtensionRegistration(ctx: ShellRuntime) {
                 actions.releaseMediaRuntime();
                 actions.workspaceStateLeave?.();
                 actions.retainedAssetsLeave?.();
+                actions.releasePerceptionHost?.();
                 actions.projectRecoveryDispose?.();
                 actions.closeProductionMediaPreview(false);
                 session.actionAbort?.abort();

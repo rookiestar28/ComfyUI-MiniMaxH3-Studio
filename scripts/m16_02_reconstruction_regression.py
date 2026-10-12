@@ -1,4 +1,4 @@
-"""Validate the M16-02 reconstruction and clean-install regression matrix offline.
+"""Validate the reconstruction and clean-install regression matrix offline.
 
 The matrix is a claim-boundary record, not a model/provider execution harness.  It proves that
 every roadmap criterion is represented and that unavailable or unsupported lanes cannot be promoted
@@ -863,7 +863,7 @@ def _regression(
 
 
 def build_matrix(repo_root: Path = ROOT, *, validate: bool = True) -> dict[str, object]:
-    """Build the frozen M16-02 fixture from repository-owned public evidence identifiers."""
+    """Build the frozen fixture from repository-owned public evidence identifiers."""
 
     common = ("tests/acceptance_baseline.json", "scripts/run_full_tests_windows.ps1")
     criteria = [

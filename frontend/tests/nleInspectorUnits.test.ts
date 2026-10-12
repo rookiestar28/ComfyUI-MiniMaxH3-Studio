@@ -1,4 +1,4 @@
-// M25-64 (R10, A64-4): the inspector's exact decimal adapter. Canonical integers (bp, per-mille,
+//  (R10, A64-4): the inspector's exact decimal adapter. Canonical integers (bp, per-mille,
 // millidegrees) are shown and entered as % and degrees, converted by string arithmetic only, so
 // every value the adapter prints parses back to the same integer and no float ever rounds one.
 

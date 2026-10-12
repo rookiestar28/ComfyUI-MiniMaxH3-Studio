@@ -23,7 +23,7 @@ from comfyui_h3_context.core.installation_profiles import (
 
 ROOT = Path(__file__).resolve().parents[1]
 # The profile artifact stays in the package because the installed package opens it at run
-# time; its schema has no runtime or bundle reader and moved with M23-55.
+# time; its schema has no runtime or bundle reader and moved with.
 CONTRACT_ROOT = ROOT / "comfyui_h3_context" / "contracts"
 GOVERNANCE_ROOT = ROOT / "governance" / "contracts"
 EXPECTED_HOST_CAPABILITY = "comfyui-native-node-capabilities-v1"

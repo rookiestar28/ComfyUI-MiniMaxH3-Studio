@@ -1,4 +1,4 @@
-"""M18-01 contract-surface inventory tests.
+"""contract-surface inventory tests.
 
 The inventory's whole value is that it refuses to overclaim. A grep that finds nothing is not
 evidence a contract is unused; two modules declaring one identity is not a licence to pick an
@@ -152,9 +152,9 @@ class BlockedClaimTests(unittest.TestCase):
 
 
 class PositionBindingBlockerTests(unittest.TestCase):
-    """AC-M18-01-08: a reachable route with an incomplete binding cannot be waved through.
+    """AC--08: a reachable route with an incomplete binding cannot be waved through.
 
-    The precondition does not currently hold -- M21-02 delivered the derived positional binding and
+    The precondition does not currently hold -- delivered the derived positional binding and
     the VLM route is recorded `unsupported` -- so no entry carries this blocker. The rule is still
     enforced here, because the value of a fail-closed rule is that it holds before it is needed.
     """
@@ -422,7 +422,7 @@ class ScanBoundTests(unittest.TestCase):
         The artifact names every identity it records, and this test file names identities in order
         to assert about them. Indexing either would let the inventory manufacture evidence: a test
         asserting that a contract has no reader would itself become that contract's reader. The
-        M18-02 fingerprint-domain record joins them because it assigns a domain to every identity in
+         fingerprint-domain record joins them because it assigns a domain to every identity in
         this inventory, so indexed it would be the sole discovered reader of every contract nothing
         else reads.
 
@@ -441,15 +441,15 @@ class ScanBoundTests(unittest.TestCase):
                     GENERATOR.ARTIFACT_PATH.as_posix(),
                     "tests/test_contract_inventory.py",
                     "governance/contracts/fingerprint_domain_v1.json",
-                    # M18-05: the eligibility record names every schema it judges, so indexing it
+                    # the eligibility record names every schema it judges, so indexing it
                     # would let the record supply the very evidence it exists to weigh.
                     "governance/contracts/retirement_eligibility_v1.json",
-                    # M23-45's ownership record, generator and regression name the contracts
+                    # 's ownership record, generator and regression name the contracts
                     # they describe; scanning them would manufacture runtime-reader evidence.
                     "governance/contracts/architecture_fitness_v1.json",
                     "scripts/architecture_fitness.py",
                     "tests/test_architecture_fitness.py",
-                    # M23-48: the readership record lists every packaged artifact by path in order
+                    # the readership record lists every packaged artifact by path in order
                     # to say who reads it, and its test pins two of those classes by path. Indexed,
                     # the record alone would give every contract in this inventory a reader -- the
                     # broadest instance of the same defect, and the one that would quietly empty
@@ -461,12 +461,12 @@ class ScanBoundTests(unittest.TestCase):
         )
         self.assertIn("comfyui_h3_context/core/contract_inventory.py", scanned)
         self.assertIn("tests/test_reachability.py", scanned)
-        # The M18-02 generator hard-codes eight identities in its declaration table, so it is a
+        # The generator hard-codes eight identities in its declaration table, so it is a
         # reader of those eight in the ordinary sense and stays indexed.
         self.assertIn("scripts/fingerprint_domain.py", scanned)
-        # The M18-05 generator hard-codes the five retired identities, so it stays indexed too.
+        # The generator hard-codes the five retired identities, so it stays indexed too.
         self.assertIn("scripts/retirement_eligibility.py", scanned)
-        # The M23-48 generator globs the contracts directory and hard-codes no identity at all, so
+        # The generator globs the contracts directory and hard-codes no identity at all, so
         # it names nothing and stays indexed: only its *output* had to be excluded.
         self.assertIn("scripts/packaged_artifact_readership.py", scanned)
 
@@ -593,7 +593,7 @@ class KnownFindingTests(unittest.TestCase):
         self.assertNotEqual(entry["disposition"], "RETIRE_CANDIDATE")
 
     def test_no_entry_currently_requires_a_correction(self) -> None:
-        """AC-M18-01-08/09 preconditions: nothing is blocked, so nothing is rebound."""
+        """AC--08/09 preconditions: nothing is blocked, so nothing is rebound."""
 
         for entry in self.by_id.values():
             with self.subTest(contract_id=entry["contract_id"]):
@@ -632,7 +632,7 @@ PROSE_SUFFIXES = frozenset({".md", ".markdown", ".rst", ".txt", ".adoc"})
 class ProseIsNotAConsumerTests(unittest.TestCase):
     """A document that names a contract path is describing it, not reading it.
 
-    M23-46 is the case that proves it. The scan indexed `.md`, so a sentence added to
+     is the case that proves it. The scan indexed `.md`, so a sentence added to
     `tests/TEST_SOP.md` naming `frontend/src/contracts/compositionCodec.ts` made that SOP a recorded
     consumer of the compositionCodec contract and the shipped artifact went stale on a pure prose
     edit -- discovered inside a Full Gate, in an item that had nothing to do with the inventory.

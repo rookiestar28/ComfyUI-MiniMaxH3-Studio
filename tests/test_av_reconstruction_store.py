@@ -1,4 +1,4 @@
-"""M17-11 private reconstruction-store atomicity and integrity tests."""
+"""private reconstruction-store atomicity and integrity tests."""
 
 from __future__ import annotations
 

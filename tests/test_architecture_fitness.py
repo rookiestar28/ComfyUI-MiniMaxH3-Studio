@@ -106,15 +106,17 @@ def test_inventory_covers_both_stacks_and_the_shipped_entrypoint() -> None:
     # Retained media adds a DTO, admission source, fresh use, store, service and bounded edge.
     # Portable project data adds a pure codec, paired owner, exact source alias and bounded edge.
     # Editable recovery adds a strict DTO, closed store, lifecycle and bounded route owner.
-    # POSIX host-root admission adds one pure lexical owner (M23-67).
-    assert len([row for row in document["modules"] if row["language"] == "python"]) == 339
-    # M25-47/48 add the toolbar/decisions and Media/Text; M25-49 adds filmstrip ownership;
-    # M25-50 replaces one legacy Inspector module with separate tabs and timeline-menu owners;
-    # M25-51 adds the monitor transform overlay and its pure gesture mapper; M25-52 adds the
+    # POSIX host-root admission adds one pure lexical owner.
+    # Operator perception adds its bounded settings loader and finite readiness route owner.
+    # Production assembly execution and borrowed media use add two narrow adapter owners.
+    assert len([row for row in document["modules"] if row["language"] == "python"]) == 343
+    # /48 add the toolbar/decisions and Media/Text; adds filmstrip ownership;
+    #  replaces one legacy Inspector module with separate tabs and timeline-menu owners;
+    #  adds the monitor transform overlay and its pure gesture mapper; adds the
     # waveform demand, codec/cache and painter modules plus the bounded backend envelope module.
-    # M25-62 adds the track header component and the timeline surface rules module.
-    # M25-63 adds the bin's menus and the top bar's save-indicator model.
-    # M25-64 adds the inspector's display-unit adapter and the Project settings reader; the
+    #  adds the track header component and the timeline surface rules module.
+    #  adds the bin's menus and the top bar's save-indicator model.
+    #  adds the inspector's display-unit adapter and the Project settings reader; the
     # authoring V2 candidate adds the asset-bin component and asset-manifest runtime; the decoration
     # lease request builder keeps the host-effect owner within its enforced module budget; the
     # media-lease transport split keeps the source-lease owner below that same budget.
@@ -132,7 +134,8 @@ def test_inventory_covers_both_stacks_and_the_shipped_entrypoint() -> None:
     # Recovery metadata adds a codec, client, lifecycle and Settings section.
     # Retained media adds its codec, client, disposable lifecycle and Settings/Retain controls.
     # Editable draft recovery adds its codec, client, disposable lifecycle and controls.
-    assert len([row for row in document["modules"] if row["language"] == "typescript"]) == 249
+    # Perception readiness adds one codec, client, lifecycle, state and localized Settings control.
+    assert len([row for row in document["modules"] if row["language"] == "typescript"]) == 274
     assert document["entrypoints"] == [
         {
             "kind": "shipped_frontend_runtime",
@@ -187,15 +190,25 @@ def test_every_registered_http_route_has_mechanical_responsibility_ownership() -
             "responsibilities": ["application", "decode", "domain", "store"],
         },
     ]
-    # M23-47 made declared policy authoritative for route discovery. M26-04 adds the managed
-    # sequence action and current-projection routes; M25-29 adds one manual import route; M25-16
-    # adds the bodiless GET output-capability route; M25-31 adds the media runtime status, setup and
+    #  made declared policy authoritative for route discovery. adds the managed
+    # sequence action and current-projection routes; adds one manual import route;
+    # adds the bodiless GET output-capability route; adds the media runtime status, setup and
     # setup-job routes. Keep the exact total pinned so another route
     # cannot enter without an explicit responsibility review.
     # Recovery metadata adds one bounded POST, not a filesystem or execution route.
     # Retained media adds separate finite-command and explicit-preview POST edges.
     # Editable draft recovery adds one finite, owner-qualified POST edge.
-    assert len(routes) == 33
+    # Operator perception exposes one finite GET readiness projection, without configuration writes.
+    assert len(routes) == 34
+    assert [row for row in routes if row["module"].endswith("/comfyui_perception_status.py")] == [
+        {
+            "handler": "_status",
+            "method": "GET",
+            "module": "comfyui_h3_context/adapters/comfyui_perception_status.py",
+            "path_symbol": "PERCEPTION_HOST_STATUS_ROUTE",
+            "responsibilities": ["application", "domain", "response", "store"],
+        }
+    ]
     assert [row for row in routes if row["module"].endswith("/comfyui_editor_recovery.py")] == [
         {
             "module": "comfyui_h3_context/adapters/comfyui_editor_recovery.py",
@@ -244,7 +257,7 @@ def test_every_registered_http_route_has_mechanical_responsibility_ownership() -
 
 def test_current_known_debt_is_exact_owned_and_cannot_be_unowned() -> None:
     document = FITNESS.build_inventory(REPO_ROOT)
-    # M23-28 retired the last known-debt row; the inventory carries none.
+    #  retired the last known-debt row; the inventory carries none.
     assert document["known_violations"] == []
 
 
@@ -352,7 +365,7 @@ def test_exact_owned_graph_write_owners_remain_allowed(tmp_path: Path) -> None:
 
 
 def test_owned_graph_writers_outside_the_owned_write_seam_are_findings(tmp_path: Path) -> None:
-    # M23-28 moved the owned write out of appMode.ts; the same two functions there are debt.
+    #  moved the owned write out of appMode.ts; the same two functions there are debt.
     _write(tmp_path / "frontend/src/host/appMode.ts", _OWNED_GRAPH_WRITERS)
     assert [
         row
@@ -418,7 +431,7 @@ def test_artifact_has_no_absolute_or_sensitive_content() -> None:
         assert forbidden not in raw
 
 
-# --- M23-50 source reachability -------------------------------------------------------------
+# --- source reachability -------------------------------------------------------------
 
 
 def _classify(root: Path) -> dict[str, Any]:
@@ -586,7 +599,7 @@ def test_a_bare_relative_import_inside_core_is_still_hub_evidence(tmp_path: Path
 
 
 def test_only_frontend_src_becomes_a_typescript_row(tmp_path: Path) -> None:
-    # The M23-50 review asked what would happen to a `.d.ts` under an evidence root. The answer is
+    # The review asked what would happen to a `.d.ts` under an evidence root. The answer is
     # that it never becomes a row: the TypeScript scan boundary is `frontend/src`, so the artifact
     # describes the shipped surface and nothing else. Widening the scan would silently give test
     # sources a `product` class through the ambient-declaration branch, which is why the boundary
@@ -672,7 +685,7 @@ def test_every_shipped_row_carries_one_class_with_its_evidence_and_reason() -> N
 
 
 def test_composition_contract_is_reachable_from_the_shipped_product() -> None:
-    # M25-11 promotes this contract from a planned seam into the shipped authoring command path.
+    #  promotes this contract from a planned seam into the shipped authoring command path.
     # Keep the product classification pinned so it cannot silently regress to plan-only evidence.
     document = json.loads(ARTIFACT.read_text(encoding="utf-8"))
     row = next(

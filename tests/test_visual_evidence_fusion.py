@@ -1,4 +1,4 @@
-"""M11-07 provenance-preserving visual fusion and confidence calibration tests."""
+"""provenance-preserving visual fusion and confidence calibration tests."""
 
 from __future__ import annotations
 

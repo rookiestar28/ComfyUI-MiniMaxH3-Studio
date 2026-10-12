@@ -1,4 +1,4 @@
-// M25-63: the media bin's two menus, built on the timeline menus' keyboard, focus and dismissal
+// the media bin's two menus, built on the timeline menus' keyboard, focus and dismissal
 // helpers.
 // `NleMediaSortFilterMenu` replaces the sort and filter selects with one icon button and a menu of
 // two radio groups; `NleAssetMenu` is a card's context menu (right-click, Shift+F10 or the

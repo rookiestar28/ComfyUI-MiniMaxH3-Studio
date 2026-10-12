@@ -1,4 +1,4 @@
-"""Exact M17-11 plan-to-media-to-private-store integration boundary."""
+"""Exact plan-to-media-to-private-store integration boundary."""
 
 from __future__ import annotations
 
@@ -102,7 +102,7 @@ def _assert_exact_input_payloads(
             ):
                 raise AVReconstructionPipelineError("input_identity_mismatch")
             continue
-        # M20-08: an incremental source declares its content identity up front; byte
+        # an incremental source declares its content identity up front; byte
         # verification happens inside the adapter's bounded stream, which hashes every
         # chunk and fails closed on any divergence before the copy is used.
         if (

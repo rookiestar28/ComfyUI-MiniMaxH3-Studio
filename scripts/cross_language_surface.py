@@ -1,4 +1,4 @@
-"""Generate the M18-03 cross-language structural authority and the browser module derived from it.
+"""Generate the cross-language structural authority and the browser module derived from it.
 
 Browser codecs used to declare the key set of a Python wire by hand.  This generator reads the
 Python declaration -- the runtime producer, and the only declaration that exists for every
@@ -230,6 +230,16 @@ DECLARED: tuple[_Declared, ...] = (
     _Declared(
         "comfyui_h3_context/core/composition_contract.py",
         "Crop",
+        ("compositionCodec.ts",),
+    ),
+    _Declared(
+        "comfyui_h3_context/core/composition_contract.py",
+        "TextStroke",
+        ("compositionCodec.ts",),
+    ),
+    _Declared(
+        "comfyui_h3_context/core/composition_contract.py",
+        "TextShadow",
         ("compositionCodec.ts",),
     ),
     _Declared(

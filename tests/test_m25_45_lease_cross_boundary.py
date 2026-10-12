@@ -1,4 +1,4 @@
-"""M25-45: backend byte-capacity cases from the section 7 cross-boundary table.
+"""backend byte-capacity cases from the section 7 cross-boundary table.
 
 The backend and the browser each admit a body on their own, and after the proxy migration they
 admit a much larger one. These cases fix what each end does at the new edges: what it accepts, what
@@ -8,7 +8,7 @@ different ways cannot tell "this source is too big for the profile" from "the en
 These synthetic bodies exercise authority/cache arithmetic only. They are not codec, playback,
 presentation, dissolve or real-route evidence. The real-route exact-ceiling codec journey is
 `frontend/tests/e2e/journeys/realMediaSourceLeases.spec.ts`; case (e) remains in
-`tests/test_m25_45_derivative_table_parity.py`.
+`tests/test__derivative_table_parity.py`.
 """
 
 from __future__ import annotations
@@ -139,7 +139,7 @@ def authority_for(claim: SizedClaim) -> Iterator[MediaLeaseAuthority]:
 
 
 def test_a_proxy_body_above_the_old_ceiling_is_admitted_at_the_new_one() -> None:
-    # The whole point of the migration: a body the pre-M25-45 backend would have refused now
+    # The whole point of the migration: a body the pre- backend would have refused now
     # publishes, so a 1280 px proxy can exist at all.
     byte_count = 12 * 1024 * 1024
     assert byte_count > 8 * 1024 * 1024
@@ -208,7 +208,7 @@ def authority_over(claims: dict[str, SizedClaim]) -> Iterator[MediaLeaseAuthorit
 def test_three_ceiling_proxies_two_images_and_headroom_hold_at_once() -> None:
     """The aggregate the ceilings were chosen for, executed rather than computed.
 
-    `test_m25_45_derivative_table_parity` checks that the numbers add up. This checks that the
+    `test__derivative_table_parity` checks that the numbers add up. This checks that the
     authority actually admits them together: three video owners at the video ceiling -- the most
     one workspace may hold -- plus two image proxies at theirs and the index, thumbnail and font
     headroom beside them, all live at the same moment, published and readable.

@@ -1,4 +1,4 @@
-// M25-16: the one typed binding the presentation layer hands the expanded workspace.
+// the one typed binding the presentation layer hands the expanded workspace.
 //
 // Components never reach the shell session; they read this projection and call these named
 // actions. Every action here is an explicit user intent that maps to one accepted backend
@@ -43,7 +43,7 @@ export type NleWorkspaceBinding = Readonly<{
   project?: ProjectFileBinding;
   state: NleWorkspaceState;
   /**
-   * M25-21: bounded view and draft retention. A local view change only; writing it issues no
+   * bounded view and draft retention. A local view change only; writing it issues no
    * command, and restoring from it never replays one.
    */
   retention?: SidebarRetention;
@@ -55,10 +55,10 @@ export type NleWorkspaceBinding = Readonly<{
   leaseClient: AuthoringMediaSourceLeaseClient;
   openSourcePreview?: AuthoringPreviewOpener;
   output: Readonly<{ client: OutputClient; preview: OutputPreview }>;
-  /** M25-33: the shared Media tools entry for a runtime-blocked preview or final output. */
+  /** the shared Media tools entry for a runtime-blocked preview or final output. */
   mediaTools?: MediaToolsBinding;
   /**
-   * @internal M25-45 AC45-04: one sample per presented frame.
+   * @internal AC45-04: one sample per presented frame.
    *
    * The whole-compositor presentation budget is measured on the real integrated shell, so the
    * observer has to reach the monitor the product mounts rather than a compositor a harness built
@@ -70,7 +70,7 @@ export type NleWorkspaceBinding = Readonly<{
       onInvalidated: () => void,
     ): SeamResult<Readonly<{ release(): void }>>;
     /**
-     * M25-21: the monitor hands its replacement trigger to the session owner that adopts an
+     * the monitor hands its replacement trigger to the session owner that adopts an
      * accepted revision, so the adoption and the monitor's `opening` state are published in one
      * React commit. Optional: without it the monitor still replaces from its own binding effect.
      */
@@ -82,11 +82,11 @@ export type NleWorkspaceBinding = Readonly<{
     close(reason: NleCloseReason): void;
     released(generation: number): void;
     resize(bounds: OverlayBounds): void;
-    /** M25-44: the R1 tab (Media or Sequence). */
+    /** the R1 tab (Media or Sequence). */
     selectPane(pane: OverlayInternalPane): void;
-    /** M25-44: a splitter move; local view state only. */
+    /** a splitter move; local view state only. */
     setLayout(layout: NleLayout): void;
-    /** M25-44: create the Authoring workspace from Context (the retired compact editor's action). */
+    /** create the Authoring workspace from Context (the retired compact editor's action). */
     startAuthoring(): Promise<void>;
     timeline(intent: AuthoringIntent): Promise<void>;
     clearImportHighlight(): void;

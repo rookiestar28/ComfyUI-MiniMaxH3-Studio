@@ -1,4 +1,4 @@
-// Shared M25-29 import request/response builders (codec, client and NLE workspace tests).
+// Shared import request/response builders (codec, client and NLE workspace tests).
 import { projectionWire, sourceWire } from "./authoringFixture";
 import compositionFixture from "../../../tests/fixtures/m25_10_composition_contract_v1.json";
 import { compositionContractFingerprint } from "../../src/contracts/compositionCodec";

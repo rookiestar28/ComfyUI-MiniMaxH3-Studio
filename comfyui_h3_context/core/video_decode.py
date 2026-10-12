@@ -1,4 +1,4 @@
-"""Source-PTS video decode and frame-batch contracts for M11-04.
+"""Source-PTS video decode and frame-batch contracts for.
 
 This module records bounded decoder output without opening media or importing a decoder.  Integer
 source PTS and its rational time base are authoritative; fixed-FPS or synthesized timestamps are

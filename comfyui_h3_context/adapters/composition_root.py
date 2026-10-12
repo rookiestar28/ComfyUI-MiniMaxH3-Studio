@@ -81,7 +81,7 @@ class CompositionError(RuntimeError):
 # CRITICAL: re-entrant, and construction stays inside it. The coordinator's constructor asks for
 # the production registry, so a non-re-entrant lock would deadlock on a cold start. Two route
 # handlers run on `asyncio.to_thread` worker threads and can both observe an empty table at once;
-# since M23-31 the coordinator's constructor binds the process's live-sequence authority onto the
+# since the coordinator's constructor binds the process's live-sequence authority onto the
 # production registry and binding twice is refused, so an unsynchronised double construction turns
 # a cold-start race into a 500 on a request that did nothing wrong. Re-checking inside the lock is
 # what makes the binding happen once, and hoisting either check out is the tempting simplification

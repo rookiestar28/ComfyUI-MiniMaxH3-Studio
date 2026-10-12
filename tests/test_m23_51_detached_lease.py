@@ -1,4 +1,4 @@
-"""M23-51: what a detached run retains, and for exactly how long.
+"""what a detached run retains, and for exactly how long.
 
 A detach that retained nothing would be a cancellation with a friendlier name; a detach that
 retained everything would be an unbounded store of private material keyed by an absent client. The

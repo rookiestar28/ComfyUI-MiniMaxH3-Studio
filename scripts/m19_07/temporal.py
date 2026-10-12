@@ -1,6 +1,6 @@
 """Temporal qualification: the video-run lattice, the audio-latent join, and their separation.
 
-Three decisions have to stay separable, and the whole reason `M19-07` names four specific frame
+Three decisions have to stay separable, and the whole reason `` names four specific frame
 counts is that a careless set collapses them:
 
 1. **run validity** — is the frame count on the model's producible lattice at all;
@@ -9,14 +9,14 @@ counts is that a careless set collapses them:
 3. **authoritative target admission** — does the exact adapter itself supply the target audio latent
    count, rather than a surface inventing one.
 
-The lattice is not re-derived here. `M17-25` made `comfyui_h3_context.core.length` the repository's
+The lattice is not re-derived here. `` made `comfyui_h3_context.core.length` the repository's
 single authority for it, and a qualification harness that implements a second copy would recreate
 exactly the defect that item removed. This module reads the lattice from the pinned source, reads it
-again from the repository authority, and reports any disagreement as a finding for `M20-01`.
+again from the repository authority, and reports any disagreement as a finding for ``.
 
 What the repository does *not* own is the audio side. There is no audio-latent rate anywhere in
 `comfyui_h3_context`, so the join is derived from the source alone, and deliberately not written
-back into the product package: that belongs to `M20-01` and only if its row is `supported`.
+back into the product package: that belongs to `` and only if its row is `supported`.
 """
 
 from __future__ import annotations
@@ -118,7 +118,7 @@ def compare_lattice(facts: SourceFacts, *, upper: int | None = None) -> LatticeA
     """Check the repository authority against the pinned source over the whole declared range.
 
     A disagreement is recorded, never repaired. `comfyui_h3_context.core.length` is accepted
-    `M17-25` behaviour; changing it from inside a qualification item would be a product change
+    `` behaviour; changing it from inside a qualification item would be a product change
     smuggled in as a measurement.
     """
     align_source = facts.functions["align_frame_count"]

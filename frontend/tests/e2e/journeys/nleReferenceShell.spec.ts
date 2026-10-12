@@ -1,4 +1,4 @@
-// M25-44: the reference NLE shell on the REAL integrated shell (`frontend/e2e/nleShell.tsx`),
+// the reference NLE shell on the REAL integrated shell (`frontend/e2e/nleShell.tsx`),
 // measured in the browser's layout engine. Four regions -- media bin, preview monitor and
 // inspector over a full-width timeline -- separated by three splitters; the final-video card in the
 // chrome bar's Export popover; one editing surface. Expected proportions come from the master
@@ -455,7 +455,7 @@ test("clip editor tab has one editing surface and close returns focus to the lau
 });
 
 /**
- * M25-63 (A63-1): the top bar's DOM inventory. Visible: the title, the save indicator, Export and
+ *  (A63-1): the top bar's DOM inventory. Visible: the title, the save indicator, Export and
  * Close, in that order, in one row of `topBarHeightPx` under a fine pointer. Kept but not shown:
  * the surface status (still announced) and the monitor and audio diagnostics with their attributes
  * (neither shown nor announced).
@@ -644,7 +644,7 @@ test("the narrow tier at 720 x 480 keeps every region at its minimum with 44 px 
   expect(layout.inspector.width).toBeGreaterThanOrEqual(240 - 0.5);
   expect(layout.bin.height).toBeGreaterThanOrEqual(240 - 0.5);
   expect(layout.timeline.height).toBeGreaterThanOrEqual(160 - 0.5);
-  // The vertical floor (M25-53): the dialog takes the 480 px viewport less its 8 px margins,
+  // The vertical floor: the dialog takes the 480 px viewport less its 8 px margins,
   // the timeline sits exactly at its 160 px minimum, the top band absorbs the rest above its
   // own minimum, and the stage has nothing left to scroll.
   near(layout.dialog.height, 464);
@@ -675,7 +675,7 @@ test("the narrow tier at 720 x 480 keeps every region at its minimum with 44 px 
     await page.keyboard.press("Enter");
   }
 
-  // Every visible control keeps the editor's floor for this pointer (M25-61 contract).
+  // Every visible control keeps the editor's floor for this pointer ( contract).
   const floor = await nleTargetFloor(page);
   const grip = await nleFineGripException(page);
   const small = await page.locator(OVERLAY).evaluate(
@@ -688,7 +688,7 @@ test("the narrow tier at 720 x 480 keeps every region at its minimum with 44 px 
         .filter((element) => element.getClientRects().length > 0)
         .map((element) => {
           const rect = element.getBoundingClientRect();
-          // M25-62 (B-M2562-05): only the pinned 8 px fine grip is excused its width.
+          //  (B-M2562-05): only the pinned 8 px fine grip is excused its width.
           const excused =
             grip !== null &&
             element.matches(grip.selector) &&
@@ -714,7 +714,7 @@ test("the narrow tier at 720 x 480 keeps every region at its minimum with 44 px 
     (await splitter(page, "top_timeline").boundingBox())!.height,
   ).toBeGreaterThanOrEqual(44);
 
-  // M25-63: the bin tabs keep the label under the icon at this tier too, each inside its own
+  // the bin tabs keep the label under the icon at this tier too, each inside its own
   // tab box, with the accessible name and the hover description unchanged.
   for (const [name, pane] of [
     ["Media", "assets"],

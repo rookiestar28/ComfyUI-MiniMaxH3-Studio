@@ -3,7 +3,7 @@
 `core/clip_audio.py` states the factor a clip's audio is multiplied by at each output sample of
 the clip; the render graph turns it into `volume` and `afade` filters for each audio run of the
 clip. The table both languages are tested against is generated from the Python statement
-(`scripts/m25_77_clip_audio_envelope_fixture.py`). Here the statement is held to an exact one, the
+(`scripts/_clip_audio_envelope_fixture.py`). Here the statement is held to an exact one, the
 filters are held to the statement through the per-sample gains FFmpeg's filters were measured to
 apply on the pinned build, and a composition without adjustments keeps its plan and its program
 byte for byte.
@@ -116,6 +116,19 @@ def _sha(value: bytes | str) -> str:
     return hashlib.sha256(value.encode("utf-8") if isinstance(value, str) else value).hexdigest()
 
 
+BASE_RENDER_PRIMITIVE_IDS = (
+    "SelectSourceRangeV1",
+    "CropV1",
+    "Transform2DV1",
+    "ColorAdjustV1",
+    "OpacityV1",
+    "BlendV1",
+    "CrossDissolveV1",
+    "DrawTextV1",
+    "PrimaryEmbeddedFollowVideoV1",
+)
+
+
 def _base_operation_list() -> tuple[str, ...]:
     """The closed operation list as it was at the base: the current one without `set_clip_audio`."""
 
@@ -126,13 +139,31 @@ def _base_operation_list() -> tuple[str, ...]:
 def base_profile(monkeypatch: pytest.MonkeyPatch) -> None:
     """Plans made under the renderer profile of the base.
 
-    The profile names the closed operation list (`semantic_command_ids`) and every plan binds the
+    The profile names closed command and primitive lists and every plan binds the
     profile's fingerprint, so adding a command moves that fingerprint for every plan; the plan's
     idempotency, plan and semantic render fingerprints bind it in turn. Under this fixture a
     composition without adjustments must reproduce the base's bytes exactly.
     """
 
     monkeypatch.setattr(render_planner, "NLE_OPERATION_IDS", _base_operation_list())
+    # GUARD: both closed populations were measured at 057a8c71; retaining later primitives
+    # produces a different profile and falsely reports changed unadjusted plan bytes.
+    monkeypatch.setattr(render_planner, "RENDER_PRIMITIVE_IDS", BASE_RENDER_PRIMITIVE_IDS)
+
+
+def test_the_live_profile_retains_current_commands_and_render_primitives() -> None:
+    profile = required_unqualified_renderer_profile()
+    assert profile.semantic_command_ids == NLE_OPERATION_IDS
+    assert profile.render_primitive_ids == render_planner.RENDER_PRIMITIVE_IDS
+    after = BASE_RENDER_PRIMITIVE_IDS.index("DrawTextV1") + 1
+    assert profile.render_primitive_ids == (
+        *BASE_RENDER_PRIMITIVE_IDS[:after],
+        "TextDecorationV1",
+        *BASE_RENDER_PRIMITIVE_IDS[after:],
+    )
+    assert profile.profile_fingerprint == canonical_fingerprint(profile.fingerprint_material())
+    assert profile.profile_fingerprint != BASE_IDENTITY["renderer_capability_profile_fingerprint"]
+    assert _plan().renderer_capability_profile_fingerprint == profile.profile_fingerprint
 
 
 def _exact(audio: ClipAudio, duration_frames: int, k: int) -> float:
@@ -384,10 +415,12 @@ def test_the_command_reaches_an_unadjusted_plan_only_through_the_renderer_profil
     base_list = _base_operation_list()
     after = base_list.index("set_effect") + 1
     assert NLE_OPERATION_IDS == (*base_list[:after], "set_clip_audio", *base_list[after:])
+    # Isolate the command addition from later primitive additions to the historical profile.
+    monkeypatch.setattr(render_planner, "RENDER_PRIMITIVE_IDS", BASE_RENDER_PRIMITIVE_IDS)
     current = {"unit_plan": _plan(), "long_plan": long_plan()}
-    monkeypatch.setattr(render_planner, "NLE_OPERATION_IDS", base_list)
-    base = {"unit_plan": _plan(), "long_plan": long_plan()}
-    monkeypatch.undo()
+    with monkeypatch.context() as command_profile:
+        command_profile.setattr(render_planner, "NLE_OPERATION_IDS", base_list)
+        base = {"unit_plan": _plan(), "long_plan": long_plan()}
     profile = required_unqualified_renderer_profile().profile_fingerprint
     assert profile != BASE_IDENTITY["renderer_capability_profile_fingerprint"]
     for name, plan in current.items():
@@ -567,6 +600,7 @@ def test_an_unadjusted_program_is_the_base_program_byte_for_byte(
     assert _sha(graph) == BASE_IDENTITY["bound_video_plan.filter_graph"]
     # Under the base's profile the plan it is made from is the base's as well.
     monkeypatch.setattr(render_planner, "NLE_OPERATION_IDS", _base_operation_list())
+    monkeypatch.setattr(render_planner, "RENDER_PRIMITIVE_IDS", BASE_RENDER_PRIMITIVE_IDS)
     graph, _, identity = _bound_graph(tmp_path / "base", ())
     assert identity == {key: BASE_IDENTITY[key] for key in identity}
     assert _sha(graph) == BASE_IDENTITY["bound_video_plan.filter_graph"]

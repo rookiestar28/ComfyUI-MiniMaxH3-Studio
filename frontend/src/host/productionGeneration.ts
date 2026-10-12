@@ -133,7 +133,7 @@ export function buildProductionGenerationBinding({
   const segment = production.segments.find(
     (item) => item.segmentId === command?.segment_id,
   );
-  // CRITICAL (B-M1605-EXIST-02): the existing route never authors task mode; M24-07 keeps the
+  // CRITICAL (B-M1605-EXIST-02): the existing route never authors task mode; keeps the
   // Request's own mode, so the executed workspace is the authority there and the retained inputs
   // adopt it. Requiring Sidebar parity refuses every existing graph whose Request mode differs
   // from the Sidebar selection, after ComfyUI has already accepted the generation, as ambiguous

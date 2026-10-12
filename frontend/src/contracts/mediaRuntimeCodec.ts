@@ -1,4 +1,4 @@
-// M25-33: the fail-closed decoder for the media runtime status (v3) and setup job (v1) wires.
+// the fail-closed decoder for the media runtime status (v3) and setup job (v1) wires.
 //
 // Every key set is exact and every enumerated value is closed. An unknown value is a typed decode
 // failure, which the surface shows as "status unavailable" and never as ready: a newer server

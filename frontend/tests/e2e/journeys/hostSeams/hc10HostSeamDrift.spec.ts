@@ -7,6 +7,7 @@ import rawModalKeyboardTransition from "../../../../../governance/contracts/host
 import rawWorkspaceStateTransition from "../../../../../governance/contracts/host_seam_census_transition_workspace_state_v1.json" with { type: "json" };
 import rawRetainedMediaTransition from "../../../../../governance/contracts/host_seam_census_transition_retained_media_v1.json" with { type: "json" };
 import rawProjectPersistenceTransition from "../../../../../governance/contracts/host_seam_census_transition_project_persistence_v1.json" with { type: "json" };
+import rawPerceptionHostTransition from "../../../../../governance/contracts/host_seam_census_transition_perception_host_v1.json" with { type: "json" };
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -150,6 +151,7 @@ test("replays HC-09 seam fixtures without making host availability a product gat
       rawWorkspaceStateTransition,
       rawRetainedMediaTransition,
       rawProjectPersistenceTransition,
+      rawPerceptionHostTransition,
     ],
   );
   if (baselineResult.result === "DRIFTED") {

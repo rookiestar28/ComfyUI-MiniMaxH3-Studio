@@ -1,11 +1,11 @@
-// M25-45: the monitor's status and embedded-audio state, in the chrome bar.
+// the monitor's status and embedded-audio state, in the chrome bar.
 //
 // IMPORTANT (master plan 5.2): they used to be two full-width text rows under the picture, and the
 // picture area is the row they took the height from. They keep their identifiers, their live
 // regions and their full text -- only their place changes -- because the status a user needs while
 // something is wrong must stay readable, and the journeys assert these exact hooks.
 
-import { useSyncExternalStore } from "react";
+import { memo, useSyncExternalStore } from "react";
 import type { Locale } from "../../i18n/catalog";
 import type { NleMonitorStatus } from "../../runtime/nleWorkspaceRuntime";
 import { fill, nleCopy } from "./nleCopy";
@@ -27,7 +27,7 @@ export function monitorStatusText(
   return text.monitor.status[composition.status];
 }
 
-/** M25-64 (A64-6): the unavailable overlay's plain reason; `monitorStatusText` stays the status. */
+/**  (A64-6): the unavailable overlay's plain reason; `monitorStatusText` stays the status. */
 export function monitorUnavailableReason(
   text: Copy,
   composition: NleMonitorStatus["composition"],
@@ -39,7 +39,7 @@ export function monitorUnavailableReason(
   ];
 }
 
-export function NleMonitorChips({
+function NleMonitorChipsView({
   locale,
   channel,
 }: {
@@ -71,6 +71,10 @@ export function NleMonitorChips({
     </>
   );
 }
+
+// The chips follow the status channel through their own store subscription, never through the
+// overlay's renders, so an accepted edit that re-renders the overlay has nothing to change here.
+export const NleMonitorChips = memo(NleMonitorChipsView);
 
 export function AudioStatus({
   locale,

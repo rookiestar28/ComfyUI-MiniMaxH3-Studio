@@ -1,4 +1,4 @@
-"""HC-03 real media subprocess lifecycle regressions."""
+"""real media subprocess lifecycle regressions."""
 
 from __future__ import annotations
 
@@ -9,11 +9,13 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import unittest
 from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
+from queue import Empty, Queue
 from typing import cast
 from unittest.mock import patch
 
@@ -463,53 +465,59 @@ class MediaSubprocessHardeningTests(unittest.TestCase):
             self.assertTrue(output_limited.reaped)
 
     def test_real_descendant_process_tree_is_terminated_and_reaped(self) -> None:
-        with tempfile.TemporaryDirectory() as temporary:
-            pid_file = Path(temporary) / "child.pid"
-            child_code = "import time; time.sleep(30)"
-            parent_code = (
-                "import pathlib,subprocess,sys,time;"
-                f"p=subprocess.Popen([sys.executable,'-c',{child_code!r}]);"
-                # IMPORTANT: existence must publish a complete PID; direct write_text exposes
-                # an empty file before its write and races the fixture's readiness check.
-                "pid=pathlib.Path(sys.argv[1]);pending=pid.with_suffix('.pending');"
-                "pending.write_text(str(p.pid),encoding='ascii');pending.replace(pid);"
-                "time.sleep(30)"
+        child_code = "import time; time.sleep(30)"
+        parent_code = (
+            "import subprocess,sys,time;"
+            f"p=subprocess.Popen([sys.executable,'-c',{child_code!r}]);"
+            # CRITICAL: a renamed PID file can be visible before Windows permits reading it.
+            # Publish the complete PID over a pipe; existence polling still races sharing locks.
+            "print(p.pid,flush=True);time.sleep(30)"
+        )
+        if os.name == "nt":
+            parent = subprocess.Popen(
+                [sys.executable, "-c", parent_code],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                shell=False,
+                creationflags=getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0),
             )
-            if os.name == "nt":
-                parent = subprocess.Popen(
-                    [sys.executable, "-c", parent_code, str(pid_file)],
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    shell=False,
-                    creationflags=getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0),
-                )
-            else:
-                parent = subprocess.Popen(
-                    [sys.executable, "-c", parent_code, str(pid_file)],
-                    stdin=subprocess.DEVNULL,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    shell=False,
-                    start_new_session=True,
-                )
+        else:
+            parent = subprocess.Popen(
+                [sys.executable, "-c", parent_code],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+                shell=False,
+                start_new_session=True,
+            )
+        pipe = parent.stdout
+        assert pipe is not None
+        readiness: Queue[bytes] = Queue()
+        reader = threading.Thread(target=lambda: readiness.put(pipe.readline()), daemon=True)
+        reader.start()
+        try:
             try:
-                deadline = time.monotonic() + 5
-                while not pid_file.exists() and time.monotonic() < deadline:
-                    time.sleep(0.01)
-                self.assertTrue(pid_file.exists(), "descendant PID fixture was not created")
-                child_pid = int(pid_file.read_text(encoding="ascii"))
-                self.assertTrue(self._pid_exists(child_pid))
-                self.assertTrue(_terminate_process(parent))
-                parent.wait(timeout=3)
-                deadline = time.monotonic() + 3
-                while self._pid_exists(child_pid) and time.monotonic() < deadline:
-                    time.sleep(0.02)
-                self.assertFalse(self._pid_exists(child_pid), "descendant process escaped cleanup")
-            finally:
-                if parent.poll() is None:
-                    _terminate_process(parent)
-                parent.wait(timeout=3)
+                pid_line = readiness.get(timeout=5)
+            except Empty:
+                self.fail("descendant PID fixture was not published")
+            self.assertRegex(pid_line, rb"^[0-9]+\r?\n$")
+            child_pid = int(pid_line)
+            self.assertTrue(self._pid_exists(child_pid))
+            self.assertTrue(_terminate_process(parent))
+            parent.wait(timeout=3)
+            deadline = time.monotonic() + 3
+            while self._pid_exists(child_pid) and time.monotonic() < deadline:
+                time.sleep(0.02)
+            self.assertFalse(self._pid_exists(child_pid), "descendant process escaped cleanup")
+        finally:
+            if parent.poll() is None:
+                _terminate_process(parent)
+            parent.wait(timeout=3)
+            reader.join(timeout=3)
+            if not reader.is_alive():
+                pipe.close()
+            self.assertFalse(reader.is_alive(), "descendant readiness reader escaped cleanup")
 
     def test_cleanup_failure_does_not_overwrite_primary_failure(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

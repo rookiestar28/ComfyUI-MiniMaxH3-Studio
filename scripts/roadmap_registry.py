@@ -15,11 +15,14 @@ import stat
 import sys
 import tempfile
 from collections.abc import Sequence
+from copy import deepcopy
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import NoReturn, cast
 
 ROOT = Path(__file__).resolve().parents[1]
-ACTIVE_INDEX_SCHEMA = "h3-context-active-roadmap-index/2"
+ACTIVE_INDEX_SCHEMA = "h3-context-active-roadmap-index/3"
+LEGACY_INDEX_SCHEMA = "h3-context-active-roadmap-index/2"
 ARCHIVE_MANIFEST_SCHEMA = "h3-context-roadmap-archive/1"
 RENDER_SCHEMA = "h3-context-active-roadmap-render/2"
 HISTORY_SCHEMA = "h3-context-roadmap-history/1"
@@ -34,9 +37,10 @@ ACTIVE_STATUSES = frozenset(
 ITEM_ID_PATTERN = re.compile(r"^(?:M\d+|HC|RM)-\d+$")
 OID_PATTERN = re.compile(r"^[0-9a-f]{40}$")
 SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
-ROOT_MEMBERS = frozenset({"schema", "latest_accepted", "items", "archives"})
+LEGACY_ROOT_MEMBERS = frozenset({"schema", "latest_accepted", "items", "archives"})
+ROOT_MEMBERS = LEGACY_ROOT_MEMBERS | {"release_scope_changes"}
 CHECKPOINT_MEMBERS = frozenset({"id", "title", "commit", "tree", "record_path"})
-ITEM_MEMBERS = frozenset(
+LEGACY_ITEM_MEMBERS = frozenset(
     {
         "id",
         "title",
@@ -50,12 +54,31 @@ ITEM_MEMBERS = frozenset(
         "live_record_path",
     }
 )
+ITEM_MEMBERS = LEGACY_ITEM_MEMBERS | {"lane"}
+LANES = frozenset({"light", "standard", "heavy"})
+RELEASE_MEMBERS = frozenset({"appetite", "admission", "frozen_at"})
+SCOPE_EVENT_MEMBERS = frozenset(
+    {"date", "release_id", "change", "item", "criterion", "instruction", "note"}
+)
+ADMISSION_CRITERIA = frozenset(
+    {
+        "data_loss",
+        "security_privacy",
+        "crash_or_hang_core_path",
+        "documented_feature_broken_on_acceptance_host",
+        "legal_or_licence",
+        "owner_instruction",
+    }
+)
 ARCHIVE_MEMBERS = frozenset({"path", "manifest_sha256", "item_count", "description"})
 TERMINAL_ROOT_MEMBERS = frozenset({"schema", "items"})
 TERMINAL_ITEM_MEMBERS = frozenset(
     {"id", "title", "status", "depends_on", "owner", "plan_path", "commit", "tree", "record_path"}
 )
-MAX_INDEX_BYTES = 128_000
+MAX_INDEX_BYTES = 512_000
+# CRITICAL: projection readback must share the index budget; a separate old ceiling makes
+# a valid growing archive catalog render successfully and then fail its own --check.
+MAX_PROJECTION_BYTES = MAX_INDEX_BYTES
 MAX_ITEMS = 256
 PLAN_STATES = frozenset({"NOT_REQUIRED", "DRAFT", "FINALIZED", "STALE"})
 MAX_TEXT = 2_000
@@ -275,8 +298,22 @@ def load_index(root: Path, index_path: Path | str = DEFAULT_INDEX_PATH) -> dict[
     root = root.resolve()
     relative = _safe_relative(index_path, "index path")
     index = _read_json(root, relative, "active roadmap index", maximum=MAX_INDEX_BYTES)
-    _closed(index, ROOT_MEMBERS, "active roadmap index")
-    if index["schema"] != ACTIVE_INDEX_SCHEMA:
+    return _validate_index(root, index, legacy=False)
+
+
+def _load_legacy_index(root: Path, index_path: Path | str) -> dict[str, object]:
+    relative = _safe_relative(index_path, "legacy index path")
+    index = _read_json(root, relative, "legacy active roadmap index", maximum=MAX_INDEX_BYTES)
+    return _validate_index(root.resolve(), index, legacy=True)
+
+
+def _validate_index(
+    root: Path, index: dict[str, object], *, legacy: bool = False
+) -> dict[str, object]:
+    # CRITICAL: legacy validation is explicit migration-only; normal reads must refuse schema2
+    # rather than accepting missing lane/ledger fields and silently losing release governance.
+    _closed(index, LEGACY_ROOT_MEMBERS if legacy else ROOT_MEMBERS, "active roadmap index")
+    if index["schema"] != (LEGACY_INDEX_SCHEMA if legacy else ACTIVE_INDEX_SCHEMA):
         _fail("active roadmap index schema is unknown")
 
     checkpoint = _mapping(index["latest_accepted"], "latest accepted checkpoint")
@@ -301,7 +338,12 @@ def load_index(root: Path, index_path: Path | str = DEFAULT_INDEX_PATH) -> dict[
     ids: list[str] = []
     for item_index, raw_item in enumerate(raw_items):
         item = _mapping(raw_item, f"item[{item_index}]")
-        _closed(item, ITEM_MEMBERS, f"item[{item_index}]")
+        expected_members = LEGACY_ITEM_MEMBERS if legacy else ITEM_MEMBERS
+        if not legacy and "release" in item:
+            expected_members = expected_members | {"release"}
+        _closed(item, expected_members, f"item[{item_index}]")
+        if not legacy and (not isinstance(item["lane"], str) or item["lane"] not in LANES):
+            _fail(f"item[{item_index}] lane is invalid")
         item_id = _string(item["id"], f"item[{item_index}].id", maximum=32)
         if ITEM_ID_PATTERN.fullmatch(item_id) is None:
             _fail(f"item[{item_index}] id is invalid")
@@ -378,7 +420,93 @@ def load_index(root: Path, index_path: Path | str = DEFAULT_INDEX_PATH) -> dict[
             if dependency not in allowed_dependencies:
                 _fail(f"active item {item['id']} has dangling dependency {dependency}")
     _validate_graph(items)
+    if not legacy:
+        _validate_release_scope(index, allowed_dependencies)
     return index
+
+
+def _timestamp(value: object, field: str) -> datetime:
+    text = _string(value, field, maximum=64)
+    try:
+        parsed = datetime.fromisoformat(text[:-1] + "+00:00" if text.endswith("Z") else text)
+        if parsed.utcoffset() is None:
+            _fail(f"{field} must include a timezone")
+        return parsed.astimezone(timezone.utc)
+    except ValueError:
+        _fail(f"{field} must be a valid timezone-aware ISO timestamp")
+
+
+def _validate_release_scope(index: dict[str, object], allowed_ids: set[str]) -> None:
+    items = [_mapping(item, "active item") for item in _list(index["items"], "active items")]
+    releases = [item for item in items if "release" in item]
+    events = _list(index["release_scope_changes"], "release scope changes")
+    if len(releases) > 1:
+        _fail("active release is ambiguous")
+    if not releases:
+        if events:
+            _fail("scope ledger requires an active release")
+        return
+    release = releases[0]
+    block = _mapping(release["release"], "release metadata")
+    _closed(block, RELEASE_MEMBERS, "release metadata")
+    appetite = block["appetite"]
+    if type(appetite) is not int or not 0 < appetite <= MAX_ITEMS:
+        _fail("release appetite must be a positive bounded integer")
+    admissions = _list(block["admission"], "release admission")
+    if (
+        not admissions
+        or any(
+            not isinstance(value, str) or value not in ADMISSION_CRITERIA for value in admissions
+        )
+        or len(admissions) != len(set(admissions))
+    ):
+        _fail("release admission must be a nonempty unique criterion set")
+    frozen = _timestamp(block["frozen_at"], "release freeze")
+    previous = frozen
+    scope: set[str] = set()
+    seen: set[tuple[str, datetime]] = set()
+    for position, value in enumerate(events):
+        event = _mapping(value, f"scope event[{position}]")
+        _closed(event, SCOPE_EVENT_MEMBERS, f"scope event[{position}]")
+        if event["release_id"] != release["id"]:
+            _fail("scope event belongs to an unknown release")
+        item_id = _string(event["item"], "scope item", maximum=32)
+        if item_id not in allowed_ids or item_id == release["id"]:
+            _fail("scope event item is unknown or is the release itself")
+        criterion = _string(event["criterion"], "scope criterion", maximum=64)
+        if criterion not in admissions:
+            _fail("scope event criterion is not admitted")
+        if not _string(event["instruction"], "scope instruction").strip():
+            _fail("scope event requires a nonempty instruction")
+        if not _string(event["note"], "scope note").strip():
+            _fail("scope event requires a nonempty note")
+        instant = _timestamp(event["date"], "scope event date")
+        # CRITICAL: compare actual instants, not timestamp text; offsets can reverse text order.
+        # Equal instants keep ledger order, but the same item cannot add/remove at one instant.
+        identity = (item_id, instant)
+        if instant < previous or identity in seen:
+            _fail("scope events are unordered or duplicate an item at one instant")
+        seen.add(identity)
+        previous = instant
+        if event["change"] == "added":
+            if item_id in scope:
+                _fail("scope event adds an already present item")
+            scope.add(item_id)
+        elif event["change"] == "removed":
+            if item_id not in scope:
+                _fail("scope event removes an absent item")
+            scope.remove(item_id)
+        elif event["change"] == "amended":
+            # An owner contract amendment records changed release usage without adding a
+            # dependency or rewriting its archived acceptance; an absent item cannot enter here.
+            if item_id not in scope:
+                _fail("scope event amends an absent item")
+        else:
+            _fail("scope event change is unknown")
+        if len(scope) > appetite:
+            _fail("scope exceeds appetite at an event")
+    if scope != set(cast(list[str], release["depends_on"])):
+        _fail("scope replay does not match release dependencies")
 
 
 def _validate_graph(items: list[dict[str, object]]) -> None:
@@ -474,6 +602,10 @@ def _archived_items(root: Path, archive: Path) -> list[dict[str, object]]:
     terminal = _read_json(
         root, archive / terminal_sources[0], "archived terminal items", maximum=128_000
     )
+    return _terminal_items(terminal)
+
+
+def _terminal_items(terminal: dict[str, object]) -> list[dict[str, object]]:
     _closed(terminal, TERMINAL_ROOT_MEMBERS, "archived terminal items")
     if terminal["schema"] != TERMINAL_ITEMS_SCHEMA:
         _fail("archived terminal-item schema is unknown")
@@ -676,7 +808,10 @@ def _render_text(index: dict[str, object]) -> str:
         )
         blocked = sum(item["status"] == "BLOCKED" for item in cohort)
         lines.append(f"| `{track}` | {pending} | {running} | {blocked} |")
-    waves = _dependency_waves(items, target_id="M16-05")
+    release = next((item for item in items if "release" in item), None)
+    # CRITICAL: use the declared active release; a legacy target literal hides a new cohort's
+    # dependency waves and makes retired publication state look like current execution scope.
+    waves = _dependency_waves(items, target_id=str(release["id"])) if release else []
     if waves:
         by_id = {str(item["id"]): item for item in items}
         lines.extend(
@@ -695,7 +830,7 @@ def _render_text(index: dict[str, object]) -> str:
         )
         for wave_number, wave in enumerate(waves):
             entries = ", ".join(f"`{item_id}` (`{by_id[item_id]['status']}`)" for item_id in wave)
-            lines.append(f"| H{wave_number} | {entries} |")
+            lines.append(f"| Wave {wave_number} | {entries} |")
     coordination_paths = _coordination_plan_paths(items)
     if coordination_paths:
         lines.extend(["", "## Coordination Authorities", ""])
@@ -717,8 +852,11 @@ def _render_text(index: dict[str, object]) -> str:
         ]
     )
     for archive in archives[-5:]:
+        # CRITICAL: the root is a bounded dashboard; full archive text belongs to ARCHIVES.md.
+        # Valid long catalog descriptions must not break the unchanged root readability gate.
         lines.append(
-            f"- `{archive['path']}` — {archive['item_count']} items — {archive['description']}"
+            f"- `{_root_excerpt(archive['path'])}` — {archive['item_count']} items — "
+            f"{_root_excerpt(archive['description'])}"
         )
     lines.extend(
         [
@@ -792,7 +930,315 @@ def _render_outputs(index: dict[str, object]) -> dict[Path, bytes]:
         if cohort:
             outputs[VIEW_DIRECTORY / f"{track}.md"] = _render_chain(track, cohort).encode("utf-8")
     outputs[VIEW_DIRECTORY / "ARCHIVES.md"] = _render_archives(archives).encode("utf-8")
+    if any(len(raw) > MAX_PROJECTION_BYTES for raw in outputs.values()):
+        _fail("roadmap projection exceeds the shared byte budget")
     return outputs
+
+
+def _index_budget_info(root: Path, index_path: Path | str) -> dict[str, int]:
+    relative = _safe_relative(index_path, "index path")
+    raw = _read_bytes(root, relative, "active roadmap index", maximum=MAX_INDEX_BYTES)
+    headroom = MAX_INDEX_BYTES - len(raw)
+    if headroom < MAX_INDEX_BYTES // 10:
+        print(f"Roadmap index headroom warning: {headroom} bytes remain", file=sys.stderr)
+    return {"index_bytes": len(raw), "index_headroom": headroom}
+
+
+def _private_path(value: Path | str, field: str) -> Path:
+    relative = _safe_relative(value, field)
+    if relative.parts[0] not in {".planning", ".tmp"}:
+        _fail(f"{field} must stay in a private workspace directory")
+    return relative
+
+
+def _expected_input(root: Path, relative: Path, digest: str) -> bytes:
+    if SHA256_PATTERN.fullmatch(digest) is None:
+        _fail("expected input digest is invalid")
+    raw = _read_bytes(root, relative, "active roadmap index", maximum=MAX_INDEX_BYTES)
+    if _sha256(raw) != digest:
+        _fail("stale input digest; newer authority must not be replaced")
+    return raw
+
+
+def _projection_plan(
+    root: Path, proposal: dict[str, object], previous: dict[str, object]
+) -> tuple[dict[Path, bytes], dict[Path, bytes]]:
+    outputs = _render_outputs(proposal)
+    prior = _render_outputs(previous)
+    view_root = _checked_path(root, VIEW_DIRECTORY, "projection directory", regular=False)
+    if view_root.exists() and not view_root.is_dir():
+        _fail("projection directory is not a directory")
+    current = (
+        {path.relative_to(root) for path in view_root.glob("*.md")} if view_root.is_dir() else set()
+    )
+    known = {path for path in outputs.keys() | prior.keys() if path.parent == VIEW_DIRECTORY}
+    if current - known:
+        _fail("unexpected owned roadmap projection detected")
+    removals = {path: prior[path] for path in current - outputs.keys()}
+    for path, expected in removals.items():
+        if _read_bytes(root, path, "retired projection", maximum=MAX_PROJECTION_BYTES) != expected:
+            _fail("retired projection has drift; refusing deletion")
+    for path in outputs:
+        _checked_path(root, path, "projection destination", regular=False)
+    return outputs, removals
+
+
+def _replace_authority(
+    root: Path,
+    relative: Path,
+    before: bytes,
+    proposal: dict[str, object],
+    outputs: dict[Path, bytes],
+    removals: dict[Path, bytes],
+) -> dict[str, object]:
+    raw = _json_bytes(proposal)
+    if len(raw) > MAX_INDEX_BYTES:
+        _fail("proposed index exceeds the byte budget")
+    # CRITICAL: this is optimistic CAS under the sole-writer protocol, not a multiwriter lock.
+    # Recheck after all proposal/archive/projection validation so newer metadata survives.
+    if _read_bytes(root, relative, "active roadmap index", maximum=MAX_INDEX_BYTES) != before:
+        _fail("stale input after proposal validation; newer authority is preserved")
+    _atomic_write(root, relative, raw, "active roadmap index")
+    try:
+        for path, expected in outputs.items():
+            _atomic_write(root, path, expected, "roadmap projection")
+        for path, expected in removals.items():
+            if (
+                _read_bytes(root, path, "retired projection", maximum=MAX_PROJECTION_BYTES)
+                != expected
+            ):
+                _fail("retired projection changed; refusing deletion")
+            target = _checked_path(root, path, "retired projection", regular=True)
+            if not target.resolve().is_relative_to(root):
+                _fail("retired projection escapes the workspace")
+            target.unlink()
+        for path, expected in outputs.items():
+            if (
+                _read_bytes(root, path, "roadmap projection", maximum=MAX_PROJECTION_BYTES)
+                != expected
+            ):
+                _fail("roadmap projection readback differs")
+    except (OSError, RoadmapIndexError) as error:
+        # CRITICAL: the valid authority is already committed. Rolling it back can erase a
+        # subsequent owner's update; keep it and recover projections through explicit render.
+        raise RoadmapIndexError(
+            "authority replaced; projection update failed; recover with explicit render --index "
+            f"{relative.as_posix()} --output ROADMAP.md"
+        ) from error
+    return {
+        "schema": ACTIVE_INDEX_SCHEMA,
+        "status": "PASS",
+        "item_count": len(_list(proposal["items"], "active items")),
+        "index_sha256": _sha256(raw),
+        **_index_budget_info(root, relative),
+    }
+
+
+def migrate_index(
+    root: Path,
+    index_path: Path | str,
+    *,
+    expected_sha256: str,
+    backup_path: Path | str,
+    output: Path | str,
+    scope_path: Path | str | None,
+    no_release: bool,
+) -> dict[str, object]:
+    """Explicitly migrate schema2 without altering any pre-existing authority values."""
+    root = root.resolve()
+    relative = _private_path(index_path, "index path")
+    backup = _private_path(backup_path, "migration backup")
+    if _safe_relative(output, "render output") != Path("ROADMAP.md"):
+        _fail("the only live roadmap projection is ROADMAP.md")
+    if (scope_path is None) == (not no_release):
+        _fail("select an explicit release scope or explicit no-release migration")
+    before = _expected_input(root, relative, expected_sha256)
+    previous = _load_legacy_index(root, relative)
+    target = _checked_path(root, backup, "migration backup", regular=False)
+    if target.exists() or target.is_symlink() or backup == relative:
+        _fail("migration backup must be a new path")
+    proposal = deepcopy(previous)
+    proposal["schema"] = ACTIVE_INDEX_SCHEMA
+    proposal["release_scope_changes"] = []
+    rows = [_mapping(item, "active item") for item in _list(proposal["items"], "active items")]
+    for item in rows:
+        text = str(item["title"])
+        if item["plan_path"] is not None:
+            plan = _safe_relative(str(item["plan_path"]), "plan path")
+            try:
+                text += _read_bytes(root, plan, "plan marker").decode("utf-8")
+            except UnicodeDecodeError as error:
+                raise RoadmapIndexError("plan marker source is not UTF-8") from error
+        item["lane"] = (
+            "heavy" if any(mark in text for mark in ("[IMPORTANT]", "[DANGEROUS]")) else "standard"
+        )
+    if scope_path is not None:
+        scope = _read_json(
+            root,
+            _private_path(scope_path, "release scope"),
+            "release scope",
+            maximum=MAX_INDEX_BYTES,
+        )
+        _closed(scope, frozenset({"release_id", "release", "instruction", "note"}), "release scope")
+        matches = [item for item in rows if item["id"] == scope["release_id"]]
+        if len(matches) != 1:
+            _fail("migration release ID is unavailable")
+        release = matches[0]
+        block = _mapping(scope["release"], "release metadata")
+        _closed(block, RELEASE_MEMBERS, "release metadata")
+        release["release"] = deepcopy(block)
+        proposal["release_scope_changes"] = [
+            {
+                "date": block["frozen_at"],
+                "release_id": release["id"],
+                "change": "added",
+                "item": dependency,
+                "criterion": "owner_instruction",
+                "instruction": scope["instruction"],
+                "note": scope["note"],
+            }
+            for dependency in cast(list[str], release["depends_on"])
+        ]
+    _validate_index(root, proposal)
+    outputs, removals = _projection_plan(root, proposal, previous)
+    if backup in outputs or backup in removals or len(_json_bytes(proposal)) > MAX_INDEX_BYTES:
+        _fail("migration backup or proposed byte budget is invalid")
+    _expected_input(root, relative, expected_sha256)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    _checked_path(root, backup, "migration backup", regular=False)
+    try:
+        with target.open("xb") as handle:
+            handle.write(before)
+            handle.flush()
+            os.fsync(handle.fileno())
+    except FileExistsError as error:
+        raise RoadmapIndexError(
+            "migration backup was concurrently created; refusing overwrite"
+        ) from error
+    if _read_bytes(root, backup, "migration backup", maximum=MAX_INDEX_BYTES) != before:
+        _fail("migration backup readback differs")
+    result = _replace_authority(root, relative, before, proposal, outputs, removals)
+    return {**result, "backup_sha256": _sha256(before)}
+
+
+def retire_release(
+    root: Path,
+    index_path: Path | str,
+    *,
+    expected_sha256: str,
+    release_id: str,
+    terminal_path: Path | str,
+    archive_path: Path | str,
+    output: Path | str,
+) -> dict[str, object]:
+    """Archive terminal bytes and scope before removing the sole active release through CAS."""
+    root = root.resolve()
+    relative = _private_path(index_path, "index path")
+    terminal = _private_path(terminal_path, "terminal authority")
+    archive = _private_path(archive_path, "archive path")
+    if terminal.name != "terminal_items.json" or _safe_relative(output, "render output") != Path(
+        "ROADMAP.md"
+    ):
+        _fail("retirement requires terminal_items.json and ROADMAP.md")
+    before = _expected_input(root, relative, expected_sha256)
+    previous = load_index(root, relative)
+    releases = [
+        _mapping(item, "active item")
+        for item in _list(previous["items"], "active items")
+        if isinstance(item, dict) and "release" in item
+    ]
+    if len(releases) != 1 or releases[0]["id"] != release_id:
+        _fail("retirement release is unavailable")
+    release = releases[0]
+    terminal_value = _read_json(root, terminal, "terminal authority", maximum=128_000)
+    terminal_rows = _terminal_items(terminal_value)
+    if len(terminal_rows) != 1 or any(
+        terminal_rows[0][key] != release[key]
+        for key in ("id", "title", "depends_on", "owner", "plan_path")
+    ):
+        _fail("terminal authority does not preserve the current release identity and dependencies")
+    snapshot = {
+        "schema": "h3-context-release-scope-snapshot/1",
+        "release_id": release_id,
+        "release": release["release"],
+        "depends_on": release["depends_on"],
+        "release_scope_changes": previous["release_scope_changes"],
+    }
+    raw_snapshot = _json_bytes(snapshot)
+    if len(raw_snapshot) > MAX_INDEX_BYTES:
+        _fail("release scope snapshot exceeds the byte budget")
+    temp_parent = _checked_path(root, Path(".tmp"), "retirement temporary parent", regular=False)
+    temp_parent.mkdir(parents=True, exist_ok=True)
+    _checked_path(root, Path(".tmp"), "retirement temporary parent", regular=False)
+    with tempfile.TemporaryDirectory(prefix="release-scope-", dir=temp_parent) as temporary:
+        snapshot_path = Path(temporary) / "release_scope.json"
+        if not snapshot_path.resolve().is_relative_to(root):
+            _fail("release snapshot escapes the workspace")
+        snapshot_path.write_bytes(raw_snapshot)
+        prior_index = Path(temporary) / "active_index.json"
+        prior_index.write_bytes(before)
+        archived = archive_authorities(
+            root,
+            [terminal, snapshot_path.relative_to(root), prior_index.relative_to(root)],
+            archive,
+        )
+    if len(_archived_items(root, archive)) != 1 or restore_check(root, archive)["status"] != "PASS":
+        _fail("retirement archive readback failed")
+    proposal = deepcopy(previous)
+    proposal["items"] = [
+        item
+        for item in cast(list[dict[str, object]], proposal["items"])
+        if item["id"] != release_id
+    ]
+    proposal["release_scope_changes"] = []
+    cast(list[dict[str, object]], proposal["archives"]).append(
+        {
+            "path": archive.as_posix(),
+            "manifest_sha256": archived["manifest_sha256"],
+            "item_count": 1,
+            "description": "Retired release terminal authority and ordered scope snapshot.",
+        }
+    )
+    _validate_index(root, proposal)
+    outputs, removals = _projection_plan(root, proposal, previous)
+    result = _replace_authority(root, relative, before, proposal, outputs, removals)
+    return {**result, "archive_manifest_sha256": archived["manifest_sha256"]}
+
+
+def _proven_retired_views(
+    root: Path,
+    index: dict[str, object],
+    unexpected: set[Path],
+) -> dict[Path, bytes]:
+    allowed = {VIEW_DIRECTORY / f"{track}.md" for track in VIEW_TRACKS}
+    if unexpected - allowed:
+        _fail("unexpected owned roadmap projection detected")
+    expected: dict[Path, bytes] = {}
+    for value in _list(index["archives"], "archives"):
+        archive = _safe_relative(str(_mapping(value, "archive")["path"]), "archive path")
+        manifest, _raw = _manifest(root, archive)
+        entries = [
+            _mapping(entry, "archive entry") for entry in _list(manifest["entries"], "entries")
+        ]
+        for entry in entries:
+            source = _safe_relative(str(entry["path"]), "archived prior index")
+            if source.name != "active_index.json":
+                continue
+            prior = _read_json(
+                root, archive / source, "archived prior index", maximum=MAX_INDEX_BYTES
+            )
+            _validate_index(root, prior)
+            prior_outputs = _render_outputs(prior)
+            for path in unexpected:
+                if (
+                    path in prior_outputs
+                    and _read_bytes(root, path, "retired projection", maximum=MAX_PROJECTION_BYTES)
+                    == prior_outputs[path]
+                ):
+                    expected[path] = prior_outputs[path]
+    if set(expected) != unexpected:
+        _fail("unexpected projection lacks exact archived byte proof; refusing deletion")
+    return expected
 
 
 def render_roadmap(
@@ -807,21 +1253,25 @@ def render_roadmap(
     index = load_index(root, index_path)
     outputs = _render_outputs(index)
     expected_paths = set(outputs)
-    view_root = root / VIEW_DIRECTORY
+    view_root = _checked_path(root, VIEW_DIRECTORY, "projection directory", regular=False)
     current_views = (
         {path.relative_to(root) for path in view_root.glob("*.md")} if view_root.is_dir() else set()
     )
     unexpected = current_views - {path for path in expected_paths if path.parent == VIEW_DIRECTORY}
-    if unexpected:
+    if unexpected and check:
         _fail("unexpected owned roadmap projection detected")
+    removals = _proven_retired_views(root, index, unexpected) if unexpected else {}
     if check:
         for relative, expected in outputs.items():
-            current = _read_bytes(root, relative, "roadmap projection", maximum=128_000)
+            current = _read_bytes(
+                root, relative, "roadmap projection", maximum=MAX_PROJECTION_BYTES
+            )
             if current != expected:
                 _fail("roadmap render drift detected; --check made no changes")
     else:
-        staging_parent = root / ".tmp"
+        staging_parent = _checked_path(root, Path(".tmp"), "render temporary parent", regular=False)
         staging_parent.mkdir(parents=True, exist_ok=True)
+        _checked_path(root, Path(".tmp"), "render temporary parent", regular=False)
         with tempfile.TemporaryDirectory(prefix="rm19-render-", dir=staging_parent) as temporary:
             staged = Path(temporary)
             for relative, expected in outputs.items():
@@ -832,12 +1282,25 @@ def render_roadmap(
                     _fail("staged roadmap projection verification failed")
             for relative, expected in outputs.items():
                 _atomic_write(root, relative, expected, "roadmap projection")
+            for relative, expected in removals.items():
+                # CRITICAL: a generated heading is not ownership proof. Delete only exact
+                # archived prior-index projection bytes, rechecked after all render writes.
+                if (
+                    _read_bytes(root, relative, "retired projection", maximum=MAX_PROJECTION_BYTES)
+                    != expected
+                ):
+                    _fail("retired projection changed; refusing deletion")
+                target = _checked_path(root, relative, "retired projection", regular=True)
+                if not target.resolve().is_relative_to(root):
+                    _fail("retired projection escapes the workspace")
+                target.unlink()
     return {
         "schema": RENDER_SCHEMA,
         "status": "PASS",
         "item_count": len(_list(index["items"], "active items")),
         "output": output_path.as_posix(),
         "projection_count": len(outputs),
+        **_index_budget_info(root, index_path),
     }
 
 
@@ -882,6 +1345,23 @@ def _parser() -> argparse.ArgumentParser:
     render.add_argument("--index", required=True)
     render.add_argument("--output", required=True)
     render.add_argument("--check", action="store_true")
+    check = commands.add_parser("check")
+    check.add_argument("--index", required=True)
+    migrate = commands.add_parser("migrate")
+    migrate.add_argument("--index", required=True)
+    migrate.add_argument("--expected-sha256", required=True)
+    migrate.add_argument("--backup", required=True)
+    migrate.add_argument("--output", required=True)
+    scope = migrate.add_mutually_exclusive_group(required=True)
+    scope.add_argument("--scope")
+    scope.add_argument("--no-release", action="store_true")
+    retire = commands.add_parser("retire-release")
+    retire.add_argument("--index", required=True)
+    retire.add_argument("--expected-sha256", required=True)
+    retire.add_argument("--release", required=True)
+    retire.add_argument("--terminal", required=True)
+    retire.add_argument("--archive", required=True)
+    retire.add_argument("--output", required=True)
     history = commands.add_parser("history")
     history.add_argument("--archive", required=True)
     history.add_argument("--item", required=True)
@@ -902,6 +1382,34 @@ def main(argv: Sequence[str] | None = None, *, root: Path = ROOT) -> int:
         }
     elif args.command == "render":
         result = render_roadmap(root, args.index, args.output, check=args.check)
+    elif args.command == "check":
+        index = load_index(root, args.index)
+        result = {
+            "schema": ACTIVE_INDEX_SCHEMA,
+            "status": "PASS",
+            "item_count": len(_list(index["items"], "active items")),
+            **_index_budget_info(root, args.index),
+        }
+    elif args.command == "migrate":
+        result = migrate_index(
+            root,
+            args.index,
+            expected_sha256=args.expected_sha256,
+            backup_path=args.backup,
+            output=args.output,
+            scope_path=args.scope,
+            no_release=args.no_release,
+        )
+    elif args.command == "retire-release":
+        result = retire_release(
+            root,
+            args.index,
+            expected_sha256=args.expected_sha256,
+            release_id=args.release,
+            terminal_path=args.terminal,
+            archive_path=args.archive,
+            output=args.output,
+        )
     elif args.command == "history":
         result = history_lookup(root, args.archive, args.item)
     else:

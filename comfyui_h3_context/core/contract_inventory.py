@@ -1,4 +1,4 @@
-"""Deterministic contract-surface inventory and boundary classification for M18-01.
+"""Deterministic contract-surface inventory and boundary classification for.
 
 The inventory answers one question per contract: who owns it, who reads it, what boundary it sits
 on, and may it be simplified or retired.  It records; it never changes a wire value, a fingerprint
@@ -87,7 +87,7 @@ class ContractBoundary(str, Enum):
     HOST_CORE = "host_core"
 
 
-#: Boundaries a contract may never be retired from directly (AC-M18-01-04), whatever an override
+#: Boundaries a contract may never be retired from directly (AC--04), whatever an override
 #: says.  Each of these has a reader this repository does not control or cannot re-migrate.
 PROTECTED_BOUNDARIES = frozenset(
     {
@@ -307,7 +307,7 @@ class ContractEntry:
             raise ContractInventoryError(
                 "a blocked contract cannot claim a disposition its evidence does not support"
             )
-        # AC-M18-01-04: a reader this repository does not control cannot be retired past.
+        # AC--04: a reader this repository does not control cannot be retired past.
         if (
             self.disposition is ContractDisposition.RETIRE_CANDIDATE
             and self.boundary in PROTECTED_BOUNDARIES
@@ -315,12 +315,12 @@ class ContractEntry:
             raise ContractInventoryError(
                 f"a {self.boundary.value} contract cannot be a direct retirement candidate"
             )
-        # AC-M18-01-03: no discovered consumer is not proof of disuse.
+        # AC--03: no discovered consumer is not proof of disuse.
         if not self.consumers and self.disposition not in _BLOCKED_DISPOSITIONS:
             raise ContractInventoryError(
                 "a contract with no discovered consumer must fail closed as NEED_EVIDENCE"
             )
-        # AC-M18-01-07: an injected fixture is evidence about a test, not about a runtime.
+        # AC--07: an injected fixture is evidence about a test, not about a runtime.
         if (
             self.reachability_source is ReachabilitySource.INJECTED_FIXTURE
             and self.reachability is ReachabilityDisposition.REACHABLE
@@ -390,7 +390,7 @@ class ContractInventory:
         if not all(isinstance(item, ContractEntry) for item in self.entries):
             raise ContractInventoryError("inventory entries contain an invalid value")
         keys = [item.sort_key for item in self.entries]
-        # AC-M18-01-01: exactly once, and in one order, so a diff of the artifact is readable.
+        # AC--01: exactly once, and in one order, so a diff of the artifact is readable.
         if len(set(keys)) != len(keys):
             raise ContractInventoryError("a contract appears more than once in the inventory")
         if keys != sorted(keys):

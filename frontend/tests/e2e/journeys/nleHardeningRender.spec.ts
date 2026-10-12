@@ -1,11 +1,11 @@
-// M25-21 `NLE-STRESS-RENDER-V1`: the backend render companion.
+//  `NLE-STRESS-RENDER-V1`: the backend render companion.
 //
 // Plan section 14.1 separates the 600-second editing/preview fixture from a 60-second *rendering*
 // companion, and section 14.2 requires the backend RSS increment to be measured on "a dedicated
 // repository-local backend fixture process and its owned child process tree ... never the shared
 // ComfyUI host process". No page can measure that, so this journey runs no browser: it drives
 // `scripts/nle_stress_render_companion.py`, which renders eight real jobs through the accepted
-// M25-19 transport (create -> status -> download) against the digest-pinned renderer pair and
+//  transport (create -> status -> download) against the digest-pinned renderer pair and
 // samples its own working set at 100 ms.
 //
 // It lives in its own spec file on purpose. The shared stress spec's eight workloads take hours,
@@ -197,7 +197,7 @@ test("NLE-STRESS-RENDER-V1 backend companion renders eight jobs inside the proce
           expect(job.availability).toBe("available");
           expect(job.verified).toBe(true);
           expect(job.frame_count).toBe(FRAMES);
-          // The download is the accepted M25-19 verified body: its length is the summary's own.
+          // The download is the accepted verified body: its length is the summary's own.
           expect(job.downloaded_bytes).toBe(job.byte_length);
           expect(job.byte_length ?? 0).toBeGreaterThan(0);
         }

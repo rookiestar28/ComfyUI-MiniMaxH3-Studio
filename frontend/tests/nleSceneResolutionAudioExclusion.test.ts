@@ -1,4 +1,4 @@
-// M25-20 corrective: the browser stage could not present one corpus composition at all. The monitor
+//  corrective: the browser stage could not present one corpus composition at all. The monitor
 // read "Monitor unavailable: invalid contract.", with no console error, no page error and no failed
 // request, so it was not a media-load problem. This pins the failure where it actually happens --
 // in the pure resolver and its own decoder -- instead of through a browser, and it names the frame.

@@ -7,7 +7,7 @@ import {
 } from "../contracts/providerSettingsCodec";
 
 /**
- * M22-06 — the one seam the Settings page uses to reach provider state.
+ * the one seam the Settings page uses to reach provider state.
  *
  * A refused intent is a normal result, not an exception: the backend answers a
  * refusal with the current projection and a closed reason, and the surface

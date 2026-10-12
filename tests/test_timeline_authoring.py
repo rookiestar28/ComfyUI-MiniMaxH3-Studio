@@ -1,11 +1,11 @@
-"""M20-02 focused tests for the timeline authoring domain and constraint engine.
+"""focused tests for the timeline authoring domain and constraint engine.
 
 The rows here hold apart the decisions a careless editor collapses:
 
 * command authority -- one revisioned deterministic engine, atomic typed rejections, receipts
   whose typed inverse commands round-trip exactly (undo/redo without hidden snapshots);
-* upstream authority -- clips may reference only admitted M20-00 asset IDs through the one
-  `reference_view` mapping, and the profile constants come from the accepted M20-01 authority;
+* upstream authority -- clips may reference only admitted asset IDs through the one
+  `reference_view` mapping, and the profile constants come from the accepted authority;
 * hard constraints versus advice -- overlap, extent, source, link co-timing and exact
   audio-period alignment reject commands, while snap only proposes bounded ordered candidates;
 * exactness -- trim, split and merge preserve source ranges and envelopes byte-exactly or
@@ -172,7 +172,7 @@ def content_of(state: TimelineState) -> str:
 
 
 class CommandAuthorityTests(unittest.TestCase):
-    """AC-M20-02-01: one deterministic revisioned command authority, atomic rejections."""
+    """AC--01: one deterministic revisioned command authority, atomic rejections."""
 
     def test_commands_produce_monotonic_revisions_and_exact_receipts(self) -> None:
         view = refs()
@@ -240,7 +240,7 @@ class CommandAuthorityTests(unittest.TestCase):
 
 
 class UpstreamAuthorityTests(unittest.TestCase):
-    """AC-M20-02-06: admitted IDs and profile constants are consumed, never re-derived."""
+    """AC--06: admitted IDs and profile constants are consumed, never re-derived."""
 
     def test_the_h3_profile_view_mirrors_the_accepted_temporal_authority(self) -> None:
         view = build_h3_timeline_profile(build_temporal_profile())
@@ -291,7 +291,7 @@ class UpstreamAuthorityTests(unittest.TestCase):
 
 
 class GeometryTests(unittest.TestCase):
-    """AC-M20-02-02: collision, extent and lane invariants hold; no partial state."""
+    """AC--02: collision, extent and lane invariants hold; no partial state."""
 
     def test_same_lane_overlap_rejects_and_adjacency_is_exact(self) -> None:
         view = refs()
@@ -354,7 +354,7 @@ class GeometryTests(unittest.TestCase):
 
 
 class LinkTests(unittest.TestCase):
-    """AC-M20-02-02: linked audiovisual placement is exact, alignment is never clamped."""
+    """AC--02: linked audiovisual placement is exact, alignment is never clamped."""
 
     def _linked(self) -> tuple[TimelineState, TimelineReferenceView]:
         view = refs()
@@ -459,7 +459,7 @@ class LinkTests(unittest.TestCase):
 
 
 class TrimSplitMergeTests(unittest.TestCase):
-    """AC-M20-02-02/03: exact source continuity; split and merge are true inverses."""
+    """AC--02/03: exact source continuity; split and merge are true inverses."""
 
     def test_start_trim_shifts_source_exactly_and_end_trim_needs_source(self) -> None:
         view = refs()
@@ -656,7 +656,7 @@ class SerializationTests(unittest.TestCase):
 
 
 class CommandSequenceInvariantTests(unittest.TestCase):
-    """AC-M20-02-02/03: generated sequences keep every invariant; undo/redo is exact."""
+    """AC--02/03: generated sequences keep every invariant; undo/redo is exact."""
 
     def test_a_seeded_sweep_preserves_invariants_and_round_trips_undo(self) -> None:
         rng = random.Random(0x4D32_0002)  # noqa: S311 -- deterministic sweep, not crypto
@@ -817,7 +817,7 @@ class CommandSequenceInvariantTests(unittest.TestCase):
 
 
 class ArchitectureAndPrivacyTests(unittest.TestCase):
-    """AC-M20-02-04: pure core, no media/host/frontend dependency, content-free wire."""
+    """AC--04: pure core, no media/host/frontend dependency, content-free wire."""
 
     def test_module_imports_stay_inside_the_pure_core(self) -> None:
         module_path = (

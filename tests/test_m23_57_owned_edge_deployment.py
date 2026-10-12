@@ -1,6 +1,6 @@
-"""M23-57: every registered owned route, under every supported deployment, through its real handler.
+"""every registered owned route, under every supported deployment, through its real handler.
 
-The pure rule is covered in `test_m23_57_request_target.py`. This file drives the registered
+The pure rule is covered in `test__request_target.py`. This file drives the registered
 handlers -- the seam's JSON routes, both preview edges, both lease routes and the authoring output
 routes -- with request doubles that carry what a real aiohttp request carries (`Host`, `Origin`,
 `Sec-Fetch-Site` and a transport exposing the accepting socket), and observes admission through the
@@ -500,8 +500,10 @@ class NoDeploymentActsForAnotherTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_without_the_accepting_socket_nothing_is_admitted(self) -> None:
         for route in _register_everything():
-            for transport in (None, SimpleNamespace(), ListenerTransport(None)):
-                with self.subTest(path=route.path, transport=transport):
+            for transport_case, transport in enumerate(
+                (None, SimpleNamespace(), ListenerTransport(None))
+            ):
+                with self.subTest(path=route.path, transport_case=transport_case):
                     headers = _headers("127.0.0.1:8188", "http://127.0.0.1:8188")
                     request = _Refused(headers, transport)  # type: ignore[arg-type]
                     with _NotedRefusals() as noted:

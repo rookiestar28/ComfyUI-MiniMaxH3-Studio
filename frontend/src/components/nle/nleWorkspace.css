@@ -1,8 +1,8 @@
-/* M25-16 expanded workspace. Rendered inside the owned overlay root (which carries `h3c`), so
+/*  expanded workspace. Rendered inside the owned overlay root (which carries `h3c`), so
    every colour, spacing and type value is an existing design token from tokens.css; this file
    adds only layout. It ships inline inside the overlay and never enters the sidebar budget. */
 .h3-nle-backdrop {
-  /* M25-61: NLE role tokens. Aliases of tokens.css only -- no new colour enters the palette, the
+  /* NLE role tokens. Aliases of tokens.css only -- no new colour enters the palette, the
      light theme follows automatically, and tests/nleRoleTokens.test.ts audits these pairs. */
   --h3-nle-accent: var(--h3-accent);
   --h3-nle-playhead: var(--h3-tone-warn);
@@ -15,7 +15,7 @@
   --h3-nle-waveform: var(--h3-tone-ok);
   --h3-nle-text-clip: var(--h3-tone-info);
   --h3-nle-label-backing: color-mix(in srgb, var(--h3-well) 80%, transparent);
-  /* M25-61 control targets (nleReferenceUiContract `controlTargetPx`): 30 px under a fine
+  /*  control targets (nleReferenceUiContract `controlTargetPx`): 30 px under a fine
      pointer, 44 px under a coarse one; never below 24 px anywhere in the editor. */
   --h3-nle-target: 30px;
   --h3-nle-ruler-height: 26px;
@@ -35,7 +35,7 @@
 .h3-nle-dialog {
   position: relative;
   display: grid;
-  /* IMPORTANT (M25-45 B-M2545-09): the column is stated, not left implicit. An implicit `auto`
+  /* IMPORTANT ( B-M2545-09): the column is stated, not left implicit. An implicit `auto`
      track takes the widest row's min-content as its floor, so the chrome bar -- one nowrap flex
      row -- sized the whole dialog to its own content below the scroll floor and pushed the Close
      button outside the workspace. Bounded at `minmax(0, 1fr)` the bar is squeezed to the dialog
@@ -83,8 +83,8 @@
   border: 1px solid var(--h3-control-border);
   border-radius: var(--h3-radius-control, 0.25rem);
 }
-/* IMPORTANT (M25-61): the editor's control floor is `--h3-nle-target` -- 30 px under a fine
-   pointer, 44 px under a coarse pointer (the M25-21 touch floor, kept for touch), and never below
+/* IMPORTANT: the editor's control floor is `--h3-nle-target` -- 30 px under a fine
+   pointer, 44 px under a coarse pointer (the touch floor, kept for touch), and never below
    24 x 24 CSS px (WCAG 2.2 AA 2.5.8) anywhere. The contract field is
    `NLE_REFERENCE_UI_CONTRACT_V1.controlTargetPx`. Do not shrink a control below the floor to fit
    a denser layout; the hardening cases (coarse, `hasTouch`) and the reference-shell cases (fine)
@@ -205,7 +205,7 @@
   cursor: not-allowed;
   opacity: 0.5;
 }
-/* M25-63: the top bar is one 40 px row (`NLE_REFERENCE_UI_CONTRACT_V1.topBarHeightPx`) of the
+/* the top bar is one 40 px row (`NLE_REFERENCE_UI_CONTRACT_V1.topBarHeightPx`) of the
    title, the save indicator, a flexible space, Export and Close; nothing in it wraps. Its controls
    keep the editor's target floor, so under a coarse pointer the row grows to the 44 px targets. */
 .h3-nle-header {
@@ -315,7 +315,7 @@
   border-radius: var(--h3-radius-panel);
   box-shadow: var(--h3-lift-shadow, 0 18px 48px rgba(0, 0, 0, 0.55));
 }
-/* M25-44 reference shell (master plan sections 2.1 and 5.1). The stage is the only scroll
+/*  reference shell (master plan sections 2.1 and 5.1). The stage is the only scroll
    container; the shell below it never shrinks past the scroll floor (688 x 404). */
 .h3-nle-stage {
   min-width: 0;
@@ -343,7 +343,7 @@
   min-height: 0;
   overflow: hidden;
   background: var(--h3-panel-1);
-  /* M25-64 (A64-6): the canvas draws each region as a rounded panel on the page colour. */
+  /*  (A64-6): the canvas draws each region as a rounded panel on the page colour. */
   border-radius: 6px;
 }
 .h3-nle-area[data-h3-nle-area="bin"] {
@@ -380,7 +380,7 @@
   grid-column: 1 / -1;
   grid-row: 2;
 }
-/* IMPORTANT: the separator is the 44 px target (M25-21 floor) centred on the 4 px gutter, so it
+/* IMPORTANT: the separator is the 44 px target ( floor) centred on the 4 px gutter, so it
    overlaps each neighbour by 20 px. It is transparent there and draws only the 4 px line; do not
    shrink it to the gutter, which the target-size measurement would reject. */
 .h3-nle-dialog .h3-nle-splitter {
@@ -404,7 +404,7 @@
 }
 .h3-nle-splitter::after {
   position: absolute;
-  /* M25-64 (A64-6): at rest the 4 px gutter shows the page colour between the panels, as the
+  /*  (A64-6): at rest the 4 px gutter shows the page colour between the panels, as the
      canvas draws it; the line appears on hover, focus and drag below. */
   background: transparent;
   content: "";
@@ -435,7 +435,7 @@
   min-width: 0;
   min-height: 0;
 }
-/* M25-63: icon-over-label tabs sharing the bin width equally ((bin - 16) / 3, at least 48 px at
+/* icon-over-label tabs sharing the bin width equally ((bin - 16) / 3, at least 48 px at
    the 160 px bin minimum); the selected tab is underlined in the accent. */
 .h3-nle-tabs {
   display: flex;
@@ -481,7 +481,7 @@
 .h3-nle-sequence-home {
   min-width: 240px;
 }
-/* M25-63: the media pane is the bin (toolbar, count line, cards) over the bin-foot notice slot.
+/* the media pane is the bin (toolbar, count line, cards) over the bin-foot notice slot.
    It is a size container so the toolbar can fold below 240 px (R7: four 30 px icons and three
    gaps are 132 px, and the search field takes its own row). */
 /* IMPORTANT (B-M2564-02): 8 px more on the right, beside the bin/monitor splitter's 20 px overlap.
@@ -634,7 +634,7 @@
   min-height: 0;
   overflow: auto;
 }
-/* IMPORTANT (M25-63, R7): `grid-auto-rows` is `CARD_ROW_HEIGHT` in NleMediaBin.tsx and the column
+/* IMPORTANT (, R7): `grid-auto-rows` is `CARD_ROW_HEIGHT` in NleMediaBin.tsx and the column
    gap is its `CARD_GAP`. The virtualizer's spacers assume exactly this row height; change both
    together or scrolled cards drift from their spacers. */
 .h3-nle-media-grid {
@@ -830,9 +830,9 @@
   min-height: 0;
   overflow: auto;
 }
-/* M25-64 (rows #25-#27, R7): a 36 px header, the picture area, and one transport row. R7's height
+/*  (rows #25-#27, R7): a 36 px header, the picture area, and one transport row. R7's height
    budget at the 480 px overlay minimum: 36 + 46 leaves the picture area at least 183 px. There is
-   still no seek row; M25-46 gave seek authority to the timeline ruler. */
+   still no seek row; gave seek authority to the timeline ruler. */
 .h3-nle-monitor {
   position: relative;
   /* The transport's layout depends on this pane's width, not on the shell's tier: at 960 x 600 the
@@ -848,7 +848,7 @@
 .h3-nle-monitor:fullscreen {
   background: var(--h3-surface-1);
 }
-/* M25-64 (row #26): "Preview" and the output's `W × H · N fps`, muted, on one line. */
+/*  (row #26): "Preview" and the output's `W × H · N fps`, muted, on one line. */
 .h3-nle-monitor-header {
   display: flex;
   align-items: center;
@@ -869,7 +869,7 @@
   font-size: 11px;
   text-overflow: ellipsis;
 }
-/* M25-45: the picture area is the row the monitor gives the image, and the canvas inside it is the
+/* the picture area is the row the monitor gives the image, and the canvas inside it is the
    picture -- the largest rectangle of the composition's aspect ratio the area holds, centred, in
    CSS pixels set from the measurement in `nleMonitorGeometry.ts`.
 
@@ -886,12 +886,12 @@
   min-width: 0;
   min-height: 0;
   /* IMPORTANT (B-M2564-02): the canvas's 8 px. The side splitters overlap the monitor by 20 px
-     (M25-21), so the picture's outer 12 px on each side lie under a separator. A wider margin
+, so the picture's outer 12 px on each side lie under a separator. A wider margin
      cannot clear them: 22 px would cost a width-limited picture 28 px and break AC45-01's 700 px
      at the reference layout. The transform handles move instead (`handleInsets`). */
   margin: 0 8px;
   overflow: hidden;
-  /* M25-64: the recessed well around the picture; the picture itself is the raised surface. */
+  /* the recessed well around the picture; the picture itself is the raised surface. */
   background: var(--h3-well);
   border-radius: 6px;
 }
@@ -901,13 +901,13 @@
   max-height: 100%;
   background: var(--h3-surface-2);
 }
-/* M25-51: the transform box is a DOM sibling of the canvas. It may never become canvas input or
+/* the transform box is a DOM sibling of the canvas. It may never become canvas input or
    affect picture measurement; only its 44 px controls receive pointer events. */
 .h3-nle-transform-overlay {
   position: absolute;
   z-index: 1;
   box-sizing: border-box;
-  /* M25-64 (A64-6): the canvas draws the transform box and its handles in the selection colour,
+  /*  (A64-6): the canvas draws the transform box and its handles in the selection colour,
      the same as the timeline's selected clip. */
   border: 1px solid var(--h3-nle-selection);
   transform-origin: center;
@@ -978,7 +978,7 @@
 .h3-nle-transform-move::after {
   display: none;
 }
-/* IMPORTANT (M25-53 D-3): the 44 px handles are centred on the layer's edges and corners and the
+/* IMPORTANT ( D-3): the 44 px handles are centred on the layer's edges and corners and the
    rotate handle stands above the top edge, so only 22 px of each handle lies inside the layer and
    the body inset by 22 px remains the move target. Handles laid inside the edges (`left: 0`,
    `top: 0`, rotate at `top: 44px`) cover a layer narrower than about 172 CSS px completely, and
@@ -1083,7 +1083,7 @@
   background: var(--h3-well);
   border-radius: var(--h3-radius-control, 0.25rem);
 }
-/* M25-64 (row #27): the empty-timeline and preview-unavailable overlays. Centred and sized to
+/*  (row #27): the empty-timeline and preview-unavailable overlays. Centred and sized to
    their content, never in the flow, so they cannot change the area the picture is measured from.
 
    IMPORTANT (A64-1, after B-M2563-09): only the overlay's own action takes pointer events. The
@@ -1168,7 +1168,7 @@
   max-width: 100%;
   transform: none;
 }
-/* M25-64 (row #25, R7): one row, never wrapped -- the timecode on the left, the step and play
+/*  (row #25, R7): one row, never wrapped -- the timecode on the left, the step and play
    group centred, the view group on the right. The side columns are `1fr` with their automatic
    minimum, so they split the space evenly (the play group centred, as in the canvas) until the
    timecode needs more than half of what is left, and then the timecode keeps its width and the
@@ -1179,7 +1179,7 @@
    6 px column gaps = 260 fits. The total timecode is hidden below a 360 px row and stays in the
    output's name and tooltip.
 
-   IMPORTANT (M25-45 finalization F10, kept): a wrapped row would take a second row of height out
+   IMPORTANT ( finalization F10, kept): a wrapped row would take a second row of height out
    of the picture at exactly the width where the picture is smallest. Under a coarse pointer the
    44 px controls do not fit beside the current timecode below a 340 px row, so there the timecode
    leaves the row and sits over the picture's bottom-left corner as non-interactive text.
@@ -1217,7 +1217,7 @@
    two classes, and the sidebar and the planning tiles keep their 44 px bordered tiles (R2); only
    this region is overridden, as the timeline toolbar and the bin toolbar are.
 
-   IMPORTANT (M25-45 B-M2545-07): flex, not the shared grid. `repeat(auto-fill, ...)` resolves to
+   IMPORTANT ( B-M2545-07): flex, not the shared grid. `repeat(auto-fill,...)` resolves to
    one column when the container's width is intrinsic, and the tiles stack into a column that
    pushes the picture area over the transport. */
 .h3-nle-transport .h3-icon-group .h3-icon-row {
@@ -1326,9 +1326,9 @@
   white-space: nowrap;
   pointer-events: none;
 }
-/* IMPORTANT (M25-44 B-M2544-06): the audio state changes several times a second during playback
+/* IMPORTANT ( B-M2544-06): the audio state changes several times a second during playback
    ("Following primary video", "Seeking", "Suspended"). While it was a text row under the canvas a
-   wrapping line grew and shrank with it and the picture jumped 25 px on every frame. M25-45 moved
+   wrapping line grew and shrank with it and the picture jumped 25 px on every frame. moved
    it into the chrome bar, where the same rule holds for the same reason: one line, clipped, with
    the full text still in the DOM for assistive technology. */
 .h3-nle-header > .h3-nle-audio,
@@ -1356,11 +1356,11 @@
   text-overflow: ellipsis;
 }
 .h3-nle-timeline {
-  /* M25-62: the fine roll target (`controlTargetPx.minimum`); a coarse pointer keeps 44 px. */
+  /* the fine roll target (`controlTargetPx.minimum`); a coarse pointer keeps 44 px. */
   --h3-nle-roll-target: 24px;
   position: relative;
   display: grid;
-  /* IMPORTANT (M25-62, R7): toolbar, then one surface (ruler + tracks + scroll bar), then the
+  /* IMPORTANT (, R7): toolbar, then one surface (ruler + tracks + scroll bar), then the
      rail and the roll alternative only while they exist. The surface's floor is the ruler plus
      one 56 px row plus the 8 px scroll bar, so the timeline fits the 163 px R7 gives it at the
      480 px overlay minimum, and a collapsed track viewport can never hide its clips behind the
@@ -1372,11 +1372,11 @@
     10px + var(--h3-nle-target) + 6px + var(--h3-nle-ruler-height) + 64px +
       var(--h3-nle-corner-inset)
   );
-  /* IMPORTANT (M25-63 B-M2563-09): the dialog's resize grip is a `--h3-nle-target` square that
+  /* IMPORTANT ( B-M2563-09): the dialog's resize grip is a `--h3-nle-target` square that
      paints above this section's bottom-right corner. The lanes must end above it, or a press on
      the lowest lane's right end (a marquee, a clip) resizes the editor instead. The 8 px scroll
      bar row may lie under the grip because it keeps `RESIZE_CORNER_CLEARANCE_PX`; this inset is
-     the rest of the grip's height. Until M25-63 the visible timeline status line held this band. */
+     the rest of the grip's height. Until the visible timeline status line held this band. */
   --h3-nle-corner-inset: calc(var(--h3-nle-target) - 8px);
   padding-bottom: var(--h3-nle-corner-inset);
   /* IMPORTANT: the top_timeline splitter is a 44 px target centred on its 4 px gutter, so it
@@ -1425,7 +1425,7 @@
   min-width: 0;
   overflow: hidden;
 }
-/* M25-61: ticks live here only. Majors carry a short label; minors are one unlabelled path. */
+/* ticks live here only. Majors carry a short label; minors are one unlabelled path. */
 .h3-nle-ruler-minor {
   position: absolute;
   left: 0;
@@ -1451,7 +1451,7 @@
   white-space: nowrap;
   border-left: 1px solid var(--h3-line-strong);
 }
-/* M25-62: borderless 30 px icons (44 px under a coarse pointer) in an edit group and a view group
+/* borderless 30 px icons (44 px under a coarse pointer) in an edit group and a view group
    on one 36 px row. The split and the separators are CSS on the slots, so the toolbar keeps the
    node budget of `nleTimelineToolbar.test.tsx`. */
 /* IMPORTANT (B-M2564-02): the 4 px above the row keep 26 of each 30 px button clear of the top
@@ -1476,7 +1476,7 @@
   flex: 1 1 auto;
   min-width: 0;
 }
-/* M25-47: R4 is one row at the 688 px workspace floor. The shared action grid is for planning
+/* R4 is one row at the 688 px workspace floor. The shared action grid is for planning
    rows and would wrap here; the bounded More popover owns lower-priority alternatives. */
 .h3-nle-timeline-toolbar .h3-icon-group .h3-icon-row {
   display: flex;
@@ -1593,7 +1593,7 @@
 .h3-nle-toolbar-alternatives > input {
   min-height: var(--h3-nle-target);
 }
-/* M25-62: the gesture outcomes float over the lane bottom; the canvas has no footer row. They
+/* the gesture outcomes float over the lane bottom; the canvas has no footer row. They
    stay rendered while empty, so the live regions keep announcing. */
 .h3-nle-timeline-feedback {
   position: absolute;
@@ -1685,7 +1685,7 @@
      exactly 4..52 and the raster bounds (5..51 inside its 1 px ring) match it. */
   box-shadow: inset 0 -1px 0 var(--h3-line-subtle);
 }
-/* M25-62 (R7, D-2): fine pointer, two lines in 112 px -- 3 + name line 24 + 2 + toggle line 24 +
+/*  (R7, D-2): fine pointer, two lines in 112 px -- 3 + name line 24 + 2 + toggle line 24 +
    3 = 56. The name line is the track-menu trigger, so it is 24 px tall like every other fine
    target (R2, B-M2562-04); the plan's 18 px line was below that floor. The trigger and both
    toggles are direct children (NleTrackHeader.tsx). */
@@ -1793,7 +1793,7 @@
 .h3-nle-track-row[data-kind="primary_video"] .h3-nle-track-lane {
   background: var(--h3-nle-track-band);
 }
-/* M25-62 (A62-7): the Main lane of a timeline with tracks and no clip. Presentation only; the
+/*  (A62-7): the Main lane of a timeline with tracks and no clip. Presentation only; the
    grid's existing bin-insert target owns the drop. */
 .h3-nle-empty-lane {
   position: absolute;
@@ -1860,7 +1860,7 @@
   outline: 1px solid var(--h3-line-strong);
   pointer-events: none;
 }
-/* M25-62: the clip box is 4..52 in its row with no border of its own; its ring is the `::after`
+/* the clip box is 4..52 in its row with no border of its own; its ring is the `::after`
    below, drawn above the decoration raster (z 4) that paints the filmstrip and waveform inside. */
 .h3-nle-clip {
   position: absolute;
@@ -1884,7 +1884,7 @@
     var(--h3-surface-3)
   );
 }
-/* IMPORTANT (M25-62): the border and the 2 px selection ring are one overlay at z 6, above the
+/* IMPORTANT: the border and the 2 px selection ring are one overlay at z 6, above the
    raster, below the grips (z 7) and the playhead layer (z 8). An outline outside the box would be
    cut by the clip's `overflow: hidden`; the ring is inside, so selecting never moves the layout. */
 .h3-nle-clip::after {
@@ -2044,7 +2044,7 @@
 .h3-nle-context-menu {
   position: fixed;
   /* IMPORTANT: the overlay root already owns the browser top layer. Keep this stacking value
-     local; a maximum z-index recreates the host-overlay arms race that M25-44 removed. */
+     local; a maximum z-index recreates the host-overlay arms race that removed. */
   z-index: 20;
   display: grid;
   gap: 0.375rem;
@@ -2067,7 +2067,7 @@
 .h3-nle-context-menu [role="menuitem"] {
   min-height: var(--h3-nle-target);
 }
-/* IMPORTANT (M25-63 B-M2563-10): the bin's sort and filter menu is two radio groups. A group is
+/* IMPORTANT ( B-M2563-10): the bin's sort and filter menu is two radio groups. A group is
    one grid item of the menu, so its buttons are inline boxes that wrap into rows unless the group
    is a column itself. Each group shows its heading, and the chosen option its check; an unchosen
    option keeps the mark's slot so every label starts at the same edge. The item face stays the
@@ -2111,7 +2111,7 @@
   height: 100%;
   pointer-events: none;
 }
-/* IMPORTANT (M25-62, R7): fine grips are 8 px hit areas inside the clip edges with a 6 px bar, so
+/* IMPORTANT (, R7): fine grips are 8 px hit areas inside the clip edges with a 6 px bar, so
    a pointer on a neighbour always reaches the neighbour; they outrank the generic dialog button
    floor, whose min-width and padding would push them out of short clips. A coarse pointer keeps
    the 44 px touch grips (shown from 144 px, below which the rail owns trimming). */
@@ -2181,7 +2181,7 @@
     min-height: 44px;
   }
 }
-/* M25-62 (A62-6): an 8 px pointer affordance under the lanes. `transport.scroll` in More is the
+/*  (A62-6): an 8 px pointer affordance under the lanes. `transport.scroll` in More is the
    accessible, full-size equivalent, so the bar is `aria-hidden`. */
 .h3-nle-scroll-bar {
   position: relative;
@@ -2201,7 +2201,7 @@
 .h3-nle-scroll-bar:hover .h3-nle-scroll-thumb {
   background: var(--h3-text-dim);
 }
-/* IMPORTANT (M25-62, A62-3): the playhead layer spans the ruler top to the lane bottom, clipped to
+/* IMPORTANT (, A62-3): the playhead layer spans the ruler top to the lane bottom, clipped to
    the lane columns so it never draws over a header, above clips, the raster and the selection
    ring. The line's left edge is the boundary x; the 11 px head centres on the 2 px line. */
 .h3-nle-playhead-layer {
@@ -2240,7 +2240,7 @@
   stroke: color-mix(in srgb, var(--h3-canvas) 55%, transparent);
   stroke-width: 1;
 }
-/* M25-64 (rows #28-#31, R2, R7): the inspector as the canvas draws it -- a full-bleed 40 px bar
+/*  (rows #28-#31, R2, R7): the inspector as the canvas draws it -- a full-bleed 40 px bar
    (the Project title, or the clip's text tab strip with an underline), then 16 px inset content:
    the Project settings list, or the clip header and its property sections, each a title with a
    reset icon over label, slider and value rows. */
@@ -2315,7 +2315,7 @@
   /* IMPORTANT: keep equal to the inline padding. In a narrow inspector the five tabs overflow and
      the strip scrolls; a tab scrolled into view (focus, a click on a partly hidden tab) otherwise
      lands flush with the strip's left edge, inside the splitter's 20 px overlap, where the
-     splitter takes the pointer (M25-64 A64-5). */
+     splitter takes the pointer ( A64-5). */
   scroll-padding-inline: 16px;
   border-bottom: 1px solid var(--h3-line-subtle);
 }
@@ -2767,7 +2767,7 @@
   color: var(--dg);
   font-size: 0.75rem;
 }
-/* M25-63: the resize control is a corner grip at the editor's target size (30 px fine, 44 px
+/* the resize control is a corner grip at the editor's target size (30 px fine, 44 px
    coarse), glyph in the corner. The timeline's scroll bar and trim rail keep their 54 px corner
    clearance (`RESIZE_CORNER_CLEARANCE_PX`), which covers the coarse size. */
 .h3-nle-dialog .h3-nle-resize {
@@ -2812,7 +2812,7 @@
 .h3-nle-slots li[data-state="verifying"] {
   border-left: 3px solid var(--h3-tone-info);
 }
-/* M25-33: the shared Media tools card where the runtime blocks a preview or final output. The
+/* the shared Media tools card where the runtime blocks a preview or final output. The
    overlay is portalled outside the sidebar, so the card's sidebar classes are restated here. */
 .h3-nle-media-tools {
   display: grid;

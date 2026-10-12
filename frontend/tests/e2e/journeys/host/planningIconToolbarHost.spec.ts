@@ -26,8 +26,8 @@ import {
 } from "../../host/environment";
 
 /**
- * M25-41 supplied-host observation: the sidebar Production tab's whole-video sequence actions are
- * icon tiles at the 704 px panel floor (M25-43: equal tiles on a shared grid), their descriptions appear on hover and keyboard
+ *  supplied-host observation: the sidebar Production tab's whole-video sequence actions are
+ * icon tiles at the 704 px panel floor (: equal tiles on a shared grid), their descriptions appear on hover and keyboard
  * focus inside the panel, and a real planning action still dispatches. The only execution is the
  * model-free Context bootstrap; no generation is queued.
  */
@@ -204,7 +204,7 @@ test("M25-41 planning icon toolbar on the supplied host at the 704 px floor", as
     observation.geometry = geometry;
     expect(geometry.overflow).toBeLessThanOrEqual(0);
     expect(geometry.buttons.length).toBeGreaterThanOrEqual(6);
-    // M25-43: the actions are equal tiles on a shared column grid that fills the row.
+    // the actions are equal tiles on a shared column grid that fills the row.
     for (const button of geometry.buttons) {
       expect(
         Math.abs(button.width - geometry.buttons[0]!.width),

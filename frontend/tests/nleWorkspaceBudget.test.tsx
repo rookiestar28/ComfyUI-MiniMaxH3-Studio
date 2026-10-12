@@ -1,4 +1,4 @@
-// M25-16 structural budgets: the smoke and virtualized fixtures render at most eight track
+//  structural budgets: the smoke and virtualized fixtures render at most eight track
 // rows, at most 96 clip nodes and at most 1500 DOM nodes inside the workspace, whatever the
 // zoom, and every clip the window admits is reachable by scrolling rather than dropped.
 

@@ -1,4 +1,4 @@
-"""M22-20. A provider that answered is reachable, whatever its answer turned out to be.
+""". A provider that answered is reachable, whatever its answer turned out to be.
 
 `probe_provider_readiness` funnels every `PromptModelTransportError` from `resolve_live_identity`
 into `_failed`, which means `reachable=False` -- "could not be reached". That is right for an error

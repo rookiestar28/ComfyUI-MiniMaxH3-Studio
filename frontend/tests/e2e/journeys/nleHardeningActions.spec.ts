@@ -1,5 +1,5 @@
-// M25-21 hardening of the non-command action inventory on the REAL integrated shell: the local
-// transport, the read-only embedded-audio follower and the deferred audio negative, the M25-19
+//  hardening of the non-command action inventory on the REAL integrated shell: the local
+// transport, the read-only embedded-audio follower and the deferred audio negative, the
 // output actions and the explicit Production import. The coverage manifest names these titles.
 import { resolve } from "node:path";
 
@@ -10,6 +10,7 @@ import { openExportPanel } from "../helpers/nleExport";
 import { Checks, hardeningEvidence } from "../helpers/nleHardeningEvidence";
 import {
   startImportFixture,
+  expectImportBootstrap,
   type ImportFixture,
   type ImportFixtureOptions,
 } from "../helpers/nleImportFixture";
@@ -219,7 +220,7 @@ test("hardening a11y transport.seek steps one frame and pages one output second"
   await checks.step(
     "a_foreign_document_hotkey_cannot_swallow_frame_keys",
     async () => {
-      // Observed on the supplied host (M26-05 runtime-18): ComfyUI-Easy-Use binds the arrows
+      // Observed on the supplied host ( runtime-18): ComfyUI-Easy-Use binds the arrows
       // through hotkeys-js on `document`, which does not exempt range inputs, and cancels their
       // default. The owned ruler must consume each step before the document sees it.
       await page.evaluate(() => {
@@ -447,7 +448,7 @@ test("hardening a11y transport controls are named 44px targets reachable by keyb
   await recoverChecks.step(
     "recovery_is_offered_only_when_blocked",
     async () => {
-      // M25-45: recovery is offered inside the picture in the recoverable state and is absent
+      // recovery is offered inside the picture in the recoverable state and is absent
       // otherwise, rather than standing permanently disabled in the transport row.
       await expect(recover).toHaveCount(0);
       await loseCanvasContext(page, true);
@@ -1485,7 +1486,7 @@ async function assertReachable(
 }
 
 /**
- * M25-48 issues the Production import from the editor's Media home; the Production page holds
+ *  issues the Production import from the editor's Media home; the Production page holds
  * no import control. The stage is therefore the Clip editor function with the full editor open
  * on its Media pane. An open editor is a modal dialog whose backdrop covers the page navigation,
  * so with one open nothing behind it is clicked: the Media pane is selected in place.
@@ -1513,6 +1514,7 @@ async function openImportShell(
 ): Promise<ImportFixture> {
   const fixture = await startImportFixture(page, options);
   await page.goto(`/nleShell.html?import=1&${query}`);
+  await expectImportBootstrap(fixture);
   await productionStage(page);
   await expect(page.locator(IMPORT_BUTTON)).toBeEnabled();
   return fixture;
@@ -1630,7 +1632,7 @@ test("hardening a11y import is reachable by pointer, keyboard and touch and focu
       );
       await expect(row).toBeVisible();
       // The row is a list item: what a reader receives is its text, and the highlight is a
-      // visible badge on its card rather than a colour alone (M25-48 asset-scoped bin).
+      // visible badge on its card rather than a colour alone ( asset-scoped bin).
       await expect(row).toContainText(/\S/);
       await expect(
         row.locator('[data-h3-nle-media-badge="added"]'),

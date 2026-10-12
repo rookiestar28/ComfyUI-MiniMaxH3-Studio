@@ -148,7 +148,7 @@ class ProductionSegmentProjection:
             raise ProductionWorkbenchProjectionError("invalid_segment_ordinal")
         if type(self.task_mode) is not str or self.task_mode not in _TASK_MODES:
             raise ProductionWorkbenchProjectionError("invalid_task_mode")
-        # M17-25: the projection re-derives rather than trusts. A wire payload
+        # the projection re-derives rather than trusts. A wire payload
         # that claims a frame count its duration does not imply is rejected here,
         # which is what makes the derived members safe to render.
         if (
@@ -270,7 +270,7 @@ class ProductionOutputProjection:
 
 @dataclass(frozen=True, slots=True)
 class ProductionGenerationSequenceSummary:
-    """Content-free keys for joining one independently decoded M17-08 projection."""
+    """Content-free keys for joining one independently decoded projection."""
 
     sequence_id: str
     sequence_fingerprint: str
@@ -474,7 +474,7 @@ class ProductionAssemblyProjection:
 
 @dataclass(frozen=True, slots=True)
 class ProductionWorkbenchProjection:
-    """The sole M17-12 browser projection wire."""
+    """The sole browser projection wire."""
 
     workspace_handle: str
     workspace_id: str

@@ -1,4 +1,4 @@
-"""M26-03 atomic storyboard-proposal import into Production."""
+"""atomic storyboard-proposal import into Production."""
 
 from __future__ import annotations
 
@@ -2648,7 +2648,14 @@ def test_m26_production_action_publishes_derived_receipt_subject_as_succeeded(
 
 def test_m26_missing_runtime_is_typed_unavailable_without_worker_or_file_effect(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    allocations: list[object] = []
+    monkeypatch.setattr(
+        production_workspace_module,
+        "ThreadPoolExecutor",
+        lambda **kwargs: allocations.append(kwargs),
+    )
     _context, _proposal, registry, imported, _authority, sequence, receipts = _m26_subject(
         SegmentationPolicyV1.FIXED_15
     )
@@ -2671,5 +2678,5 @@ def test_m26_missing_runtime_is_typed_unavailable_without_worker_or_file_effect(
     assert projection.assembly.failure_code == "media_runtime_not_authorized"
     assert "assembly_unavailable:media_runtime_not_authorized" in projection.blocker_codes
     assert "assemble_sequence" not in projection.allowed_actions
-    assert registry._assembly_executor is None
+    assert allocations == []
     assert after == before

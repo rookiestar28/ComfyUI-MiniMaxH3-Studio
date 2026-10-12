@@ -1,6 +1,6 @@
 import { expect, test } from "../fixtures/h3Page";
 
-// M25-08's causal Clip editor journey, re-aimed by M25-44 (one NLE): the compact editor whose
+// 's causal Clip editor journey, re-aimed by (one NLE): the compact editor whose
 // selected-VIDEO preview, playhead and per-clip edits this case used to drive is no longer mounted.
 // Those behaviours are proven on the full editor (`nleReferenceShell`, `nleWorkspace`,
 // `nleCommandMatrix`). What stays here is the causal lifecycle the Clip editor function still

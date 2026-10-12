@@ -1,4 +1,4 @@
-"""M21-02 position-to-asset binding and ordered contact-sheet observation tests.
+"""position-to-asset binding and ordered contact-sheet observation tests.
 
 Two defects are under test here, and they are the same defect seen from two ends. The request never
 told the model which payload was which asset, and the parser then demanded asset identifiers the
@@ -222,7 +222,7 @@ def _guard() -> LocalBudgetGuard:
 
 
 class ContactSheetSamplingTests(unittest.TestCase):
-    """AC-M21-02-03: deterministic, reproducible, and honest about what it could not vary."""
+    """AC--03: deterministic, reproducible, and honest about what it could not vary."""
 
     def test_sampling_parameters_are_a_closed_declared_set(self) -> None:
         for value in (0, 1, 3, 5, 7, 9, 16, True):
@@ -384,7 +384,7 @@ class ContactSheetPlanConstructionTests(unittest.TestCase):
 
 
 class ContactSheetDocumentTests(unittest.TestCase):
-    """AC-M21-02-05 and the declared bounds."""
+    """AC--05 and the declared bounds."""
 
     def _plan(self, count: int = 4) -> ContactSheetPlan:
         return plan_contact_sheet(
@@ -457,7 +457,7 @@ class ContactSheetDocumentTests(unittest.TestCase):
 
 
 class ContactSheetDeclarationTests(unittest.TestCase):
-    """AC-M21-02-04: the sheet says what it is, and the audit rule keeps it out of a prompt."""
+    """AC--04: the sheet says what it is, and the audit rule keeps it out of a prompt."""
 
     def _plan(self) -> ContactSheetPlan:
         return plan_contact_sheet(
@@ -523,7 +523,7 @@ class ContactSheetDeclarationTests(unittest.TestCase):
 
 
 class PayloadBindingTests(unittest.TestCase):
-    """AC-M21-02-01: every position names one asset, with the registry's own label."""
+    """AC--01: every position names one asset, with the registry's own label."""
 
     def test_every_position_is_bound_to_one_asset_and_its_registry_label(self) -> None:
         sheet = _sheet_payload()
@@ -606,7 +606,7 @@ class PayloadBindingTests(unittest.TestCase):
 
 
 class PromptInventoryTests(unittest.TestCase):
-    """AC-M21-02-01 and AC-M21-02-09: the instruction declares the inventory the receipt names."""
+    """AC--01 and AC--09: the instruction declares the inventory the receipt names."""
 
     def test_the_instruction_declares_the_complete_ordered_inventory(self) -> None:
         request = _request(sheets=(_sheet_payload(),))
@@ -647,7 +647,7 @@ class PromptInventoryTests(unittest.TestCase):
 
 
 class ParserOwnershipTests(unittest.TestCase):
-    """AC-M21-02-02: an identity that was never offered is rejected, not reconciled."""
+    """AC--02: an identity that was never offered is rejected, not reconciled."""
 
     def _result(self, observations: list[dict[str, object]]) -> ModelGenerationResult:
         payload = {
@@ -722,7 +722,7 @@ class ParserOwnershipTests(unittest.TestCase):
 
 
 class CompositionSeamTests(unittest.TestCase):
-    """AC-M21-02-08: a failed composition returns nothing and damages nothing."""
+    """AC--08: a failed composition returns nothing and damages nothing."""
 
     def _plan(self) -> ContactSheetPlan:
         return plan_contact_sheet(
@@ -794,14 +794,16 @@ class CompositionSeamTests(unittest.TestCase):
 
     def test_a_malformed_producer_result_is_a_typed_refusal(self) -> None:
         plan = self._plan()
-        for producer in (
-            lambda current, guard: _sheet(current),
-            lambda current, guard: (_sheet(current),),
-            lambda current, guard: ("not a document", b"sheet-bytes"),
-            lambda current, guard: (_sheet(current), "not bytes"),
-            lambda current, guard: (_sheet(current), b""),
+        for producer_case, producer in enumerate(
+            (
+                lambda current, guard: _sheet(current),
+                lambda current, guard: (_sheet(current),),
+                lambda current, guard: ("not a document", b"sheet-bytes"),
+                lambda current, guard: (_sheet(current), "not bytes"),
+                lambda current, guard: (_sheet(current), b""),
+            )
         ):
-            with self.subTest(producer=producer), self.assertRaises(ContactSheetError):
+            with self.subTest(producer_case=producer_case), self.assertRaises(ContactSheetError):
                 InjectedContactSheetComposer(producer).compose(plan, _guard())  # type: ignore[arg-type]
         with self.assertRaises(ContactSheetError):
             InjectedContactSheetComposer(lambda current, guard: (_sheet(current), b"x")).compose(
@@ -810,11 +812,11 @@ class CompositionSeamTests(unittest.TestCase):
 
 
 class FailClosedRouteTests(unittest.TestCase):
-    """AC-M21-02-06: the producer reports unavailable, and this proves why."""
+    """AC--06: the producer reports unavailable, and this proves why."""
 
     def test_no_visual_qualification_receipt_is_admissible(self) -> None:
         # The route cannot claim a qualified visual observation, by design and not by omission.
-        # M21-02 delivers the binding and the representation; enabling the route needs an
+        #  delivers the binding and the representation; enabling the route needs an
         # independently accepted qualification receipt pinned in code, and there is none.
         self.assertEqual(_TRUSTED_VISUAL_QUALIFICATION_RECEIPT_FINGERPRINTS, frozenset())
 
@@ -856,7 +858,7 @@ class FailClosedRouteTests(unittest.TestCase):
 
 
 class PresentationScopeTests(unittest.TestCase):
-    """AC-M21-02-10: nothing here is user-facing, and that is asserted rather than assumed."""
+    """AC--10: nothing here is user-facing, and that is asserted rather than assumed."""
 
     def test_no_browser_surface_mentions_the_contact_sheet(self) -> None:
         # If a later change presents the sheet without localising it, this row fails first.

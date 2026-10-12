@@ -54,7 +54,7 @@ class RequestNodeTests(unittest.TestCase):
             NodeSocketType.H3_HARD_CONSTRAINTS.value,
         )
         self.assertNotIn("default", metadata["optional"]["duration_seconds"][1])
-        # M17-25 / AC-M17-25-03: duration is the only authored length. A frame
+        #  / AC--03: duration is the only authored length. A frame
         # count is derived from it, never offered back as a control.
         self.assertNotIn("frame_count", metadata["optional"])
 

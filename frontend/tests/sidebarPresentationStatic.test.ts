@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const css = readFileSync(join(process.cwd(), "src/styles/tokens.css"), "utf8");
-// M23-28 split the product shell; each guard reads the module that owns the
+//  split the product shell; each guard reads the module that owns the
 // behaviour it pins.
 const registration = readFileSync(
   join(process.cwd(), "src/lifecycle/extensionRegistration.tsx"),

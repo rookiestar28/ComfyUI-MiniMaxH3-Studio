@@ -1,9 +1,9 @@
-"""M22-23. No exception of unknown content leaves the provider boundary.
+""". No exception of unknown content leaves the provider boundary.
 
 Both `request` methods wrapped their whole network body in one `try` and handled a fixed list of
 families -- five for the remote transport, four for the loopback. Anything else escaped as a
 traceback into the host, where every other failure there is a typed outcome carrying a remediation.
-M22-22 closed one instance, a `UnicodeEncodeError` out of `http.client.putheader`, by preventing
+ closed one instance, a `UnicodeEncodeError` out of `http.client.putheader`, by preventing
 that particular exception from being constructible. It did not close the shape, and the shape has
 two more instances: the loopback twin, and the unguarded `finally: connection.close()` in both,
 where a raising close does not merely escape but *replaces* the typed outcome already in flight.
@@ -17,7 +17,7 @@ the user at their network for a bug in here, and would hide it behind a remediat
 And the original exception must be genuinely unreachable from the one that leaves, not merely
 hidden. `raise ... from None` sets `__suppress_context__`, which stops the default traceback printer
 from rendering the chain -- it drops no reference, and `__context__` still holds the original. At
-this boundary the original may be holding a credential, which is exactly what M22-22's instance did.
+this boundary the original may be holding a credential, which is exactly what 's instance did.
 """
 
 from __future__ import annotations
@@ -46,7 +46,7 @@ from comfyui_h3_context.core.prompt_model_provider import (
 )
 from comfyui_h3_context.core.remote_prompt_model import RuntimeCredential
 
-#: A plain ASCII marker. M22-22's review turned on exactly this detail: the probe there asked
+#: A plain ASCII marker. 's review turned on exactly this detail: the probe there asked
 #: whether a secret was a substring of a `repr`, and the secret ended in a character `repr` escapes,
 #: so it could never match however leaky the repr was. A marker that survives escaping is the only
 #: kind that can answer the question being asked.
@@ -63,7 +63,7 @@ class Unanticipated(Exception):
 
 
 def carrying_marker() -> UnicodeEncodeError:
-    """The M22-22 shape: an exception whose payload is the whole Authorization value."""
+    """The shape: an exception whose payload is the whole Authorization value."""
 
     return UnicodeEncodeError("latin-1", "Bearer sk-" + MARKER, 10, 11, "not encodable")
 
@@ -217,7 +217,7 @@ class NothingUnknownLeavesTheBoundaryTests(unittest.TestCase):
                     self.assertEqual(type(error).__name__, raised.unexpected_type)
 
     def test_the_loopback_twin_answers_the_same_question_the_same_way(self) -> None:
-        # Fixing only the remote transport would repeat M22-20's error of treating one visible
+        # Fixing only the remote transport would repeat 's error of treating one visible
         # instance as the whole defect. This family is also the one an ordinary user reaches first.
         for error, label in UNANTICIPATED:
             with self.subTest(error=label):

@@ -31,7 +31,7 @@ export default defineConfig({
       name: "h3-context-e2e-production-inline-css",
       enforce: "pre",
       resolveId(source, importer) {
-        // M25-16: the integrated-shell harness (nleShell.tsx) mounts through the same
+        // the integrated-shell harness (nleShell.tsx) mounts through the same
         // `createMountController` style-length bound `entry.tsx` does, so it needs the same
         // minified stylesheet -- the raw (unminified) tokens.css exceeds that bound.
         const normalizedImporter = importer?.replaceAll("\\", "/");

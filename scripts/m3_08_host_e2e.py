@@ -50,6 +50,7 @@ from comfyui_h3_context.core.workflow_migration import (  # noqa: E402
     MigrationDisposition,
     audit_workflow_migration,
 )
+from scripts.build_gate_report import BuildGateReportError, _extract_plain_members  # noqa: E402
 
 DEFAULT_HOST_ROOT = ROOT / "reference" / "ComfyUI"
 EXPECTED_HOST_REVISION = "b323a345bbbfb2f3a95b5b73b68eb7919a26515e"  # pragma: allowlist secret
@@ -381,7 +382,10 @@ def _deploy_subject(*, subject_path: Path, staging_path: Path, artifact_path: Pa
         artifact_root = next(iter(roots))
         if not PROJECT_SDIST_ROOT_PATTERN.fullmatch(artifact_root):
             raise HostBlockedError("exact host artifact has an unexpected root")
-        archive.extractall(staging_path, members=members, filter="data")
+        try:
+            _extract_plain_members(archive, members, staging_path)
+        except BuildGateReportError as error:
+            raise HostBlockedError("exact host artifact failed safe extraction") from error
     extracted = staging_path / artifact_root
     if not extracted.is_dir():
         raise HostBlockedError("exact host artifact did not produce the expected root")
@@ -716,7 +720,7 @@ def build_model_free_prompt(fixture: Mapping[str, Any]) -> JsonObject:
 
 
 def build_model_free_perception_prompt(fixture: Mapping[str, Any]) -> JsonObject:
-    """Expose every M15-01 result through source-bound host observers."""
+    """Expose every result through source-bound host observers."""
 
     validate_fixture(fixture)
     source_prompt = _as_object(fixture.get("prompt"), "fixture.prompt")
@@ -736,7 +740,7 @@ def build_model_free_perception_prompt(fixture: Mapping[str, Any]) -> JsonObject
 
 
 def build_model_free_downstream_prompt(fixture: Mapping[str, Any]) -> JsonObject:
-    """Expose every M15-02 stage through source-bound host observers."""
+    """Expose every stage through source-bound host observers."""
 
     validate_fixture(fixture)
     source_prompt = _as_object(fixture.get("prompt"), "fixture.prompt")
@@ -1150,7 +1154,7 @@ def _write_reference_images(input_root: Path) -> None:
 
 
 def _write_perception_media(input_root: Path) -> None:
-    """Create bounded image/audio inputs for the M15-01 model-free host workflow."""
+    """Create bounded image/audio inputs for the model-free host workflow."""
 
     import wave
 

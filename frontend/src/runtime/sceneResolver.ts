@@ -1,4 +1,4 @@
-// M25-16: the browser composition-monitor scene resolver.
+// the browser composition-monitor scene resolver.
 //
 // This is a field-for-field port of the pure backend `resolve_composition` in
 // `comfyui_h3_context/core/composition_contract.py`. The monitor needs one resolved scene per
@@ -14,6 +14,8 @@ import {
   CompositionContractError,
   ENGINE_PROFILE_ID,
   RESOLVED_SCENE_SCHEMA,
+  textDecorationWire,
+  hasTextDecorations,
   type CompositionClip,
   type PublicCompositionAsset,
   type PublicCompositionSnapshot,
@@ -223,6 +225,7 @@ function textWire(
       text.backgroundRgba === null
         ? null
         : [...(text.backgroundRgba as readonly number[])],
+    ...textDecorationWire(text),
   };
 }
 
@@ -353,6 +356,8 @@ export function resolveCompositionScene(
       operationIds.push("CrossDissolveV1");
     }
     if (clipTrack.kind === "text_overlay") operationIds.push("DrawTextV1");
+    if (clipTrack.kind === "text_overlay" && hasTextDecorations(clip.text))
+      operationIds.push("TextDecorationV1");
     layers.push({
       clip_id: clip.clipId,
       asset_id: clip.assetId,

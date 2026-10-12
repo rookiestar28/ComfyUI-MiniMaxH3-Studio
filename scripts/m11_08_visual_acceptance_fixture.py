@@ -1,6 +1,6 @@
-"""Offline M11-08 visual-perception acceptance gate fixture.
+"""Offline visual-perception acceptance gate fixture.
 
-The fixture evaluates the frozen M11-01 metadata only.  It intentionally returns a bounded
+The fixture evaluates the frozen metadata only. It intentionally returns a bounded
 ``unsupported_research`` result because no live visual profile was admitted or qualified.
 """
 

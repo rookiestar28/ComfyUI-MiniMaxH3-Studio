@@ -1,4 +1,4 @@
-import { sha256Text } from "../contracts/canonicalFingerprint";
+import { inertImmutable, sha256Text } from "../contracts/canonicalFingerprint";
 import {
   ENGINE_PROFILE_ID,
   type PublicCompositionSnapshot,
@@ -72,14 +72,51 @@ function manifestPayload(snapshot: PublicCompositionSnapshot): ManifestPayload {
   };
 }
 
+// IMPORTANT: one accepted snapshot reaches several readers in the same commit (the workspace's
+// monitor binding, the media bin, filmstrips and waveforms), and each used to rebuild and hash this
+// manifest -- landmarks included -- inside the render that sets the editor's commit-cost p95. A
+// decoded snapshot is frozen plain data, so its manifest is computed once and shared; the manifest
+// itself is deep-frozen. Never share for a snapshot whose read fields are not inert data (see
+// `inertImmutable`): a mutable, accessor-backed or inherited input would get a stale manifest.
+const manifestBySnapshot = new WeakMap<
+  PublicCompositionSnapshot,
+  PublicAssetManifest
+>();
+
+const MANIFEST_SOURCE_KEYS = [
+  "publicFingerprint",
+  "workspaceRevision",
+  "timelineRevision",
+  "assets",
+] as const;
+
+// The payload reads these four snapshot fields and everything under `assets`; each must be an
+// own data property of a frozen plain snapshot, and the assets inert to their leaves.
+function inertManifestSource(snapshot: PublicCompositionSnapshot): boolean {
+  const prototype = Object.getPrototypeOf(snapshot);
+  return (
+    Object.isFrozen(snapshot) &&
+    (prototype === Object.prototype || prototype === null) &&
+    MANIFEST_SOURCE_KEYS.every((key) => {
+      const descriptor = Object.getOwnPropertyDescriptor(snapshot, key);
+      return descriptor !== undefined && "value" in descriptor;
+    }) &&
+    inertImmutable(snapshot.assets)
+  );
+}
+
 export function buildPublicAssetManifest(
   snapshot: PublicCompositionSnapshot,
 ): PublicAssetManifest {
+  const shared = manifestBySnapshot.get(snapshot);
+  if (shared !== undefined) return shared;
   const payload = manifestPayload(snapshot);
-  return deepFreeze({
+  const manifest = deepFreeze({
     ...payload,
     manifestFingerprint: sha256Text(canonicalJson(payload)),
   });
+  if (inertManifestSource(snapshot)) manifestBySnapshot.set(snapshot, manifest);
+  return manifest;
 }
 
 export function validatePublicAssetManifest(

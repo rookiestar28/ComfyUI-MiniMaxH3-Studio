@@ -1,4 +1,4 @@
-"""M12-06 source-owned audio evidence fusion and calibration tests."""
+"""source-owned audio evidence fusion and calibration tests."""
 
 from __future__ import annotations
 

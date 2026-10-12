@@ -1,4 +1,4 @@
-"""M12-04 source-owned audio-event contracts."""
+"""source-owned audio-event contracts."""
 
 from __future__ import annotations
 

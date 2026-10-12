@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import os
 import subprocess
 import sys
 import tempfile
+import threading
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -15,6 +17,17 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+from scripts.browser_ci_evidence import (  # noqa: E402 - direct script invocation needs ROOT first
+    evidence_directory,
+    publish_evidence,
+    require_owned_path,
+    sanitize_report,
+    server_event,
+    validate_media_config,
+)
+
+__all__ = ["evidence_directory", "publish_evidence", "sanitize_report"]
+
 INVENTORY = "frontend/tests/fixtures/browserNativeCases.json"
 PROFILE = "playwright.hermetic-ci.config.ts"
 Case = tuple[str, str]
@@ -104,6 +117,7 @@ def collect(config: str, env: dict[str, str], *, root: Path = ROOT) -> Counter[C
         text=True,
         encoding="utf-8",
         check=True,
+        timeout=120,
     )
     return collected(json.loads(value.stdout))
 
@@ -125,9 +139,75 @@ def collection_environment(source: dict[str, str]) -> dict[str, str]:
     return env
 
 
+def execute_browser(argv: list[str], env: dict[str, str]) -> tuple[int, list[dict[str, str]]]:
+    # CRITICAL: redirected Windows stdout may use a legacy codec; Vite's Unicode
+    # output must remain writable so its consumer does not abandon the pipe.
+    if isinstance(sys.stdout, io.TextIOWrapper):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    events: list[dict[str, str]] = []
+    with subprocess.Popen(
+        argv,
+        cwd=ROOT,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    ) as process:
+        stdout = process.stdout
+        if stdout is None:
+            raise ValueError("browser stdout pipe is unavailable")
+        reader_failed = False
+
+        def consume() -> None:
+            nonlocal reader_failed
+            try:
+                for line in stdout:
+                    # CRITICAL: keep draining after a sink/parser failure; abandoning the
+                    # pipe blocks the producer and masks the refusal with an 85-minute timeout.
+                    if reader_failed:
+                        continue
+                    try:
+                        print(line, end="", flush=True)
+                        event = server_event(line)
+                        if event is not None and len(events) < 512:
+                            events.append(event)
+                    except Exception:
+                        reader_failed = True
+            except Exception:
+                reader_failed = True
+                # An unreadable pipe cannot be drained. Stop its producer before waiting.
+                try:
+                    process.kill()
+                except OSError:
+                    pass
+
+        reader = threading.Thread(target=consume, daemon=True)
+        reader.start()
+        try:
+            status = process.wait(timeout=85 * 60)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+            raise
+        finally:
+            reader.join(timeout=10)
+        if reader.is_alive():
+            raise ValueError("browser stdout reader did not finish")
+        # CRITICAL: a reader failure must refuse evidence, even when the child exits zero.
+        # Never retain the exception text: it may carry a private server payload or path.
+        if reader_failed:
+            raise ValueError("browser stdout reader failed")
+    return status, events
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--list-only", action="store_true")
+    parser.add_argument(
+        "--evidence-dir", help="retain sanitized failure evidence in a fresh ignored directory"
+    )
     args = parser.parse_args()
     try:
         python = require_interpreter(ROOT)
@@ -140,6 +220,7 @@ def main() -> int:
             ],
             cwd=ROOT,
             check=True,
+            timeout=120,
         )
         env = collection_environment(dict(os.environ))
         env["H3_CONTEXT_E2E_PYTHON"] = str(python)
@@ -154,22 +235,36 @@ def main() -> int:
         )
         if args.list_only:
             return 0
+        destination = evidence_directory(ROOT, args.evidence_dir) if args.evidence_dir else None
+        if destination is not None:
+            validate_media_config(ROOT)
         scratch = ROOT / ".tmp"
+        require_owned_path(ROOT, scratch)
         scratch.mkdir(exist_ok=True)
         with tempfile.TemporaryDirectory(prefix="browser-ci-", dir=scratch) as directory:
             report_path = Path(directory) / "results.json"
             env["PLAYWRIGHT_JSON_OUTPUT_FILE"] = str(report_path)
-            result = subprocess.run(
-                [*command(PROFILE), "--reporter=line,json"], cwd=ROOT, env=env, check=False
+            if destination is not None:
+                env["H3_CONTEXT_PLAYWRIGHT_OUTPUT"] = str(Path(directory) / "test-results")
+            status, server_events = execute_browser(
+                [*command(PROFILE), "--reporter=line,json"],
+                env,
             )
-            if result.returncode:
-                return result.returncode
+            if report_path.exists():
+                report = json.loads(report_path.read_text(encoding="utf-8"))
+                report["serverEvents"] = server_events
+                report_path.write_text(json.dumps(report, ensure_ascii=False), encoding="utf-8")
+            if destination is not None and report_path.exists():
+                require_owned_path(ROOT, destination)
+                publish_evidence(report_path, Path(directory) / "test-results", destination)
+            if status:
+                return status
             executed = collected(json.loads(report_path.read_text(encoding="utf-8")), executed=True)
             if executed != portable:
                 raise ValueError("executed cases differ from verified collection")
         print("Hermetic browser: PASS; explicit native qualification: NOT_RUN")
         return 0
-    except (OSError, ValueError, KeyError, TypeError, subprocess.CalledProcessError) as error:
+    except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
         print(
             f"Hermetic browser preflight/result: FAIL ({type(error).__name__}: {error})",
             file=sys.stderr,

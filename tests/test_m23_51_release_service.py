@@ -1,4 +1,4 @@
-"""M23-51 focused tests for the one service that owns the release/detach mutation.
+"""focused tests for the one service that owns the release/detach mutation.
 
 The pure table says what should happen. These say that nothing else happens: a refusal leaves the
 registry byte-identical, a detach leaves the run and its prompt in place, and a release is the only

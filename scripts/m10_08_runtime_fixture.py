@@ -1,4 +1,4 @@
-"""Offline M10-08 runtime-foundation integration fixture.
+"""Offline runtime-foundation integration fixture.
 
 The fixture deliberately injects all runtime values.  It exercises the public seams in the
 same order as a selected local execution, but never loads a checkpoint, opens a decoder, starts

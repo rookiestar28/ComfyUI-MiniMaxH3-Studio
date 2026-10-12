@@ -1,4 +1,4 @@
-"""M12-03 source-owned speaker and voice-reference contracts."""
+"""source-owned speaker and voice-reference contracts."""
 
 from __future__ import annotations
 

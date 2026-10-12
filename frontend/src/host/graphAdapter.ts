@@ -173,7 +173,7 @@ export function inspectVisibleH3Graph(
           : typeof node.type === "string" && definitions.has(node.type)
             ? node.type
             : undefined;
-      // M17-20 D11/D13: a node this repository does not own is the normal case
+      //  D11/D13: a node this repository does not own is the normal case
       // now, not a defect -- the official templates ship loaders, samplers,
       // decode and a sink. Its presence switches this inspection to the
       // open-world rules rather than rejecting the canvas.

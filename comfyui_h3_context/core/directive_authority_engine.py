@@ -1,4 +1,4 @@
-"""M13-04 authority, conflict, clarification, and abstention projection.
+"""authority, conflict, clarification, and abstention projection.
 
 The M6 directive resolver remains the source of action and precedence semantics.  This module only
 projects that immutable result into a later-planning receipt; it does not interpret prose, resolve

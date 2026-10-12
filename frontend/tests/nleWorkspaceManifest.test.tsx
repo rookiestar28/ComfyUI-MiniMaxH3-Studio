@@ -1,4 +1,4 @@
-// M25-16: every manifest row has an executable control (or a readable observation) in the
+// every manifest row has an executable control (or a readable observation) in the
 // rendered workspace, every canonical control issues exactly its manifest command, and no
 // deferred-audio control, UA media control or phantom focus target exists.
 
@@ -48,7 +48,7 @@ const manifest = JSON.parse(
 ) as { command_rows: Row[]; non_command_rows: Row[] };
 
 /**
- * M25-45: the monitor controls that exist only in the state they apply to -- the two halves of the
+ * the monitor controls that exist only in the state they apply to -- the two halves of the
  * one play/pause button, and the recovery offer inside the picture. The monitor unit suite proves
  * each one appears and drives the session in its own state; the contract here is that a healthy,
  * unopened monitor shows exactly the play half and offers no recovery.
@@ -122,8 +122,8 @@ function renderWorkspace(
     surface: { ...binding.state.surface, pane },
     render: { status: "read", capability: null },
   };
-  // M25-44: the render card moved into the chrome bar's Export popover, which stays mounted
-  // (hidden) while closed; M25-45 moved the monitor's status and audio chips into the same bar.
+  // the render card moved into the chrome bar's Export popover, which stays mounted
+  // (hidden) while closed; moved the monitor's status and audio chips into the same bar.
   // Render the chrome the overlay renders, beside the workspace, as the overlay does.
   const monitorStatus = createMonitorStatusChannel();
   const view = render(
@@ -191,12 +191,12 @@ function revealControl(
     );
     if (control !== null) fireEvent.click(control);
   }
-  // M25-63: range commands live in the first card's menu, opened by a context click.
+  // range commands live in the first card's menu, opened by a context click.
   if (["range.insert", "range.overwrite"].includes(operation)) {
     const card = container.querySelector(".h3-nle-media-primary");
     if (card !== null) fireEvent.contextMenu(card);
   }
-  // M25-79: a trigger button toggles its menu, so a reveal presses it only while the menu is
+  // a trigger button toggles its menu, so a reveal presses it only while the menu is
   // closed; pressing it again for the next row would close the menu that row needs.
   const open = (name: string) =>
     container.querySelector(`[role="menu"][aria-label="${name}"]`) !== null;
@@ -219,7 +219,7 @@ function revealControl(
     ].includes(operation) &&
     !open("Clip menu")
   ) {
-    // M25-62 (B-M2562-03): the inline trigger shows only on a selected clip of at least 96 px,
+    //  (B-M2562-03): the inline trigger shows only on a selected clip of at least 96 px,
     // so a narrower one opens its menu the way a mouse user does, with a context click.
     const trigger = container.querySelector<HTMLButtonElement>(
       `[data-h3-nle-clip="${clipId}"] [data-h3-nle-menu-trigger="clip"], ` +
@@ -255,9 +255,7 @@ describe("M25-16 control coverage manifest", () => {
         const { view } = renderWorkspace(selection, pane);
         // Visit both toolbar modes and both bin tabs: each owns migrated commands.
         if (index === 1)
-          fireEvent.click(
-            view.getByRole("button", { name: "Main-track ripple" }),
-          );
+          fireEvent.click(view.getByRole("button", { name: "Ripple edits" }));
         fireEvent.click(
           view.container.querySelector<HTMLButtonElement>(
             '[data-h3-nle-alternative="move.open"]',

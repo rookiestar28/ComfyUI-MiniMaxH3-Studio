@@ -1,0 +1,3 @@
+// M99-11: Preserve the exported contract.
+/** Preserve the ordering (RM-999). */
+export const value: string = "M99-11";

@@ -1,4 +1,4 @@
-// M25-44: the final-video render card lives in the full editor's chrome-bar Export popover. The
+// the final-video render card lives in the full editor's chrome-bar Export popover. The
 // popover's content stays mounted while it is closed (a running render keeps its progress), so an
 // attribute check still finds its hooks, but a role, label or visibility query needs it open.
 

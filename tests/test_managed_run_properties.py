@@ -1,4 +1,4 @@
-"""M23-31 property tests for the ManagedRun aggregate and registry.
+"""property tests for the ManagedRun aggregate and registry.
 
 Two layers, because they cover different things and neither subsumes the other.
 

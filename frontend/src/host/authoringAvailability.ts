@@ -1,4 +1,4 @@
-// M20-03 (plan F1): the one qualified availability producer path. Facts derive solely from
+//  (plan F1): the one qualified availability producer path. Facts derive solely from
 // the graph-qualification verdict the host layer already owns; the UI can request a refresh
 // but can never author a fact, override unknown, or infer availability from a filename or a
 // media object. Without a verdict there is nothing to post — absence stays unknown, honestly.

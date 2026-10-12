@@ -1,4 +1,4 @@
-// M25-16 expanded workspace copy. Every user-facing string of the launcher, overlay, workspace
+//  expanded workspace copy. Every user-facing string of the launcher, overlay, workspace
 // panes, inspector, sequence panel and import action lives here in the three shipped locales.
 // The strings the item plan freezes are reproduced exactly.
 
@@ -25,7 +25,7 @@ export const copy = {
         "Composition monitor unavailable; the preview shows the selected clip's source only.",
       monitorUnavailable: "Composition monitor unavailable.",
     },
-    // M25-63 (R9): the top bar's save indicator. Short labels only; the full sentence is the
+    //  (R9): the top bar's save indicator. Short labels only; the full sentence is the
     // timeline status, and the revision number is never shown.
     save: {
       region: "Save status",
@@ -124,11 +124,11 @@ export const copy = {
       duration: "Duration {timecode}",
       durationUnavailable: "Duration unavailable",
       added: "Added to timeline",
-      // M25-63: the pills over a thumbnail; the card's name keeps the full sentences.
+      // the pills over a thumbnail; the card's name keeps the full sentences.
       pillAdded: "Added",
       pillImported: "Imported",
       addToTimeline: "Add to timeline",
-      // D-6: "+" states what Add does today (M25-59 makes it append to Main).
+      // D-6: "+" states what Add does today ( makes it append to Main).
       addNamed: "Add {name} to the timeline",
       addTip: "Append to the end of the primary video track",
       addPrimaryMissing: "Add refused: the primary video track is unavailable.",
@@ -176,7 +176,7 @@ export const copy = {
       overlayAudioWarning:
         "Overlay video insertion excludes its embedded soundtrack.",
     },
-    // M25-64 (row #28): the inspector's Project settings, read from the accepted output profile.
+    //  (row #28): the inspector's Project settings, read from the accepted output profile.
     project: {
       title: "Project",
       resolution: "Resolution",
@@ -194,7 +194,7 @@ export const copy = {
     },
     monitor: {
       title: "Monitor",
-      // M25-64 (rows #26 and #27): the monitor's header and its two picture overlays.
+      //  (rows #26 and #27): the monitor's header and its two picture overlays.
       header: "Preview",
       emptyTitle: "Nothing on the timeline yet",
       unavailableTitle: "Preview unavailable",
@@ -258,7 +258,7 @@ export const copy = {
         invalid_contract: "unsupported composition",
         resource_limit: "resource limit exceeded",
       },
-      // M25-64 (A64-6): the unavailable overlay's reason, a plain sentence under its title. The
+      //  (A64-6): the unavailable overlay's reason, a plain sentence under its title. The
       // status sentence above stays the diagnostics text.
       unavailableReason: {
         source_unavailable: "A clip's source could not be read.",
@@ -327,7 +327,7 @@ export const copy = {
           delete: "Delete",
           rippleDelete: "Ripple delete",
           snap: "Snapping",
-          ripple: "Main-track ripple",
+          ripple: "Ripple edits",
           zoomOut: "Zoom out",
           zoomIn: "Zoom in",
           fit: "Fit timeline",
@@ -508,9 +508,9 @@ export const copy = {
       cropTop: "Crop top",
       cropRight: "Crop right",
       cropBottom: "Crop bottom",
-      // M25-64 (R10): a unit field's accessible name; the visible label carries no unit token.
+      //  (R10): a unit field's accessible name; the visible label carries no unit token.
       unitName: "{label} ({unit})",
-      // M25-64 (row #29): the clip header's range line.
+      //  (row #29): the clip header's range line.
       clipRange: "{start} – {end} · {duration}",
       seconds: "{seconds} s",
       textContent: "Text",
@@ -1008,7 +1008,7 @@ export const copy = {
           delete: "刪除",
           rippleDelete: "漣漪刪除",
           snap: "吸附",
-          ripple: "主軌漣漪",
+          ripple: "漣漪編輯",
           zoomOut: "縮小",
           zoomIn: "放大",
           fit: "符合時間軸",
@@ -1659,7 +1659,7 @@ export const copy = {
           delete: "删除",
           rippleDelete: "涟漪删除",
           snap: "吸附",
-          ripple: "主轨涟漪",
+          ripple: "波纹编辑",
           zoomOut: "缩小",
           zoomIn: "放大",
           fit: "适合时间线",

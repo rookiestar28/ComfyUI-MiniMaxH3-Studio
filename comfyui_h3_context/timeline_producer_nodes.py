@@ -149,11 +149,31 @@ class H3FullReferenceTimelineProducerNode:
 
     @classmethod
     def VALIDATE_INPUTS(
-        cls, request: object | None = None, visual_result: object | None = None
+        cls,
+        request: object | None = None,
+        visual_result: object | None = None,
+        input_types: object | None = None,
     ) -> bool | str:
-        # CRITICAL: queue validation sees link placeholders. Permit the qualified input
-        # structurally here; execution must verify its private authority and exact source.
-        return cls.capability(qualified_input=visual_result is not None).validation_result()
+        # CRITICAL: input_types delegates ALL linked-type checks to this hook. Validate every
+        # socket before admitting a None link placeholder; execution still proves private authority.
+        qualified_link = False
+        if input_types is not None:
+            if type(input_types) is not dict:
+                return "linked_input_type_mismatch"
+            schema = cls.INPUT_TYPES()
+            declared = {**schema["required"], **schema["optional"]}
+            for name, linked_type in input_types.items():
+                if (
+                    type(name) is not str
+                    or type(linked_type) is not str
+                    or name not in declared
+                    or linked_type != declared[name][0]
+                ):
+                    return "linked_input_type_mismatch"
+            qualified_link = "visual_result" in input_types
+        return cls.capability(
+            qualified_input=visual_result is not None or qualified_link
+        ).validation_result()
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, dict[str, tuple[object, dict[str, object]]]]:
@@ -206,7 +226,7 @@ class H3FullReferenceTimelineProducerNode:
 
 
 class H3FeasibleAVTimelineNode:
-    """Execute the accepted M13-06 planner over current public producer values."""
+    """Execute the accepted planner over current public producer values."""
 
     NODE_ID = FEASIBLE_AV_TIMELINE_NODE_ID
     __h3_context_node_id__ = NODE_ID
@@ -256,7 +276,7 @@ class H3FeasibleAVTimelineNode:
 
 
 class H3HierarchicalEvidenceReductionNode:
-    """Execute accepted M13-07 reduction without inventing observations."""
+    """Execute accepted reduction without inventing observations."""
 
     NODE_ID = HIERARCHICAL_REDUCTION_NODE_ID
     __h3_context_node_id__ = NODE_ID
@@ -298,7 +318,7 @@ class H3HierarchicalEvidenceReductionNode:
 
 
 class H3ConstrainedSemanticPlanningNode:
-    """Execute the M13-08 boundary with an explicit model-free disposition."""
+    """Execute the boundary with an explicit model-free disposition."""
 
     NODE_ID = CONSTRAINED_SEMANTIC_NODE_ID
     __h3_context_node_id__ = NODE_ID
@@ -330,7 +350,7 @@ class H3ConstrainedSemanticPlanningNode:
 
 
 class H3SourceProfiledRendererNode:
-    """Render through the accepted source-pinned M13-09 contract."""
+    """Render through the accepted source-pinned contract."""
 
     NODE_ID = SOURCE_PROFILED_RENDERER_NODE_ID
     __h3_context_node_id__ = NODE_ID

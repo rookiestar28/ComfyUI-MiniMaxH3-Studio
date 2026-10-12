@@ -521,7 +521,7 @@ test("M25-52 proves the real peaks route and mixed-load playback on the supplied
         );
       }
     } else if (operation === "release") {
-      // IMPORTANT: creating an audio preview rebinds the owner's remembered derivative kind, and
+      // IMPORTANT: creating an audio preview rebinds the remembered derivative kind, and
       // its release clears that memory before the owner-level control release arrives. Treat that
       // final control release as authoritative for any remaining video/decorative lease or the
       // observer reports a leak after the backend resource receipt has already reached zero.
@@ -1469,7 +1469,7 @@ test("M25-52 proves the real peaks route and mixed-load playback on the supplied
           Math.max(1, right - left),
           Math.max(1, waveformTop - filmstripTop),
         ).data;
-        // M25-64 B-M2564-13: since M25-62 the waveform is stroked in the resolved
+        //  B-M2564-13: since the waveform is stroked in the resolved
         // `--h3-nle-waveform` role colour, and a cyan rule counts none of it. A pixel is the
         // waveform's when every channel is within 16 levels of that colour, the tolerance
         // `m25_53ReferenceFidelity.spec.ts` measured and documents (WAVEFORM_COLOUR_TOLERANCE);

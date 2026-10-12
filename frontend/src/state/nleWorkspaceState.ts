@@ -52,7 +52,7 @@ export type NleSurfaceState = Readonly<{
   capability: NleSurfaceCapability | null;
   bounds: OverlayBounds;
   pane: OverlayInternalPane;
-  /** M25-44: the three splitter positions as workspace shares; resolved against the stage. */
+  /** the three splitter positions as workspace shares; resolved against the stage. */
   layout: NleLayout;
   /** The last recorded close reason; cleared when the next open succeeds. */
   lastCloseReason: NleCloseReason | null;
@@ -162,7 +162,7 @@ export type NleFunctionRequest = Readonly<{
   generation: number;
 }>;
 
-/** The M25-19 render capability as last read; `null` until the overlay reads it. */
+/** The render capability as last read; `null` until the overlay reads it. */
 export type NleRenderState = Readonly<{
   status: "unread" | "reading" | "read";
   capability: OutputCapability | null;

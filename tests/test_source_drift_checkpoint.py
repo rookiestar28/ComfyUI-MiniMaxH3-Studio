@@ -1,4 +1,4 @@
-"""M14-09 bounded source/model/host drift checkpoint tests."""
+"""bounded source/model/host drift checkpoint tests."""
 
 from __future__ import annotations
 
@@ -22,6 +22,36 @@ from comfyui_h3_context.core import (
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = ROOT / "governance" / "contracts" / "source_drift_checkpoint_v2.schema.json"
 FIXTURE = ROOT / "tests" / "fixtures" / "m22_10_source_drift_checkpoint.json"
+
+
+def test_supported_core_identity_equals_the_active_compatibility_reference_profile() -> None:
+    from comfyui_h3_context.core.compatibility import default_compatibility_matrix
+    from comfyui_h3_context.core.native_h3 import NATIVE_H3_SOURCE_BLOB
+
+    profile = next(
+        profile for profile in default_compatibility_matrix().profiles if profile.host_revision
+    )
+    by_id = {
+        surface.surface_id: surface for surface in build_default_source_drift_checkpoint().surfaces
+    }
+    assert by_id["comfyui.supported.core"].expected_identity == f"git:{profile.host_revision}"
+    assert (
+        by_id["comfyui.supported.native_h3"].expected_identity == f"gitblob:{NATIVE_H3_SOURCE_BLOB}"
+    )
+    assert by_id["comfyui.supported.native_h3"].disposition is DriftDisposition.EXACT_MATCH
+    assert not build_default_source_drift_checkpoint().latest_host_qualified
+
+
+def test_reconciled_checkpoint_preserves_historical_observation_dates() -> None:
+    checkpoint = build_default_source_drift_checkpoint()
+    by_id = {surface.surface_id: surface for surface in checkpoint.surfaces}
+    assert checkpoint.retrieved_at.startswith("2026-10-09T")
+    assert by_id["comfyui.supported.core"].retrieved_at == checkpoint.retrieved_at
+    assert by_id["comfyui.latest.native_h3"].retrieved_at == checkpoint.retrieved_at
+    assert by_id["minimax.model.revision"].retrieved_at == "2026-08-10T00:39:00+08:00"
+    assert by_id["ollama.python_client"].retrieved_at == "2026-08-10T00:39:00+08:00"
+    with pytest.raises(SourceDriftCheckpointError, match="retrieval"):
+        replace(by_id["comfyui.supported.core"], retrieved_at="2026-10-08T00:00:00+08:00")
 
 
 def test_default_checkpoint_is_bounded_and_preserves_claim_ceiling() -> None:
@@ -61,13 +91,13 @@ def test_exact_pins_and_material_latest_native_drift_are_separate() -> None:
     by_id = {surface.surface_id: surface for surface in checkpoint.surfaces}
 
     supported = by_id["comfyui.supported.core"]
-    assert supported.expected_identity == ("git:c44dea18809e3ca0e12e25cbe6938c2c45a29c9d")
+    assert supported.expected_identity == ("git:b323a345bbbfb2f3a95b5b73b68eb7919a26515e")
     assert supported.observed_identity == supported.expected_identity
     assert supported.disposition is DriftDisposition.EXACT_MATCH
 
     native = by_id["comfyui.latest.native_h3"]
-    assert native.expected_identity == "gitblob:22bc91cd4570a071c664ec4848a5be748909e1e7"
-    assert native.observed_identity == "gitblob:0b1840e851c248f89e9920159c3c8237fa2e7186"
+    assert native.expected_identity == "gitblob:0b1840e851c248f89e9920159c3c8237fa2e7186"
+    assert native.observed_identity == "gitblob:9ac827b0a6abba0f070a1924eddfb4aeb6788745"
     assert native.material is True
     assert native.disposition is DriftDisposition.BLOCKED_PENDING_REQUALIFICATION
     assert "native_sigma_sampler" in native.affected_seams

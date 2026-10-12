@@ -1,14 +1,14 @@
-"""M20-01 focused tests for the H3 temporal capability profile.
+"""focused tests for the H3 temporal capability profile.
 
 The matrix these rows have to hold apart is the one a careless profile collapses. Video-run
 validity, exact audiovisual boundary alignment and target audio-latent admission are three
 different contract decisions, and so are the two provenance classes: what the adapter does with a
 submitted length is readable from a pinned source and true now, while what the model can do is only
-true once an accepted `M19-07` row says so.
+true once an accepted `` row says so.
 
 Nothing here re-implements the arithmetic it checks. The lattice comes from
-`comfyui_h3_context.core.length`, which `M17-25` made the single authority, and the parity rows read
-`official_temporal_parity`, the one fixture that transcribes upstream independently.
+`comfyui_h3_context.core.length`, which `` made the single authority, and the parity rows read
+`oracles.native_temporal`, an independent restatement of the frame-lattice specification.
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ from fractions import Fraction
 from pathlib import Path
 
 from jsonschema import Draft202012Validator
-from official_temporal_parity import (
+from oracles.native_temporal import (
     NATIVE_NODE_BYTES,
     NATIVE_NODE_RETRIEVED,
     NATIVE_NODE_REVISION,
@@ -90,9 +90,9 @@ NON_EXACT_RUNS = (5, 22, 56, 73, 107, 124)
 def accepted_matrix(
     temporal: CapabilityStatus = CapabilityStatus.SUPPORTED,
 ) -> AcceptedQualification:
-    """The accepted `M19-07` projection, in the exact shape it was closed with.
+    """The accepted `` projection, in the exact shape it was closed with.
 
-    One `supported` row and four `unqualified` ones -- not four absences. `M19-07`'s distinct review
+    One `supported` row and four `unqualified` ones -- not four absences. ``'s distinct review
     overturned an `unsupported` verdict for the mask row, so "we did not establish this" is the only
     honest state for the other four and the fixture says so.
     """
@@ -135,7 +135,7 @@ def accepted_matrix(
 
 
 class ProvenanceClassTests(unittest.TestCase):
-    """AC-M20-01-02. Two classes, declared as typed members, joined by different evidence."""
+    """AC--02. Two classes, declared as typed members, joined by different evidence."""
 
     def test_every_member_declares_exactly_one_class(self) -> None:
         profile = build_temporal_profile()
@@ -231,7 +231,7 @@ class ProvenanceClassTests(unittest.TestCase):
 
 
 class AlignmentTests(unittest.TestCase):
-    """AC-M20-01-07. Snapping is permitted; silence is not."""
+    """AC--07. Snapping is permitted; silence is not."""
 
     def test_off_lattice_requests_snap_up_and_say_so_in_every_residue_class(self) -> None:
         for residue in range(LATTICE_STEP):
@@ -291,7 +291,7 @@ class AlignmentTests(unittest.TestCase):
 
 
 class AudioBoundaryTests(unittest.TestCase):
-    """AC-M20-01-06. The exact subset is derived from the rates, never enumerated."""
+    """AC--06. The exact subset is derived from the rates, never enumerated."""
 
     def test_the_ratio_and_period_are_derived_from_the_declared_rates(self) -> None:
         self.assertEqual(AUDIO_LATENT_RATIO, Fraction(AUDIO_LATENT_FPS, 24))
@@ -371,7 +371,7 @@ class AudioBoundaryTests(unittest.TestCase):
 
 
 class TargetAdmissionTests(unittest.TestCase):
-    """AC-M20-01-03. Non-integral is admitted; invented is not."""
+    """AC--03. Non-integral is admitted; invented is not."""
 
     def test_an_exact_run_needs_no_external_authority(self) -> None:
         target = admit_audio_latent_target(39)
@@ -419,7 +419,7 @@ class TargetAdmissionTests(unittest.TestCase):
 
 
 class AdapterParityTests(unittest.TestCase):
-    """AC-M20-01-08. Parity over a contiguous range, against a transcription of upstream."""
+    """Parity over a contiguous range against the independent lattice specification."""
 
     def test_alignment_and_both_latent_lengths_match_the_published_derivation(self) -> None:
         divergences: list[str] = []
@@ -457,14 +457,14 @@ class AdapterParityTests(unittest.TestCase):
         self.assertRegex(NATIVE_NODE_REVISION, r"^[0-9a-f]{40}$")
         self.assertRegex(NATIVE_NODE_RETRIEVED, r"^\d{4}-\d{2}-\d{2}$")
         self.assertGreater(NATIVE_NODE_BYTES, 0)
-        # The duration side of the same shared fixture. M17-25 recorded this revision but
+        # The duration side of the same shared fixture. recorded this revision but
         # asserted nothing about it; now that both parity claims read one fixture, the pin
         # is checked rather than merely written down.
         self.assertRegex(OFFICIAL_TEMPLATE_REVISION, r"^[0-9a-f]{40}$")
 
 
 class RangeSeparationTests(unittest.TestCase):
-    """AC-M20-01-09. Two bounds, two kinds, two provenance classes."""
+    """AC--09. Two bounds, two kinds, two provenance classes."""
 
     def test_the_two_ranges_are_separate_members_with_separate_evidence(self) -> None:
         profile = build_temporal_profile(accepted_matrix())
@@ -526,7 +526,7 @@ class RangeSeparationTests(unittest.TestCase):
 
 
 class CropConservationTests(unittest.TestCase):
-    """AC-M20-01-10. The constraint, and only the constraint."""
+    """AC--10. The constraint, and only the constraint."""
 
     def test_the_extent_grid_is_derived_and_whole_on_both_latent_grids(self) -> None:
         self.assertEqual(CONTEXT_EXTENT_GRID_FRAMES, LATTICE_STEP * EXACT_AUDIO_PERIOD_FRAMES)
@@ -585,7 +585,7 @@ class CropConservationTests(unittest.TestCase):
         )
 
     def test_this_item_delivers_no_per_job_lookahead_and_no_crop_execution(self) -> None:
-        """AC-M20-01-10's exclusion, asserted rather than promised.
+        """AC--10's exclusion, asserted rather than promised.
 
         The surface is checked by shape rather than by a list of names nobody proposed: nothing
         exported may read as performing work, and the crop surface must be exactly the constraint
@@ -605,7 +605,7 @@ class CropConservationTests(unittest.TestCase):
 
 
 class SingleAuthorityTests(unittest.TestCase):
-    """AC-M20-01-04. A second copy of any of this is the defect, not extra coverage."""
+    """AC--04. A second copy of any of this is the defect, not extra coverage."""
 
     AUDIO_RATE = re.compile(r"^\s*AUDIO_LATENT_FPS\s*=", re.MULTILINE)
     EXTENT_GRID = re.compile(
@@ -648,7 +648,7 @@ class SingleAuthorityTests(unittest.TestCase):
         self.assertEqual(offenders, [])
 
     def test_the_profile_holds_no_second_copy_of_the_lattice(self) -> None:
-        """The other direction: this module must not restate what M17-25 owns."""
+        """The other direction: this module must not restate what owns."""
 
         body = "\n".join(
             line
@@ -681,7 +681,7 @@ class SingleAuthorityTests(unittest.TestCase):
 
 
 class ProjectionTests(unittest.TestCase):
-    """AC-M20-01-01 and section 3. One authority, one content-free projection."""
+    """AC--01 and section 3. One authority, one content-free projection."""
 
     def _schema(self) -> dict[str, object]:
         path = ROOT / "governance/contracts/temporal_profile_v1.schema.json"
@@ -732,7 +732,7 @@ class ProjectionTests(unittest.TestCase):
 
 
 class IdentityTests(unittest.TestCase):
-    """The M18-02 binding: two identities, two questions, neither substitutable."""
+    """The binding: two identities, two questions, neither substitutable."""
 
     def test_the_profile_identity_is_semantic_and_deterministic(self) -> None:
         first = build_temporal_profile().identity()

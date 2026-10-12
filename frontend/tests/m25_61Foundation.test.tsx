@@ -1,4 +1,4 @@
-// M25-61 (redesign foundation): the glyph set the redesigned editor draws from, the editor's
+//  (redesign foundation): the glyph set the redesigned editor draws from, the editor's
 // three-locale copy tables, and the control-target contract the stylesheet mirrors.
 
 import { cleanup, render } from "@testing-library/react";

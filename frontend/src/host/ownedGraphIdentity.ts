@@ -64,7 +64,7 @@ function slotName(
 /**
  * Project one repository-owned node.
  *
- * M23-37 (D13, observed on ComfyUI frontend 1.51.9): after the one candidate
+ *  (D13, observed on ComfyUI frontend 1.51.9): after the one candidate
  * write the host re-serializes owned nodes from their node definitions --
  * optional inputs the splice never carried are appended unlinked, link inputs
  * are ordered before widget inputs, empty `widgets_values` arrays disappear and
@@ -72,7 +72,7 @@ function slotName(
  * The projection keeps only what the repository wrote: type, mode, authored
  * widget values, and the owned links (projected by slot name below).
  */
-// CRITICAL (M23-37 F-8, D12): the owned projection must never include
+// CRITICAL ( F-8, D12): the owned projection must never include
 // positional slot indices, unlinked or host-appended optional inputs, input
 // order, or the presence of an empty `widgets_values` array. The host rewrites
 // all of these from its node definitions on every load, so hashing them turns

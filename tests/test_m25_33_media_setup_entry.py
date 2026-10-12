@@ -1,4 +1,4 @@
-"""M25-33: the media setup entry's backend half.
+"""the media setup entry's backend half.
 
 Status v3 adds `recovery` for a parked runtime tree and one explicit reclaim action. The browser
 decoder refuses every value outside the closed wire vocabularies, so this module also pins those

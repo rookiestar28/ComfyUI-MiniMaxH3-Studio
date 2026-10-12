@@ -1,4 +1,4 @@
-"""Offline M12-05 audiovisual synchronization and source-grounding fixture."""
+"""Offline audiovisual synchronization and source-grounding fixture."""
 
 from __future__ import annotations
 

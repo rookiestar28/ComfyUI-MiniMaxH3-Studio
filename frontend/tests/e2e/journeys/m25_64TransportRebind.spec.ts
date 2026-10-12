@@ -1,4 +1,4 @@
-// M25-64 A64-8 (B-M2561-04): an accepted edit rebinds the monitor to the new revision -- the lease
+//  A64-8 (B-M2561-04): an accepted edit rebinds the monitor to the new revision -- the lease
 // authority admits a lease only for the current history, so a selection is a new revision too --
 // and the transport must not notice. The playhead keeps its frame (clamped to the new duration),
 // the ruler never turns `aria-disabled`, and a ruler press straight after an edit's receipt lands.

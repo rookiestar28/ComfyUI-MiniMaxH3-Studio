@@ -1,4 +1,4 @@
-"""Generate the M18-05 retirement-eligibility record from the accepted contract inventory.
+"""Generate the retirement-eligibility record from the accepted contract inventory.
 
 This exists because "we looked and found nothing to retire" is not a claim anybody can check.  The
 record turns it into one: every inventoried JSON Schema gets a verdict and, when it is not eligible,
@@ -35,15 +35,17 @@ ARTIFACT_PATH = Path("governance/contracts/retirement_eligibility_v1.json")
 #: File kinds that can actually *read* a schema.  A generated `.json` record is not one.
 SOURCE_SUFFIXES = frozenset({".py", ".ts", ".tsx"})
 
-#: The commit whose tree still contains every file retired below.  It is the accepted `M18-04`
+#: The commit whose tree still contains every file retired below. It is the accepted ``
 #: checkpoint -- the last state in which all four schemas shipped -- so `git show <commit>:<path>`
-#: restores any of them exactly.  This is the whole mechanism behind AC-M18-05-04: a stable `$id`
+#: restores any of them exactly. This is the whole mechanism behind AC--04: a stable `$id`
 #: may stop shipping, but it may not stop shipping without somewhere to get it back from.
 #:
 #: A 40-character object name reads as high-entropy hex to the secret scanner.  It is the opposite
 #: of a secret: it is a public commit in this repository's own history, and the record is useless
 #: without it.
-RETIREMENT_ROLLBACK_COMMIT = "aea047c471e3cc87654fc67e64c6b9db6f216cfd"  # pragma: allowlist secret
+# CRITICAL: this must resolve in clean public history and retain all retired schema bytes.
+# An unavailable old checkpoint breaks recovery; never replace it with a HEAD fallback.
+RETIREMENT_ROLLBACK_COMMIT = "15db3061b5d1c386db46551196a6d164f114baff"  # pragma: allowlist secret
 
 #: Where a retired identity may still legitimately appear: this record, which is the deprecation
 #: notice itself, and the generator that writes it.  Everywhere else is a dangling reference.
@@ -55,7 +57,7 @@ REFERENCE_EXEMPT = frozenset(
 )
 
 #: Where a surviving reference could hide.  Wider than the contract inventory's own `SCAN_ROOTS`,
-#: deliberately: `docs/` and `examples/` ship (see `MANIFEST.in`) and AC-M18-05-05 names docs
+#: deliberately: `docs/` and `examples/` ship (see `MANIFEST.in`) and AC--05 names docs
 #: explicitly, so a retirement must be checked against them even though they hold no contract.
 REFERENCE_ROOTS = (
     "comfyui_h3_context",
@@ -115,9 +117,9 @@ RETIRED: tuple[RetirementClaim, ...] = (
 
 
 def hidden_consumers(inventory: object) -> dict[str, tuple[str, ...]]:
-    """Readers living in the files M18-01 excludes from its own scan.
+    """Readers living in the files excludes from its own scan.
 
-    M18-01 keeps `SELF_DESCRIBING_PATHS` out of the scan so the inventory can never supply its own
+     keeps `SELF_DESCRIBING_PATHS` out of the scan so the inventory can never supply its own
     evidence -- a good rule that has one consequence here: a schema those files read shows zero
     consumers, and zero consumers is exactly what this record treats as safe to delete.  The first
     generated draft reported `contract_inventory_v1.schema.json` as `eligible` for that reason,
@@ -204,7 +206,7 @@ def reexported_by() -> dict[str, tuple[str, ...]]:
     """Defining module -> the aggregation surfaces that re-export from it.
 
     `described_wires` pairs a schema with a wire by matching the schema's stem against the wire's
-    authority module, which is how this repository names them.  M19-05 split three large modules
+    authority module, which is how this repository names them. split three large modules
     into layers behind a surface, so a wire constant that used to live in `X.py` now lives in
     `X_primitives.py` while `X_v1.schema.json` is still named after `X`.  The convention did not
     stop holding; it just has to be read through the surface.
@@ -214,7 +216,7 @@ def reexported_by() -> dict[str, tuple[str, ...]]:
     to *use* it does not qualify, which is what keeps this from matching every import in the
     package.
 
-    Known limits of that structural test, from M19-06's distinct review.  It over-matches when a
+    Known limits of that structural test, s distinct review. It over-matches when a
     module imports a name, rebinds it locally, and still exports it -- ruff's `F811` refuses that
     shape repository-wide, which is why it cannot arise here.  It under-matches an absolute import,
     a renamed import (`as`), and `from . import module`; all three fail closed, leaving a wire

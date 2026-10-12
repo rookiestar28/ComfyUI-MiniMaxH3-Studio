@@ -1,11 +1,11 @@
-"""M19-08 weight-backed requalification runs against the explicitly supplied host.
+"""weight-backed requalification runs against the explicitly supplied host.
 
 One row per invocation, never more: every weight-backed run needs the maintainer's fresh
 pre-run ceiling confirmation, so the executor refuses to batch rows behind one confirmation.
 
 Usage (row 1, the joint latent descriptor):
 
-    python scripts/m19_08_latent_row_requalification.py \
+    python scripts/_latent_row_requalification.py \
         --row joint_av_latent_descriptor \
         --host http://127.0.0.1:8188/ \
         --host-output-root <supplied host root>/output \
@@ -13,7 +13,7 @@ Usage (row 1, the joint latent descriptor):
         --text-encoder qwen3vl_32b_minimax_h3_int8_convrot.safetensors \
         --video-vae minimax_h3_video_vae_fp16.safetensors \
         --audio-vae minimax_h3_audio_vae_fp32.safetensors \
-        --evidence .planning/260820-M19-08_LIVE_EVIDENCE.json \
+        --evidence.planning/260820-_LIVE_EVIDENCE.json \
         --ceiling-confirmed
 
 `--ceiling-confirmed` asserts the maintainer confirmed the VRAM/disk/time ceiling immediately
@@ -51,7 +51,7 @@ from scripts.m19_08.runs import (  # noqa: E402
     wait_for_history,
 )
 
-#: The same probe geometry M19-07 used, and the same three canary lengths, so the weight-backed
+#: The same probe geometry used, and the same three canary lengths, so the weight-backed
 #: descriptor observation lands on extents the weight-free decodes already confirmed.
 PROBE_WIDTH = 384
 PROBE_HEIGHT = 256
@@ -97,7 +97,7 @@ def _serialization_probe(args: argparse.Namespace) -> dict[str, Any]:
 
     `EmptyMiniMaxH3LatentAV` -> `SaveLatent`. Success yields the safetensors header facts; an
     execution error yields the content-free failure facts. Either outcome is the measurement.
-    No weight loads, so this sits outside the weight-backed ceiling protocol like the M19-07
+    No weight loads, so this sits outside the weight-backed ceiling protocol like the
     weight-free canaries did.
     """
 
@@ -291,7 +291,7 @@ def _resume_row(
     args: argparse.Namespace,
     designation: WeightDesignation,
 ) -> dict[str, Any]:
-    """Row 2: completed_boundary_resume. M19-07 saw the two-stage resume diverge from the
+    """Row 2: completed_boundary_resume. saw the two-stage resume diverge from the
     single pass and could not explain it. The missing control is host determinism itself:
     an identical single-pass rerun. Only if the host reproduces its own run bit-exactly can
     a resume divergence be attributed to the resume composition."""
@@ -350,7 +350,7 @@ MASK_LENGTH = 22
 
 
 def _empty_decode_run(args: argparse.Namespace) -> dict[str, Any]:
-    """Weight-free baseline: decode the empty joint AV latent (the M19-07 canary shape)."""
+    """Weight-free baseline: decode the empty joint AV latent (the canary shape)."""
 
     output_root = Path(args.host_output_root)
     prefix = "m19_08_mask_empty_decode"

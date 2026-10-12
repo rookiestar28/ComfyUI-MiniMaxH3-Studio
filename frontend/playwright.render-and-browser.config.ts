@@ -1,6 +1,6 @@
 import { defineConfig } from "@playwright/test";
 
-// M25-20 F1 corrective: the 151 `render_and_browser` rows take several minutes to present in
+//  F1 corrective: the 151 `render_and_browser` rows take several minutes to present in
 // turn, so this spec is deliberately not part of `playwright.config.ts`'s `test:e2e:ci` testMatch
 // (`tests/TEST_SOP.md` section 3.6 places the semantic-conformance qualification run's per-row
 // browser evidence outside the ordinary Full Gate for exactly that resource reason). This config

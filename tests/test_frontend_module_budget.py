@@ -1,4 +1,4 @@
-"""M23-28 frontend decomposition and single host-effect ownership guards."""
+"""frontend decomposition and single host-effect ownership guards."""
 
 from __future__ import annotations
 

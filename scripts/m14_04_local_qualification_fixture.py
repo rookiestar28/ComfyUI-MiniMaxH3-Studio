@@ -1,4 +1,4 @@
-"""Emit the bounded M14-04 current-environment qualification disposition."""
+"""Emit the bounded current-environment qualification disposition."""
 
 from __future__ import annotations
 

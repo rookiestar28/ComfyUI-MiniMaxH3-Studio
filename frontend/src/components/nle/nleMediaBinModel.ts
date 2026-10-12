@@ -79,7 +79,7 @@ export function mediaDurationTimecode(
 }
 
 /**
- * M25-63: the duration pill's compact form, `MM:SS` (or `H:MM:SS`), or whole frames below one
+ * the duration pill's compact form, `MM:SS` (or `H:MM:SS`), or whole frames below one
  * second (`1f` for a still), as the ruler labels sub-second marks. The full timecode stays in the
  * pill's tooltip and in the card's accessible name.
  */

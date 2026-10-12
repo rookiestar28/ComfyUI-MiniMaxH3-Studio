@@ -1,4 +1,4 @@
-// M25-45: the monitor's picture rectangle. These are the arithmetic behind AC45-01 (width-limited
+// the monitor's picture rectangle. These are the arithmetic behind AC45-01 (width-limited
 // fit) and AC45-02 (height-limited fit); the journeys assert the same rules against real dragged
 // panes, where the areas are whatever the layout produces.
 

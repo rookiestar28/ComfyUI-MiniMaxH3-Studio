@@ -1,4 +1,4 @@
-"""M20-05 focused tests for the latent resume canary lane.
+"""focused tests for the latent resume canary lane.
 
 The canaries are qualification instruments, so what is provable offline is the fail-closed
 order: normal registration never contains them; execution refuses before touching anything
@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any
 from unittest import mock
 
-from official_temporal_parity import NATIVE_NODE_SHA256
+from oracles.native_temporal import NATIVE_NODE_SHA256
 
 from comfyui_h3_context.adapters.comfyui_joint_av_latent import (
     JointAVLatentAdapterError,
@@ -151,7 +151,7 @@ class RegistrationConditionalityTests(unittest.TestCase):
             self.assertNotIn("path", "".join(required))
         save_inputs = H3LatentResumeCheckpointSaveCanaryNode.INPUT_TYPES()["required"]
         self.assertEqual(save_inputs["samples"], ("LATENT",))
-        # M20-07: the optional predecessor input must stay optional with an empty default,
+        # the optional predecessor input must stay optional with an empty default,
         # so every earlier save-canary workflow remains valid byte for byte.
         save_optional = H3LatentResumeCheckpointSaveCanaryNode.INPUT_TYPES()["optional"]
         self.assertEqual(

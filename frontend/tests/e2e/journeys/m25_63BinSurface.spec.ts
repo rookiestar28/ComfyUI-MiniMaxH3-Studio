@@ -1,4 +1,4 @@
-// M25-63: the redesigned media bin on the REAL integrated shell (`frontend/e2e/nleShell.tsx`), whose
+// the redesigned media bin on the REAL integrated shell (`frontend/e2e/nleShell.tsx`), whose
 // timeline commands are committed by the canonical core. Each moved capability is exercised at its
 // new place (A63-3) and the card grid is measured in the browser's layout engine (A63-5).
 

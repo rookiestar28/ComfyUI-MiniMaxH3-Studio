@@ -1,4 +1,4 @@
-// M25-41 whole-video sequence planning toolbar: every planning action is an icon-only button
+//  whole-video sequence planning toolbar: every planning action is an icon-only button
 // whose accessible name is the full label, whose concrete description appears in one tooltip on
 // hover (also over an unavailable action) and on keyboard focus, and whose gating and dispatch are
 // unchanged. The crowded text-button layout this replaces fails every case below.

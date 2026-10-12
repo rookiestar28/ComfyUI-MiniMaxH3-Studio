@@ -1,5 +1,5 @@
 /**
- * M22-06 — the provider settings projection, decoded.
+ * the provider settings projection, decoded.
  *
  * The browser decides nothing here. Readiness, the disclosure and the consent
  * record are all computed by the backend; this file only refuses to accept a
@@ -125,7 +125,7 @@ const PROVIDER_QUALIFICATION_STATES = ["catalog_only", "qualified"] as const;
 const PROVIDER_LIMITATIONS = [
   "runtime_identity_pending",
   "provider_activation_pending",
-  // M22-13: the qualified local lane is text-only by family. The two `*_pending` members above
+  // the qualified local lane is text-only by family. The two `*_pending` members above
   // describe a profile that has not been activated yet, so a qualified row must not carry them.
   "text_only_drafting",
   "remote_activation_pending",

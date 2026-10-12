@@ -1,8 +1,8 @@
 """Facades over the process media runtime manager for the existing media consumers.
 
-M25-32 replaced the import-time environment activation with the composition-root manager
+ replaced the import-time environment activation with the composition-root manager
 (`media_runtime_manager`). These names stay as the narrow seams consumers already call. None of
-them reads the environment or discovers a locator itself; the M25-30 resolver owns both.
+them reads the environment or discovers a locator itself; the resolver owns both.
 """
 
 from __future__ import annotations

@@ -2,7 +2,7 @@ import type { Response } from "@playwright/test";
 
 import { expect, test, type Page } from "../../host/fixture";
 
-// M23-57: the product's owned routes serve the page at whatever address the browser used to reach
+// the product's owned routes serve the page at whatever address the browser used to reach
 // this ComfyUI host, and only that page. The journey opens the real host at one deployment venue,
 // lets the product sidebar load and issue its own startup requests, and then sends one real
 // same-origin request per admission edge from that page: the browser, not this test, supplies

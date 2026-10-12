@@ -1,4 +1,4 @@
-"""Exact-path bounded FFmpeg inspection adapter for M17-11 private media."""
+"""Exact-path bounded FFmpeg inspection adapter for private media."""
 
 from __future__ import annotations
 
@@ -989,7 +989,7 @@ def _silence_wav(sample_count: int) -> bytes:
 
 
 class _StreamSizeWatchdog:
-    """M20-08: a cancellation probe that also trips once the destination outgrows the
+    """a cancellation probe that also trips once the destination outgrows the
     declared length, bounding how much a misbehaving source can write into owned scratch.
 
     The protocol boundary cannot force a foreign ``AVSegmentSource`` to respect ceilings; this
@@ -3207,7 +3207,7 @@ class QualifiedAVMediaAdapter:
             temp_bytes = 0
             # SECURITY: public typed descriptors are assertions, not executable provenance. Every
             # exact staged source must be freshly probed and reconciled before the first transform.
-            # M20-08: verification is one pass per segment (stage, pin, probe, reconcile); a
+            # verification is one pass per segment (stage, pin, probe, reconcile); a
             # source-backed non-passthrough staged copy is released as soon as it verifies, so at
             # most one such copy is alive at a time. Its transform later re-streams the same
             # content-addressed bytes, and the fresh copy's hash transfers this pass's probe
@@ -3300,7 +3300,7 @@ class QualifiedAVMediaAdapter:
                     if segment.segment_id in staged_by_id:
                         transform_source = staged_by_id[segment.segment_id].path
                     else:
-                        # M20-08 rolling assembly: re-stream the verified content-addressed
+                        #  rolling assembly: re-stream the verified content-addressed
                         # bytes for this one transform; the hash equality below carries the
                         # verification pass's probe verdict onto the fresh copy.
                         transform_staged = create_output_lease(self._scratch_root, suffix=".media")
@@ -3458,7 +3458,7 @@ class QualifiedAVMediaAdapter:
 
         Per-segment normalization follows the base plan's exact operations into
         scratch leases (never published); only the seam aggregate leaves this
-        method.  Staged copies are whole-run here — the M20-08 rolling release
+        method. Staged copies are whole-run here — the rolling release
         is an optimization of the legacy path, not part of its contract — and
         every ceiling from the base plan's limits still applies.
         """

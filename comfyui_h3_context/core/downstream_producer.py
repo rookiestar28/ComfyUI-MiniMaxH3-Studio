@@ -1,4 +1,4 @@
-"""Deterministic M15-02 producer adapters over accepted pure-core contracts."""
+"""Deterministic producer adapters over accepted pure-core contracts."""
 
 from __future__ import annotations
 

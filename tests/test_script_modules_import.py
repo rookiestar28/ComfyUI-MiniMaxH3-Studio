@@ -10,7 +10,7 @@ This is the cheapest complete guard: import all of them. It catches what `mypy` 
 as what it can -- a circular import, a module-level file read whose fixture moved, a package that
 stopped being installed.
 
-The import runs in a subprocess. `scripts/m25_16_service_loopback.py` exists to install a
+The import runs in a subprocess. `scripts/_service_loopback.py` exists to install a
 `sys.audit` hook, and an audit hook cannot be removed once installed; importing the whole tree
 inside the shared pytest process would be one refactor away from installing one there for every
 later test.

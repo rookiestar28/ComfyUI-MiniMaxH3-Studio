@@ -1,4 +1,4 @@
-"""M15-04 optional-route, privacy, and publication boundary checks."""
+"""optional-route, privacy, and publication boundary checks."""
 
 from __future__ import annotations
 
@@ -90,7 +90,7 @@ class SidebarWorkspaceStaticTests(unittest.TestCase):
             path: path.read_text(encoding="utf-8") for path in FRONTEND.rglob("*") if path.is_file()
         }
         source = "\n".join(sources.values())
-        # M23-28: the shell is composed from owning modules. Browser-local storage
+        # the shell is composed from owning modules. Browser-local storage
         # stays with exactly these owners; the composition root touches none of it.
         journal_owner = FRONTEND / "lifecycle" / "extensionRegistration.tsx"
         reattach_owner = FRONTEND / "host" / "managedSequenceClient.ts"

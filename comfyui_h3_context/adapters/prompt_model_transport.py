@@ -1,4 +1,4 @@
-"""M22-03 local loopback prompt-model transports and the crash-isolated capability probe.
+"""local loopback prompt-model transports and the crash-isolated capability probe.
 
 Two families are carried here: an externally managed OpenAI-compatible server and the Ollama daemon,
 both loopback-only. This module opens sockets and starts a subprocess; every decision about whether
@@ -94,7 +94,7 @@ MAX_PROBE_TIMEOUT_SECONDS = 60.0
 MAX_RESOLUTION_ADDRESSES = 32
 MAX_RESOLUTION_OUTPUT_BYTES = 4_096
 
-# M22-13 adds `/api/show` and stops there. `/api/pull`, `/api/create`, `/api/delete` and
+#  adds `/api/show` and stops there. `/api/pull`, `/api/create`, `/api/delete` and
 # `/api/generate` are absent by intent, not by oversight: this lane observes and drafts, and
 # an allowlist is the only thing standing between a compromised catalog row and a route that
 # mutates the operator's model store.
@@ -163,7 +163,7 @@ class PromptModelTransportError(RuntimeError):
         self.error_kind = (
             error_kind if error_kind in {"invalid_request_error", "INVALID_ARGUMENT"} else ""
         )
-        # M22-23. Set only by the boundary backstop, and read by nobody: `detail` reaches the user
+        # . Set only by the boundary backstop, and read by nobody: `detail` reaches the user
         # as provider-attributed prose, so the class name of an exception this repository did not
         # anticipate cannot go there without telling the user the provider said something it did
         # not. It is kept here instead so a novel failure mode stays nameable to a developer
@@ -181,7 +181,7 @@ def _timeout(value: object, default: float) -> float:
     try:
         seconds = float(value)
     except OverflowError as exc:
-        # M22-23. An int too large to be a float is still an int, so the check above admits it and
+        # . An int too large to be a float is still an int, so the check above admits it and
         # the conversion is the first thing that can tell. This function's whole job is to turn a
         # bad timeout into a typed refusal, and without this it was the one input class that could
         # crash it instead -- from *before* either `request` method's `try`, so the boundary
@@ -342,7 +342,7 @@ class LoopbackJsonExchange:
                     payload, separators=(",", ":"), ensure_ascii=True, allow_nan=False
                 ).encode("utf-8")
             except (TypeError, ValueError, RecursionError) as exc:
-                # M22-23. `json.dumps` recurses, so a deeply nested payload raises RecursionError,
+                # . `json.dumps` recurses, so a deeply nested payload raises RecursionError,
                 # which is neither TypeError nor ValueError and escaped this block untyped -- and
                 # from before the `try`, so the boundary backstop never saw it either. The mirror
                 # of `_refuse_deep_nesting`, which exists for exactly this on the decode side.
@@ -392,7 +392,7 @@ class LoopbackJsonExchange:
         except PromptModelTransportError:
             raise
         except PromptModelContractError:
-            # M22-23. Forward-looking rather than live: nothing this body currently calls raises a
+            # . Forward-looking rather than live: nothing this body currently calls raises a
             # contract error -- the remote twin's route is `scrub_upstream_error`, which has no
             # equivalent here. It is present so that the two transports answer the same question
             # the same way, and so that adding a core call inside this `try` cannot silently start
@@ -405,7 +405,7 @@ class LoopbackJsonExchange:
         except (OSError, http.client.HTTPException) as exc:
             raise PromptModelTransportError(PromptModelOutcomeId.TRANSPORT, "") from exc
         except Exception as exc:
-            # M22-23. This family carries no credential, so the disclosure hazard that shapes the
+            # . This family carries no credential, so the disclosure hazard that shapes the
             # remote twin does not apply here -- but an untyped escape is still an untyped escape,
             # and this is the family an ordinary user reaches first. The same form is used so the
             # two transports cannot drift into different answers for the same question.
@@ -425,7 +425,7 @@ class LoopbackJsonExchange:
 
 
 def resolve_exact_identity(model_id: str, exchange: object) -> tuple[ExactTagsRow, ShowIdentity]:
-    """Ask the local runtime, strictly, what it is holding under one exact name (M22-13).
+    """Ask the local runtime, strictly, what it is holding under one exact name.
 
     Two requests in a fixed order and no retry: tags first, because a name that is not present or
     is present twice must stop the check before a second request is spent on it, then show for the
@@ -442,7 +442,7 @@ def resolve_exact_identity(model_id: str, exchange: object) -> tuple[ExactTagsRo
 def resolve_prechat_identity(
     profile: PromptModelProfile, exchange: object, model: ModelChoice | None = None
 ) -> LiveModelIdentity | None:
-    """The identity check made immediately before one generation request (M22-13).
+    """The identity check made immediately before one generation request.
 
     A qualified local Ollama profile is held to the strict digest-bearing tags reading: one exact
     row, no duplicate of the selected id, and a listing that is refused whole if any row is
@@ -494,12 +494,12 @@ def resolve_show_identity(model_id: str, exchange: object) -> ShowIdentity:
     return parse_show_identity(detail)
 
 
-# M22-17. Google's OpenAI-compatibility surface spells one model two ways: the chat route takes the
+# . Google's OpenAI-compatibility surface spells one model two ways: the chat route takes the
 # bare id, while the listing route answers with the native Gemini resource name, `models/<id>`.
 # Comparing the request spelling against the catalog spelling reported a published model as missing
 # and ended the session before it sent a single request byte. The two domains are joined here, at
 # the single point where a listing row is first read -- the same place, and for the same reason, as
-# the M22-13 digest join below. The map is closed: a route with no entry keeps exact equality.
+# the digest join below. The map is closed: a route with no entry keeps exact equality.
 _CATALOG_IDENTIFIER_PREFIXES: Mapping[str, str] = {
     "/v1beta/openai/models": "models/",
     "/v1beta/models?pageSize=1000": "models/",
@@ -538,7 +538,7 @@ def resolve_live_identity(
             if not isinstance(entry, Mapping):
                 continue
             if entry.get("name") == model_id or entry.get("model") == model_id:
-                # M22-13. Ollama reports `digest` as bare lowercase hex while every digest this
+                # . Ollama reports `digest` as bare lowercase hex while every digest this
                 # repository stores or compares is spelled `sha256:<hex>`. Handing the wire form
                 # onward made a correct host fail its own digest check, so the domains are joined
                 # here, at the single point where the wire value is first read.
@@ -560,7 +560,7 @@ def resolve_live_identity(
         if not isinstance(data, list):
             raise PromptModelTransportError(PromptModelOutcomeId.MALFORMED_RESPONSE, "models")
         if family is PromptModelFamily.REMOTE_ANTHROPIC:
-            # M22-19. One provider listing, one row ceiling, and this branch reads the same
+            # . One provider listing, one row ceiling, and this branch reads the same
             # listing the census reads next. A private 256-row constant lived here and, being
             # the lower of the two, silently decided -- keeping this family refused at exactly
             # the hosted-catalogue sizes this item exists to admit.
@@ -837,7 +837,7 @@ def run_prompt_model_session(
         except PromptModelContractError as retry_error:
             return _failure(PromptModelOutcomeId.MALFORMED_RESPONSE, str(retry_error))
     except PromptModelContractError as exc:
-        # M22-23. The identity leg above has always had this; the chat leg did not, so a contract
+        # . The identity leg above has always had this; the chat leg did not, so a contract
         # error raised inside `request` -- which the transport now deliberately lets through rather
         # than retyping -- would have left this function uncaught. Same closed code, same handling.
         return _failure(PromptModelOutcomeId.MALFORMED_RESPONSE, str(exc))
@@ -954,7 +954,7 @@ def decode_probe_output(raw: bytes) -> NativeProbeReport:
     )
 
 
-# --- M22-04 consented remote family -------------------------------------------------------------
+# --- consented remote family -------------------------------------------------------------
 #
 # The remote path is deliberately a separate class from LoopbackJsonExchange. They share almost no
 # policy: one is plaintext to an address that cannot leave the machine, the other is TLS to a third
@@ -1259,7 +1259,7 @@ class RemoteHttpsExchange:
                     payload, separators=(",", ":"), ensure_ascii=True, allow_nan=False
                 ).encode("utf-8")
             except (TypeError, ValueError, RecursionError) as exc:
-                # M22-23. `json.dumps` recurses, so a deeply nested payload raises RecursionError,
+                # . `json.dumps` recurses, so a deeply nested payload raises RecursionError,
                 # which is neither TypeError nor ValueError and escaped this block untyped -- and
                 # from before the `try`, so the boundary backstop never saw it either. The mirror
                 # of `_refuse_deep_nesting`, which exists for exactly this on the decode side.
@@ -1402,7 +1402,7 @@ class RemoteHttpsExchange:
         except PromptModelTransportError:
             raise
         except PromptModelContractError:
-            # M22-23. Not a provider failure. This is one of this repository's own invariants
+            # . Not a provider failure. This is one of this repository's own invariants
             # breaking, and `run_prompt_model_session` already turns it into MALFORMED_RESPONSE
             # carrying its closed code. Letting the backstop below take it would report a bug in
             # here as a problem with the user's network, and hide the bug behind a remediation.
@@ -1421,7 +1421,7 @@ class RemoteHttpsExchange:
             # error's `__context__`; `from None` only sets `__suppress_context__`, which stops the
             # default traceback printer from rendering the chain and drops no reference at all.
             # The object caught here is by definition one this build did not anticipate, next to a
-            # live credential, and M22-22's instance held the entire `Authorization: Bearer <key>`
+            # live credential, and 's instance held the entire `Authorization: Bearer <key>`
             # value in its `args`. Only the class name crosses, and it is an identifier fixed at
             # class-definition time, so it cannot carry provider content or a secret.
             unexpected = type(exc).__name__

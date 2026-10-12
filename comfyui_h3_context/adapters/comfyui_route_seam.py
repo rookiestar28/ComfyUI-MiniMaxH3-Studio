@@ -4,7 +4,7 @@ Ten adapter modules register twelve routes, and ten of them each carried their o
 forty lines: the lazy host lookup, the already-owned scan, the content-type check, the origin check,
 the byte budget, the streaming read that has to re-check the budget because `Content-Length` is a
 claim rather than a fact, and the mapping from a typed refusal to a status. Copies drift, and by
-M23-47 these had drifted in five measurable ways.
+ these had drifted in five measurable ways.
 
 The one that matters is the origin check, which exists in four different forms across ten routes:
 
@@ -33,7 +33,7 @@ strings, watch for a closing transport and answer with streamed or deliberately 
 edge is a different edge, and flattening it into this one would delete behaviour rather than share
 it. Their admission is not different: every edge asks `origin_accepted` below.
 
-Which origin is "owned" is decided per request (M23-57). It used to be the literal
+Which origin is "owned" is decided per request. It used to be the literal
 `http://127.0.0.1:8188`, which refused the same page served at `localhost`, another port, IPv6
 loopback, a directly served interface address or through a proxy. The rule, and why a trusted
 alias never authorizes another, is in `core/request_target.py`; this module only gathers the
@@ -135,7 +135,7 @@ class RouteResult:
 #: receives the status and this seam's stable reason and returns the wire body the owning route
 #: already answers with, or `None` for a bodiless response. Routes answer the same refusal with
 #: four different shapes today -- bodiless, `{"error": code}`, `{"schema", "category"}` and a
-#: typed envelope -- and unifying that is a wire change M23-34 owns. The seam therefore asks each
+#: typed envelope -- and unifying that is a wire change owns. The seam therefore asks each
 #: route for its own body rather than imposing one.
 RefusalBody = Callable[[int, str], object | None]
 
@@ -477,7 +477,7 @@ def register_owned_route(
             return refuse(415, "media_type_rejected")
         # CRITICAL: the origin check runs before the prelude and before the body is read, so a
         # foreign caller cannot make this process read a header it may not send or materialize a
-        # request it was never entitled to send. Moving it later reopens M23-47's sidebar gap, where
+        # request it was never entitled to send. Moving it later reopens 's sidebar gap, where
         # the check sat after the decode and only covered some of the route's actions.
         if not origin_accepted(request, policy.origin):
             return refuse(403, "origin_rejected")

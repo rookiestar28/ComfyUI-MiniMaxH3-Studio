@@ -1,4 +1,4 @@
-"""Joining the three M25-20 stages into one closed report.
+"""Joining the three stages into one closed report.
 
 The join is where a conformance claim is most easily faked, so these tests are about what it must
 refuse to do rather than about the happy path. A row whose stage produced nothing must not quietly

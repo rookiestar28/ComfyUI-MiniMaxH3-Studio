@@ -1,4 +1,4 @@
-"""M11-05 source-owned detection, segmentation, tracking, and re-ID contracts."""
+"""source-owned detection, segmentation, tracking, and re-ID contracts."""
 
 from __future__ import annotations
 

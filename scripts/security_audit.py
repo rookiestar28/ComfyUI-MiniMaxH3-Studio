@@ -14,6 +14,10 @@ from typing import Any
 import tomli
 
 ROOT = Path(__file__).resolve().parents[1]
+# CRITICAL: the CLI must load this worktree's shared path policy, even without editable installs.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 EXPECTED_AUTHOR = "rookiestar28"
 EXPECTED_REPOSITORY = "rookiestar28/ComfyUI-MiniMaxH3-Studio"
 EXPECTED_REGISTRY_ENVIRONMENT = "registry-production"
@@ -65,18 +69,18 @@ RUNTIME_DYNAMIC_IMPORT_ADAPTERS = frozenset(
     {
         "core/local_adapters.py",
         "adapters/comfyui_continuity.py",
-        # M23-15 artifact verification imports the host's optional PyAV runtime only inside the
+        #  artifact verification imports the host's optional PyAV runtime only inside the
         # bounded default inspector; repository tests inject a no-I/O inspector at this seam.
         "adapters/comfyui_sequence_coordinator.py",
-        # M20-05 torch-boundary codec: torch and comfy.nested_tensor are imported only inside
+        #  torch-boundary codec: torch and comfy.nested_tensor are imported only inside
         # default factories, injectable solely behind test_only_seams, per the continuity
         # pattern above.
         "adapters/comfyui_joint_av_latent.py",
-        # M20-06 nested-mask attachment: same reviewed pattern -- torch and
+        #  nested-mask attachment: same reviewed pattern -- torch and
         # comfy.nested_tensor only inside default factories, injectable solely behind
         # test_only_seams.
         "adapters/comfyui_masked_av_latent.py",
-        # M20-07 bridge composition and interval-mask attachment: same reviewed pattern --
+        #  bridge composition and interval-mask attachment: same reviewed pattern --
         # torch and comfy.nested_tensor only inside default factories, injectable solely
         # behind test_only_seams; the byte-level composition itself is pure Python.
         "adapters/comfyui_two_ended_bridge.py",
@@ -117,7 +121,7 @@ RUNTIME_ALLOWED_FORBIDDEN_IMPORTS = {
     # its cumulative deadline cannot be renewed by lower-level HTTP timeouts.
     "adapters/ollama_native.py": frozenset({"http.client", "socket"}),
     "adapters/comfyui_execution.py": frozenset({"comfy_execution.utils"}),
-    # CRITICAL: the M22-03/M22-04 prompt-model lane opens loopback sockets, resolves and pins one
+    # CRITICAL: the / prompt-model lane opens loopback sockets, resolves and pins one
     # validated address for the consented remote family over TLS, and runs the native capability
     # probe in a separate interpreter. Every seam is constructed from an admitted destination or a
     # closed runtime allowlist, never from a caller-supplied string; `socket` is used to pin the
@@ -180,7 +184,7 @@ FORBIDDEN_NETWORK_CALL_SUFFIXES = frozenset(
     {"create_connection", "getaddrinfo", "urlopen", "urlretrieve"}
 )
 # CRITICAL: name resolution is forbidden everywhere except the one reviewed seam that has to do it
-# in order to be safe. `M22-04` resolves a consented remote host once, refuses the whole name unless
+# in order to be safe. `` resolves a consented remote host once, refuses the whole name unless
 # every address it answers with is globally routable, and then connects to that single validated
 # address while TLS still verifies the original hostname. Removing the resolution would not remove
 # the egress -- it would only move the address choice back to a second, unchecked DNS answer.
@@ -379,15 +383,23 @@ def _git_lines(root: Path, arguments: list[str]) -> tuple[str, ...] | None:
 
 
 def _is_internal_path(path: str) -> bool:
+    from scripts.public_source_policy import MAINTAINER_DOCUMENTS
+
     parts = PurePosixPath(path.replace("\\", "/")).parts
     lowered = tuple(part.casefold() for part in parts)
+    # CRITICAL: reject the private legacy baseline in tracking and history; artifact exclusions
+    # alone hide a tracked copy. The current requirements scanner metadata is a separate path.
     return (
         ".planning" in lowered
         or "reference" in lowered
+        # CRITICAL: package exclusions alone leave private process records in Git history.
+        # Use the shared exact path set so public developer tests remain trackable.
+        or "/".join(lowered) in {entry.casefold() for entry in MAINTAINER_DOCUMENTS}
         or lowered[-1:]
         in {
             ("agents.md",),
             ("roadmap.md",),
+            (".secrets.baseline",),
         }
     )
 
@@ -427,6 +439,16 @@ def _audit_metadata(root: Path, findings: list[str]) -> None:
                 findings.append(f"pyproject.toml: optional extra {extra!r} is not a list")
                 continue
             for value in values:
+                if isinstance(value, str) and re.match(
+                    r"(?i)^griffe(?:lib)?(?:\W|$)", value.strip()
+                ):
+                    # CRITICAL: only this dev pin preserves minimum-runtime/static diff semantics;
+                    # accepting ranges or other extras silently changes them or ships the tool.
+                    if extra != "dev" or value != "griffelib==2.3.0":
+                        findings.append(
+                            "pyproject.toml: consumer comparator must use the exact dev-only pin"
+                        )
+                    continue
                 if (
                     not isinstance(value, str)
                     or "<" not in value

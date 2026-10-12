@@ -89,7 +89,7 @@ export function observePreviewSeconds(
   if (!Number.isFinite(previewSeconds))
     throw new Error("preview seconds must be finite");
   // IMPORTANT: round exactly once at the normalized media-time boundary. Reintroducing the
-  // source offset before rounding shifts every trimmed clip and breaks M25-02's zero-based Blob.
+  // source offset before rounding shifts every trimmed clip and breaks 's zero-based Blob.
   const local = Math.min(
     identity.frames - 1,
     Math.max(0, Math.floor(previewSeconds * identity.fps + 0.5)),

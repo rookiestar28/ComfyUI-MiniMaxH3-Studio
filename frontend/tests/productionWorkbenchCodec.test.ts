@@ -473,7 +473,7 @@ describe("M17-12 Production workbench wire", () => {
     ).toThrow(/aggregate/i);
   });
 
-  // M17-25, distinct review finding: the duration consistency check was the one
+  // , distinct review finding: the duration consistency check was the one
   // invariant this codec adds over its sibling, and only the sibling's copy of it
   // was tested. A backend that claimed a segment moved when it did not -- or that
   // it did not when it moved -- would have been decoded without complaint here.

@@ -1,4 +1,4 @@
-"""Pure model-family, qualification, and typed-output contracts for M10-03.
+"""Pure model-family, qualification, and typed-output contracts for.
 
 This module never discovers a checkpoint, imports ComfyUI/Torch/Ollama, opens a URL, or retains
 model/media content. Runtime adapters pass bounded observations into the contracts and keep raw

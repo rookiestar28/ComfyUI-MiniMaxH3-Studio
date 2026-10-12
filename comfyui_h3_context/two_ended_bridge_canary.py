@@ -1,14 +1,14 @@
-"""Explicit test-only supported-host canary for the two-ended AV bridge (M20-07).
+"""Explicit test-only supported-host canary for the two-ended AV bridge.
 
 One qualification instrument, mirroring the accepted latent-resume and masked-AV canary
 lanes: it exists only when ``H3_CONTEXT_HOST_TWO_ENDED_BRIDGE_CANARY=1`` and an explicitly
-owned root is supplied, it is absent from normal registration, and it runs the REAL M20-04
-store, the REAL M20-07 bridge planning and admission, the REAL byte-exact composition and
+owned root is supplied, it is absent from normal registration, and it runs the REAL
+store, the REAL bridge planning and admission, the REAL byte-exact composition and
 the REAL interval-mask attachment inside the host process -- nothing is stubbed.
 
 Node flow: left and right checkpoint receipts in -> bridge plan on the exact grids -> mask
 plan derived from it -> bridge admission (authorities, boundary alignment, master-audio
-authority, M20-01 crop conservation) -> reconstruct both boundary latents through the real
+authority, crop conservation) -> reconstruct both boundary latents through the real
 store and codec -> compose the bridge latent (left tail context, zero middle, right head
 context, per domain) -> attach the dual-domain interval mask -> LATENT out plus the full
 decision record.  Any refusal fails the node with its classified reason codes, which is the

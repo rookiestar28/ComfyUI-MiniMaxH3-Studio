@@ -628,7 +628,7 @@ class VerifiedDerivative:
             raise MediaLeaseError("stale")
         require_fingerprint(self.asset_fingerprint)
         require_fingerprint(self.generator_fingerprint)
-        # IMPORTANT (M25-45): a body that simply does not fit the profile is a resource limit, at
+        # IMPORTANT: a body that simply does not fit the profile is a resource limit, at
         # every boundary that decides it -- this contract, the lease authority's own admission and
         # the browser's bounded read. `require_integer` would answer `invalid_request`, which reads
         # as "the caller sent something malformed" and is indistinguishable from a wrong field.

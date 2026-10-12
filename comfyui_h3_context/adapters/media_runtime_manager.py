@@ -1,6 +1,6 @@
 """The one process-owned media runtime binding every media consumer shares.
 
-M25-30 resolves which qualified ffmpeg/ffprobe pair this host may use and M25-31 can install one.
+ resolves which qualified ffmpeg/ffprobe pair this host may use and can install one.
 Neither makes a feature usable: that needs one exact adapter constructed on the admitted pair,
 published to the Authoring preview seam and handed to the stateful consumers (final output, M26
 assembly stores, derivatives). This manager owns that step, so an absent runtime becomes ready in

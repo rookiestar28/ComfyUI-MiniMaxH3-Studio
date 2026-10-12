@@ -1,7 +1,7 @@
 import { expect, type Locator, type Page } from "@playwright/test";
 
 /**
- * M25-63: the media bin's sort and filter menu and a card's context menu, driven the way a user
+ * the media bin's sort and filter menu and a card's context menu, driven the way a user
  * reaches them. `via: "keyboard"` never clicks: it focuses the trigger, opens with ArrowDown or
  * Shift+F10, walks the items with the arrow keys and activates with Enter.
  */
@@ -68,7 +68,7 @@ export async function openAssetMenu(
   const trigger = card.locator(".h3-nle-media-primary");
   if (via === "pointer") await trigger.click({ button: "right" });
   else {
-    // IMPORTANT (M25-64 B-M2564-10): a command disables the card's trigger until it settles, and
+    // IMPORTANT ( B-M2564-10): a command disables the card's trigger until it settles, and
     // `locator.focus()` has no enabled check (a click has): focusing it inside that window does
     // nothing and Shift+F10 reaches the timeline grid. Reach it as a keyboard user can -- once it
     // is usable -- and prove the focus landed before opening the menu.

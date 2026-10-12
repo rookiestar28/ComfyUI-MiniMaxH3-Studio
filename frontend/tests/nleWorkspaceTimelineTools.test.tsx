@@ -191,7 +191,7 @@ describe("M25-47 integrated timeline tools", () => {
         />
       );
       const view = render(element(11, "ready"));
-      // M25-62 (B-M2562-03): the selected clip is narrower than the 96 px inline trigger rule, so
+      //  (B-M2562-03): the selected clip is narrower than the 96 px inline trigger rule, so
       // its menu opens by a context click on the body, as a mouse user does.
       fireEvent.contextMenu(
         view.container.querySelector(
@@ -210,7 +210,7 @@ describe("M25-47 integrated timeline tools", () => {
       expect(rebase().getAttribute("aria-disabled")).not.toBe("true");
 
       const selector = pane === "assets" ? "range.overwrite" : "title.insert";
-      // M25-63: range commands live in the card's menu, opened by a context click on the card.
+      // range commands live in the card's menu, opened by a context click on the card.
       if (pane === "assets")
         fireEvent.contextMenu(
           view.container.querySelector(".h3-nle-media-primary")!,
@@ -236,7 +236,7 @@ describe("M25-47 integrated timeline tools", () => {
     fireEvent.click(view.getByRole("button", { name: "Split at playhead" }));
     expect(lastCommand(timeline)?.kind).toBe("split_clip");
 
-    fireEvent.click(view.getByRole("button", { name: "Main-track ripple" }));
+    fireEvent.click(view.getByRole("button", { name: "Ripple edits" }));
     fireEvent.click(
       view.getByRole("button", { name: "Trim start to playhead" }),
     );
@@ -259,7 +259,7 @@ describe("M25-47 integrated timeline tools", () => {
 
   it("captures ripple mode for an edge-grip commit and scopes the command to that track", () => {
     const { view, timeline } = timelineSubject();
-    fireEvent.click(view.getByRole("button", { name: "Main-track ripple" }));
+    fireEvent.click(view.getByRole("button", { name: "Ripple edits" }));
     const grip = view.container.querySelector<HTMLButtonElement>(
       '[data-h3-nle-trim-clip="clip-0"] [data-h3-nle-trim-edge="end"]:not([hidden])',
     )!;

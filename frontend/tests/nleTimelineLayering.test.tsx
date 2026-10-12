@@ -73,7 +73,7 @@ describe("timeline semantic controls layered with decoration pixels", () => {
         expect(textStyle.zIndex).toBe("auto");
         expect(textStyle.pointerEvents).toBe("auto");
       }
-      // M25-62 (R7, fine pointer): the grips are 8 px hit areas at the clip's own edges and the
+      //  (R7, fine pointer): the grips are 8 px hit areas at the clip's own edges and the
       // menu trigger is a 24 px target, all absolute above the raster and the clip body.
       for (const control of clip.querySelectorAll(
         ".h3-nle-grip, .h3-nle-clip-menu-trigger",

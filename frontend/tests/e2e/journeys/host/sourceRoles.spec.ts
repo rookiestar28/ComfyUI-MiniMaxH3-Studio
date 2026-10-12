@@ -213,7 +213,7 @@ test("exact host keeps I2VA, FL2VA, and L2VA source roles opaque and ordered", a
             "The host cannot materialize two serialized LoadImage nodes within bounds",
           );
         await waitForPublicGraphStability(requiredImageSourceCount);
-        // M17-00: the public destroy/render remount is the supported refresh seam.
+        // the public destroy/render remount is the supported refresh seam.
         // Rendering an already-mounted tab does not promise a graph refresh.
         tab.destroy();
         tab.render(container);
@@ -402,7 +402,7 @@ test("exact host keeps I2VA, FL2VA, and L2VA source roles opaque and ordered", a
           const countType = (type: string): number =>
             types.filter((candidate) => candidate === type).length;
           const expectedImageLoaders = request?.task_mode === "fl2va" ? 2 : 1;
-          // M23-19 (reconciled by M23-37): the one managed submission is the
+          //  (reconciled by): the one managed submission is the
           // whole model prompt — context pipeline, one native anchor and the
           // sink — with the ProductShell bootstrap executing inside it. There
           // is no separate pipeline-only closure to intercept any more.
@@ -694,7 +694,7 @@ test("exact host keeps I2VA, FL2VA, and L2VA source roles opaque and ordered", a
     );
     await expect(container.getByRole("alert")).toBeVisible();
     await expect(container).not.toContainText("m23-08-private-host-diagnostic");
-    // M23-19 (reconciled by M23-37): a host execution error inside a managed
+    //  (reconciled by): a host execution error inside a managed
     // run ends it with the managed recovery action (continue with native
     // nodes, or retry the output verification when the coordinator allows
     // it), not with the pre-managed "Retry H3 App Mode" action.
@@ -735,7 +735,7 @@ test("exact host keeps I2VA, FL2VA, and L2VA source roles opaque and ordered", a
           .__h3M2321CopiedDiagnostics ?? "",
     );
     expect(copiedPayload).toContain("stage bootstrap_started");
-    // M23-19 (reconciled by M23-37): what this row owns is the diagnostics
+    //  (reconciled by): what this row owns is the diagnostics
     // copy — bounded, redacted and causal. The terminal error class depends
     // on where the managed chain stops, and this row fakes the host's
     // execution with a stubbed queue and a synthetic terminal event, so the
@@ -750,7 +750,7 @@ test("exact host keeps I2VA, FL2VA, and L2VA source roles opaque and ordered", a
       name: "Continue with native nodes",
     });
     await expect(nativeRecovery).toBeVisible();
-    // M23-19 (reconciled by M23-37): the one legal write targets the workflow
+    //  (reconciled by): the one legal write targets the workflow
     // that was active when the transaction began (omitting the fourth public
     // loadGraphData argument creates a new temporary tab per write on
     // supported frontend builds). A managed terminal error KEEPS that written

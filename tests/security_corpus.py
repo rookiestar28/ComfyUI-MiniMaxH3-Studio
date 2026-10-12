@@ -53,7 +53,7 @@ LABEL_COLLISIONS = (
     SecurityCorpusCase("label_wrong_kind", "label_collision", "<Video 1>"),
 )
 
-# M21-01. The fidelity rules scan rendered prose, so their patterns meet whatever a document
+# . The fidelity rules scan rendered prose, so their patterns meet whatever a document
 # contains. These vectors are the shapes that could make a scanner behave badly: deep repetition of
 # a term the rules look for, a near-miss timestamp, and a shot marker repeated far past any real
 # shot count. All are synthetic and secret-free.

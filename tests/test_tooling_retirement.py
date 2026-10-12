@@ -1,9 +1,10 @@
-"""HC-16 bounded tooling-retirement policy and live census tests."""
+"""bounded tooling-retirement policy and live census tests."""
 
 from __future__ import annotations
 
 import importlib.util
 import subprocess
+import tempfile
 import unittest
 from contextlib import ExitStack
 from pathlib import Path
@@ -65,8 +66,8 @@ class ToolingRetirementPolicyTests(unittest.TestCase):
                 self.assertLessEqual(len(row.rationale), TOOL.MAX_RATIONALE)
 
     def test_a_nested_entry_point_is_censused_and_its_library_siblings_are_not(self) -> None:
-        # M23-49 register row 8. `scripts/governance/relocate_packaged_artifacts.py` shipped in
-        # M23-55 outside a census that reports itself complete, because the path rule admitted only
+        #  register row 8. `scripts/governance/relocate_packaged_artifacts.py` shipped in
+        #  outside a census that reports itself complete, because the path rule admitted only
         # `scripts/<name>.py`. The fix must admit the tool without admitting the eighteen library
         # modules beside it, or the unreferenced population stops meaning anything.
         censused = {row.path for row in TOOL.build_census(ROOT).tools}
@@ -158,13 +159,13 @@ class ToolingRetirementPolicyTests(unittest.TestCase):
     def test_a_generated_record_that_names_tools_is_not_counted_as_their_reader(self) -> None:
         # The exclusion is load-bearing, not decorative. A generated record that *describes* which
         # tool consumes what would otherwise keep alive the very tools the census is judging.
-        # M23-50 added `source_reachability.owners` to the fitness artifact and it credited two
+        #  added `source_reachability.owners` to the fitness artifact and it credited two
         # fixture generators with a "consumer" whose only statement about them is that nothing else
-        # uses them; the M23-50 review then found the same defect already live in the retirement
+        # uses them; the review then found the same defect already live in the retirement
         # artifact, where an `internal_consumers` field was one tool's ONLY tracked mention. Both
         # directions are asserted here: no excluded record is a consumer, and no excluded record is
         # a stale entry that names no tool at all.
-        # CRITICAL: both roots. M23-55 moved every generated record with no runtime or bundle
+        # CRITICAL: both roots. moved every generated record with no runtime or bundle
         # reader to `governance/contracts/`, leaving exactly one of these under the packaged root,
         # so a packaged-only filter would still satisfy `assertTrue` below while silently checking
         # a sixth of the population.
@@ -190,7 +191,7 @@ class ToolingRetirementPolicyTests(unittest.TestCase):
         # a tool alive. A generator that starts emitting tracked script paths is invisible in its
         # own diff and real in the artifact, and this fails on the next one instead of the complete
         # backend stage of a Full Gate discovering it hours later.
-        # CRITICAL: a generated record lives under either root since M23-55, and 134 of the 143
+        # CRITICAL: a generated record lives under either root since, and 134 of the 143
         # moved. Checking only the packaged prefix would let a tool whose sole consumer is a
         # `governance/contracts/` record read as alive -- which is precisely the defect.
         generated = ("comfyui_h3_context/contracts/", "governance/contracts/")
@@ -202,6 +203,74 @@ class ToolingRetirementPolicyTests(unittest.TestCase):
                     [item for item in row.consumers if not item.startswith(generated)],
                     f"{row.path} is referenced only by generated records",
                 )
+
+
+class ClassificationMentionTests(unittest.TestCase):
+    def test_a_risk_classification_does_not_manufacture_a_tool_reader(self) -> None:
+        tool = next(iter(TOOL.MANUAL_RETENTIONS))
+        stem = Path(tool).stem
+        relative = "scripts/change_lane.py"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / relative
+            source.parent.mkdir()
+            source.write_text(
+                f"HEAVY_EXACT = ({tool!r},)\nfrom scripts import roadmap_registry\n",
+                encoding="utf-8",
+            )
+            readers = TOOL._reader_index(root, (relative,))
+        self.assertNotIn(stem, readers)
+        self.assertEqual(readers["roadmap_registry"], {relative})
+
+    def test_an_actual_import_of_a_classified_tool_remains_a_reader(self) -> None:
+        tool = next(iter(TOOL.MANUAL_RETENTIONS))
+        stem = Path(tool).stem
+        relative = "scripts/change_lane.py"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / relative
+            source.parent.mkdir()
+            source.write_text(
+                f"HEAVY_EXACT = ({tool!r},)\nfrom scripts import {stem}\n", encoding="utf-8"
+            )
+            readers = TOOL._reader_index(root, (relative,))
+        self.assertEqual(readers[stem], {relative})
+
+    def test_a_missing_or_changed_classification_shape_fails_closed(self) -> None:
+        definitions = (
+            "HEAVY_EXACT = (\n",
+            "OTHER = ('scripts/example.py',)\n",
+            "HEAVY_EXACT = ()\nHEAVY_EXACT = ()\n",
+            "HEAVY_EXACT = tuple(('scripts/example.py',))\n",
+            "HEAVY_EXACT = (123,)\n",
+            "HEAVY_EXACT: tuple[str, ...] = ('scripts/example.py',)\n",
+            "ALIAS = HEAVY_EXACT = ('scripts/example.py',)\n",
+        )
+        relative = "scripts/change_lane.py"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / relative
+            source.parent.mkdir()
+            for definition in definitions:
+                with self.subTest(definition=definition):
+                    source.write_text(definition, encoding="utf-8")
+                    with self.assertRaises(TOOL.ToolingRetirementError):
+                        TOOL._reader_index(root, (relative,))
+
+    def test_a_same_line_import_and_utf8_columns_are_preserved(self) -> None:
+        tool = next(iter(TOOL.MANUAL_RETENTIONS))
+        stem = Path(tool).stem
+        relative = "scripts/change_lane.py"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / relative
+            source.parent.mkdir()
+            source.write_text(
+                f'label = "中文"; HEAVY_EXACT = ({tool!r},); from scripts import {stem}\n',
+                encoding="utf-8",
+            )
+            readers = TOOL._reader_index(root, (relative,))
+        self.assertEqual(readers[stem], {relative})
 
 
 class RecoveryHistoryTests(unittest.TestCase):

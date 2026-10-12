@@ -1,4 +1,4 @@
-// M20-03: the one same-origin client for the authoring-workspace route. A 409 is not an
+// the one same-origin client for the authoring-workspace route. A 409 is not an
 // error: it carries the untouched backend projection plus the machine-readable rejection
 // code, so the caller discards its draft, announces the reason and re-renders accepted
 // truth. Everything else non-2xx maps through one closed status table and throws.

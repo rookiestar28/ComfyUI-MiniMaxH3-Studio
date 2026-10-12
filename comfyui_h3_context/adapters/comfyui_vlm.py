@@ -1,4 +1,4 @@
-"""ComfyUI-native VLM observation adapter for M11-02.
+"""ComfyUI-native VLM observation adapter for.
 
 This module is an optional integration seam.  It receives a host-owned CLIP and reuses
 ``ComfyUINativeCLIPAdapter`` for the exact built-in Generate Text call order; it never discovers or

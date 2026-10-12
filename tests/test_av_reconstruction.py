@@ -1,4 +1,4 @@
-"""Focused M17-11 pure-core reconstruction and sole-receipt tests."""
+"""Focused pure-core reconstruction and sole-receipt tests."""
 
 from __future__ import annotations
 

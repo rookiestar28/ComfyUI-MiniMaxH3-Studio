@@ -1,4 +1,4 @@
-"""M20-09 focused tests: receipt-codec injection over the private store."""
+"""focused tests: receipt-codec injection over the private store."""
 
 from __future__ import annotations
 
@@ -166,7 +166,7 @@ def test_seam_store_round_trip_commits_and_reloads_the_exact_receipt() -> None:
 def test_persisted_root_pins_its_codec_across_process_restarts(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """M20-09 review finding 1: the on-disk marker pins the receipt codec, so a
+    """review finding 1: the on-disk marker pins the receipt codec, so a
     fresh process cannot reopen a root under the other codec and let recovery
     delete the first codec's committed receipts as undecodable."""
 

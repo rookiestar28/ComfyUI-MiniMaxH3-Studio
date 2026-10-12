@@ -1,4 +1,4 @@
-// M25-45 B-M2545-31: the transport's Escape guard while the monitor owns the screen. The guard's
+//  B-M2545-31: the transport's Escape guard while the monitor owns the screen. The guard's
 // whole purpose is that Escape leaves full screen and goes no further -- it must not also reach the
 // dialog behind the screen -- so what matters is that it is armed for every Escape that can arrive
 // while the document is full screen on the owned element, including the first one.

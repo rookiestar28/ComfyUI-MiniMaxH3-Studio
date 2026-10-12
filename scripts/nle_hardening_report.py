@@ -1,4 +1,4 @@
-"""M25-21: join gathered hardening observations to the frozen coverage manifest.
+"""join gathered hardening observations to the frozen coverage manifest.
 
 Input is the ``h3.context.nle_hardening_observations.v1`` document the browser gatherer writes
 (``frontend/tests/e2e/helpers/nleHardeningGatherer.mjs``), optionally merged with backend
@@ -98,7 +98,7 @@ def privacy_unsafe(text: str) -> bool:
 def _scannable(report: Mapping[str, Any]) -> str:
     """The serialized report with pinned dependency identifiers elided before the privacy scan.
 
-    IMPORTANT (M25-21 B3-D50): elide only the exact pinned identifier, and only where the audit
+    IMPORTANT ( B3-D50): elide only the exact pinned identifier, and only where the audit
     itself recorded it as an entry name. Dropping ``cookie`` from ``_FORBIDDEN`` instead would let
     a real cookie payload through anywhere in the report, and exempting every ``name`` field would
     let a package chosen by an upstream carry one.

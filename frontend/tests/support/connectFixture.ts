@@ -3,7 +3,7 @@ export type Json = Record<string, unknown>;
 /**
  * A canvas this repository did not build.
  *
- * M17-20 D13 tier B is about arbitrary community graphs, so the fixture is
+ *  D13 tier B is about arbitrary community graphs, so the fixture is
  * deliberately not a template: it carries node types this repository has never
  * heard of, wires them to each other, and puts one or more official native H3
  * conditioning anchors somewhere in the middle. The only thing the splice is

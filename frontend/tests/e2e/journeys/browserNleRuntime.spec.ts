@@ -276,7 +276,7 @@ test("actual VFR source uses probed presentation timestamps across a nonuniform 
     const probed = vfrTiming.frames.find((row) => row.frame_index === frame)!;
     expect(source.sourceFrame).toBe(frame);
     expect(source.sourcePts).toBe(probed.pts);
-    // M25-09 qualifies VFR presentation within a source interval, not exact frame seeking.
+    //  qualifies VFR presentation within a source interval, not exact frame seeking.
     // Keep the measured PTS visible; do not round it to the requested anchor.
     expect(
       vfrTiming.frames.some((row) => row.pts === source.observedSourcePts),

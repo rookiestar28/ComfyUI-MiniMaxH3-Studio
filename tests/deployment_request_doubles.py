@@ -1,6 +1,6 @@
 """Request facts an owned route's admission reads, for tests that build requests by hand.
 
-Since M23-57 an owned route admits a request only for the target its `Host` selects on the socket
+Since an owned route admits a request only for the target its `Host` selects on the socket
 that accepted it, so a faithful request double carries three things a real aiohttp request has: a
 `Host` header, an `Origin` header, and a transport whose `get_extra_info("sockname")` names the
 local endpoint (and `get_extra_info("sslcontext")` whether it is native TLS). A double without the
@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from typing import Any
 
-#: The default ComfyUI listener, and the one deployment every pre-M23-57 fixture assumed.
+#: The default ComfyUI listener, and the one deployment every pre- fixture assumed.
 LOOPBACK_HOST = "127.0.0.1:8188"
 LOOPBACK_ORIGIN = "http://127.0.0.1:8188"
 LOOPBACK_SOCKNAME = ("127.0.0.1", 8188)

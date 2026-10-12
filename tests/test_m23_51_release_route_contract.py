@@ -1,4 +1,4 @@
-"""M23-51 route contract: the two accepted `release_sequence` payloads, over the real coordinator.
+"""route contract: the two accepted `release_sequence` payloads, over the real coordinator.
 
 The pure table says what each (state, intent) pair means and the service says that nothing else is
 mutated. This suite says the request actually reaching the coordinator is decoded exactly, that the
@@ -138,7 +138,7 @@ def test_v1_still_releases_a_prepared_unsubmitted_child(tmp_path: Path) -> None:
 
 
 def test_v1_no_longer_drops_a_run_the_host_may_be_executing(tmp_path: Path) -> None:
-    # The defect, asserted as a refusal. Before M23-51 this returned `released` and destroyed the
+    # The defect, asserted as a refusal. Before this returned `released` and destroyed the
     # only authority able to accept the host's result.
     coordinator, prepared, _submitted = _submitted_run(tmp_path)
 

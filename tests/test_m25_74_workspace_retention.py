@@ -1,6 +1,6 @@
 """Retention through the accepted modules: the workspace registry, its claims and its sources.
 
-The doubles in `test_m25_74_derivative_retention` fix the authority's rules. These tests fix what
+The doubles in `test__derivative_retention` fix the authority's rules. These tests fix what
 the product's own claim offers the authority: whose liveness keeps a body, which failure withdraws
 it, and that a released workspace leaves nothing behind.
 """
@@ -466,6 +466,13 @@ def _replace_keeping_identity(path: Path) -> None:
     metadata = path.stat()
     path.write_bytes(b"x" * metadata.st_size)
     os.utime(path, ns=(metadata.st_atime_ns, metadata.st_mtime_ns))
+    replaced = path.stat()
+    assert (replaced.st_dev, replaced.st_ino, replaced.st_size, replaced.st_mtime_ns) == (
+        metadata.st_dev,
+        metadata.st_ino,
+        metadata.st_size,
+        metadata.st_mtime_ns,
+    ), "same-stat replacement fixture must preserve the admitted source identity"
 
 
 def test_a_replaced_file_withdraws_the_probe_and_a_moved_workspace_keeps_it(

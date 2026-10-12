@@ -34,7 +34,7 @@ TestClient, TestServer = http_test.TestClient, http_test.TestServer
 
 
 def same_origin(client: Any) -> dict[str, str]:
-    """The page origin a browser on this test server would send (M23-57: never a fixed one)."""
+    """The page origin a browser on this test server would send (: never a fixed one)."""
     authority = f"{client.host}:{client.port}"
     return {"Origin": f"http://{authority}", "Host": authority}
 

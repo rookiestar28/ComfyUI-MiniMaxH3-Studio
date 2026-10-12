@@ -1,4 +1,4 @@
-"""M16-01 source requalification contract and fail-closed consistency tests."""
+"""source requalification contract and fail-closed consistency tests."""
 
 from __future__ import annotations
 

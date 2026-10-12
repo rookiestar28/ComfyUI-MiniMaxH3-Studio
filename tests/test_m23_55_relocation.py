@@ -1,9 +1,9 @@
-"""M23-55: the governance relocation is computed from measured readership, never from a name.
+"""the governance relocation is computed from measured readership, never from a name.
 
 The failure this whole item guards against is one file travelling with the move that should not.
 `host_seam_census_v1.json` is the standing proof that no heuristic gets it right -- it is a
 hand-maintained census with no generator, and a module under `frontend/src/host/` imports it, so
-the bundle compiles it in. M23-47 spent a gate run discovering that.
+the bundle compiles it in. spent a gate run discovering that.
 
 So these tests do not check that the tool moved 134 named files. They check the properties that
 survive the tree changing underneath them: the set comes from the record, a reader of any kind is
@@ -14,6 +14,7 @@ apply is recoverable rather than resumable.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -22,6 +23,8 @@ import unittest
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
+from types import SimpleNamespace
+from typing import cast
 from unittest.mock import patch
 
 from scripts import packaged_artifact_readership as census
@@ -330,7 +333,7 @@ class TheRewriteReachesBothReferenceFormsTests(unittest.TestCase):
         # the produced path exists nowhere in the source, so the per-basename rewrite has nothing
         # to match and the residue check sees no *directory* constant to anchor on -- the anchor
         # here is a complete path, which `_without_inline_paths` strips. This planted file is the
-        # shape of `tests/test_hc_09_host_seam_contract.py`, which shipped broken and cost a Full
+        # shape of `tests/test__host_seam_contract.py`, which shipped broken and cost a Full
         # Gate. Reverting `_derived_sibling_names` to an empty frozenset fails exactly this test.
         planted = dict(self.FILES)
         planted["scripts/sibling.py"] = (
@@ -379,7 +382,7 @@ class TheRewriteReachesBothReferenceFormsTests(unittest.TestCase):
 
     def test_a_sibling_derivation_that_was_read_by_hand_can_be_pinned(self) -> None:
         # The acknowledgement is per basename, so pinning the one that was checked still refuses a
-        # different one appearing later. Both `tests/test_m22_16_compatibility_closeout.py` and
+        # different one appearing later. Both `tests/test__compatibility_closeout.py` and
         # `tests/test_managed_run_aggregate.py` are pinned this way: their anchors moved with their
         # schemas, so the derivation stays correct, but only because somebody looked.
         planted = dict(self.FILES)
@@ -531,6 +534,245 @@ class TheResidueCheckIsRealTests(unittest.TestCase):
             )
 
 
+class TheCompatibilityRetentionIsAnExactPolicyTests(unittest.TestCase):
+    PATH = f"{PACKAGED}/authoring_renderer_qualification_v1.json"
+
+    def _rows(self) -> list[dict[str, object]]:
+        return [
+            *DEFAULT_ROWS,
+            _row(
+                "authoring_renderer_qualification_v1.json",
+                "tooling_or_evidence_only",
+                ("scripts/nle_semantic_conformance.py",),
+            ),
+        ]
+
+    def _files(self) -> dict[str, str]:
+        return {self.PATH: (REPO_ROOT / self.PATH).read_bytes().decode("utf-8")}
+
+    def _retained(self) -> bool:
+        return relocate.compatibility_retained(
+            self.PATH,
+            readership="tooling_or_evidence_only",
+            disposition=relocate_disposition("tooling_or_evidence_only"),
+        )
+
+    @contextmanager
+    def _observed_stats(
+        self,
+        root: Path,
+        *,
+        platform: str = "win32",
+        path_ctimes: tuple[int, int] = (101, 101),
+        fd_ctimes: tuple[int, int] = (202, 202),
+        changed_path_field: str | None = None,
+        change_fd_during_final_path: bool = False,
+    ) -> Iterator[None]:
+        target = root / self.PATH
+        actual_stat, actual_fstat = Path.stat, os.fstat
+        path_calls, fd_calls = 0, 0
+
+        def sample(value: os.stat_result, ctime: int) -> dict[str, int]:
+            return {
+                "st_mode": value.st_mode,
+                "st_dev": value.st_dev,
+                "st_ino": value.st_ino,
+                "st_size": value.st_size,
+                "st_mtime_ns": value.st_mtime_ns,
+                "st_ctime_ns": ctime,
+                "st_birthtime_ns": 303,
+            }
+
+        def path_stat(path: Path, *, follow_symlinks: bool = True) -> os.stat_result:
+            nonlocal path_calls
+            actual = actual_stat(path, follow_symlinks=follow_symlinks)
+            if path != target or not follow_symlinks:
+                return actual
+            path_calls += 1
+            fields = sample(actual, path_ctimes[min(path_calls - 1, 1)])
+            if path_calls > 1 and changed_path_field:
+                if changed_path_field == "missing_birthtime":
+                    del fields["st_birthtime_ns"]
+                else:
+                    fields[changed_path_field] += 1
+            return cast(os.stat_result, SimpleNamespace(**fields))
+
+        def fd_stat(descriptor: int) -> os.stat_result:
+            nonlocal fd_calls
+            fd_calls += 1
+            fields = sample(actual_fstat(descriptor), fd_ctimes[min(fd_calls - 1, 1)])
+            if change_fd_during_final_path and path_calls > 1:
+                fields["st_ctime_ns"] += 1
+            return cast(os.stat_result, SimpleNamespace(**fields))
+
+        with (
+            patch.object(Path, "stat", path_stat),
+            patch.object(os, "fstat", fd_stat),
+            patch.object(sys, "platform", platform),
+        ):
+            yield
+
+    @unittest.skipUnless(sys.platform == "win32", "real Windows stat/fstat API observation")
+    def test_real_windows_creation_and_change_times_do_not_refuse_immutable_bytes(self) -> None:
+        with temporary_repository(self._files(), self._rows()) as root:
+            target = root / self.PATH
+            original = target.stat()
+            os.utime(target, ns=(original.st_atime_ns, original.st_mtime_ns - 1_000_000_000))
+            before = target.stat()
+            with target.open("rb") as stream:
+                opened = os.fstat(stream.fileno())
+            for field in ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_birthtime_ns"):
+                self.assertEqual(getattr(before, field, None), getattr(opened, field, None), field)
+            self.assertTrue(self._retained())
+
+    def test_stable_windows_path_and_fd_ctimes_can_differ(self) -> None:
+        with temporary_repository(self._files(), self._rows()) as root:
+            with self._observed_stats(root):
+                self.assertTrue(self._retained())
+
+    def test_non_windows_path_and_fd_ctime_disagreement_refuses(self) -> None:
+        with temporary_repository(self._files(), self._rows()) as root:
+            with self._observed_stats(root, platform="linux"):
+                with self.assertRaisesRegex(relocate.RelocationError, "read identity changed"):
+                    self._retained()
+
+    def test_same_api_path_ctime_change_refuses(self) -> None:
+        with temporary_repository(self._files(), self._rows()) as root:
+            with self._observed_stats(root, path_ctimes=(101, 102)):
+                with self.assertRaisesRegex(relocate.RelocationError, "read identity changed"):
+                    self._retained()
+
+    def test_same_api_fd_ctime_change_refuses(self) -> None:
+        with temporary_repository(self._files(), self._rows()) as root:
+            with self._observed_stats(root, fd_ctimes=(202, 203)):
+                with self.assertRaisesRegex(relocate.RelocationError, "read identity changed"):
+                    self._retained()
+
+    def test_path_mtime_or_birthtime_change_refuses(self) -> None:
+        for field in ("st_mtime_ns", "st_birthtime_ns"):
+            with (
+                self.subTest(field=field),
+                temporary_repository(self._files(), self._rows()) as root,
+                self._observed_stats(root, changed_path_field=field),
+            ):
+                with self.assertRaisesRegex(relocate.RelocationError, "read identity changed"):
+                    self._retained()
+
+    def test_inconsistent_birthtime_availability_refuses(self) -> None:
+        with temporary_repository(self._files(), self._rows()) as root:
+            with self._observed_stats(root, changed_path_field="missing_birthtime"):
+                with self.assertRaisesRegex(relocate.RelocationError, "read identity changed"):
+                    self._retained()
+
+    def test_fd_change_during_final_path_observation_refuses(self) -> None:
+        with temporary_repository(self._files(), self._rows()) as root:
+            with self._observed_stats(root, fd_ctimes=(101, 101), change_fd_during_final_path=True):
+                with self.assertRaisesRegex(relocate.RelocationError, "read identity changed"):
+                    self._retained()
+
+    def test_only_the_exact_immutable_compatibility_artifact_is_retained(self) -> None:
+        with temporary_repository(self._files(), self._rows()):
+            self.assertTrue(
+                relocate.compatibility_retained(
+                    self.PATH,
+                    readership="tooling_or_evidence_only",
+                    disposition=relocate_disposition("tooling_or_evidence_only"),
+                )
+            )
+            self.assertEqual(
+                relocate.selected_paths(),
+                (
+                    f"{PACKAGED}/moved_record_v1.json",
+                    f"{PACKAGED}/moved_schema_v1.schema.json",
+                    f"{PACKAGED}/unread_v1.json",
+                ),
+            )
+
+    def test_changed_missing_and_oversized_compatibility_bytes_refuse(self) -> None:
+        for kind in ("changed", "missing", "oversized"):
+            with self.subTest(kind=kind), temporary_repository(self._files(), self._rows()) as root:
+                target = root / self.PATH
+                if kind == "missing":
+                    target.unlink()
+                elif kind == "oversized":
+                    target.write_bytes(target.read_bytes() + b"\n")
+                else:
+                    target.write_bytes(target.read_bytes().replace(b"h3", b"x3", 1))
+                with self.assertRaisesRegex(relocate.RelocationError, "compatibility"):
+                    relocate.selected_paths()
+
+    def test_linked_file_or_ancestor_cannot_claim_compatibility_retention(self) -> None:
+        for relative in (self.PATH, PACKAGED):
+            with (
+                self.subTest(relative=relative),
+                temporary_repository(self._files(), self._rows()) as root,
+            ):
+                # Exercise the actual rejection branch even without Windows symlink privileges.
+                with patch.object(
+                    relocate, "_is_link", lambda path, linked=root / relative: path == linked
+                ):
+                    with self.assertRaisesRegex(relocate.RelocationError, "compatibility"):
+                        relocate.selected_paths()
+
+    def test_a_contradictory_record_cannot_claim_compatibility_retention(self) -> None:
+        for member, value in (
+            ("readership", "runtime_read"),
+            ("readership", "no_reader"),
+            ("disposition", "retain: unverified compatibility claim"),
+        ):
+            rows = self._rows()
+            rows[-1][member] = value
+            with (
+                self.subTest(member=member, value=value),
+                temporary_repository(self._files(), rows),
+            ):
+                with self.assertRaisesRegex(relocate.RelocationError, "compatibility"):
+                    relocate.selected_paths()
+
+    def test_duplicate_compatibility_rows_are_still_refused(self) -> None:
+        rows = self._rows()
+        with temporary_repository(self._files(), [*rows, dict(rows[-1])]):
+            with self.assertRaisesRegex(relocate.RelocationError, "twice"):
+                relocate.selected_paths()
+
+    def test_other_tooling_artifacts_cannot_inherit_the_compatibility_exception(self) -> None:
+        other = "authoring_renderer_qualification_other_v1.json"
+        rows = [*self._rows(), _row(other, "tooling_or_evidence_only")]
+        files = self._files()
+        files[f"{PACKAGED}/{other}"] = files[self.PATH]
+        with temporary_repository(files, rows):
+            self.assertFalse(
+                relocate.compatibility_retained(
+                    f"{PACKAGED}/{other}",
+                    readership="tooling_or_evidence_only",
+                    disposition=relocate_disposition("tooling_or_evidence_only"),
+                )
+            )
+            self.assertIn(f"{PACKAGED}/{other}", relocate.selected_paths())
+
+    def test_declared_bundle_inputs_cannot_claim_compatibility_retention(self) -> None:
+        with temporary_repository(self._files(), self._rows()):
+            with patch.object(relocate, "_bundle_inputs", lambda: frozenset({self.PATH})):
+                with self.assertRaisesRegex(relocate.RelocationError, "compatibility"):
+                    relocate.selected_paths()
+
+    def test_changed_descriptor_identity_refuses_even_identical_bytes(self) -> None:
+        with temporary_repository(self._files(), self._rows()) as root:
+            replacement = root / "replacement.json"
+            replacement.write_bytes((root / self.PATH).read_bytes())
+            actual_fstat = os.fstat
+            calls = 0
+
+            def changed_identity(descriptor: int) -> os.stat_result:
+                nonlocal calls
+                calls += 1
+                return actual_fstat(descriptor) if calls == 1 else replacement.stat()
+
+            with patch.object(os, "fstat", changed_identity):
+                with self.assertRaisesRegex(relocate.RelocationError, "compatibility"):
+                    relocate.selected_paths()
+
+
 class TheRepositoryTopologyMatchesTheRecordTests(unittest.TestCase):
     """Asserted against the real tree, so the item's outcome cannot silently regress."""
 
@@ -549,7 +791,16 @@ class TheRepositoryTopologyMatchesTheRecordTests(unittest.TestCase):
         self.assertTrue(packaged)
         for path, readership in classified.items():
             with self.subTest(path=path):
-                self.assertIn(readership, relocate.READING_CLASSES)
+                if path in relocate.COMPATIBILITY_RETENTION:
+                    row = next(row for row in record["artifacts"] if row["path"] == path)
+                    self.assertEqual(readership, "tooling_or_evidence_only")
+                    self.assertTrue(
+                        relocate.compatibility_retained(
+                            path, readership=readership, disposition=row["disposition"]
+                        )
+                    )
+                else:
+                    self.assertIn(readership, relocate.READING_CLASSES)
 
     def test_the_declared_bundle_inputs_all_stayed_in_the_package(self) -> None:
         # `sys.executable`, not a hardcoded `.venv/Scripts/python.exe`: TEST_SOP 3.1 admits a

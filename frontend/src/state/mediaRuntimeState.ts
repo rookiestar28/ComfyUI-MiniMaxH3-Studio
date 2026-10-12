@@ -1,4 +1,4 @@
-// M25-33: the page-lifecycle state of the shared Media tools entry.
+// the page-lifecycle state of the shared Media tools entry.
 //
 // Mount memory only. It holds the last decoded status, the running or last setup job, at most one
 // pending continuation and a closed notice. A continuation is never persisted: a reload, a view

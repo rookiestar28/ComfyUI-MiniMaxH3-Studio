@@ -1,4 +1,4 @@
-"""M18-02 cross-language canonical string identity, and the length unit that split it.
+"""cross-language canonical string identity, and the length unit that split it.
 
 `frontend/src/host/sidebarHost.ts` fingerprints the workspace prompt in the browser and compares the
 result against the backend-produced value. That is the only place in the repository where a Python
@@ -117,7 +117,7 @@ class VectorFixtureTests(unittest.TestCase):
 
 
 class LengthUnitReconciliationTests(unittest.TestCase):
-    """AC-M18-02-04 and AC-M18-02-05: the split is closed, and closing it moved no byte."""
+    """AC--04 and AC--05: the split is closed, and closing it moved no byte."""
 
     def test_a_string_inside_both_limits_is_accepted(self) -> None:
         at_limit = chr(0x1F600) * (MAX_CANONICAL_STRING_LENGTH // 2)

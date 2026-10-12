@@ -1,4 +1,4 @@
-"""HC-11 package compatibility and deprecation policy contract tests.
+"""package compatibility and deprecation policy contract tests.
 
 The Markdown policy is intentionally outside the test contract.  These tests pin only the shipped
 machine record, its closed schema, and joins to the live Python surface authorities.

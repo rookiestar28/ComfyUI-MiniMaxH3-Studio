@@ -1,4 +1,4 @@
-"""M16-02 reconstruction-regression matrix contract tests."""
+"""reconstruction-regression matrix contract tests."""
 
 # Keep adversarial matrix mutations readable beside their expected diagnostics.
 # ruff: noqa: E501

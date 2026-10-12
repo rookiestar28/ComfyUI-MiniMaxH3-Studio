@@ -10,7 +10,7 @@ import time
 from collections import OrderedDict
 from collections.abc import Callable, Iterator, Mapping
 from concurrent.futures import ThreadPoolExecutor
-from contextlib import AbstractContextManager, ExitStack, contextmanager, nullcontext
+from contextlib import AbstractContextManager, contextmanager, nullcontext
 from dataclasses import dataclass, field, replace
 from hashlib import sha256
 from types import MappingProxyType
@@ -102,7 +102,7 @@ from ..core.segment_workspace import (
     revise_workspace,
 )
 from .av_reconstruction_media import QualifiedAVMediaAdapter
-from .av_reconstruction_store import AVStoreError, PrivateAVReconstructionStore
+from .av_reconstruction_store import PrivateAVReconstructionStore
 from .comfyui_route_seam import (
     RoutePolicy,
     RouteResult,
@@ -131,6 +131,8 @@ from .media_preview_authority import (
     build_media_preview_source_authority,
     build_segment_media_preview_source_authority,
 )
+from .production_assembly_execution import ProductionAssemblyExecutionService
+from .production_media_use import prepare_assembly_previews, run_with_media_runtime
 from .segment_artifact_store import PrivateSegmentArtifactStore
 
 PRODUCTION_ACTION_SCHEMA = "h3.context.production_workbench.action.v1"
@@ -1781,7 +1783,7 @@ class ProductionWorkspaceRegistry:
         self._assembly_runtime_provider = assembly_runtime_provider
         self._assembly_submitter = assembly_submitter
         self._media_lease = media_lease
-        self._assembly_executor: ThreadPoolExecutor | None = None
+        self._assembly_execution = ProductionAssemblyExecutionService()
         self._entries: dict[str, _ProductionEntry] = {}
         self._editable_projects: dict[str, _EditableProjectEntry] = {}
         self._authoring_anchors: dict[str, _ProjectAuthoringAnchor] = {}
@@ -1867,7 +1869,7 @@ class ProductionWorkspaceRegistry:
         """Register the authority that says whether a run still depends on a workspace.
 
         CRITICAL: this registry cannot answer that question itself -- it has no run identity -- and
-        before M23-31 nothing answered it at all, so `release_workspace` could remove a workspace a
+        before nothing answered it at all, so `release_workspace` could remove a workspace a
         live generation sequence still depended on and strand it. That is the invariant
         `comfyui_h3_context.core.managed_run.NO_LIVE_SEQUENCE_GUARD` names. The probe is the
         ManagedRun aggregate, supplied by the coordinator that owns it, so the rule has exactly one
@@ -2213,7 +2215,7 @@ class ProductionWorkspaceRegistry:
                 # the exact ManagedRun. No caller may release these two authorities separately;
                 # doing so leaks one workspace per serial child or strands a live run without its
                 # workspace. The callback is supplied only by ManagedRunReleaseService after its
-                # centralized M23-51 decision.
+                # centralized decision.
                 if self._editor_recovery_protected is not None and self._editor_recovery_protected(
                     workspace_handle
                 ):
@@ -4056,7 +4058,7 @@ class ProductionWorkspaceRegistry:
         sequence: GenerationSequenceProjection,
         context_workspace_handle: str | None = None,
     ) -> ProductionWorkbenchProjection | None:
-        """Attach or stage one exact builder-owned M17-08 source for a Context handle.
+        """Attach or stage one exact builder-owned source for a Context handle.
 
         This is an internal publisher seam, not a browser action. Missing, foreign or ambiguous
         ownership is deliberately non-retaining so a later unrelated workspace cannot inherit it.
@@ -4669,23 +4671,19 @@ class ProductionWorkspaceRegistry:
         entry: _ProductionEntry,
         job: _ProductionAssemblyJob,
     ) -> None:
-        from .media_runtime_manager import MediaRuntimeBusy
+        def unavailable() -> None:
+            self._fail_assembly_job(
+                handle,
+                entry,
+                job,
+                "cancelled" if job.cancellation.is_cancelled() else "assembly_worker_unavailable",
+            )
 
-        with ExitStack() as stack:
-            try:
-                stack.enter_context(self._media_lease())
-            except MediaRuntimeBusy:
-                # A binding transition is in progress: fail fast rather than queue behind it.
-                self._fail_assembly_job(
-                    handle,
-                    entry,
-                    job,
-                    "cancelled"
-                    if job.cancellation.is_cancelled()
-                    else "assembly_worker_unavailable",
-                )
-                return
-            self._run_leased_assembly_job(handle, entry, job)
+        run_with_media_runtime(
+            lease=self._media_lease,
+            operation=lambda: self._run_leased_assembly_job(handle, entry, job),
+            on_busy=unavailable,
+        )
 
     def _run_leased_assembly_job(
         self,
@@ -4711,31 +4709,23 @@ class ProductionWorkspaceRegistry:
             entry.touched_at = self._clock()
             live_reconstructions = self._live_reconstruction_transaction_ids()
             snapshot_ms = self._clock_ms()
-        # IMPORTANT (B-M2522-STORE-01): retire complete reconstructions no live workspace can
-        # reach before this job needs quota; committed receipts otherwise fill the persistent store
-        # after `max_transactions` assemblies and every later assembly fails. The reference set
-        # and its instant are taken under the registry lock and include every job, in any state,
-        # so a publication racing this one is kept. Retirement is best effort: a store that
-        # refuses it reports its own typed failure through this job's execution.
-        try:
-            job.runtime.reconstruction_store.retire_unreferenced(
-                keep_transaction_ids=live_reconstructions,
-                completed_before_ms=snapshot_ms,
-            )
-        except AVStoreError:
-            pass
+        self._assembly_execution.retire_reconstructions(
+            runtime=job.runtime,
+            live_transaction_ids=live_reconstructions,
+            snapshot_ms=snapshot_ms,
+        )
         transaction_id = "m26tx_" + job.job_id.removeprefix("m26job_")
         try:
-            execution = execute_m26_production_assembly(
+            execution = self._assembly_execution.execute(
                 runtime=job.runtime,
                 transaction_id=transaction_id,
                 authorization=job.authorization,
                 automatic_plan=job.automatic_plan,
                 generation_sequence=job.generation_sequence,
                 artifact_receipts=job.artifact_receipts,
-                cut_boundary_receipts=job.automatic_plan.cut_boundary_receipts,
                 clock_ms=self._clock_ms,
                 cancellation=job.cancellation,
+                execute_factory=lambda **kwargs: execute_m26_production_assembly(**kwargs),
             )
         except M26ProductionAssemblyError as exc:
             self._fail_assembly_job(
@@ -4750,41 +4740,27 @@ class ProductionWorkspaceRegistry:
             return
 
         with self._lock:
+            # IMPORTANT: snapshot after execution; capturing earlier falsely rejects a valid
+            # equal-value authority replacement as stale. Services never commit publication.
             original_authorities = entry.accepted_authorities
             original_previews = entry.preview_sources
             workspace = entry.workspace
         authorities = replace(original_authorities, assembly_execution=execution)
         try:
             _validate_accepted_authorities(workspace, authorities)
-            preview_sources = dict(original_previews)
-            aggregate_output = next(
-                output
-                for output in execution.reconstruction_receipt.outputs
-                if output.kind is AVOutputKind.RECONSTRUCTION_FULL
+            retained_previews = prepare_assembly_previews(
+                execution=execution,
+                runtime=job.runtime,
+                original_previews=original_previews,
+                opaque_handle=lambda handle: _opaque_output_handle(handle),
+                source_factory=lambda **kwargs: build_media_preview_source_authority(**kwargs),
+                route_refusal=lambda: ProductionWorkbenchError("assembly_preview_unavailable", 422),
+                clock=self._clock,
+                admission_seconds=PRODUCTION_GENERATED_PREVIEW_ADMISSION_SECONDS,
+                max_source_bytes=MAX_MEDIA_PREVIEW_SOURCE_BYTES,
+                max_duration_ms=MAX_MEDIA_PREVIEW_DURATION_MS,
+                cancellation=job.cancellation,
             )
-            # IMPORTANT: the frozen preview size/duration bounds do not limit assembly. Only
-            # these validated receipt bounds permit ready-without-preview; integrity failures do
-            # not. Prepare eligible authority outside registry locks before exposing success.
-            if (
-                aggregate_output.byte_length <= MAX_MEDIA_PREVIEW_SOURCE_BYTES
-                and aggregate_output.duration.fraction * 1000 <= MAX_MEDIA_PREVIEW_DURATION_MS
-            ):
-                from .comfyui_media_preview import ensure_media_preview_route_registered
-
-                if not ensure_media_preview_route_registered():
-                    raise ProductionWorkbenchError("assembly_preview_unavailable", 422)
-                aggregate_handle = _opaque_output_handle(aggregate_output.handle)
-                preview_sources[aggregate_handle] = build_media_preview_source_authority(
-                    plan=execution.embedded_plan,
-                    receipt=execution.reconstruction_receipt,
-                    store=job.runtime.reconstruction_store,
-                    adapter=job.runtime.low_level_adapter,
-                    opaque_output_handle=aggregate_handle,
-                    deadline=self._clock() + PRODUCTION_GENERATED_PREVIEW_ADMISSION_SECONDS,
-                    cancellation=job.cancellation,
-                    clock=self._clock,
-                )
-            retained_previews = MappingProxyType(preview_sources)
             _preview_sources_wire_bytes(retained_previews)
         except Exception:
             self._fail_assembly_job(
@@ -4886,19 +4862,12 @@ class ProductionWorkspaceRegistry:
             self._run_assembly_job(handle, entry, job)
 
         try:
-            if self._assembly_submitter is not None:
-                self._assembly_submitter(callback)
-                return
-            with self._lock:
-                if self._assembly_executor is None:
-                    # IMPORTANT: the executor is allocated only after exact authorization. Missing
-                    # media runtime therefore creates no thread, worker, output or temporary file.
-                    self._assembly_executor = ThreadPoolExecutor(
-                        max_workers=1,
-                        thread_name_prefix="h3-m26-assembly",
-                    )
-                executor = self._assembly_executor
-            executor.submit(callback)
+            self._assembly_execution.submit(
+                callback,
+                submitter=self._assembly_submitter,
+                allocation_lock=self._lock,
+                executor_factory=ThreadPoolExecutor,
+            )
         except Exception:
             self._fail_assembly_job(handle, entry, job, "assembly_worker_unavailable")
 

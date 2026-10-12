@@ -1,4 +1,4 @@
-"""M25-21: audit the candidate's dependency inventory against the accepted checkpoint.
+"""audit the candidate's dependency inventory against the accepted checkpoint.
 
 The hardening report accepts a dependency audit only when every entry it lists is ``unchanged``.
 This script produces that audit from what already exists rather than from a second inventory: the
@@ -9,7 +9,7 @@ read-only Git, so an added, removed or version-changed dependency is reported as
 disappearing into a regenerated file.
 
 The audit asserts nothing about what the tree *should* contain: it reports what changed. The plan's
-acceptance criterion is that M25-21 changes no dependency, so a non-``unchanged`` disposition is a
+acceptance criterion is that changes no dependency, so a non-``unchanged`` disposition is a
 finding for the record, never something this script may smooth over.
 
 Run with ``--baseline <git ref>`` (the accepted checkpoint) and ``--out <path>``.

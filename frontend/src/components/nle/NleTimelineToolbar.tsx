@@ -1,5 +1,7 @@
 import {
   useEffect,
+  useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type FocusEvent as ReactFocusEvent,
@@ -56,7 +58,7 @@ const CONTROL_ORDER = [
 ] as const;
 
 /**
- * M25-62: the shortcuts `resolveTimelineShortcut` (nleTimelineTools.ts) already owns, as shown in
+ * the shortcuts `resolveTimelineShortcut` (nleTimelineTools.ts) already owns, as shown in
  * a tooltip and in `aria-keyshortcuts` syntax. Snap, ripple and More have none.
  */
 const SHORTCUTS = {
@@ -92,6 +94,55 @@ export function NleTimelineToolbar({
   const toolbarRef = useRef<HTMLDivElement>(null);
   const rovingControl = useRef<string>(CONTROL_ORDER[0]);
   const [overflowOpen, setOverflowOpen] = useState(false);
+  // IMPORTANT: the icon actions are memoized, and these delegates never change identity, so an
+  // action whose label, state and description are unchanged skips an edit's renders. They run the
+  // handlers published after the latest commit: an action must never dispatch through the tool
+  // owner or zoom bounds of an aborted render, nor through the ones it was first rendered with.
+  const onRebase = () => {
+    // IMPORTANT: pending hides the conflict banner immediately. Move focus to the
+    // stable roving toolbar first or activating Rebase strands keyboard focus on body.
+    focusControl(rovingControl.current);
+    onTool("rebase");
+  };
+  const committedActions = useRef({
+    onTool,
+    onToggleRipple,
+    onToggleSnap,
+    onZoomOut,
+    onZoomIn,
+    onZoomFit,
+    onRebase,
+  });
+  useLayoutEffect(() => {
+    committedActions.current = {
+      onTool,
+      onToggleRipple,
+      onToggleSnap,
+      onZoomOut,
+      onZoomIn,
+      onZoomFit,
+      onRebase,
+    };
+  });
+  const actions = useMemo(() => {
+    const tool = (name: ToolbarTool) => () =>
+      committedActions.current.onTool(name);
+    return {
+      undo: tool("undo"),
+      redo: tool("redo"),
+      split: tool("split"),
+      trim_start: tool("trim_start"),
+      trim_end: tool("trim_end"),
+      delete: tool("delete"),
+      toggleSnap: () => committedActions.current.onToggleSnap(),
+      toggleRipple: () => committedActions.current.onToggleRipple(),
+      zoomOut: () => committedActions.current.onZoomOut(),
+      zoomIn: () => committedActions.current.onZoomIn(),
+      zoomFit: () => committedActions.current.onZoomFit(),
+      toggleOverflow: () => setOverflowOpen((open) => !open),
+      rebase: () => committedActions.current.onRebase(),
+    };
+  }, []);
 
   const setRovingControl = (control: string) => {
     if (rovingControl.current === control) return;
@@ -202,7 +253,7 @@ export function NleTimelineToolbar({
         focusableWhenDisabled
         toolbarItem
         tabIndex={rovingControl.current === input.control ? 0 : -1}
-        onActivate={() => onTool(tool)}
+        onActivate={actions[tool]}
       />
     );
   };
@@ -281,7 +332,7 @@ export function NleTimelineToolbar({
             pressed={snapEnabled}
             toolbarItem
             tabIndex={rovingControl.current === "transport.snap" ? 0 : -1}
-            onActivate={onToggleSnap}
+            onActivate={actions.toggleSnap}
           />
           <NleIconButton
             icon="ripple"
@@ -293,7 +344,7 @@ export function NleTimelineToolbar({
             pressed={rippleEnabled}
             toolbarItem
             tabIndex={rovingControl.current === "transport.ripple" ? 0 : -1}
-            onActivate={onToggleRipple}
+            onActivate={actions.toggleRipple}
           />
           <NleIconButton
             icon="zoomOut"
@@ -307,7 +358,7 @@ export function NleTimelineToolbar({
             focusableWhenDisabled
             toolbarItem
             tabIndex={rovingControl.current === "transport.zoom_out" ? 0 : -1}
-            onActivate={onZoomOut}
+            onActivate={actions.zoomOut}
           />
           <input
             type="range"
@@ -333,7 +384,7 @@ export function NleTimelineToolbar({
             focusableWhenDisabled
             toolbarItem
             tabIndex={rovingControl.current === "transport.zoom_in" ? 0 : -1}
-            onActivate={onZoomIn}
+            onActivate={actions.zoomIn}
           />
           <NleIconButton
             icon="fit"
@@ -345,7 +396,7 @@ export function NleTimelineToolbar({
             disabled={false}
             toolbarItem
             tabIndex={rovingControl.current === "transport.zoom_fit" ? 0 : -1}
-            onActivate={onZoomFit}
+            onActivate={actions.zoomFit}
           />
           <NleIconButton
             icon="more"
@@ -359,7 +410,7 @@ export function NleTimelineToolbar({
             hasPopup="menu"
             toolbarItem
             tabIndex={rovingControl.current === "toolbar.more" ? 0 : -1}
-            onActivate={() => setOverflowOpen((open) => !open)}
+            onActivate={actions.toggleOverflow}
           />
         </NleIconGroup>
         <output aria-live="off">{zoom.status}</output>
@@ -397,12 +448,7 @@ export function NleTimelineToolbar({
             control="conflict.rebase"
             disabled={!decisions.rebase.enabled}
             focusableWhenDisabled
-            onActivate={() => {
-              // IMPORTANT: pending hides the conflict banner immediately. Move focus to the
-              // stable roving toolbar first or activating Rebase strands keyboard focus on body.
-              focusControl(rovingControl.current);
-              onTool("rebase");
-            }}
+            onActivate={actions.rebase}
           />
         </NleIconGroup>
       </div>

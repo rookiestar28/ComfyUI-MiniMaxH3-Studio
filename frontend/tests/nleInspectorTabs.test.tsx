@@ -24,6 +24,208 @@ import {
 
 afterEach(() => cleanup());
 
+describe("complete title decoration edits", () => {
+  const field = (name: string) =>
+    screen.getByRole("spinbutton", { name }) as HTMLInputElement;
+  function decorated() {
+    const snapshot = structuredClone(snapshotFixture(SMOKE_SHAPE, 11));
+    const text = snapshot.clips.find((clip) => clip.clipId === "clip-3")!.text!;
+    Object.assign(text, {
+      stroke: { rgba: [1, 2, 3, 128], widthPx: 2 },
+      shadow: { rgba: [4, 5, 6, 128], offsetXPx: 0, offsetYPx: 0 },
+      backgroundRgba: [9, 8, 7, 128],
+      backgroundPaddingPx: 4,
+    });
+    return snapshot;
+  }
+  it.each(["stroke", "shadow", "background"] as const)(
+    "resets only the %s group",
+    async (kind) => {
+      const { onIntent } = subject("clip-3", undefined, undefined, decorated());
+      fireEvent.click(screen.getByRole("tab", { name: /^Text$/ }));
+      fireEvent.click(screen.getByRole("button", { name: `Reset ${kind}` }));
+      await waitFor(() => expect(onIntent).toHaveBeenCalledTimes(1));
+      const style = (
+        onIntent.mock.calls[0] as unknown as [
+          { commands: { payload: { style: Record<string, unknown> } }[] },
+        ]
+      )[0].commands[0]!.payload.style;
+      if (kind === "background") {
+        expect(style.background_rgba).toBeNull();
+        expect(style).not.toHaveProperty("background_padding_px");
+      } else {
+        expect(style).not.toHaveProperty(kind);
+        expect(style.background_padding_px).toBe(4);
+      }
+      if (kind !== "stroke")
+        expect(style.stroke).toEqual({ rgba: [1, 2, 3, 128], width_px: 2 });
+      if (kind !== "shadow")
+        expect(style.shadow).toEqual({
+          rgba: [4, 5, 6, 128],
+          offset_x_px: 0,
+          offset_y_px: 0,
+        });
+      expect(style.size_px).toBe(48);
+    },
+  );
+  it("changes RGB without losing alpha, and submits extra controls in one complete command", async () => {
+    const { onIntent } = subject("clip-3", undefined, undefined, decorated());
+    fireEvent.click(screen.getByRole("tab", { name: /^Text$/ }));
+    fireEvent.change(screen.getByLabelText("Stroke Colour"), {
+      target: { value: "#112233" },
+    });
+    fireEvent.click(screen.getByRole("checkbox", { name: "Italic" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "Text alignment" }), {
+      target: { value: "right" },
+    });
+    fireEvent.change(field("Line height (%)"), { target: { value: "180" } });
+    fireEvent.change(field("Fill opacity (0–255)"), {
+      target: { value: "128" },
+    });
+    fireEvent.keyDown(field("Fill opacity (0–255)"), { key: "Enter" });
+    await waitFor(() => expect(onIntent).toHaveBeenCalledTimes(1));
+    const style = (
+      onIntent.mock.calls[0] as unknown as [
+        { commands: { payload: { style: Record<string, unknown> } }[] },
+      ]
+    )[0].commands[0]!.payload.style;
+    expect(style).toMatchObject({
+      style: "italic",
+      align: "right",
+      line_height_bp: 18000,
+      fill_rgba: [255, 255, 255, 128],
+      stroke: { rgba: [17, 34, 51, 128], width_px: 2 },
+      shadow: { rgba: [4, 5, 6, 128], offset_x_px: 0, offset_y_px: 0 },
+      background_padding_px: 4,
+    });
+  });
+  it("retains a decorated style draft across an inspector remount", () => {
+    const snapshot = structuredClone(snapshotFixture(SMOKE_SHAPE, 11));
+    const title = snapshot.clips.find((clip) => clip.clipId === "clip-3")!;
+    Object.assign(title.text!, {
+      stroke: { rgba: [1, 2, 3, 128], widthPx: 2 },
+      shadow: { rgba: [4, 5, 6, 128], offsetXPx: 0, offsetYPx: 0 },
+    });
+    const { retention, onIntent } = subject(
+      "clip-3",
+      undefined,
+      undefined,
+      snapshot,
+    );
+    fireEvent.click(screen.getByRole("tab", { name: /^Text$/ }));
+    fireEvent.change(
+      screen.getByRole("spinbutton", { name: "Stroke width (px)" }),
+      { target: { value: "7" } },
+    );
+    cleanup();
+    subject("clip-3", onIntent, retention, snapshot);
+    expect(
+      (
+        screen.getByRole("spinbutton", {
+          name: "Stroke width (px)",
+        }) as HTMLInputElement
+      ).value,
+    ).toBe("7");
+    expect(onIntent).not.toHaveBeenCalled();
+  });
+  it("commits one complete style and resets only the selected decoration group", async () => {
+    const base = snapshotFixture(SMOKE_SHAPE, 11);
+    const snapshot = {
+      ...base,
+      clips: base.clips.map((clip) =>
+        clip.text === null
+          ? clip
+          : {
+              ...clip,
+              text: {
+                ...clip.text,
+                shadow: { rgba: [1, 2, 3, 128], offsetXPx: 0, offsetYPx: 0 },
+                backgroundRgba: [9, 8, 7, 128],
+                backgroundPaddingPx: 4,
+              },
+            },
+      ),
+    };
+    const { onIntent, view, retention } = subject(
+      "clip-3",
+      undefined,
+      undefined,
+      snapshot,
+    );
+    fireEvent.click(screen.getByRole("tab", { name: /^Text$/ }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Enable stroke" }));
+    const strokeGroup = screen.getByRole("region", { name: /^Stroke$/ });
+    fireEvent.change(
+      within(strokeGroup).getByRole("spinbutton", {
+        name: "Stroke width (px)",
+      }),
+      { target: { value: "7" } },
+    );
+    fireEvent.click(
+      strokeGroup.querySelector<HTMLButtonElement>(
+        '[data-h3-nle-control="text.stroke"]',
+      )!,
+    );
+    await waitFor(() => expect(onIntent).toHaveBeenCalledTimes(1));
+    const command = (
+      onIntent.mock.calls.at(0) as unknown as [
+        {
+          commands: {
+            kind: string;
+            payload: { style: Record<string, unknown> };
+          }[];
+        },
+      ]
+    )[0].commands[0]!;
+    expect(command.kind).toBe("set_text_style");
+    expect(command.payload.style).toMatchObject({
+      stroke: { width_px: 7 },
+      shadow: { rgba: [1, 2, 3, 128], offset_x_px: 0, offset_y_px: 0 },
+      background_padding_px: 4,
+    });
+    expect(command.payload.style).not.toHaveProperty("content");
+    // Model the accepted receipt before resetting; returning to an already-accepted
+    // identity must correctly send no command while the first edit is still only submitted.
+    const accepted = {
+      ...snapshotFixture(SMOKE_SHAPE, 12),
+      clips: snapshot.clips.map((clip) =>
+        clip.text === null
+          ? clip
+          : {
+              ...clip,
+              text: {
+                ...clip.text,
+                stroke: { rgba: [0, 0, 0, 255], widthPx: 7 },
+              },
+            },
+      ),
+    };
+    view.rerender(
+      <NleInspectorTabs
+        locale="en"
+        snapshot={accepted}
+        selection={["clip-3"]}
+        authoring={authoringReady(SMOKE_SHAPE, {
+          selection: ["clip-3"],
+          revision: 12,
+        })}
+        onIntent={onIntent}
+        retention={retention}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /^Reset stroke$/ }));
+    await waitFor(() => expect(onIntent).toHaveBeenCalledTimes(2));
+    const reset = (
+      onIntent.mock.calls.at(1) as unknown as [
+        { commands: { payload: { style: Record<string, unknown> } }[] },
+      ]
+    )[0].commands[0]!.payload.style;
+    expect(reset).not.toHaveProperty("stroke");
+    expect(reset.shadow).toEqual(command.payload.style.shadow);
+    expect(reset.background_padding_px).toBe(4);
+  });
+});
+
 function subject(
   clipId: string | null,
   onIntent = vi.fn(async () => undefined),
@@ -227,7 +429,7 @@ describe("M25-50 tabbed property inspector", () => {
         .getAttribute("aria-checked"),
     ).toBe("true");
     const scale = screen.getByRole("spinbutton", { name: "Scale (%)" });
-    // M25-64 (R10): 120 % is 12,000 bp on both axes.
+    //  (R10): 120 % is 12,000 bp on both axes.
     fireEvent.change(scale, { target: { value: "120" } });
     fireEvent.keyDown(scale, { key: "Enter" });
     fireEvent.blur(scale);
@@ -368,7 +570,7 @@ describe("M25-50 tabbed property inspector", () => {
     cleanup();
 
     subject(null);
-    // M25-64 (row #28): with no selection the inspector is Project settings and its hint.
+    //  (row #28): with no selection the inspector is Project settings and its hint.
     expect(
       screen.getByText(
         "Select a clip or a track on the timeline to edit its properties.",
@@ -558,7 +760,7 @@ describe("M25-50 tabbed property inspector", () => {
   });
 });
 
-// M25-64 (rows #28-#31, R10; A64-3 and A64-4): Project settings with no selection, a clip header
+//  (rows #28-#31, R10; A64-3 and A64-4): Project settings with no selection, a clip header
 // named like the timeline names the clip, and every bp, per-mille and millidegree field shown and
 // entered in % or degrees while the drafts and commands stay canonical integers.
 describe("M25-64 inspector", () => {

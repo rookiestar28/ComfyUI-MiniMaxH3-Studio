@@ -2,10 +2,10 @@ import { test, expect, type Page } from "@playwright/test";
 
 import type {} from "../../../e2e/nleService";
 
-// M25-16 Section 9 evidence layer 2: a causal browser-to-real-application-service path for the
+//  Section 9 evidence layer 2: a causal browser-to-real-application-service path for the
 // M26 planning integration. Every mutation below leaves this page as a real `fetch`, is proxied by
 // frontend/e2e/serviceLoopback.ts to the real running application service
-// (scripts/m25_16_service_loopback.py), and is answered by the accepted
+// (scripts/_service_loopback.py), and is answered by the accepted
 // `ProductionPlanningService` / `ManagedModeQualificationRegistry` code -- nothing here is an
 // injected fixture. `/prompt` stays refused throughout (see the loopback script), so this journey
 // never queues, and never reaches a provider or a model.
@@ -145,7 +145,7 @@ test("M25-16 causal browser-to-real-application-service planning journey", async
   const planningStatus = page.locator("[data-h3-nle-planning-status]");
   const proposalRegion = page.locator('[data-h3-nle-region="proposal"]');
   const planStatus = page.locator('[data-h3-nle-status="plan"]');
-  // M25-63: the editor's Sequence tab owns this flow's readiness request; Production's planning
+  // the editor's Sequence tab owns this flow's readiness request; Production's planning
   // section beside it shows the same state.
   const readinessChip = page.locator(
     '[data-h3-nle-region="sequence"] [data-h3-nle-status="readiness"]',

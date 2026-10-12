@@ -1,4 +1,4 @@
-"""M25-20 corrective: the RENDER + INDEPENDENT EXTRACTION stage.
+"""corrective: the RENDER + INDEPENDENT EXTRACTION stage.
 
 Turns every rendering row of the closed semantic conformance corpus into a real artifact through
 the accepted render path, then observes that artifact with the independent extractor in
@@ -7,7 +7,7 @@ planner, or the render graph to obtain an observed value -- ``observe_artifact``
 bytes with the pinned decoder, exactly as it does for every other caller.
 
 Scope: this script builds the composition, drives it through
-``AuthoringOutputRegistry.create -> status -> open_download`` (the accepted M25-19 transport,
+``AuthoringOutputRegistry.create -> status -> open_download`` (the accepted transport,
 which itself runs ``prepare_bound_render_plan -> acquire_render_job_sources ->
 prepare_render_assets -> run_prepared_render -> measure_render_output`` inside the product's
 render service and serves only a completely verified body), and then observes the artifact
@@ -24,7 +24,7 @@ Fixture identity: the accepted base composition reuses the exact clip/track/asse
 ``comfyui_h3_context.core.semantic_conformance_cases`` hardcodes (``clip-main``, ``vid-primary``,
 and so on), because ``apply_edits`` locates wire elements by those literal strings. The one
 wrinkle is the font: the corpus's own base fixture
-(``tests/fixtures/m25_10_composition_contract_v1.json``) uses a placeholder font asset id
+(``tests/fixtures/_composition_contract_v1.json``) uses a placeholder font asset id
 (``font-main``) that is never a real packaged font. This script leaves that placeholder in its own
 base wire untouched and instead relies on ``semantic_conformance_cases.normalize_base`` -- called
 once per row, inside ``apply_edits`` -- to rename it to the real packaged font id before any row is
@@ -868,7 +868,7 @@ class PhaseResult:
     observation: Mapping[str, Any] | None = None
     #: Honest label for how the observed bytes reached the independent extractor. `None` for a
     #: BLOCKED phase (nothing was retrieved). `VERIFIED_DOWNLOAD` for every OBSERVED phase: the
-    #: bytes were obtained through the accepted M25-19 transport -- `AuthoringOutputRegistry`'s
+    #: bytes were obtained through the accepted transport -- `AuthoringOutputRegistry`'s
     #: create / status / download path, the same registry, render service and native renderer
     #: `comfyui_authoring_output_runtime.build_authoring_output_runtime` assembles for the product
     #: -- and the download is the store's completely verified body (`RenderOutputStore.read_output`
@@ -879,7 +879,7 @@ class PhaseResult:
     #: GUARD: the workspace port the registry drives (`_CorpusOutputWorkspace`) serves the row's
     #: composition exactly as the corpus states it, and the corpus base carries a workspace handle
     #: minted the product's own way (`"authoring-" + secrets.token_hex(16)`, frozen once in
-    #: `tests/fixtures/m25_20_semantic_corpus_base_v1.json`) so that `require_output_workspace`
+    #: `tests/fixtures/_semantic_corpus_base_v1.json`) so that `require_output_workspace`
     #: and `_read_currency` admit it. Never rewrite that handle, or any other identity field, in
     #: this stage's own wire to satisfy the transport: `workspace_handle` is folded into
     #: `public_snapshot_fingerprint`, so a stage-local rewrite would silently move every row's
@@ -1053,7 +1053,7 @@ def _audio_owner_windows(wire: Mapping[str, Any]) -> list[dict[str, Any]]:
         start = int(clip["start_frame"])
         span = int(clip["duration_frames"])
         asset = assets_by_id[clip.get("asset_id")]
-        # Where the owner's source sample 0 lands on the output: the clip's start minus its
+        # Where the source sample 0 lands on the output: the clip's start minus its
         # source start frame's *time* (the landmark's pts, B-58), never its frame count times an
         # output frame -- the timing source's frames are not output frames long. This is also the
         # boundary the extractor measures a source-start burst's gap from (B-61).
@@ -1103,7 +1103,7 @@ class Prescription:
     reads: tuple[IdentityRead, ...]
     targets: tuple[GeometryTarget, ...]
     alpha_targets: tuple[dict[str, Any], ...]
-    #: M25-77: the windows whose audio level is measured (`audio_level_windows`), shaped for the
+    #: : the windows whose audio level is measured (`audio_level_windows`), shaped for the
     #: extractor. A window is named by its label, its first output sample and its length.
     level_windows: tuple[dict[str, Any], ...] = ()
 
@@ -1189,7 +1189,7 @@ def _companion_prescriptions(
 
 
 class _CorpusOutputWorkspace:
-    """The M25-19 `OutputWorkspace` port over exactly one corpus composition.
+    """The `OutputWorkspace` port over exactly one corpus composition.
 
     The registry reads the workspace's reference revision and its current timeline snapshot to
     decide whether a request is current, and asks the workspace to bind the render plan. Here the
@@ -1240,7 +1240,7 @@ def _retrieve_verified_output(
     snapshot: PublicCompositionSnapshot,
     control: Control,
 ) -> tuple[bytes, Mapping[str, Any]]:
-    """Render through the accepted M25-19 transport and return the verified body and its summary.
+    """Render through the accepted transport and return the verified body and its summary.
 
     Exactly the product's assembly (`build_authoring_output_runtime`): a `NativeAuthoringRenderer`
     on the pinned pair, an `AuthoringRenderService` on a `RenderOutputStore`, and an
@@ -1263,7 +1263,7 @@ def _retrieve_verified_output_via(
     """The transport above over any `OutputWorkspace` port.
 
     The corpus rows hand it `_CorpusOutputWorkspace`; the two import rows hand it the real
-    `AuthoringWorkspaceRegistry` that performed the M25-29 import, so the render plan binds the
+    `AuthoringWorkspaceRegistry` that performed the import, so the render plan binds the
     imported source through the product's own lease rather than through a corpus claim (B-65:
     the receipt -> asset -> render plan -> verified output chain has to be the product's).
     """
@@ -1494,7 +1494,7 @@ def _observe_import_composition(
 def run_import_row(runtime: RenderRuntime, recipe: CaseRecipe) -> dict[str, Any]:
     """One `import_integration` row: the real chain, then the final artifact observed (B-65).
 
-    Import through the real M25-29 service, insert the minted asset through the real history,
+    Import through the real service, insert the minted asset through the real history,
     render that composition through the accepted transport with the real registry binding the
     imported source, observe the artifact independently, then undo and redo through the real
     history. Every identity the chain minted is recorded so the join can hold the browser
@@ -1714,7 +1714,7 @@ def main(argv: list[str] | None = None) -> int:
                     # snapshots are built from. Rendering substitutes real bound assets into the
                     # fixture's own shape (see `_base_wire`), so this composition -- and every
                     # public fingerprint derived from it -- is not the one in
-                    # `tests/fixtures/m25_10_composition_contract_v1.json`. A join deriving a
+                    # `tests/fixtures/_composition_contract_v1.json`. A join deriving a
                     # row's expectation from that fixture, or from the other base's record, would
                     # be comparing an artifact against a composition it was never rendered from.
                     header = {

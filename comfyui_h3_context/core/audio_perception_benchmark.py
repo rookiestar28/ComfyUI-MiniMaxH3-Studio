@@ -1,4 +1,4 @@
-"""M12-01 source-clock audio extraction and normalization contracts.
+"""source-clock audio extraction and normalization contracts.
 
 Only redacted metadata and injected segment descriptors cross this seam.  Samples, decoders,
 ComfyUI audio nodes, Ollama, and specialist runtimes remain outside the pure core.
@@ -919,7 +919,7 @@ def _fixture(
 
 
 def build_default_audio_benchmark_plan() -> AudioBenchmarkPlan:
-    """Build the frozen M12-01 metadata-only benchmark."""
+    """Build the frozen metadata-only benchmark."""
 
     fixtures = (
         _fixture(

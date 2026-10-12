@@ -1,4 +1,4 @@
-"""M25-45: the preview-size rule is one contract on both sides of the hand-off.
+"""the preview-size rule is one contract on both sides of the hand-off.
 
 The browser decides the backing store it creates; the expectation mirror decides what a row's
 browser side is asked to observe. If the two drift, nothing fails loudly: the mirror simply

@@ -1,3 +1,72 @@
+# Release 1.2.0
+
+## Titles and editing
+
+- Add strokes, sharp shadows and background padding to titles. Enable or reset
+  each decoration separately while preserving the other text settings.
+- Preserve literal line breaks, including blank and trailing lines, in both the
+  browser preview and native rendering. Text alignment places individual lines
+  inside the title canvas; clip alignment places the whole canvas.
+- Save accepted decoration settings in project files and acknowledged draft
+  recovery, with the existing undo/redo behavior.
+- Rename the ripple toggle to **Ripple edits**. Trims and ripple deletes keep
+  their existing edited-track scope, including supported overlay tracks.
+- Separate timeline viewport, gestures, transport and presentation responsibilities
+  while preserving the existing editor commands and interactions.
+- Reuse unchanged clip controls while keeping clip identities and action handlers
+  synchronized with the current editor state.
+
+- Reduce repeated redraws of unchanged timeline, monitor and media controls during
+  edits. Keep seeking and toolbar actions synchronized with the current editor state.
+
+## Optional local perception
+
+- Configure the existing qualified visual or audio profile through an
+  operator-owned startup file, or keep using the existing programmatic host
+  registration. Configuration is separate from assisted-authoring provider settings.
+- Inspect finite local-perception readiness in Settings. The status read does not
+  launch a model, edit host paths or install dependencies.
+- Queue the full-reference visual timeline when a qualified connected visual result,
+  the configured local profile and explicit user consent are available. The resulting
+  timeline remains partial.
+- Finish owned process termination before cleaning its temporary files, preserving
+  cancellation and cleanup failures.
+
+## Developer tools and distributions
+
+- Strengthen Windows validation, subprocess accounting and CI admission while
+  preserving complete test identities and native result reporting.
+- Provide independently stated native-behavior oracles and explicit catalogue gaps.
+- Check declared public Python interfaces against the released baseline with the
+  static consumer compatibility tool.
+- Separate Production assembly execution and media-use responsibilities without
+  changing public generation or persistence contracts.
+- Refresh generated contracts, inventories, fingerprints and provenance from their
+  actual inputs, with a clean fixed point and explicit failure reporting.
+- Keep public source distributions complete for developers, including tests and
+  support inputs, while omitting private maintainer material. Preserve executable
+  source semantics through public comment/docstring redaction and audit the actual
+  source, wheel and Registry archives.
+
+## Upgrade and limits
+
+Replace the complete package, restart ComfyUI and refresh the browser. Save editable
+projects and preserve media separately before updating.
+
+Project format version 1 remains in use. Existing 1.1.0 project documents remain
+readable. A project using the new optional title decoration members requires the
+current reader; 1.1.0 readers refuse those members rather than silently discarding
+them. Project files do not embed media or restore execution permissions.
+
+The prompt pipeline supports Windows, Linux and WSL. Local perception execution
+in this release supports only its qualified native Windows setup. The editor,
+Production import, assembly, native rendering and durable recovery retain their
+existing Windows and trusted-local-host requirements. This release does not extend
+those features to Linux or WSL. Models and dependencies are never downloaded or
+installed automatically; provider permission and costs remain under user control.
+
+---
+
 # Release 1.1.0
 
 This release collects the completed improvements since 1.0.0, including the assisted-authoring

@@ -181,40 +181,42 @@ class ToolingContractTests(unittest.TestCase):
         current_backend_revision = "8cfe5e1ecb-97512dea8d-eaac15e122-8d7e6feeb1".replace("-", "")
         frontend_revision = "6d6af63c00-f132cd25dc-29307fc56b-d2c094fa22".replace("-", "")
         native_blob = "0b1840e851-c248f89e99-20159c3c82-37fa2e7186".replace("-", "")
-        # M18-05's rollback target: the accepted M18-04 checkpoint, whose tree still contains every
+        # 's rollback target: the accepted checkpoint, whose tree still contains every
         # schema that item retired. A 40-character object name reads as high-entropy hex, but it is
         # the opposite of a secret -- it is a public commit in this repository's own history, and
         # the retirement record is useless without it. Written split for the same reason the three
         # revisions above are: so this file holds no bare high-entropy literal of its own.
-        rollback_commit = "aea047c471-e3cc87654f-c67e64c6b9-db6f216cfd".replace("-", "")
-        # M18-06's closeout matrix names the chain's first and last accepted checkpoints as the
+        # CRITICAL: pin the reviewed clean recovery checkpoint independently.
+        # Learning approvals from artifacts or scanner output admits unreviewed rows.
+        rollback_commit = "15db3061b5-d1c386db46-551196a6d1-64f114baff".replace("-", "")
+        # 's closeout matrix names the chain's first and last accepted checkpoints as the
         # commits its baseline and final numbers were read from. Same reasoning as the rollback
         # target above: public object names in this repository's own history, useless to redact,
         # and split here so this file still holds no bare high-entropy literal.
-        chain_first = "add8a535bc-a3769a9129-1fb31012b7-447e1682b8".replace("-", "")
-        chain_last = "48c0bcb232-65827f77be-59b334d27e-ffe9199844".replace("-", "")
-        # M19-06's closeout matrix reads each of its nineteen rows out of the artifact the
+        chain_first = "4e37835265-6d55fd9a9b-37ae561ab7-7d5a46b0a2".replace("-", "")
+        chain_last = "b7d276045f-74b0d3f4c5-23f8257d4a-e06fb12bd6".replace("-", "")
+        # 's closeout matrix reads each of its nineteen rows out of the artifact the
         # checkpoint itself committed, so it has to name all five M19 checkpoints rather than only
         # the first and last. Same reasoning as every commit id above -- public object names in this
         # repository's own history, useless to redact, and split so this file holds no bare literal.
-        m19_01 = "2fea0df902-5e639e4b2c-6bf66ba65d-081eee0d4e".replace("-", "")
-        m19_02 = "f3742ae66c-9c64b27a8f-8d466c8a18-09c90353af".replace("-", "")
-        m19_03 = "e0d897915f-a6c4f9dadd-18854f204d-2031c2afbd".replace("-", "")
-        m19_04 = "9da959fc6d-e7d27ba1d2-89c74b64a4-f45832fa5a".replace("-", "")
-        m19_05 = "ab4c3cc0c1-e149509ac2-d821fa4533-664273a2b7".replace("-", "")
-        # M22-15's reduced live qualification evidence binds the exact pre-promotion Git commit
+        m19_01 = "210da75e45-b53b1285af-7c530fde30-7b3a12dd01".replace("-", "")
+        m19_02 = "02efed8839-b2ac16d196-056d89368c-9e03fa53a3".replace("-", "")
+        m19_03 = "68f6bdfdbf-4fa818991e-e2edccabfb-2fe6f9f66c".replace("-", "")
+        m19_04 = "93a374c5ff-9cb5b79db9-393c80665b-397bd863cf".replace("-", "")
+        m19_05 = "fe0fae3718-0d14fbae8f-732ad3a155-2f6d9d18f4".replace("-", "")
+        # 's reduced live qualification evidence binds the exact pre-promotion Git commit
         # and tree. They are public repository object names, not credentials; the JSON catalog
         # cannot carry an inline scanner allowlist, so these are its only two approved findings.
         m22_15_commit = "bf67ff1ad1-e454452ec1-da912a3b20-026cd14c72".replace("-", "")
         m22_15_tree = "90d9bea824-934221df1a-0ece97d2e1-5d670df56f".replace("-", "")
-        # M22-18 promoted the OpenAI row on a reachability basis, and its evidence binds the same
+        #  promoted the OpenAI row on a reachability basis, and its evidence binds the same
         # two object names for its own candidate. Same reasoning, same file, one entry each.
         m22_18_commit = "cc88820a89-68b34e074d-1b6e9f27e5-746834cc38".replace("-", "")
         m22_18_tree = "1f938ca4d1-ecd39711af-226bede26a-6b7f1cabb9".replace("-", "")
-        # M22-21 promoted the Gemini row on a completion basis and binds its own candidate.
+        #  promoted the Gemini row on a completion basis and binds its own candidate.
         m22_21_commit = "32bfa79a77-ed43fc5bce-fa0fce664e-cc2ced2284".replace("-", "")
         m22_21_tree = "8c2f9a9a2a-ebcdda83bc-f2a44f5336-98bb5c975c".replace("-", "")
-        # M23-24's generated provenance record binds the public source commit and tree used for
+        # 's generated provenance record binds the public source commit and tree used for
         # the deterministic frontend build. The generated JSON cannot carry inline allowlisting.
         # CRITICAL: read these from the record rather than pinning the literals. Pinned literals
         # made a correct revision refresh turn this test red, so the record's base could only stay
@@ -304,7 +306,7 @@ class ToolingContractTests(unittest.TestCase):
                 )
             ),
         }
-        # CRITICAL: one place that knows what each approved row is *for*. Before M23-49 these
+        # CRITICAL: one place that knows what each approved row is *for*. Before these
         # literals were named once, hashed, and never referred to again, so nothing in this test --
         # or anywhere else -- could tell that a row had gone inert. Seven had, across four files,
         # from `5978836` onward. Keep `public_hashes` derived from this mapping rather than written
@@ -358,10 +360,10 @@ class ToolingContractTests(unittest.TestCase):
             # removed only when the literal it approves has genuinely left the tree, and the
             # removal belongs in the same commit as the baseline edit -- that pairing is the whole
             # audit trail. Never regenerate the baseline to make this census pass: a regenerated
-            # baseline is a different document that nobody approved, and M23-51 tried exactly that
+            # baseline is a different document that nobody approved, and tried exactly that
             # and was caught here.
             #
-            # M23-49 removed seven rows across four files. `5978836` made hosts capability-admitted
+            #  removed seven rows across four files. `5978836` made hosts capability-admitted
             # instead of revision-pinned, so those four stopped carrying any 40-character hex
             # literal at all and their rows could never match again. Verified by scanning each file
             # for the three approved literals rather than by trusting the scanner's own output.
@@ -396,7 +398,7 @@ class ToolingContractTests(unittest.TestCase):
             # generated JSON contract has nowhere to put a comment.
             "rollback_commit": (
                 "governance/contracts/retirement_eligibility_v1.json",
-                # M18-06's matrix reads this checkpoint's manifest metrics.
+                # 's matrix reads this checkpoint's manifest metrics.
                 "governance/contracts/closeout_matrix_v1.json",
             ),
             "chain_first": ("governance/contracts/closeout_matrix_v1.json",),
@@ -465,6 +467,32 @@ class ToolingContractTests(unittest.TestCase):
         )
         fixture_match = "ad8649af30-91cf8af0f2-c679b92a47-b82287b425".replace("-", "")
         expected[(fixture_path, "AWS Access Key", fixture_match)] = 1
+        self.assertEqual(sum(expected.values()), 59)
+        # CRITICAL: approve public hex values only inside independently pinned complete inputs.
+        # Learning this census from scanner output or unpinned files would admit new credentials.
+        public_hash_inputs = {
+            "governance/contracts/host_line_hashes_v1.json": (
+                "f372203af7-7f4662fceb-ad7b96f7c5-058f5200a1-b6dd0b3165-204edd55ff-52bc",
+                1917,
+            ),
+            "governance/contracts/native_behaviour_catalogue_v1.json": (
+                "7182c279a9-b1d8acfaf1-8afc67bdcd-b51ad31b95-1e39002f04-b59a035810-13a4",
+                3,
+            ),
+            "tests/fixtures/official_template_facts_v1.json": (
+                "03ce09e46f-856ec07d16-4d67938ff2-1f4a17fcab-95b63043af-4af2365e6b-2eb7",
+                4,
+            ),
+        }
+        for path, (digest, count) in public_hash_inputs.items():
+            input_bytes = (ROOT / path).read_bytes()
+            self.assertEqual(hashlib.sha256(input_bytes).hexdigest(), digest.replace("-", ""))
+            literals = set(re.findall(rb'"([a-f0-9]{40}|[a-f0-9]{64})"', input_bytes))
+            self.assertEqual(len(literals), count)
+            for literal in literals:
+                match_hash = hashlib.sha1(literal, usedforsecurity=False).hexdigest()
+                expected[(path, "Hex High Entropy String", match_hash)] = 1
+        self.assertEqual(sum(expected.values()), 1983)
         observed: Counter[tuple[str, str, str]] = Counter()
         for path, findings in baseline.get("results", {}).items():
             normalized_path = path.replace("\\", "/")
@@ -475,7 +503,7 @@ class ToolingContractTests(unittest.TestCase):
                 observed[
                     (normalized_path, finding.get("type", ""), finding.get("hashed_secret", ""))
                 ] += 1
-        self.assertEqual(sum(observed.values()), 59)
+        self.assertEqual(sum(observed.values()), 1983)
         self.assertEqual(observed, expected)
 
     def test_hosted_ci_uses_separate_public_lanes(self) -> None:
@@ -528,7 +556,13 @@ class ToolingContractTests(unittest.TestCase):
             {".venv/bin/python", ".venv/Scripts/python.exe"},
         )
         commands = [step.get("run", "") for step in browser["steps"]]
-        self.assertIn("${{ matrix.python }} scripts/browser_ci.py", commands)
+        # IMPORTANT: require the finite failure-evidence directory with the public driver;
+        # omitting it loses the workflow's sanitized diagnostics while the browser still passes.
+        self.assertIn(
+            "${{ matrix.python }} scripts/browser_ci.py "
+            "--evidence-dir frontend/test-results/browser-ci",
+            commands,
+        )
         self.assertFalse(any("playwright.host.config.ts" in command for command in commands))
         for subject in (windows, linux):
             self.assertIn("browser-smoke", subject)
@@ -537,7 +571,7 @@ class ToolingContractTests(unittest.TestCase):
         self.assertNotIn("RunHermeticE2E", windows)
 
     def test_every_hermetic_journey_is_collected_by_a_playwright_config(self) -> None:
-        # M25-63: the hermetic configs list their journeys one by one, so a new spec that no config
+        # the hermetic configs list their journeys one by one, so a new spec that no config
         # names is silently never run, even when passed on the command line. Every top-level
         # journey must be named by a config, except the pinned explicit-opt-in qualifications.
         frontend = ROOT / "frontend"

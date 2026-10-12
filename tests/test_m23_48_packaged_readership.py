@@ -1,11 +1,11 @@
-"""M23-48: every packaged artifact has an exact disposition, decided by who reads it.
+"""every packaged artifact has an exact disposition, decided by who reads it.
 
 The governance-only set can only be moved once it is known which files are not governance-only, and
 the question has one specific way of going wrong. `host_seam_census_v1.json` reads like a governance
 record -- a census, hand-maintained, no generator, no `--write` -- and a module under
 `frontend/src/host/` imports it, so the bundle compiles it in. "Generated versus hand-maintained"
 misclassifies it, "record versus contract" misclassifies it, and so does any rule about its name.
-M23-47 spent a gate run finding that out.
+ spent a gate run finding that out.
 
 So these tests assert the property that survives a refactor: the class comes from the readers, the
 coverage is total, and no file is left without a disposition.
@@ -25,7 +25,7 @@ from scripts import packaged_artifact_readership as readership
 REPO_ROOT = Path(__file__).resolve().parents[1]
 ARTIFACT = REPO_ROOT / readership.ARTIFACT_PATH
 
-#: Measured in M23-48's reconnaissance and reproduced by the scan. Pinned because these are the
+#: Measured in 's reconnaissance and reproduced by the scan. Pinned because these are the
 #: files a move must not touch, and a silent change to either set is the failure that matters.
 FRONTEND_SOURCE_READ = frozenset(
     {
@@ -37,7 +37,7 @@ FRONTEND_SOURCE_READ = frozenset(
 )
 RUNTIME_READ = frozenset(
     {
-        "comfyui_h3_context/contracts/authoring_renderer_qualification_v1.json",
+        "comfyui_h3_context/contracts/authoring_renderer_qualification_v2.json",
         "comfyui_h3_context/contracts/build_provenance_v1.json",
         "comfyui_h3_context/contracts/contract_inventory_v1.json",
         "comfyui_h3_context/contracts/installation_profiles_v1.json",
@@ -82,7 +82,7 @@ class TheCoverageIsTotalTests(unittest.TestCase):
 
     def test_private_schemas_are_included_rather_than_skipped(self) -> None:
         # The scan takes every `*.json`, and a `.schema.json` is not a different kind of file to
-        # it. Until M23-55 this was asserted by counting the sixty-odd packaged schemas; all of
+        # it. Until this was asserted by counting the sixty-odd packaged schemas; all of
         # them turned out to have no reader inside the shipped product and moved to
         # `governance/contracts/`, so the packaged root now holds none and a count would assert
         # that the relocation had failed. The discriminating fact is proven directly instead.
@@ -243,7 +243,7 @@ class TheClassComesFromTheReadersTests(unittest.TestCase):
         # Neither "retain" nor "move" is honest for a file with no reader, so these get their own
         # class and a disposition that names the referral instead of being swept into the move.
         #
-        # The rule is asserted rather than an instance of it. M23-55 relocated the three files that
+        # The rule is asserted rather than an instance of it. relocated the three files that
         # carried this class at the time, so the packaged directory now holds none -- and a test
         # that required one would have turned red for the relocation succeeding.
         self.assertIn("retirement", readership.DISPOSITIONS["no_reader"])
@@ -302,7 +302,7 @@ class TheArtifactIsRegeneratedNotEditedTests(unittest.TestCase):
             self.assertNotIn(marker, text)
 
     def test_the_record_is_no_longer_packaged_and_so_does_not_classify_itself(self) -> None:
-        # Until M23-55 it was a packaged JSON like any other and had to appear in its own rows.
+        # Until it was a packaged JSON like any other and had to appear in its own rows.
         # It has no reader inside the shipped product, so it moved out with the governance set, and
         # coverage of the packaged directory -- the property that mattered -- is unaffected:
         # `test_every_packaged_json_has_a_row` still compares the rows against that directory.

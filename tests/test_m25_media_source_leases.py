@@ -187,7 +187,7 @@ def test_geometry_metadata_is_capability_fenced_and_revoked_on_release() -> None
 def test_video_proxy_geometry_rejects_derivative_edge_above_profile_limit() -> None:
     body, facts = Claim().generate(0.0, None)
     try:
-        # M25-45 moved the proxy edge to 1280; the admission boundary refuses one pixel past it,
+        #  moved the proxy edge to 1280; the admission boundary refuses one pixel past it,
         # and accepts the edge itself, so the limit is proven rather than merely raised.
         replace(facts, geometry=MediaGeometry(1920, 1080, 1280, 720))
         with pytest.raises(MediaLeaseError, match="resource_limit"):

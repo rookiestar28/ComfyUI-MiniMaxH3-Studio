@@ -1,4 +1,4 @@
-"""M25-32: one in-process media runtime binding, activated on first use and refreshed in place.
+"""one in-process media runtime binding, activated on first use and refreshed in place.
 
 The rows use a fake resolver, adapter factory, publisher and consumers so every transition is
 deterministic; the native absent-to-ready row runs only with the exact pinned pair supplied.
@@ -757,7 +757,7 @@ def test_status_carries_features_and_no_locator(tmp_path: Path) -> None:
 
     status = setup.status()
 
-    # M25-33 bumped the wire to v3 (adds `recovery`); the feature projection is unchanged.
+    #  bumped the wire to v3 (adds `recovery`); the feature projection is unchanged.
     assert status["schema"] == STATUS_SCHEMA == "h3.context.media_runtime_status.v3"
     assert status["features"] == {
         feature: {"state": "ready", "reason": None} for feature in FEATURES

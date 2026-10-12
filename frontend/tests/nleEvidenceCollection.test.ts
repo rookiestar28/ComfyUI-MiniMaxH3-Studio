@@ -27,7 +27,7 @@ const manifest = JSON.parse(
   }[];
 };
 
-// M25-20's shell-invariant rows cite executable cases in the same `<file>::<name>` form, so they
+// 's shell-invariant rows cite executable cases in the same `<file>::<name>` form, so they
 // are resolved by the same collection rather than by a second, weaker check that only asks whether
 // the file exists.
 const conformance = JSON.parse(
@@ -128,7 +128,7 @@ it("resolves every evidence ID against the actual runners' expanded, non-skipped
   expect(unresolved).toEqual([]);
 }, 60_000);
 
-// M25-21: the hardening manifest names one collected test per row, dimension, subcase, seam and
+// the hardening manifest names one collected test per row, dimension, subcase, seam and
 // measurement. Its stress workloads live only in the hardening lane, so the ids are resolved
 // against that runner's own collection; a row that names a test no runner collects is a coverage
 // gap the report would otherwise only discover after a whole workload had run.

@@ -1,4 +1,4 @@
-"""M24-05 official H3 prompt-guide semantic conformance tests.
+"""official H3 prompt-guide semantic conformance tests.
 
 The pinned authority is MiniMax-AI/MiniMax-H3 at `d21241f0a4b3acbb34c97dae47fa417b7065e438`,
 canonical `skills/h3-prompt-writing/`. These tests encode the guide rules the repository actually
@@ -612,7 +612,7 @@ class ConformanceResultContractTests(unittest.TestCase):
 
 
 class WireMigrationTests(unittest.TestCase):
-    """AC-09: a graph persisted before M24-05 loads with the explicit unspecified defaults."""
+    """AC-09: a graph persisted before loads with the explicit unspecified defaults."""
 
     def test_audio_defaults_are_unspecified_and_timeline_scoped(self) -> None:
         audio = AudioIntent("audio_1", AudioLayer.AMBIENCE, "soft morning street ambience")

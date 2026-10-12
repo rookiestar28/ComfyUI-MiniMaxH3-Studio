@@ -1,4 +1,4 @@
-"""M17-15 bounded aggregate media-preview integration tests."""
+"""bounded aggregate media-preview integration tests."""
 
 from __future__ import annotations
 
@@ -357,7 +357,7 @@ def _segment_preview_receipt(
 def production_registry_slot() -> Iterator[Callable[[object], None]]:
     """Install a substitute process production authority for one test, and put it back after.
 
-    M23-47 moved construction into the composition root, so a substitute is installed there rather
+     moved construction into the composition root, so a substitute is installed there rather
     than assigned over a module global. The teardown restores the previous instance, or empties the
     slot when nothing had been built yet, so a test that installs a registry cannot leave it behind
     for the next one.

@@ -1,4 +1,4 @@
-import { sha256Text } from "./canonicalFingerprint";
+import { inertImmutable, sha256Text } from "./canonicalFingerprint";
 import {
   NLE_AUTHORING_PROFILE_ID,
   NLE_AUTHORING_SCHEMA,
@@ -779,8 +779,17 @@ function canonicalJson(value: unknown): string {
   return JSON.stringify(value);
 }
 
+// IMPORTANT: the shared manifest's deep-frozen assets reach four fingerprinting readers in one
+// commit; hash each once. Only an inert value (`inertImmutable`) is remembered, because the key is
+// the object's identity, not its content: a mutable or accessor-backed asset would keep its old hash.
+const fingerprintByAsset = new WeakMap<PublicRuntimeAsset, string>();
+
 export function canonicalPublicRuntimeAssetFingerprint(
   asset: PublicRuntimeAsset,
 ): string {
-  return sha256Text(canonicalJson(asset));
+  const known = fingerprintByAsset.get(asset);
+  if (known !== undefined) return known;
+  const fingerprint = sha256Text(canonicalJson(asset));
+  if (inertImmutable(asset)) fingerprintByAsset.set(asset, fingerprint);
+  return fingerprint;
 }

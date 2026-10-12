@@ -1,4 +1,4 @@
-"""M10-01 capability maturity and backend-owned binding manifest.
+"""capability maturity and backend-owned binding manifest.
 
 This module is a pure facade over the declarative node contracts. It never imports ComfyUI or a
 frontend runtime, mutates a host registry, selects a provider, or executes a model. The manifest is

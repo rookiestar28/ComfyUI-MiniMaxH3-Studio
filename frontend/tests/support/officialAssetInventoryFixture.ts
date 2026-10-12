@@ -5,8 +5,8 @@ import {
 import { syntheticTemplate, type Json } from "./templateFixture";
 
 /**
- * Official-asset inventory fixtures (M17-29), shared by the resolution rows and
- * the M23-37 host-registration rows: a host whose public node-definition
+ * Official-asset inventory fixtures, shared by the resolution rows and
+ * the host-registration rows: a host whose public node-definition
  * registry carries loader inventories, and a template whose loaders resolve
  * against it.
  */

@@ -1,11 +1,11 @@
-// M25-16 executable command matrix: every one of the 34 canonical M25-11 commands is driven
+//  executable command matrix: every one of the 34 canonical commands is driven
 // through its real overlay control against the real Python core (canonical harness), once by
 // keyboard activation and once into a stale-revision refusal. Recovery follows the accepted
 // contract: property edits rebase through the explicit rebase control; selection, geometry, track,
 // range and history commands are not retained by the workspace, so the accepted current state is
 // shown and only an explicit fresh command on that base proceeds. Nothing is replayed automatically. The
 // per-command visible effects live in `nleWorkspace.spec.ts`; the coverage manifest cites these
-// titles by operation id. The recipes themselves are shared with the M25-21 hardening journeys
+// titles by operation id. The recipes themselves are shared with the hardening journeys
 // (`helpers/nleCommandRecipes.ts`).
 
 import { test, expect, type Page } from "@playwright/test";

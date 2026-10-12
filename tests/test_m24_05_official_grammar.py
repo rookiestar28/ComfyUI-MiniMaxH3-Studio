@@ -1,4 +1,4 @@
-"""Independent M24-05 oracle for current Full retention grammar and legacy reading."""
+"""Independent oracle for current Full retention grammar and legacy reading."""
 
 from __future__ import annotations
 

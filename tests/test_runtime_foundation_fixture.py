@@ -1,4 +1,4 @@
-"""M10-08 offline runtime-foundation integration fixture tests."""
+"""offline runtime-foundation integration fixture tests."""
 
 from __future__ import annotations
 

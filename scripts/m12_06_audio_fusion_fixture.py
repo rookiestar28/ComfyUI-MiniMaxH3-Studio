@@ -1,4 +1,4 @@
-"""Offline M12-06 audio evidence fusion and calibration fixture.
+"""Offline audio evidence fusion and calibration fixture.
 
 Only redacted injected candidates are fused.  The fixture does not open media, launch a process,
 contact ComfyUI/Ollama, load a model, or claim executable audio quality.

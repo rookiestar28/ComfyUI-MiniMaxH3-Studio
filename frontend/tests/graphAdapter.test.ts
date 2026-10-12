@@ -1008,7 +1008,7 @@ describe("inspectVisibleH3Graph", () => {
     >;
     supportedNodes[0]!.showAdvanced = false;
     const requestWidgets = supportedNodes[0]!.widgets_values as unknown[];
-    // M17-25: the Request node carries exactly one optional scalar widget, the
+    // the Request node carries exactly one optional scalar widget, the
     // authored duration in seconds. Zero remains the host loader sentinel for an
     // unset optional widget, so it stays bindable; a value outside the accepted
     // authored range does not, and a fourth widget value is no longer a shape the

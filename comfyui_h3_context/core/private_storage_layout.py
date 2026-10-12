@@ -32,6 +32,20 @@ PRIVATE_STORAGE_SUBTREES = (
         "project-recovery", "editor_recovery", "durable", 640 * MIB, "global", True
     ),
 )
+
+
+@dataclass(frozen=True, slots=True)
+class PrivateStorageFile:
+    name: str
+    owner: str
+    lifetime: str
+    limit_bytes: int
+    limit_scope: str
+
+
+PRIVATE_STORAGE_FILES = (
+    PrivateStorageFile("perception_host.json", "perception_host", "durable", 16384, "per_file"),
+)
 RESERVED_DURABLE_BYTES = sum(
     row.limit_bytes or 0 for row in PRIVATE_STORAGE_SUBTREES if row.reserved
 )
@@ -45,6 +59,16 @@ def private_subtree_path(root: Path, name: str) -> Path:
         not isinstance(root, Path)
         or not root.is_absolute()
         or name not in {row.name for row in PRIVATE_STORAGE_SUBTREES}
+    ):
+        raise ValueError("private_storage_layout")
+    return root / name
+
+
+def private_file_path(root: Path, name: str) -> Path:
+    if (
+        not isinstance(root, Path)
+        or not root.is_absolute()
+        or name not in {row.name for row in PRIVATE_STORAGE_FILES}
     ):
         raise ValueError("private_storage_layout")
     return root / name

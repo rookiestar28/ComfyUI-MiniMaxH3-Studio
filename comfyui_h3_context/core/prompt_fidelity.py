@@ -113,7 +113,7 @@ _DIALOGUE_BLOCK = re.compile(r"<d>")
 _DIALOGUE_CONTENT = re.compile(r"<d>(.*?)</d>", re.DOTALL)
 _LANGUAGE_TAG = re.compile(r"\A\[([^\]\r\n]{0,160})\]")
 
-# This repository's own internal representation vocabulary. M21-02 introduces a producer of it; the
+# This repository's own internal representation vocabulary. introduces a producer of it; the
 # rule exists first so that producer cannot ship without a check already watching for leakage.
 _INTERNAL_VOCABULARY = (
     "contact sheet",
@@ -166,7 +166,7 @@ _MIN_ENGLISH_PROSE_WORDS = 20
 class PromptFidelityDiagnosticId(str, Enum):
     """The closed set of fidelity diagnostic identities.
 
-    `M21-03` asserts three-locale coverage against this enum rather than against a hand-maintained
+    `` asserts three-locale coverage against this enum rather than against a hand-maintained
     list, so a rule that emits an identity absent from here is a contract break, not a typo.
     """
 
@@ -186,7 +186,7 @@ class PromptFidelityDiagnosticId(str, Enum):
     INTERNAL_VOCABULARY_PRESENT = "fidelity.internal_vocabulary.present"
     CONSTRAINT_EXCLUDED_SOURCE_TRAIT = "fidelity.constraint.excluded_source_trait"
     CONSTRAINT_NEGATED_TECHNIQUE_USED = "fidelity.constraint.negated_technique_used"
-    # M24-05. These are guide-readiness findings: the prompt is a valid, runnable draft, but the
+    # . These are guide-readiness findings: the prompt is a valid, runnable draft, but the
     # typed plan does not own enough for an official conformance claim. They are warnings on
     # purpose -- an error would refuse a canvas for how the user chose to author it.
     SOUNDSCAPE_UNSPECIFIED = "fidelity.soundscape.unspecified"
@@ -206,7 +206,7 @@ PROMPT_FIDELITY_DIAGNOSTIC_IDS: frozenset[str] = frozenset(
     item.value for item in PromptFidelityDiagnosticId
 )
 
-# The M24-05 identities that describe the typed plan rather than the rendered prose. They are the
+# The identities that describe the typed plan rather than the rendered prose. They are the
 # reasons guide readiness is withheld, and they are deliberately excluded from `prose_blocking`.
 PLAN_READINESS_IDS: frozenset[PromptFidelityDiagnosticId] = frozenset(
     {
@@ -340,7 +340,7 @@ class PromptFidelityAuditResult:
 
     @property
     def readiness_findings(self) -> tuple[PromptFidelityDiagnostic, ...]:
-        """The M24-05 findings that describe the typed plan rather than the rendered prose."""
+        """The findings that describe the typed plan rather than the rendered prose."""
 
         return tuple(item for item in self.diagnostics if item.diagnostic_id in PLAN_READINESS_IDS)
 
@@ -842,7 +842,7 @@ def _check_retention_readiness(
 
 
 def _check_guide_semantics(plan: ContextPlan, diagnostics: list[PromptFidelityDiagnostic]) -> None:
-    """M24-05 guide-readiness rules over the typed plan, never over the prose.
+    """guide-readiness rules over the typed plan, never over the prose.
 
     Every rule reads owned typed joins. None of them inspects media, infers an observation, or
     matches an English keyword, because a deterministic renderer that guessed here would produce

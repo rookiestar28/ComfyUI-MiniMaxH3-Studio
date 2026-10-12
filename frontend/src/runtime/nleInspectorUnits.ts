@@ -1,4 +1,4 @@
-// M25-64 (R10): the inspector's exact decimal adapter. Drafts, command builders and codecs keep
+//  (R10): the inspector's exact decimal adapter. Drafts, command builders and codecs keep
 // the canonical integers -- basis points, per-mille, millidegrees, millibels and output frames --
 // and only the numeric field's text is shown and read in %, degrees, dB and seconds.
 //

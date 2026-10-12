@@ -1,8 +1,8 @@
-// M25-16 monitor runtime adapter.
+//  monitor runtime adapter.
 //
 // The expanded workspace owns one composition monitor. It is assembled here from the accepted
-// runtime pieces only: the M25-12 leased runtime and its capability disposition, the M25-13
-// composition session, the M25-15 embedded-audio follower and the ported scene resolver. The
+// runtime pieces only: the leased runtime and its capability disposition, the
+// composition session, the embedded-audio follower and the ported scene resolver. The
 // adapter adds no decoding, playback or rendering of its own; it binds those pieces to one
 // canvas, exposes their statuses and disposes them together.
 
@@ -205,7 +205,7 @@ export function createNleMonitor(
   // one seek in flight, as for opening: later seeks retain only the newest frame, and pause and
   // replacement wait until it settles. A seek retained behind that seek settles only when its
   // frame has been sought or dropped: the slider steps from the requested frame until the seek
-  // call settles (M25-21 B3-D10), so settling early loses every quick key press after the first.
+  // call settles ( B3-D10), so settling early loses every quick key press after the first.
   let seekWaiters: Array<() => void> = [];
   const releaseSeekWaiters = (waiters = seekWaiters) => {
     if (waiters === seekWaiters) seekWaiters = [];

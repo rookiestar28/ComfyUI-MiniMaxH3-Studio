@@ -86,7 +86,7 @@ export type ProductionIntent =
   | Readonly<{ action: "read_projection" }>
   | Readonly<{ action: "release_workspace" }>
   | Readonly<{ action: "submit_generation_job"; jobId: string }>
-  // M25-16: the accepted M26-06 assembly actions, dispatched only from the expanded
+  // the accepted assembly actions, dispatched only from the expanded
   // workspace and only when the projection currently allows them.
   | Readonly<{ action: "assemble_sequence" }>
   | Readonly<{ action: "cancel_assembly" }>
@@ -107,7 +107,7 @@ export type ProductionImportToEditor = Readonly<{
   onImport(segmentIds: readonly string[]): void;
   onRetry(): void;
   onOpen(): void;
-  /** M25-33: the shared Media tools entry shown when the runtime blocks this import. */
+  /** the shared Media tools entry shown when the runtime blocks this import. */
   mediaTools?: MediaToolsBinding;
 }>;
 
@@ -592,7 +592,7 @@ function proposalAvailabilityText(
   }
 }
 
-// M17-25. Presentation only: milliseconds are the wire value and seconds are what
+// . Presentation only: milliseconds are the wire value and seconds are what
 // the reader is shown. Fixed to two decimals so the same length always renders the
 // same string, and so the 17-frame lattice step -- about 0.708 s -- is visible
 // rather than rounded away.
@@ -639,7 +639,7 @@ function StateChip({
 }
 
 /**
- * M21-03 AC-02. Five label rows per segment become five small toned marks in
+ *  AC-02. Five label rows per segment become five small toned marks in
  * fixed order, so a collapsed row is one line instead of a card.
  *
  * The marks are decorative on their own -- colour alone carries nothing -- and
@@ -1020,7 +1020,7 @@ const SEGMENT_RELATIONS: readonly string[] = [
   "reset",
 ];
 
-// M25-21: a restored draft is reconciled against the current projection before it is shown. A
+// a restored draft is reconciled against the current projection before it is shown. A
 // relation outside the accepted vocabulary, a predecessor that is no longer another segment, or a
 // position for a segment that left the projection falls back to the accepted value.
 function draftRelation(
@@ -1096,11 +1096,11 @@ export function ProductionWorkbench({
   mediaPreview?: ProductionMediaPreviewState;
   onMediaPreview?: (outputHandle: string) => void | Promise<void>;
   onMediaPreviewClose?: () => void;
-  /** M25-16: the explicit accepted M25-29 import of the selected segments' ready outputs. */
+  /** the explicit accepted import of the selected segments' ready outputs. */
   importToEditor?: ProductionImportToEditor;
   retainedAssets?: RetainedAssetsBinding;
   projectFile?: ProjectFileBinding;
-  /** M25-21: session retention for unsent drafts, the list anchor and the authority expansion. */
+  /** session retention for unsent drafts, the list anchor and the authority expansion. */
   retention?: SidebarRetention;
   destination?: Readonly<{
     kind: "project" | "new" | "unavailable";
@@ -1123,7 +1123,7 @@ export function ProductionWorkbench({
 }) {
   const text = copy[locale];
   const projection = "projection" in state ? state.projection : undefined;
-  // M17-23 / AC-M17-23-01. The edit target of a destructive or replacing action
+  //  / AC--01. The edit target of a destructive or replacing action
   // is the sole selected segment and nothing else. Taking the first member of a
   // multi-selection -- the previous behaviour -- deletes a segment the user
   // never identified, so a set of two or more yields no target and the
@@ -1134,7 +1134,7 @@ export function ProductionWorkbench({
           (segment) => segment.segmentId === projection.selectedSegmentIds[0],
         )
       : undefined;
-  // M25-21: unsent drafts belong to one workspace revision and one selected segment. They
+  // unsent drafts belong to one workspace revision and one selected segment. They
   // restore only for exactly that authority and are never rebased onto a changed one.
   const draftScope =
     projection === undefined
@@ -1285,7 +1285,7 @@ export function ProductionWorkbench({
     [],
   );
 
-  // IMPORTANT (M25-21): the drafts follow their authority scope. The mount already initialized
+  // IMPORTANT: the drafts follow their authority scope. The mount already initialized
   // them for the current scope, restored or not. A scope that first appears after mount (the view
   // mounted while the projection was absent) gets one late restore; a change between two real
   // scopes while mounted is the user-visible reset the accepted revision implies, so the old
@@ -1501,7 +1501,7 @@ export function ProductionWorkbench({
     if (!can("reorder_segments")) return;
     return onIntent({ action: "reorder_segments", segmentIds: next });
   };
-  // AC-M17-23-08. A move can carry a segment onto the other page; the window
+  // AC--08. A move can carry a segment onto the other page; the window
   // is re-anchored on the moved segment so it stays rendered rather than
   // vanishing while the user is still working on it.
   const sendReorderFrom = (next: readonly string[], segmentId: string) => {
@@ -1520,7 +1520,7 @@ export function ProductionWorkbench({
         }
       }}
     >
-      {/* M21-03 section 3.1 order 1. One status band replaces the floating
+      {/*  section 3.1 order 1. One status band replaces the floating
           revision box, the run-state row, the progress row and the page
           description: four places that each said part of "where is this
           workspace" now say it once, at the top, in reading order. */}
@@ -1815,7 +1815,7 @@ export function ProductionWorkbench({
               {text.segment}
             </h3>
             <span className="h3p-meta">
-              {/* AC-M17-23-04: the window is a bound on what is rendered, so
+              {/* AC--04: the window is a bound on what is rendered, so
                   the range and the global total are both stated. Counts are
                   taken over every segment, never over the visible page. */}
               {text.segmentRange
@@ -1977,7 +1977,7 @@ export function ProductionWorkbench({
                       </button>
                     ) : null}
                   </span>
-                  {/* M21-03: only the selected row expands, inline. A
+                  {/* only the selected row expands, inline. A
                       collapsed row carries the spine instead of five rows,
                       which is what removes the repeated cards of label rows. */}
                   {editing ? (
@@ -2178,7 +2178,7 @@ export function ProductionWorkbench({
                 )
               }
             >
-              {/* AC-M17-23-01: the one surviving set-consuming action says so
+              {/* AC--01: the one surviving set-consuming action says so
                   and shows the count, taken over every segment rather than
                   over the rendered window. */}
               {text.understandSelectedCount.replace(
@@ -2514,7 +2514,7 @@ export function ProductionWorkbench({
           <h3 id="h3p-outputs" className="h3ta">
             {text.outputs}
           </h3>
-          {/* M21-03 order 6: a single quiet line until an output exists. The
+          {/*  order 6: a single quiet line until an output exists. The
               bordered empty box mimicked a disabled input, which is the one
               thing an empty region must not look like. */}
           {projection.outputs.length === 0 ? (
@@ -2659,10 +2659,10 @@ export function ProductionWorkbench({
   );
 }
 
-// M25-16: the compact Production action that hands ready outputs to the editor. It is offered
+// the compact Production action that hands ready outputs to the editor. It is offered
 // for an explicit ready subset of the selected per-segment outputs; aggregate outputs are never
 // importable. The eligibility answer comes from the session, not from here.
-// M25-63: the `toolbar` variant is the editor bin's. It keeps every child and condition of the
+// the `toolbar` variant is the editor bin's. It keeps every child and condition of the
 // `full` markup and changes only layout: the import button shows "Import" with its full text as
 // its name and tooltip, and the status and Media tools card render in the bin's notice slot.
 export function ImportToEditor({
@@ -2744,7 +2744,7 @@ export function ImportToEditor({
                       : text.ineligible;
   const importDisabled =
     busy || eligibility.busy || !eligibility.eligible || selectionInvalid;
-  // M25-33: a runtime refusal (or a known missing runtime) shows the shared Media tools card. The
+  // a runtime refusal (or a known missing runtime) shows the shared Media tools card. The
   // continuation captures only an eligible selection; installing never makes an ineligible one
   // importable, and an uncertain import keeps its retained request and its own Retry.
   const mediaTools = binding.mediaTools;
@@ -2767,7 +2767,7 @@ export function ImportToEditor({
       : null;
   const control = useRef<HTMLButtonElement | null>(null);
   const wasDisabled = useRef(importDisabled);
-  // IMPORTANT (M25-21 B3-D55): this control disables itself while its own request is in flight,
+  // IMPORTANT ( B3-D55): this control disables itself while its own request is in flight,
   // and Chromium's focus fixup then moves focus to `<body>` -- outside anything the user can Tab
   // or Escape from. An accepted import steers focus deliberately (the view moves to the Clip
   // editor and the imported row is announced); a refused or uncertain one steers nothing, so the

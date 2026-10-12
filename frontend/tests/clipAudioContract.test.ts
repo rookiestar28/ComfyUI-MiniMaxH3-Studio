@@ -17,7 +17,7 @@ import {
 } from "../src/contracts/generatedSurface";
 
 // The clip wire's audio member. The rows are the backend's own table
-// (`tests/test_m25_77_clip_audio_contract.py` reads the same file), so the two decoders answer
+// (`tests/test__clip_audio_contract.py` reads the same file), so the two decoders answer
 // one list of cases rather than two lists that agree by intention.
 
 type Row = Readonly<{

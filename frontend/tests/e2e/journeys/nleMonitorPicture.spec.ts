@@ -1,4 +1,4 @@
-// M25-45: the monitor's picture and its transport, on the REAL integrated shell
+// the monitor's picture and its transport, on the REAL integrated shell
 // (`frontend/e2e/nleShell.tsx`) in the browser's own layout engine.
 //
 // The fit rule is asserted against the composition the picture area declares it is fitting
@@ -195,7 +195,7 @@ const TIERS = [
 const LOCALES = ["en", "zh_hant", "zh_hans"] as const;
 
 /**
- * M25-64 (row #25, R7): the transport's layout read from the page -- the five buttons, the
+ *  (row #25, R7): the transport's layout read from the page -- the five buttons, the
  * timecode parts that are shown, and the row's own inner width -- in one pass.
  */
 function transportLayout(page: Page) {
@@ -433,7 +433,7 @@ test("A64-1: the preview-unavailable overlay offers Retry on the recover path an
   await expect(overlay.locator("[data-h3-nle-overlay-title]")).toHaveText(
     "Preview unavailable",
   );
-  // M25-64 (A64-6): the overlay gives a plain reason; the status sentence stays the diagnostics.
+  //  (A64-6): the overlay gives a plain reason; the status sentence stays the diagnostics.
   await expect(overlay.locator("[data-h3-nle-overlay-detail]")).toHaveText(
     "The browser could not draw the picture.",
   );
@@ -551,10 +551,10 @@ test("the transport row sits under the picture area and seek authority lives on 
   );
 });
 
-// M25-45 (B-M2545-32): two facts the transport row owns, and neither had a fast pin. The row
-// M25-46 moves seek authority to the timeline ruler. A ruler scrub pauses once before seeking and
+//  (B-M2545-32): two facts the transport row owns, and neither had a fast pin. The row
+//  moves seek authority to the timeline ruler. A ruler scrub pauses once before seeking and
 // stays paused; an explicit Play then resumes from the accepted target. This is intentionally
-// different from the removed monitor range's M25-45 manual-move behavior.
+// different from the removed monitor range's manual-move behavior.
 test("a ruler seek during playback pauses, then explicit Play resumes from its target", async ({
   page,
 }) => {
@@ -690,7 +690,7 @@ test("the monitor owns Space and the frame-step keys without disturbing the host
   // rather than toggling playback in the same press.
   await control(page, "transport.view").focus();
   // Focus opens the control's own description, which is what an icon-only row owes its user.
-  // M25-64: the view pair is its own group, with its own description.
+  // the view pair is its own group, with its own description.
   const tip = page.locator(
     `${OVERLAY} .h3-nle-transport [data-h3-nle-group="transport_view"] [role="tooltip"]`,
   );

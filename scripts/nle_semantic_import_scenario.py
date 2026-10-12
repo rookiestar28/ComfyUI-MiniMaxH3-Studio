@@ -1,11 +1,11 @@
-"""M25-20 corrective (B-65): the imported-generated-source scenario, run by both halves alike.
+"""corrective (B-65): the imported-generated-source scenario, run by both halves alike.
 
 The two ``import_integration`` corpus rows (original plan Section 13 / AC10) require one exact
-causal chain: a generated per-segment output that the real M25-29 import service admits into the
-Authoring asset bin, an explicit M25-11 insertion of that minted asset, the real M25-18 render
-plan bound to the imported source, the M25-19 verified final receipt, and undo/redo through the
+causal chain: a generated per-segment output that the real import service admits into the
+Authoring asset bin, an explicit insertion of that minted asset, the real render
+plan bound to the imported source, the verified final receipt, and undo/redo through the
 pre-import history that keeps the admitted library. This module is the one place that chain is
-set up, so the browser fixture (``scripts/m25_16_import_fixture.py``, behind the real shell) and
+set up, so the browser fixture (``scripts/_import_fixture.py``, behind the real shell) and
 the render stage (``scripts/nle_semantic_render.py``) drive the same registries with the same
 generated source and mint the same identities, which the join then checks against each other.
 
@@ -13,7 +13,7 @@ What is real here: the production and authoring registries, the import service, 
 history and its commands, the media probe (the pinned ``ffprobe`` through the qualified adapter),
 the source lease the render plan binds, and the artifact bytes themselves -- a real CFR H.264+AAC
 MP4 painted from ``IMPORTED_SOURCE_PROFILE`` by the same builder the corpus sources use. Nothing
-is stubbed: the accepted M25-29 test module's ``_registries_with_ready_output`` is reused with
+is stubbed: the accepted test module's ``_registries_with_ready_output`` is reused with
 ``artifact_bodies`` set to that file, exactly as its own real-encoded-artifact test does.
 
 The inserted clip follows the product's own insert control: the first video asset is placed on

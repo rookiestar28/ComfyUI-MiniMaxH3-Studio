@@ -1,5 +1,5 @@
 // App Mode generation-profile admission: whether the host profile admits a task mode and
-// whether an admission verdict blocks the route or the queue (M23-28 split).
+// whether an admission verdict blocks the route or the queue ( split).
 
 import {
   familyProfileForTaskMode,
@@ -37,7 +37,7 @@ function refused(
  * Decide what the projection means for one task mode.
  *
  * This reads a decision; it does not make one. The disposition, the remediation
- * and the unsatisfied roles all arrive from the backend (M17-20 D1), and the
+ * and the unsatisfied roles all arrive from the backend ( D1), and the
  * only judgement here is which of them the shell is allowed to proceed past.
  */
 export function admitGenerationProfile(
@@ -131,7 +131,7 @@ export function generationAdmissionRefusalReason(
 }
 
 /**
- * M23-37 (D13, observed on ComfyUI frontend 1.51.9). A template candidate
+ *  (D13, observed on ComfyUI frontend 1.51.9). A template candidate
  * carries its generation block as a subgraph definition whose instance node
  * is serialized in compact form (linked inputs only). Only the host's own
  * `loadGraphData` registers the instance type and reconciles those compact

@@ -1,4 +1,4 @@
-"""M25-45 AC45-06 case (a), backend layer: a 1280 px proxy above the old 8 MiB ceiling.
+"""AC45-06 case (a), backend layer: a 1280 px proxy above the old 8 MiB ceiling.
 
 The proxy migration raised the video body ceiling because a 1280 px proxy of an ordinary source
 does not fit in 8 MiB. That is a claim about the real encoder's real output, not about a number in

@@ -87,14 +87,14 @@ const HEX_40 = /^[0-9a-f]{40}$/;
 const HEX_64 = /^[0-9a-f]{64}$/;
 const SEAM_ID = /^[a-z][a-z0-9_]*(?:\.[a-z0-9_]+)+$/;
 const VERSION = /^[0-9]+(?:\.[0-9]+){1,3}(?:[-+][A-Za-z0-9.-]+)?$/;
-// IMPORTANT: these public fragments are the accepted HC-09 checkpoint, not
+// IMPORTANT: these public fragments are the accepted checkpoint, not
 // secret material. Keep them independent from the mutable baseline document.
 const ACCEPTED_HC09_SOURCE = Object.freeze({
   commit: ["f6d30e0e", "3e2df72f", "15dec446", "94bf7347", "d1a9b706"].join(""),
   tree: ["a621c778", "9f6e2c42", "e28a08af", "42cd4f3c", "85d03285"].join(""),
 });
-// IMPORTANT: this is the accepted M23-14 checkpoint that still contains the
-// frozen HC-09 census bytes. A later compatibility item must add a new closed
+// IMPORTANT: this is the accepted checkpoint that still contains the
+// frozen census bytes. A later compatibility item must add a new closed
 // transition; never make arbitrary current census bytes self-authorizing.
 const ACCEPTED_M23_14_SOURCE = Object.freeze({
   commit: ["d65771cf", "baa1640c", "cd5e29ec", "9e82be44", "73814919"].join(""),
@@ -116,8 +116,8 @@ const ACCEPTED_M25_01_SOURCE = Object.freeze({
   commit: ["ae0c3cdc", "176b352c", "e7b673b4", "32240d8a", "f934dbfb"].join(""),
   tree: ["b36921bf", "3d473fcf", "b81ee5e2", "c239ac82", "e535188f"].join(""),
 });
-// IMPORTANT: M23-24 starts from this exact local-green M23-26 base. Keep the
-// transition closed; accepting arbitrary current census bytes defeats HC-10 drift detection.
+// IMPORTANT: starts from this exact local-green base. Keep the
+// transition closed; accepting arbitrary current census bytes defeats drift detection.
 const ACCEPTED_M23_24_BASE_SOURCE = Object.freeze({
   commit: ["99a4b48a", "ac7e4a85", "563d923a", "6dcd21bf", "922c5f8b"].join(""),
   tree: ["bac95bad", "93f129c2", "9ab9a97d", "3aade279", "6990c321"].join(""),
@@ -126,25 +126,25 @@ const ACCEPTED_M23_47_BASE_SOURCE = Object.freeze({
   commit: ["eba83217", "eda24177", "10d254bc", "a9081dbe", "fb5054fd"].join(""),
   tree: ["6a7d824c", "ebecc902", "41544e1b", "b349d8a0", "7df506b6"].join(""),
 });
-// IMPORTANT: M23-28 starts from the accepted M23-27 tree. Its source-path relocation is
+// IMPORTANT: starts from the accepted tree. Its source-path relocation is
 // authorized only by this immutable checkpoint; never derive this identity from the candidate.
 const ACCEPTED_M23_28_BASE_SOURCE = Object.freeze({
   commit: ["cfa38b40", "2d9b9e31", "dedd30c2", "9659c32a", "ffbc9edc"].join(""),
   tree: ["aea2939c", "fb92d211", "d46cd455", "f9482acb", "0ffe37ca"].join(""),
 });
-// IMPORTANT: the M26-04 census addition starts from the committed replacement candidate. Keep
+// IMPORTANT: the census addition starts from the committed replacement candidate. Keep
 // this fixed identity independent from later repair commits or current HEAD.
 const ACCEPTED_M26_04_BASE_SOURCE = Object.freeze({
   commit: ["19d7e065", "f18e705f", "edfc3155", "1f5d115f", "170d3e06"].join(""),
   tree: ["854c67d9", "c72033f5", "3883ea83", "1a3132e4", "727d0929"].join(""),
 });
-// IMPORTANT: M26-03 starts from the accepted merge checkpoint, before its three census use-site
+// IMPORTANT: starts from the accepted merge checkpoint, before its three census use-site
 // additions. Keep this identity independent from the mutable candidate and current census bytes.
 const ACCEPTED_M26_03_BASE_SOURCE = Object.freeze({
   commit: ["4ccea337", "3f285b5c", "d8af1b30", "24203c2f", "3382a580"].join(""),
   tree: ["601427af", "221c5d03", "669df599", "f3c06186", "8b417006"].join(""),
 });
-// IMPORTANT: M25-13 starts from this exact accepted render-source checkpoint. Keep this identity and the
+// IMPORTANT: starts from this exact accepted render-source checkpoint. Keep this identity and the
 // authorized lease consumer independent from the mutable candidate and current census bytes.
 const ACCEPTED_M25_13_BASE_SOURCE = Object.freeze({
   commit: ["2e0cba0c", "4135359a", "4a630163", "f17d4a48", "77843d67"].join(""),
@@ -205,7 +205,7 @@ const M25_16_SOURCE_PATH_ADDITIONS = Object.freeze([
   },
 ]);
 // IMPORTANT: this exact accepted base and one-path transition must remain independent of current
-// census bytes; M25-22 added the open-workflow read to the NLE session without its census row.
+// census bytes; added the open-workflow read to the NLE session without its census row.
 const M16_05_BASE_SOURCE = Object.freeze({
   commit: ["2c0e3300", "57dc35af", "014cd404", "0797b840", "433c05ba"].join(""),
   tree: ["4349423e", "60c77483", "8c849c43", "608b815c", "801191c3"].join(""),
@@ -227,7 +227,7 @@ const M16_05_SOURCE_PATH_ADDITIONS = Object.freeze([
   },
 ]);
 // IMPORTANT: this exact accepted base and one-path transition must remain independent of current
-// census bytes; M25-33's media runtime client reads the host `fetchApi`.
+// census bytes; 's media runtime client reads the host `fetchApi`.
 const M25_33_BASE_SOURCE = Object.freeze({
   commit: ["39425bb4", "2c63dd3d", "db475846", "8f9f362d", "3e3489f5"].join(""),
   tree: ["1dc12b61", "2c63c570", "49499f9c", "40e9c997", "fd6a7d24"].join(""),
@@ -277,8 +277,8 @@ const M16_05_RELEASE_SOURCE_PATH_ADDITIONS = Object.freeze([
   },
 ]);
 // IMPORTANT: this exact accepted base and one-path removal must remain independent of current
-// census bytes; M25-38's accumulated-project envelope stopped reading `app.graph` directly from
-// `appModeSession.ts`, so the seam's exact final owner (`hostSeams.ts`, set by M23-28 and never
+// census bytes; 's accumulated-project envelope stopped reading `app.graph` directly from
+// `appModeSession.ts`, so the seam's exact final owner (`hostSeams.ts`, set by and never
 // moved since) has to be re-asserted here or a later, unrelated re-add of that path would be
 // rejected by this historical removal (see the "final ordered state" guard below).
 const M25_38_BASE_SOURCE = Object.freeze({
@@ -455,7 +455,7 @@ const ACCEPTED_M23_25_SEAM_CONTRACT_SHA256 = [
   "02174049",
   "45f8ebec",
 ].join("");
-// M23-47 moved the `backend.prompt_server.routes` seam from eleven hand-written HTTP edges to one,
+//  moved the `backend.prompt_server.routes` seam from eleven hand-written HTTP edges to one,
 // so both the seam's owner and its source-path list change and the contract projection moves with
 // them. The projection deliberately excludes `source_paths`, so this digest moves only because the
 // owner did -- which is the part of the change a host-facing consumer can observe.
@@ -950,6 +950,33 @@ const PROJECT_PERSISTENCE_SOURCE_PATH_ADDITIONS = Object.freeze([
   },
 ]);
 
+// IMPORTANT: keep this one-client transition independent from mutable census bytes;
+// deriving its digest or paths during verification would authorize unrelated host reads.
+const PERCEPTION_HOST_BASE_SOURCE = Object.freeze({
+  commit: ["5b4c0097", "f89b7c59", "13dfabc3", "0d2e8890", "08906192"].join(""),
+  tree: ["af7eb748", "336be278", "73accaaa", "6b2c832f", "5bcea778"].join(""),
+});
+const PERCEPTION_HOST_CENSUS_SHA256 = [
+  "6590a79a",
+  "997dc397",
+  "3867f479",
+  "996e8cd6",
+  "90d6ee61",
+  "7cdf0826",
+  "e9974e5c",
+  "1633f74d",
+].join("");
+// IMPORTANT: this source-path-only addition preserves the accepted contract projection;
+// hashing the TypeScript reader instead would reject every valid compatibility chain.
+const PERCEPTION_HOST_SEAM_CONTRACT_SHA256 =
+  ACCEPTED_MODAL_KEYBOARD_SEAM_CONTRACT_SHA256;
+const PERCEPTION_HOST_SOURCE_PATH_ADDITIONS = Object.freeze([
+  {
+    seam_id: "frontend.api.fetch_api",
+    added_source_paths: ["frontend/src/host/perceptionHostClient.ts"],
+  },
+]);
+
 type HostSeamCensusTransitionWire = Readonly<{
   schema:
     | "h3.context.host_seam_census_transition.v1"
@@ -972,7 +999,8 @@ type HostSeamCensusTransitionWire = Readonly<{
     | "h3.context.host_seam_census_transition_modal_keyboard.v1"
     | "h3.context.host_seam_census_transition_workspace_state.v1"
     | "h3.context.host_seam_census_transition_retained_media.v1"
-    | "h3.context.host_seam_census_transition_project_persistence.v1";
+    | "h3.context.host_seam_census_transition_project_persistence.v1"
+    | "h3.context.host_seam_census_transition_perception_host.v1";
   item:
     | "M23-15"
     | "M23-18"
@@ -993,7 +1021,8 @@ type HostSeamCensusTransitionWire = Readonly<{
     | "MODAL-KEYBOARD"
     | "WORKSPACE-STATE"
     | "RETAINED-MEDIA"
-    | "PROJECT-PERSISTENCE";
+    | "PROJECT-PERSISTENCE"
+    | "PERCEPTION-HOST";
   source: Readonly<{ commit: string; tree: string }>;
   artifacts: Readonly<{
     from_census_sha256: string;
@@ -1238,7 +1267,10 @@ function parseHostSeamCensusTransition(
       root.item === "RETAINED-MEDIA") ||
     (root.schema ===
       "h3.context.host_seam_census_transition_project_persistence.v1" &&
-      root.item === "PROJECT-PERSISTENCE")
+      root.item === "PROJECT-PERSISTENCE") ||
+    (root.schema ===
+      "h3.context.host_seam_census_transition_perception_host.v1" &&
+      root.item === "PERCEPTION-HOST")
   ))
     throw new Error("census transition has an unsupported identity");
   const source = closed(
@@ -1293,7 +1325,7 @@ function parseHostSeamCensusTransition(
     if (paths.some((path, index) => path !== [...new Set(paths)].sort()[index]))
       throw new Error("census transition paths must be sorted and unique");
     if (isRemovalTransition) {
-      // IMPORTANT: M23-28 centralizes host-member ownership while retaining some former owners as
+      // IMPORTANT: centralizes host-member ownership while retaining some former owners as
       // typed-probe callers. Those callers remain valid census sources, so only older removal
       // schemas require the former owner itself to be one of the removed paths.
       const formerOwnerMustLeave =
@@ -1638,6 +1670,15 @@ export function verifyHostSeamBaseline(
       fixture_sha256: ACCEPTED_MODAL_KEYBOARD_FIXTURE_SHA256,
       seam_contract_sha256: ACCEPTED_MODAL_KEYBOARD_SEAM_CONTRACT_SHA256,
       changes: PROJECT_PERSISTENCE_SOURCE_PATH_ADDITIONS,
+    },
+    {
+      item: "PERCEPTION-HOST",
+      source: PERCEPTION_HOST_BASE_SOURCE,
+      from_census_sha256: PROJECT_PERSISTENCE_CENSUS_SHA256,
+      to_census_sha256: PERCEPTION_HOST_CENSUS_SHA256,
+      fixture_sha256: ACCEPTED_MODAL_KEYBOARD_FIXTURE_SHA256,
+      seam_contract_sha256: PERCEPTION_HOST_SEAM_CONTRACT_SHA256,
+      changes: PERCEPTION_HOST_SOURCE_PATH_ADDITIONS,
     },
   ] as const;
   const targetIndex = expectedTransitions.findIndex(

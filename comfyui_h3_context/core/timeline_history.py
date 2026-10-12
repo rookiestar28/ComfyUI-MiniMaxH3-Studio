@@ -1,6 +1,6 @@
-"""M25-11 pure transaction, CAS, receipt, and bounded history authority.
+"""pure transaction, CAS, receipt, and bounded history authority.
 
-The accepted M25-10 public snapshot is the only persisted edit state. This module stores immutable
+The accepted public snapshot is the only persisted edit state. This module stores immutable
 before/after snapshots and delegates every edit to :mod:`timeline_authoring`; it owns only
 transaction validation, selection, cursors, idempotency, branch movement, rebase, and quotas.
 """
@@ -529,7 +529,7 @@ def _overlay_current_catalog(
     if any(current_by_id.get(asset_id) != asset for asset_id, asset in historical_by_id.items()):
         raise _reject("invalid_transaction", "history catalog conflicts with current authority")
     # IMPORTANT: undo/redo restores scene state, not the Authoring library.  Reusing the retained
-    # historical catalog here silently loses M25-29 imports even though no removal command ran.
+    # historical catalog here silently loses imports even though no removal command ran.
     return replace(historical, assets=current.assets)
 
 

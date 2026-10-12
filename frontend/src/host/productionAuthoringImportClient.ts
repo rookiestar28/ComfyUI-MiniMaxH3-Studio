@@ -1,4 +1,4 @@
-// M25-16: the dedicated same-origin client for the accepted M25-29 import action.
+// the dedicated same-origin client for the accepted import action.
 //
 // This client is deliberately separate from the generic Production/Authoring action clients:
 // the import route answers success with HTTP 200 and a closed receipt+projection body, and

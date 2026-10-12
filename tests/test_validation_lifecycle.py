@@ -1,4 +1,4 @@
-"""M10-05 compile/validate lifecycle and execution-admission tests."""
+"""compile/validate lifecycle and execution-admission tests."""
 
 from __future__ import annotations
 

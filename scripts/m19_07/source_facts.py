@@ -3,12 +3,12 @@
 Everything here is read out of one file whose identity is pinned by content hash. Nothing is
 hard-coded from documentation, a README, a community observation or a previous run: if the source
 stops defining a fact, the derivation fails rather than falling back to a remembered value. That is
-the whole point of the exercise — `M19-07` exists because research candidates such as a 24 fps video
+the whole point of the exercise — `` exists because research candidates such as a 24 fps video
 grid, a separate audio-latent rate and a 124-frame join were circulating without being bound to an
 exact subject.
 
 The file is parsed, never imported. Its pure temporal helpers are evaluated through
-`scripts.m19_07.purity`, and everything else — node schemas, latent tensor shapes — is read
+`scripts..purity`, and everything else — node schemas, latent tensor shapes — is read
 structurally out of the syntax tree.
 """
 

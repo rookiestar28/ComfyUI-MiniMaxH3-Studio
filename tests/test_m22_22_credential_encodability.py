@@ -1,4 +1,4 @@
-"""M22-22. A credential that cannot enter an HTTP header is refused when it is submitted.
+""". A credential that cannot enter an HTTP header is refused when it is submitted.
 
 An HTTP header value is latin-1 encoded. `RuntimeCredential` rejected C0 control characters and
 `DEL` but nothing above `U+00FF`, so a key carrying an invisible character -- a zero-width space, a

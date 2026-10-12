@@ -72,7 +72,7 @@ const loadTemplate = vi.fn(loadSyntheticTemplate);
 /**
  * The profile seam, answering "yes" for every family.
  *
- * M17-20 D1 makes generation admission a backend decision App Mode has to ask
+ *  D1 makes generation admission a backend decision App Mode has to ask
  * for, so a route test that did not inject one would be exercising the refusal
  * rather than the route. The refusal has its own rows.
  */
@@ -1319,7 +1319,7 @@ describe("H3 App Mode host seam", () => {
         ],
       },
     ) as Record<string, Record<string, unknown>>;
-    // M17-17: the registry hears about the reference video's own soundtrack.
+    // the registry hears about the reference video's own soundtrack.
     // Before this item the pairing existed only on the anchor, so the registry
     // that owns canonical reference identity derived no soundtrack at all for a
     // graph that submitted one.
@@ -1650,7 +1650,7 @@ describe("H3 App Mode host seam", () => {
   });
 
   it("never throws from qualification while the host graph is unreadable, and qualifies once it exists", () => {
-    // M23-36: frontend 1.51.9 returns `undefined` from `app.graph` until the root graph
+    // frontend 1.51.9 returns `undefined` from `app.graph` until the root graph
     // exists, and extension modules are evaluated before that point. A host getter may
     // also throw. Neither may escape qualification, and neither is a permanent verdict.
     const { app, api } = fixtureBackedAppModeHost(
@@ -2730,7 +2730,7 @@ describe("H3 App Mode host seam", () => {
    *
    * A real host announces every graph configure to its extensions, and this
    * package's own configure hook abandons the run when it hears one -- correct
-   * for a user switching workflows, fatal for the write M17-20 D11 makes the
+   * for a user switching workflows, fatal for the write D11 makes the
    * run perform itself. A stubbed `loadGraphData` fires no hook, so what is
    * asserted here is the declaration at each write; the entry rows assert the
    * hook honours it.
@@ -3518,7 +3518,7 @@ describe("H3 App Mode host seam", () => {
       duration_milliseconds: 5167,
       frame_count: 124,
     }) as Record<string, Record<string, unknown>>;
-    // M17-20 D11: a materialized graph is the official template plus the H3
+    //  D11: a materialized graph is the official template plus the H3
     // pipeline, so a node this repository has never heard of is the normal case,
     // not a defect. Enumerating the surrounding graph would fail closed on every
     // correct materialization the moment an official template gained a node.
@@ -4837,7 +4837,7 @@ describe("M17-20 template materialization route", () => {
 
   it("reports the graph-load seam as a capability, not as a rollback detail", () => {
     // Without it there is no way to materialize a template, and the honest
-    // answer is MANUAL_ONLY_SCOPED rather than the truncated graph M17-20
+    // answer is MANUAL_ONLY_SCOPED rather than the truncated graph
     // replaces.
     const api = fixtureBackedAppModeApi({ queuePrompt: vi.fn() });
     expect(
@@ -5368,7 +5368,7 @@ describe("M23-29 native length is not an admission authority", () => {
 });
 
 describe("M17-20 generation profile admission", () => {
-  // M17-20 D1/D2. Materialization sits behind the backend's capability
+  //  D1/D2. Materialization sits behind the backend's capability
   // decision: a host that cannot run the graph must cost zero queue
   // submissions, zero template reads and zero canvas writes.
   const inputs = {

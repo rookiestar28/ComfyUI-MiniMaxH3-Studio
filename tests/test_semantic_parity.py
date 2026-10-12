@@ -1,6 +1,6 @@
-"""M23-46: one corpus, two engines, and a comparator that belongs to neither.
+"""one corpus, two engines, and a comparator that belongs to neither.
 
-The corpus is generated from the accepted M25-10 fixture and both engines run it and report what
+The corpus is generated from the accepted fixture and both engines run it and report what
 they observed. Nothing here compares exception prose: a rejection is compared by its stable blocker
 code, so either implementation stays free to reword a diagnostic.
 
@@ -154,7 +154,7 @@ def test_only_the_case_that_needs_a_resign_carries_one() -> None:
 def test_an_unlisted_rejection_code_collapses_to_invalid_contract() -> None:
     # The Python half of a property the TypeScript codec now mirrors: `.code` is always a member of
     # the shared vocabulary, so a reader that switches on it cannot meet a case it has no branch
-    # for. Asserted here rather than in the M25-10 suite because the parity is what this item owns.
+    # for. Asserted here rather than in the suite because the parity is what this item owns.
     assert CompositionContractError("not_a_blocker_code", "x").code == "invalid_contract"
     for code in BLOCKER_CODES:
         assert CompositionContractError(code, "x").code == code

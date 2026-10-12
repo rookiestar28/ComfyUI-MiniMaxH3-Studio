@@ -15,7 +15,7 @@ describe("M25-50 legacy inspector migration", () => {
       "NleInspectorTabs.tsx",
       "NleTimelineMenus.tsx",
       "NleTimeline.tsx",
-      // M25-62: the track toggles moved into the extracted header.
+      // the track toggles moved into the extracted header.
       "NleTrackHeader.tsx",
     ]
       .map((file) => readFileSync(join(NLE, file), "utf8"))

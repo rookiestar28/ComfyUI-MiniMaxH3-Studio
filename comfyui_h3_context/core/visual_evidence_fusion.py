@@ -1,4 +1,4 @@
-"""Provenance-preserving visual evidence fusion and calibration contracts for M11-07.
+"""Provenance-preserving visual evidence fusion and calibration contracts for.
 
 This pure-core module merges already produced, source-owned observations.  It does not discover
 providers, run models, open media, or turn a transport label into a capability claim.  Conflicting

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "h3.native_behaviour_catalogue.v1",
+  "title": "Revision-bound native behaviour evidence catalogue",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "entries"],
+  "properties": {
+    "schema": {"const": "h3.native_behaviour_catalogue.v1"},
+    "entries": {"type": "array", "minItems": 1, "maxItems": 256, "items": {"$ref": "#/$defs/entry"}}
+  },
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^[a-z][a-z0-9_.:@-]{0,127}$"},
+    "path": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$"},
+    "anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["anchor_id", "repository", "revision", "path", "content_sha256", "license", "retrieved"],
+      "properties": {
+        "anchor_id": {"$ref": "#/$defs/identifier"},
+        "repository": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$", "maxLength": 128},
+        "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "path": {"$ref": "#/$defs/path"},
+        "symbol": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*$", "maxLength": 256},
+        "json_pointer": {"type": "string", "maxLength": 256, "pattern": "^(?:/(?:[^~/]|~[01])*)*$"},
+        "text_heading": {"type": "string", "pattern": "^#{1,6} [^\\r\\n]+$", "maxLength": 256},
+        "content_sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "license": {"type": "string", "minLength": 1, "maxLength": 80},
+        "retrieved": {"type": "string", "format": "date"}
+      },
+      "oneOf": [
+        {"required": ["symbol"], "not": {"anyOf": [{"required": ["json_pointer"]}, {"required": ["text_heading"]}]}},
+        {"required": ["json_pointer"], "not": {"anyOf": [{"required": ["symbol"]}, {"required": ["text_heading"]}]}},
+        {"required": ["text_heading"], "not": {"anyOf": [{"required": ["symbol"]}, {"required": ["json_pointer"]}]}}
+      ]
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["behaviour_id", "authority", "statement", "anchors", "repo_sites", "oracle_tests", "oracle_class", "disposition", "defect", "owner", "reason"],
+      "properties": {
+        "behaviour_id": {"$ref": "#/$defs/identifier"},
+        "authority": {"enum": ["host_node", "host_execution", "host_sampler", "host_encoder", "model_card", "guide", "template"]},
+        "statement": {"type": "string", "minLength": 1, "maxLength": 600},
+        "anchors": {"type": "array", "minItems": 1, "maxItems": 8, "uniqueItems": true, "items": {"$ref": "#/$defs/anchor"}},
+        "repo_sites": {"type": "array", "minItems": 1, "maxItems": 32, "uniqueItems": true, "items": {"$ref": "#/$defs/path"}},
+        "oracle_tests": {"type": "array", "maxItems": 32, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 512}},
+        "oracle_class": {"enum": ["independent", "characterization", "identity", "shape", "none"]},
+        "disposition": {"enum": ["covered", "accepted_gap", "divergence"]},
+        "defect": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/identifier"}]},
+        "owner": {"$ref": "#/$defs/identifier"},
+        "reason": {"type": "string", "minLength": 1, "maxLength": 600}
+      },
+      "allOf": [
+        {"if": {"properties": {"disposition": {"const": "covered"}}}, "then": {"properties": {"oracle_class": {"const": "independent"}, "oracle_tests": {"minItems": 1}, "defect": {"type": "null"}}}},
+        {"if": {"properties": {"disposition": {"const": "divergence"}}}, "then": {"properties": {"oracle_class": {"const": "independent"}, "oracle_tests": {"minItems": 1}, "defect": {"$ref": "#/$defs/identifier"}}}}
+      ]
+    }
+  }
+}

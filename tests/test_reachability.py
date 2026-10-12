@@ -1,4 +1,4 @@
-"""M10-06 public producer and task-mode reachability matrix tests."""
+"""public producer and task-mode reachability matrix tests."""
 
 from __future__ import annotations
 

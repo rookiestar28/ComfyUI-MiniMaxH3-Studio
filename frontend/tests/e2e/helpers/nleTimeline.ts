@@ -24,7 +24,7 @@ async function rulerGeometry(page: Page, slider: Locator) {
   });
   return {
     ...surface,
-    // M25-61: frame 0 sits at the published lane origin (header plus lead-in), not the header edge.
+    // frame 0 sits at the published lane origin (header plus lead-in), not the header edge.
     origin: Number(await timeline.getAttribute("data-h3-nle-lane-origin-px")),
     scale: Number(await timeline.getAttribute("data-h3-nle-pixels-per-frame")),
     viewStart: Number(await timeline.getAttribute("data-h3-nle-view-start")),
@@ -32,14 +32,14 @@ async function rulerGeometry(page: Page, slider: Locator) {
 }
 
 /**
- * GUARD (M25-64, B-M2561-04): the ruler is pressed with no wait for the transport to be "steady".
+ * GUARD (, B-M2561-04): the ruler is pressed with no wait for the transport to be "steady".
  * An accepted edit -- a selection included -- still rebinds the monitor, but the ruler stays
- * available and a press sent during the rebind is held for the new owner. M25-61 had added a
+ * available and a press sent during the rebind is held for the new owner. had added a
  * 150 ms steady-state wait here to step around the dropped press; restoring one would hide that
  * defect from every journey that seeks.
  */
 /**
- * M25-64 A64-8 (B-M2561-04): one ruler press at `frame`, with no wait for the transport to be
+ *  A64-8 (B-M2561-04): one ruler press at `frame`, with no wait for the transport to be
  * steady first. Resolves to the pressed frame; the caller asserts where the playhead lands.
  */
 export async function pressRuler(

@@ -16,16 +16,16 @@ import { fixtureBackedAppModeHost } from "./support/hostSeamTestDouble";
 import { acceptedQueueResponse } from "./support/queuePromptTestDouble";
 
 /**
- * M17-20 phase 4, D7. The edit path itself is not new: an accepted Context
+ *  phase 4, D7. The edit path itself is not new: an accepted Context
  * revision goes through the existing sidebar workspace transaction and then
  * Production `replace_segment_from_context`, and the backend already refuses to
- * reuse a receipt whose segment identity moved (M17-12 selective rerun). What is
+ * reuse a receipt whose segment identity moved ( selective rerun). What is
  * new is what App Mode does with the second revision, and that is what these
  * rows assert: a regeneration produces a different full graph, a different
  * compiled identity and a different artifact location, so the artifact of the
  * revision it replaced can neither satisfy it nor be overwritten by it.
  *
- * No edit surface is exercised here because M17-20 introduces none. What is
+ * No edit surface is exercised here because introduces none. What is
  * exercised is the consequence of an edit reaching the shell.
  */
 
@@ -195,7 +195,7 @@ describe("an edited revision regenerates into its own graph, identity and artifa
   });
 
   it("leaves a canvas the user can keep working on", async () => {
-    // AC-M17-20-05: continuing after a run must not require switching workflows.
+    // AC--05: continuing after a run must not require switching workflows.
     // The regenerated canvas has to be one App Mode can bind again, or the next
     // edit would have to discard it.
     const second = await materialize(revisionB);

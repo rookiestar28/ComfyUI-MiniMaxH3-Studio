@@ -1,11 +1,11 @@
-"""M17-17 Ref2VA soundtrack canonical-ownership reproduction row R1.
+"""Ref2VA soundtrack canonical-ownership reproduction row R1.
 
 This module pins what the repository's own typed report claims about a reference video's
 soundtrack, so the browser rows can be compared against an executable oracle instead of
 against a hand-written expectation. The pure core is already correct here: an explicit
 ``paired_audios`` asset is the only route to a native ``ref_video_audio_*`` binding, and a
 registry that never receives one declares, everywhere it speaks, that no soundtrack was
-submitted. What M17-17 reproduces is that App Mode materializes a graph which submits one
+submitted. What reproduces is that App Mode materializes a graph which submits one
 anyway.
 """
 
@@ -176,7 +176,7 @@ class Ref2VASoundtrackOwnershipTests(unittest.TestCase):
         # The core carries two guards for it. The ordering guard is the one that fires, because
         # two soundtracks cannot both immediately precede the same video; the duplicate-count
         # guard behind it is defensive and unreachable through this arrangement. What matters
-        # for M17-17 is that the shape is refused rather than silently reduced to one owner.
+        # for is that the shape is refused rather than silently reduced to one owner.
         with self.assertRaises(ReferenceRegistryError) as context:
             build_reference_registry(
                 (

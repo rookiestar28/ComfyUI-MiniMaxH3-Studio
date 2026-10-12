@@ -1,4 +1,4 @@
-"""M25-45 AC45-12: the loopback service's media allowance admits one pinned pair and nothing else.
+"""AC45-12: the loopback service's media allowance admits one pinned pair and nothing else.
 
 The allowance exists so a journey can prove a real derivative through the real route and the real
 codec. It is the only way a process this service starts can ever run, so every rule that bounds it

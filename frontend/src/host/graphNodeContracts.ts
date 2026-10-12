@@ -832,7 +832,7 @@ export function validateSerializedWrapperPorts(
             !Array.isArray(value),
         )
       : [];
-    // M17-20 D11/D13: a subgraph whose definition holds none of the context
+    //  D11/D13: a subgraph whose definition holds none of the context
     // chain is the template's or the user's own. Its promoted widgets and the
     // slots its instance materializes are its design, not a contract this
     // repository wrote, so only the generic serialized-shape checks above apply.

@@ -90,6 +90,14 @@ class DecodedCfrVideo:
     frame_rate: Decimal
 
 
+def _valid_profiles(profiles: object) -> bool:
+    return profiles is None or (
+        type(profiles) is frozenset
+        and bool(profiles)
+        and all(type(profile) is str and profile in PROFILE_MODELS for profile in profiles)
+    )
+
+
 @dataclass(frozen=True)
 class PerceptionHostSettings:
     python_executable: Path = field(repr=False)
@@ -97,6 +105,7 @@ class PerceptionHostSettings:
     weight_path: Path | None = field(default=None, repr=False)
     processor_dir: Path | None = field(default=None, repr=False)
     cancelled: Callable[[], bool] = field(default=lambda: False, repr=False, compare=False)
+    profiles: frozenset[str] | None = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
         for value in (
@@ -109,6 +118,8 @@ class PerceptionHostSettings:
                 raise ContractValidationError("host paths must be absolute operator configuration")
         if not callable(self.cancelled):
             raise ContractValidationError("host cancellation probe must be callable")
+        if not _valid_profiles(self.profiles):
+            raise ContractValidationError("host profile subset must be exact and admitted")
 
 
 @dataclass(frozen=True, eq=False)
@@ -129,13 +140,18 @@ def _configuration(binding: PerceptionHostBinding) -> tuple[Any, ...]:
         settings.weight_path,
         settings.processor_dir,
         id(settings.cancelled),
+        settings.profiles,
     )
 
 
 def _is_current(binding: PerceptionHostBinding) -> bool:
-    # CRITICAL: frozen dataclasses alone do not attest nested configuration. Pin the
-    # registration snapshot so changing paths/cancellation cannot reuse old authority.
-    return _BINDING is binding and _SETTINGS.get(binding) == _configuration(binding)
+    # CRITICAL: validate the subset's exact type before equality or membership. A mutated
+    # subclass could forge admission; the pinned snapshot revokes changed paths/profiles/probes.
+    return (
+        _BINDING is binding
+        and _valid_profiles(binding.settings.profiles)
+        and _SETTINGS.get(binding) == _configuration(binding)
+    )
 
 
 def configure_perception_host(settings: PerceptionHostSettings) -> PerceptionHostBinding:
@@ -165,7 +181,9 @@ def perception_configured(profile_id: str) -> bool:
     return (
         binding is not None
         and _is_current(binding)
+        and type(profile_id) is str
         and profile_id in PROFILE_MODELS
+        and (binding.settings.profiles is None or profile_id in binding.settings.profiles)
         and (
             profile_id != AUDIO_PROFILE
             or (
@@ -520,6 +538,9 @@ def execute_perception(
     local_service_consent: bool,
     request: RawContextRequest | None = None,
 ) -> QualifiedPerceptionResult:
+    # CRITICAL: unsupported platforms must refuse before probes, media decoding or worker IO.
+    if os.name != "nt":
+        raise PerceptionExecutionError("unsupported_platform")
     with _LOCK:
         binding = _BINDING
     if binding is None or not perception_configured(profile_id):

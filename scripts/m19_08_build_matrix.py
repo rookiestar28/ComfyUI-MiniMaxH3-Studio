@@ -1,4 +1,4 @@
-"""Build the M19-08 refreshed qualification matrix from the live evidence record.
+"""Build the refreshed qualification matrix from the live evidence record.
 
 Reproducible and auditable: the per-row verdicts and findings live here as reviewed text; the
 live facts come only from the evidence JSON the probe executor wrote; the subject block is
@@ -7,11 +7,11 @@ subject fails the build instead of publishing a matrix about something else.
 
 Usage:
 
-    python scripts/m19_08_build_matrix.py \
+    python scripts/_build_matrix.py \
         --host http://127.0.0.1:8188/ \
         --native-source <supplied host root>/comfy_extras/nodes_minimax_h3.py \
-        --evidence .planning/260820-M19-08_LIVE_EVIDENCE.json \
-        --output .planning/260820-M19-08_QUALIFICATION_MATRIX.json
+        --evidence.planning/260820-_LIVE_EVIDENCE.json \
+        --output.planning/260820-_QUALIFICATION_MATRIX.json
 """
 
 from __future__ import annotations
@@ -249,7 +249,7 @@ def main() -> int:
     if len(carried) != 1 or carried[0]["status"] != "supported":
         print("BLOCKED: the predecessor temporal_profile row is not the accepted supported row")
         return EXIT_BLOCKED
-    # Carried forward unchanged: M19-08 re-measured only the four previously unqualified
+    # Carried forward unchanged: re-measured only the four previously unqualified
     # rows; the accepted temporal_profile row remains the standing result.
     matrix_rows = list(carried)
     for row in ROWS:

@@ -1,4 +1,4 @@
-"""Validate the M16-01 source/API/model/host requalification ledger offline.
+"""Validate the source/API/model/host requalification ledger offline.
 
 The ledger is a content-free, versioned disposition record.  It never fetches URLs, imports a
 runtime, opens media, downloads a model, or promotes latest-compatible observations to the pinned
@@ -55,7 +55,7 @@ _ALLOWED_CONFIDENCE = frozenset({"high", "medium", "low", "unknown"})
 
 
 class M16RequalificationError(ValueError):
-    """Raised when an M16-01 ledger is incomplete, inconsistent, or claim-escalating."""
+    """Raised when an ledger is incomplete, inconsistent, or claim-escalating."""
 
 
 @dataclass(frozen=True, slots=True)

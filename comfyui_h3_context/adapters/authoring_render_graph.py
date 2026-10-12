@@ -300,42 +300,100 @@ def build_render_graph(*, plan: RenderPlanV1, prepared: PreparedRenderAssets) ->
             style = layer.text
             text = texts[layer.clip_id]
             native_w, native_h = width, height
-            alignment = {"left": "L", "center": "C", "right": "R"}[style.align]
             x = {"left": "0", "center": "(w-text_w)/2", "right": "w-text_w"}[style.align]
-            line_spacing = round(style.size_px * (style.line_height_bp / 10000 - 1))
-            draw = (
-                f"drawtext=fontfile={text.font_path.name}:textfile={text.text_path.name}"
-                f":expansion=none:reload=0:fontsize={style.size_px}:fontcolor={_rgba(style.fill_rgba)}"
-                f":x={x}:y=(h-text_h)/2:text_align={alignment}:line_spacing={line_spacing}:fix_bounds=0"
-            )
-            if style.background_rgba is not None:
-                draw += f":box=1:boxcolor={_rgba(style.background_rgba)}:boxborderw=0"
-            if text.lines:
-                # CRITICAL: align the literal line surface, not drawtext's glyph box. Its
-                # non-left internal alignment clips tabs on unequal-width multiline text.
-                line_height = round(style.size_px * style.line_height_bp / 10000)
-                draws: list[str] = []
-                for line_number, (line_path, _) in enumerate(text.lines):
-                    if line_path is None:
-                        continue
-                    y = (
-                        f"(h-{len(text.lines) * line_height})/2+"
-                        f"{line_number * line_height}+( {line_height}-font_a-font_d)/2"
-                    ).replace(" ", "")
-                    line_draw = (
-                        f"drawtext=fontfile={text.font_path.name}:textfile={line_path.name}"
-                        f":expansion=none:reload=0:fontsize={style.size_px}"
-                        f":fontcolor={_rgba(style.fill_rgba)}:x={x}:y={y}"
-                        ":y_align=font:text_align=L:tabsize=4:fix_bounds=0"
+            if not text.lines:
+                raise RenderGraphError()
+            # CRITICAL: positive half-up must match Canvas Math.round. Python round's
+            # ties-to-even changes legal half-pixel advances and shifts 32-line bands by 16px.
+            line_height = (style.size_px * style.line_height_bp + 5000) // 10000
+            backgrounds: list[str] = []
+            glyphs: list[str] = []
+            for line_number, (line_path, _) in enumerate(text.lines):
+                if line_path is None:
+                    continue
+                base_draw = (
+                    f"drawtext=fontfile={text.font_path.name}:textfile={line_path.name}"
+                    f":expansion=none:reload=0:fontsize={style.size_px}"
+                    ":text_align=L:tabsize=4:fix_bounds=0"
+                )
+                band_top = f"(h-{len(text.lines) * line_height})/2+{line_number * line_height}"
+                y = f"{band_top}+({line_height}-font_a-font_d)/2"
+                if style.background_rgba is not None:
+                    # CRITICAL: a glyph's font-y box is not its line band. Anchor background
+                    # calls separately and paint ALL boxes first; interleaving erases shadows.
+                    backgrounds.append(
+                        f"{base_draw}:fontcolor=black@0:x={x}:y={band_top}"
+                        f":box=1:boxcolor={_rgba(style.background_rgba)}"
+                        f":boxh={line_height}:boxborderw={style.background_padding_px or 0}"
                     )
-                    if style.background_rgba is not None:
-                        line_draw += f":box=1:boxcolor={_rgba(style.background_rgba)}:boxborderw=0"
-                    draws.append(line_draw)
-                draw = ",".join(draws)
-            source = (
-                f"color=c=black@0:s={width}x{height}:r=24,format=rgba,{draw},"
-                f"trim=end_frame={duration},settb=1/24,setpts=N"
+                if style.shadow is not None:
+                    shadow = style.shadow
+                    # CRITICAL: built-in drawtext shadow skips legal (0,0). A separate glyph
+                    # pass also keeps stroke silhouette/offsets in native pre-transform space.
+                    shadow_draw = (
+                        f"{base_draw}:fontcolor={_rgba(shadow.rgba)}"
+                        f":x={x}+{shadow.offset_x_px}:y={y}+{shadow.offset_y_px}:y_align=font"
+                    )
+                    if style.stroke is not None:
+                        shadow_draw += (
+                            f":borderw={style.stroke.width_px}:bordercolor={_rgba(shadow.rgba)}"
+                        )
+                    glyphs.append(shadow_draw)
+                fill_draw = (
+                    f"{base_draw}:fontcolor={_rgba(style.fill_rgba)}:x={x}:y={y}:y_align=font"
+                )
+                if style.stroke is not None:
+                    fill_draw += (
+                        f":borderw={style.stroke.width_px}:bordercolor={_rgba(style.stroke.rgba)}"
+                    )
+                glyphs.append(fill_draw)
+            decorated = (
+                style.stroke is not None
+                or style.shadow is not None
+                or style.background_padding_px is not None
             )
+            if decorated:
+                passes = [*backgrounds, *glyphs]
+                # CRITICAL: admitted drawtext blends colour alpha into alpha again. Compute
+                # coverage independently or half-alpha backgrounds become quarter-alpha.
+                mask_passes = [
+                    re.sub(
+                        r"(fontcolor|boxcolor|bordercolor)=[^:,@]+(@[^:,]+)?",
+                        lambda match: match[1] + "=white" + (match[2] or ""),
+                        draw,
+                    )
+                    for draw in passes
+                ]
+                filters.extend(
+                    [
+                        f"color=c=black:s={width}x{height}:r=24,format=rgba,trim=end_frame=1,split=2[{prefix}tc][{prefix}ta]",
+                        f"[{prefix}tc]" + ",".join([*passes, "format=rgb24"]) + f"[{prefix}tcolor]",
+                        f"[{prefix}ta]"
+                        + ",".join([*mask_passes, "format=gray"])
+                        + f"[{prefix}talpha]",
+                    ]
+                )
+                # CRITICAL: mark the merged pixels premultiplied; this binary otherwise
+                # bypasses unpremultiply and straight overlay darkens the colour a second time.
+                source = (
+                    f"[{prefix}tcolor][{prefix}talpha]alphamerge,"
+                    "setparams=alpha_mode=premultiplied,format=gbrap,"
+                    "unpremultiply=inplace=1,format=rgba"
+                )
+                # CRITICAL: a run's text is constant. Rasterize it once and cache ONE RGBA
+                # frame; repeating 96 drawtext calls per frame exceeds the 600s CPU budget.
+                # Hold before transforms/effects/fades so temporal operations still advance.
+                source += ",loop=loop=-1:size=1:start=0"
+            else:
+                source = ",".join(
+                    [
+                        f"color=c=black@0:s={width}x{height}:r=24",
+                        "format=rgba",
+                        *backgrounds,
+                        *glyphs,
+                    ]
+                )
+            source += f",trim=end_frame={duration},settb=1/24,setpts=N"
         else:
             if layer.asset_id is None or layer.asset_id not in media:
                 raise RenderGraphError()
@@ -358,7 +416,7 @@ def build_render_graph(*, plan: RenderPlanV1, prepared: PreparedRenderAssets) ->
                 # CRITICAL: these holds come from resolved source_frame values. fps alone
                 # on source timestamps would invent a second VFR selection rule.
                 #
-                # GUARD (measured 2026-09-10, M25-20 B-60): `tpad` stamps its clones from its own
+                # GUARD (measured 2026-09-10, B-60): `tpad` stamps its clones from its own
                 # frame count times one source-rate period, never from the pts `setpts` just
                 # assigned. That coincides with the next output offset only when the selected
                 # frames sit one source period apart -- a 24 fps source held once per frame, or

@@ -1,4 +1,4 @@
-// M25-43 B-M2543-01: the H3 sidebar floor is a minimum, never a fixed width. Opened narrow, the
+//  B-M2543-01: the H3 sidebar floor is a minimum, never a fixed width. Opened narrow, the
 // host panel, its content wrapper and the H3 mount reach the 704 px floor; dragged wider, all three
 // follow the panel; dragged narrower, the panel holds the floor; disposed, every inline value the
 // controller wrote is gone. Measured from rendered boxes in a host-shaped flex splitter.

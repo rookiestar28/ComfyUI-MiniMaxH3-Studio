@@ -27,6 +27,7 @@ from scripts.public_projection import (
     project,
     snapshot,
 )
+from scripts.public_redaction import redact_blobs
 from scripts.validate_comfy_registry_metadata import PUBLIC_IDENTITY_PATHS
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -53,7 +54,10 @@ def _fixture(root: Path) -> tuple[str, str]:
     for name in (
         "__init__.py",
         "registry_release_controller.py",
+        "release_push_guard.py",
         "public_projection.py",
+        "public_redaction.py",
+        "public_redaction_frontend.mjs",
         "public_source_policy.py",
         "public_build_backend.py",
         "sdist_payload.py",
@@ -62,6 +66,8 @@ def _fixture(root: Path) -> tuple[str, str]:
         "registry_payload.py",
         "registry_publication_capsule.py",
         "registry_publish_guard.py",
+        # IMPORTANT: the copied publish workflow requires this real guard in every positive fixture.
+        "public_ci_gate.py",
         "validate_comfy_registry_metadata.py",
     ):
         target = root / "scripts" / name
@@ -87,11 +93,13 @@ def _fixture(root: Path) -> tuple[str, str]:
         "requirements/secret-scan-baseline.json",
         "frontend/package.json",
         "frontend/pnpm-lock.yaml",
+        "governance/contracts/public_redaction_allowlist_v1.json",
         "frontend/playwright.config.ts",
         "frontend/vitest.config.ts",
         "scripts/run_full_tests_windows.ps1",
         "scripts/run_full_tests_linux.sh",
         "tests/fixtures/m16_01_source_requalification.json",
+        "tests/fixtures/m8_04_release_matrix.json",
         "compatibility/compatibility_matrix_v1.json",
         *PUBLIC_IDENTITY_PATHS,
     ):
@@ -140,9 +148,14 @@ def test_projection_is_reproducible_and_preserves_index_head(repository: Any) ->
     assert first["public_tree"] == second["public_tree"]
     assert snapshot(root) == before
     selected = entries(root, str(first["public_commit"]))
-    assert selected == {
-        path: value for path, value in entries(root, source).items() if allowed(path)
+    original = {path: value for path, value in entries(root, source).items() if allowed(path)}
+    assert selected.keys() == original.keys()
+    assert {path: value[:2] for path, value in selected.items()} == {
+        path: value[:2] for path, value in original.items()
     }
+    assert projection_module._blobs(root, selected) == redact_blobs(
+        projection_module._blobs(root, original), toolchain_root=ROOT
+    )
     assert "scripts/fixture.py" in selected
     assert "frontend/src/__tests__/fixture.py" in selected
     assert all(not path.startswith(".github/") or path in PUBLICATION_FILES for path in selected)
@@ -204,12 +217,34 @@ def test_publication_package_initializer_cannot_be_omitted(repository: Any) -> N
         project(root, source=source, parent=parent, output=root / ".tmp/missing-initializer")
 
 
-def test_projection_clone_uses_only_tracked_inputs(repository: Any) -> None:
+def test_projection_clone_uses_only_tracked_inputs(
+    repository: Any, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     root, parent, source = repository
+    empty_config = tmp_path / "empty-git-config"
+    empty_config.write_bytes(b"")
+    for key in list(os.environ):
+        if key.startswith(("GIT_AUTHOR_", "GIT_COMMITTER_", "GIT_CONFIG_")) or key == "EMAIL":
+            monkeypatch.delenv(key)
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(empty_config))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(empty_config))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
     clone = root / ".tmp/clone"
     clone.parent.mkdir()
+    # IMPORTANT: clone does not inherit local identity; commit-tree needs its own fixture identity.
     completed = subprocess.run(
-        ["git", "clone", "--quiet", "--no-hardlinks", str(root), str(clone)],
+        [
+            "git",
+            "clone",
+            "--quiet",
+            "--no-hardlinks",
+            "--config",
+            "user.name=Fixture",
+            "--config",
+            "user.email=fixture@example.invalid",
+            str(root),
+            str(clone),
+        ],
         capture_output=True,
         check=False,
         timeout=30,
@@ -253,6 +288,7 @@ def test_projected_publication_guard_runs_without_development_checkout(repositor
         "scripts/__init__.py",
         ".github/workflows/publish.yml",
         "scripts/registry_publish_guard.py",
+        "scripts/public_ci_gate.py",
         "scripts/registry_payload.py",
         "scripts/validate_comfy_registry_metadata.py",
         "scripts/public_projection.py",
@@ -261,6 +297,14 @@ def test_projected_publication_guard_runs_without_development_checkout(repositor
     assert required <= set(entries(public, str(receipt["public_commit"])))
     assert (public / "scripts/registry_release_controller.py").is_file()
     assert not (public / ".github/workflows/fixture.yml").exists()
+    hosted_guard = subprocess.run(
+        [sys.executable, "-I", "-S", str(public / "scripts/public_ci_gate.py"), "--help"],
+        cwd=public,
+        capture_output=True,
+        check=False,
+        timeout=30,
+    )
+    assert hosted_guard.returncode == 0, hosted_guard.stdout + hosted_guard.stderr
     result = subprocess.run(
         [
             sys.executable,
@@ -397,6 +441,7 @@ def test_controller_transfers_one_exact_audited_archive(repository: Any) -> None
         packed.append(command)
         assert command[2] == str(root / "scripts/registry_pack_entry.py")
         assert (cwd / "scripts/registry_publish_guard.py").is_file()
+        assert (cwd / "scripts/public_ci_gate.py").is_file()
         assert (cwd / ".github/workflows/publish.yml").is_file()
         assert (cwd / "scripts/registry_release_controller.py").is_file()
         with zipfile.ZipFile(cwd / "node.zip", "w", zipfile.ZIP_DEFLATED) as archive:

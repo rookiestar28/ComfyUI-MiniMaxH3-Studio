@@ -42,7 +42,7 @@ describe("shell state", () => {
   });
 
   /**
-   * M23-25. A detached admission refusal leaves the current canvas untouched.
+   * . A detached admission refusal leaves the current canvas untouched.
    * Graph census events therefore cannot erase the error or claim that the
    * refused candidate has been repaired on-canvas.
    */

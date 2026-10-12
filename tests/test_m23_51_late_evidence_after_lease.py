@@ -1,6 +1,6 @@
-"""The converse of M23-51's addressability fix: the aggregate goes first, the coordinator row stays.
+"""The converse of 's addressability fix: the aggregate goes first, the coordinator row stays.
 
-M23-51 closed the direction that mattered for the item -- a run retained by its lease stayed
+ closed the direction that mattered for the item -- a run retained by its lease stayed
 addressable through the coordinator. The round-2 reviewer found that the record's claim about the
 *other* direction was wrong. A detached lease shorter than the coordinator's own 900-second TTL
 expires first, and a real `record_running` / `record_artifact` / `record_terminal` arriving in that
@@ -15,7 +15,7 @@ failure for a run that is in fact resolved, and the browser retries something th
 succeed.
 
 It is reachable with the timeout the shared test observation already uses (60 s, so a lease of
-60 + 300 = 360 s against a 900 s row), and it becomes reachable in the product the moment M26-04
+60 + 300 = 360 s against a 900 s row), and it becomes reachable in the product the moment
 passes a `parent_absolute_deadline` or any caller sends a short timeout.
 """
 
@@ -165,7 +165,7 @@ def test_late_host_evidence_for_an_expired_aggregate_is_gone_not_an_internal_fai
 
 def test_the_refusal_writes_nothing(tmp_path: Path) -> None:
     # A guard that answered 410 *after* mutating would be worse than the 500 it replaces: the two
-    # records would then disagree, which is the divergent-authority defect M23-31 exists to remove.
+    # records would then disagree, which is the divergent-authority defect exists to remove.
     coordinator, handle, fingerprint = _detached_run_past_its_lease(tmp_path)
     before = coordinator._runs[handle].state.fingerprint
 

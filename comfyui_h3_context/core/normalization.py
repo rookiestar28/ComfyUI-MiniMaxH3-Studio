@@ -42,7 +42,7 @@ from .length import (
 )
 from .registry import ReferenceRegistry
 
-# M17-25: the lattice, the ranges and the conversions live in `.length`, which is
+# the lattice, the ranges and the conversions live in `.length`, which is
 # the single alignment authority. These names are re-exported rather than
 # redefined so existing importers keep working, and so no second copy of the
 # arithmetic can drift from the first.
@@ -249,7 +249,7 @@ def _normalize_duration(
 ) -> tuple[float | None, int, DurationSource] | None:
     """Resolve the single authored length into a producible frame count.
 
-    M17-25: duration is the only authored length. The conversion is delegated to
+    duration is the only authored length. The conversion is delegated to
     `.length`, the single alignment authority, so the Context path and the
     Production segment workspace cannot drift apart.
     """
@@ -324,7 +324,7 @@ def _normalize_duration(
         return None
 
     # Compared against the request, not against the intermediate estimate. The
-    # pre-M17-25 warning compared aligned against raw, so a 4.46 s request -- raw
+    # pre- warning compared aligned against raw, so a 4.46 s request -- raw
     # and aligned both 107 frames, delivered 4.458 s -- moved silently.
     if resolved.snapped:
         diagnostics.append(

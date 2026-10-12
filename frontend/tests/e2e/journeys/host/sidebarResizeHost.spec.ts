@@ -26,7 +26,7 @@ import {
 } from "../../host/environment";
 
 /**
- * M25-43 supplied-host observation in the host's own sidebar, not a helper panel. The H3 tab opens
+ *  supplied-host observation in the host's own sidebar, not a helper panel. The H3 tab opens
  * at the 704 px floor; the planning actions tile one shared five-column grid to the row's right
  * edge; the pointer shows `not-allowed` over an unavailable action and a hand over an available
  * one; dragging the real splitter gutter wider makes the content wrapper, the H3 root and the

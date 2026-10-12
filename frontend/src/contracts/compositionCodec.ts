@@ -17,6 +17,8 @@ import {
   resolvedLayerKeys,
   resolvedSceneKeys,
   textStyleKeys,
+  textStrokeKeys,
+  textShadowKeys,
   timingLandmarkKeys,
   transform2DKeys,
   transitionKeys,
@@ -337,7 +339,7 @@ function rational(
 
 function sourceClockRational(value: unknown, name: string): Rational {
   // IMPORTANT: source clocks are observed media facts, not output-rate controls. Keep their
-  // exact-integer bound separate or the accepted 1/12288 M25-09 corpus is rejected as invalid.
+  // exact-integer bound separate or the accepted 1/12288 corpus is rejected as invalid.
   return rational(value, name, MAX_SAFE, MAX_SAFE);
 }
 
@@ -544,17 +546,164 @@ function rgba(value: unknown, name: string): readonly number[] {
   );
 }
 
+const textOptionalMembers = [
+  "stroke",
+  "shadow",
+  "background_padding_px",
+] as const;
+
+/** Preserve nine required legacy keys while admitting only present optional members. */
+export function compositionTextStyleKeys(
+  value: unknown,
+  includeContent = true,
+): readonly string[] {
+  return textStyleKeys.filter(
+    (key) =>
+      (includeContent || key !== "content") &&
+      (!textOptionalMembers.some((optional) => optional === key) ||
+        (value !== null &&
+          typeof value === "object" &&
+          Object.hasOwn(value, key))),
+  );
+}
+
+export type TextStroke = Readonly<{ rgba: readonly number[]; widthPx: number }>;
+export type TextShadow = Readonly<{
+  rgba: readonly number[];
+  offsetXPx: number;
+  offsetYPx: number;
+}>;
+export type TextDecorations = Readonly<{
+  stroke?: TextStroke;
+  shadow?: TextShadow;
+  backgroundPaddingPx?: number;
+}>;
+type TextRgbaWire = readonly [number, number, number, number];
+export type TextDecorationWire = Readonly<{
+  stroke?: Readonly<{ rgba: TextRgbaWire; width_px: number }>;
+  shadow?: Readonly<{
+    rgba: TextRgbaWire;
+    offset_x_px: number;
+    offset_y_px: number;
+  }>;
+  background_padding_px?: number;
+}>;
+
+export function hasTextDecorations(
+  text: Readonly<Record<string, unknown>> | null,
+): boolean {
+  return (
+    text !== null &&
+    (text.stroke !== undefined ||
+      text.shadow !== undefined ||
+      text.backgroundPaddingPx !== undefined)
+  );
+}
+
+/** One canonical snake-case propagation seam for commands and resolved scenes. */
+export function textDecorationWire(
+  text: Readonly<Record<string, unknown>>,
+): TextDecorationWire {
+  const stroke = text.stroke as TextStroke | undefined;
+  const shadow = text.shadow as TextShadow | undefined;
+  return Object.freeze({
+    ...(stroke === undefined
+      ? {}
+      : {
+          stroke: Object.freeze({
+            rgba: Object.freeze([...stroke.rgba]) as TextRgbaWire,
+            width_px: stroke.widthPx,
+          }),
+        }),
+    ...(shadow === undefined
+      ? {}
+      : {
+          shadow: Object.freeze({
+            rgba: Object.freeze([...shadow.rgba]) as TextRgbaWire,
+            offset_x_px: shadow.offsetXPx,
+            offset_y_px: shadow.offsetYPx,
+          }),
+        }),
+    ...(text.backgroundPaddingPx === undefined
+      ? {}
+      : { background_padding_px: Number(text.backgroundPaddingPx) }),
+  });
+}
+
+/** Shared decoration semantics for composition and complete-style commands. */
+export function decodeTextDecorations(
+  wire: Record<string, unknown>,
+  name: string,
+): TextDecorations {
+  const result: {
+    stroke?: TextStroke;
+    shadow?: TextShadow;
+    backgroundPaddingPx?: number;
+  } = {};
+  function visibleColor(value: unknown, label: string) {
+    const color = rgba(value, label);
+    // CRITICAL: disabled decorations are absent, not alpha-zero alternate fingerprints.
+    if (color[3] === 0)
+      fail("invalid_contract", `${label} disabled decoration must be omitted`);
+    return color;
+  }
+  if (Object.hasOwn(wire, "stroke")) {
+    const stroke = object(wire.stroke, textStrokeKeys, `${name}.stroke`);
+    result.stroke = Object.freeze({
+      rgba: visibleColor(stroke.rgba, `${name}.stroke.rgba`),
+      widthPx: exactInteger(stroke.width_px, 1, 32, `${name}.stroke.width_px`),
+    });
+  }
+  if (Object.hasOwn(wire, "shadow")) {
+    const shadow = object(wire.shadow, textShadowKeys, `${name}.shadow`);
+    result.shadow = Object.freeze({
+      rgba: visibleColor(shadow.rgba, `${name}.shadow.rgba`),
+      offsetXPx: exactInteger(
+        shadow.offset_x_px,
+        -64,
+        64,
+        `${name}.shadow.offset_x_px`,
+      ),
+      offsetYPx: exactInteger(
+        shadow.offset_y_px,
+        -64,
+        64,
+        `${name}.shadow.offset_y_px`,
+      ),
+    });
+  }
+  if (Object.hasOwn(wire, "background_padding_px")) {
+    result.backgroundPaddingPx = exactInteger(
+      wire.background_padding_px,
+      1,
+      64,
+      `${name}.background_padding_px`,
+    );
+    if (wire.background_rgba === null)
+      fail("invalid_contract", `${name}.padding requires a background`);
+  }
+  return Object.freeze(result);
+}
+
+export function admittedTextLineCount(content: string): number {
+  const separator = /\r\n|[\n\v\f\r\u001c-\u001e\u0085\u2028\u2029]/u;
+  return (
+    content.split(separator).length -
+    (/\r\n$|[\n\v\f\r\u001c-\u001e\u0085\u2028\u2029]$/u.test(content) ? 1 : 0)
+  );
+}
+
 function decodeText(
   value: unknown,
   name: string,
 ): Readonly<Record<string, unknown>> | null {
   if (value === null) return null;
-  const wire = object(value, textStyleKeys, name);
+  const wire = object(value, compositionTextStyleKeys(value), name);
   if (
     typeof wire.content !== "string" ||
     Array.from(wire.content).length < 1 ||
     Array.from(wire.content).length > 2_048 ||
-    wire.content.split(/\r?\n/u).length > 32 ||
+    admittedTextLineCount(wire.content) > 32 ||
     /\u0000|[\u0001-\u0008\u000B\u000C\u000E-\u001F]/u.test(wire.content)
   )
     fail("invalid_contract", `${name}.content is outside text bounds`);
@@ -585,6 +734,7 @@ function decodeText(
       wire.background_rgba === null
         ? null
         : rgba(wire.background_rgba, `${name}.background_rgba`),
+    ...decodeTextDecorations(wire, name),
   });
 }
 
@@ -1109,7 +1259,7 @@ export function compositionContractFingerprint(value: unknown): string {
  *
  * CRITICAL: this mirrors `composition_contract.operation_disposition` rule for rule, including the
  * order of the two refusals -- the audio namespace is checked before profile membership, so an
- * audio command never reports `operation_not_in_profile`. The M23-46 differential corpus compares
+ * audio command never reports `operation_not_in_profile`. The differential corpus compares
  * this function against its Python counterpart, so a divergence here is a cross-language contract
  * break rather than a local style choice. Do not reimplement it in a test: a copy written for the
  * corpus would agree with itself and prove nothing.
@@ -1468,6 +1618,7 @@ const resolvedOperations = [
   "BlendV1",
   "CrossDissolveV1",
   "DrawTextV1",
+  "TextDecorationV1",
 ] as const;
 
 export function decodeResolvedScene(value: unknown): ResolvedCompositionScene {
@@ -1602,6 +1753,8 @@ export function decodeResolvedScene(value: unknown): ResolvedCompositionScene {
         if (transitionElapsedFrames !== null)
           expectedOperations.push("CrossDissolveV1");
         if (text !== null) expectedOperations.push("DrawTextV1");
+        if (hasTextDecorations(text))
+          expectedOperations.push("TextDecorationV1");
         // IMPORTANT: operation order is executable resolver semantics. Accepting a subset or a
         // permutation lets a forged browser hand-off render a different scene under one identity.
         if (JSON.stringify(operationIds) !== JSON.stringify(expectedOperations))

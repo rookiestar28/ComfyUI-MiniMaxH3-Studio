@@ -1,4 +1,4 @@
-"""M15-03 thin ComfyUI product-shell node boundary tests."""
+"""thin ComfyUI product-shell node boundary tests."""
 
 from __future__ import annotations
 

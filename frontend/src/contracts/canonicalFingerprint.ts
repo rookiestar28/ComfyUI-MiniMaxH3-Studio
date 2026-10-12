@@ -115,6 +115,36 @@ function hex(value: Uint8Array): string {
   );
 }
 
+/**
+ * True only for a value no reader can observe changing: a primitive, or a frozen plain object or
+ * array whose own properties are all data properties holding such values. `Object.isFrozen` alone
+ * is not enough -- a frozen object can expose a getter over outside state or inherit its fields
+ * from a prototype -- so a result keyed by an object's identity may be remembered only for this.
+ */
+export function inertImmutable(
+  value: unknown,
+  checked: Set<object> = new Set(),
+): boolean {
+  if (typeof value === "function") return false;
+  if (value === null || typeof value !== "object") return true;
+  if (checked.has(value)) return true;
+  checked.add(value);
+  const prototype = Object.getPrototypeOf(value);
+  if (
+    !Object.isFrozen(value) ||
+    (Array.isArray(value)
+      ? prototype !== Array.prototype
+      : prototype !== Object.prototype && prototype !== null)
+  )
+    return false;
+  return Reflect.ownKeys(value).every((key) => {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+    return descriptor !== undefined && "value" in descriptor
+      ? inertImmutable(descriptor.value, checked)
+      : false;
+  });
+}
+
 export function sha256Text(value: string): string {
   return `sha256:${hex(digestBytes(new TextEncoder().encode(value)))}`;
 }

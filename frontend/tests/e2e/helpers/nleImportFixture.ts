@@ -1,5 +1,5 @@
-// Process owner for `scripts/m25_16_import_fixture.py`: the persistent hermetic backend behind the
-// M25-16 Production-to-Authoring import journeys. The Playwright route forwards the shell
+// Process owner for `scripts/_import_fixture.py`: the persistent hermetic backend behind the
+//  Production-to-Authoring import journeys. The Playwright route forwards the shell
 // harness's `/__nle_fixture/*` calls to this process over a JSON-lines pipe, so every authoring
 // action, production read and import that the REAL shell session issues is answered by the real
 // registries and the real import service. One process per test; `close()` ends it.
@@ -60,7 +60,7 @@ export type ImportFixture = Readonly<{
   >;
   /**
    * What the fixture declared at bootstrap: the media mode it served and, in `corpus` mode
-   * (M25-20 B-65), the fingerprint and byte length of the real imported source it encoded.
+   * ( B-65), the fingerprint and byte length of the real imported source it encoded.
    * `null` until the shell has bootstrapped, and for the synthetic mode's fingerprint fields.
    */
   bootstrap: () => Readonly<{
@@ -76,6 +76,8 @@ export type ImportFixture = Readonly<{
   bootstrapReply: () => Readonly<{
     status: number;
     error: string | null;
+    operation: string | null;
+    code: string | null;
   }> | null;
   /** Real product render traffic and the exact verified bytes served by its download route. */
   output: Readonly<{
@@ -103,7 +105,7 @@ export type ImportFixtureOptions = Readonly<{
    * Called after the real service has already applied a call, with the route kind and that
    * kind's zero-based index. `"abort"` drops the reply on the floor (connection reset), so the
    * session observes a lost response for a request the backend has committed -- the unknown
-   * outcome the M25-21 import recovery row is about. Defaults to fulfilling every reply.
+   * outcome the import recovery row is about. Defaults to fulfilling every reply.
    */
   reply?: (
     kind: "authoring" | "production" | "import",
@@ -123,7 +125,7 @@ export type ImportFixtureOptions = Readonly<{
    * Runs before a call is dispatched to the service, with a control that applies a real
    * concurrent backend change. Unlike `refuse`, the call is then answered by the real service
    * against the changed state, so a stale request receives the route's genuine refusal and a
-   * recapture observes identities that really moved (M25-40 known-stale recovery).
+   * recapture observes identities that really moved ( known-stale recovery).
    */
   beforeDispatch?: (
     kind: "authoring" | "production" | "import",
@@ -265,6 +267,8 @@ export async function startImportFixture(
       bootstrapReply = Object.freeze({
         status: reply.status,
         error: typeof reply.error === "string" ? reply.error : null,
+        operation: typeof reply.operation === "string" ? reply.operation : null,
+        code: typeof reply.code === "string" ? reply.code : null,
       });
       if (reply.status === 200) {
         bootstrap = Object.freeze({
@@ -547,10 +551,8 @@ export async function startImportFixture(
  *
  * IMPORTANT: a refused bootstrap makes the shell throw while its module loads, so the page stays
  * empty and the journey's first locator waits out the whole test timeout with an error that names
- * a missing button. Every media mode except "synthetic" probes real media with the qualified
- * adapter, which admits the tool pair by digest: an unset variable answers 503 and a pair that is
- * not the qualified one answers 500. Do not turn this into a skip -- a journey that did not run
- * reads as green.
+ * a missing button. Report the actual content-free operation/code before diagnosing the cause.
+ * Do not turn a refusal into a skip: a journey that did not run must fail.
  */
 export async function expectImportBootstrap(
   fixture: ImportFixture,
@@ -565,8 +567,7 @@ export async function expectImportBootstrap(
   const reply = fixture.bootstrapReply()!;
   expect(
     reply.status,
-    `import fixture bootstrap answered ${reply.status} (${reply.error ?? "no code"}). ` +
-      'Media modes other than "synthetic" probe real media: supply the qualified ffmpeg and ' +
-      "ffprobe pair in H3_CONTEXT_AUTHORIZED_FFMPEG_PATH and H3_CONTEXT_AUTHORIZED_FFPROBE_PATH.",
+    `import fixture bootstrap answered ${reply.status} (${reply.error ?? "no error"}; ` +
+      `operation=${reply.operation ?? "bootstrap"}; code=${reply.code ?? "unavailable"}).`,
   ).toBe(200);
 }

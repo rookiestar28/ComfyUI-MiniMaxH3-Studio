@@ -1,4 +1,4 @@
-"""M25-20 F1 corrective, browser half: the real synthetic source media the browser presents.
+"""F1 corrective, browser half: the real synthetic source media the browser presents.
 
 The corpus's declared picture (`comfyui_h3_context.core.semantic_conformance_media`) is only
 readable back out of a canvas if the browser actually decodes media painted to that exact

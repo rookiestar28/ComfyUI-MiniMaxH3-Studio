@@ -1175,7 +1175,7 @@ export const stageSummaryCatalog = {
 } as const;
 
 /**
- * M21-03 — the presentation side of `M21-01`'s prose-fidelity audit.
+ * the presentation side of ``'s prose-fidelity audit.
  *
  * A diagnostic reaches this surface as a stable identity plus typed parameters,
  * so the sentence is composed here rather than rendered from the backend's
@@ -1454,7 +1454,7 @@ const diagnosticBaseCatalog = {
 export const diagnosticCatalog = diagnosticBaseCatalog;
 
 /**
- * M21-03 — the notice surface, the remediation labels and the point-of-action
+ * the notice surface, the remediation labels and the point-of-action
  * expectation statements.
  *
  * These are kept together because they are the vocabulary of one idea: telling

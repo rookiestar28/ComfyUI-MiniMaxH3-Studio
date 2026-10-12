@@ -1,4 +1,4 @@
-"""M15-05 closed five-mode native qualification matrix tests."""
+"""closed five-mode native qualification matrix tests."""
 
 from __future__ import annotations
 

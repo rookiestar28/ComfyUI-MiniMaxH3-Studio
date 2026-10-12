@@ -42,7 +42,7 @@ const maxSerializedObjects = maxNodes * 64;
 export const minFrameCount = 5;
 
 export const maxFrameCount = 3600;
-// M17-25: the Request node authors a duration in seconds, so the serialized
+// the Request node authors a duration in seconds, so the serialized
 // widget in slot 2 is a float, not an integer frame count. Zero remains the
 // host loader sentinel for an unset optional widget. These are outer bounds on a
 // serialized value; the producible set is decided by the backend alignment
@@ -119,7 +119,7 @@ export const requiredTypes = [
 /**
  * The nodes whose inputs this repository is answerable for.
  *
- * M17-20 D11/D13: a canvas may now be an official generation template, or a
+ *  D11/D13: a canvas may now be an official generation template, or a
  * graph the user built themselves, with the H3 context pipeline spliced into it.
  * In that world the surrounding graph is not this repository's to validate, but
  * what feeds the context chain still is -- and so is the one edge that carries

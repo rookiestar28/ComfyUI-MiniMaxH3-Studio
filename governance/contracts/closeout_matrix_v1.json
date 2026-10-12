@@ -1,62 +1,62 @@
 {
-  "fingerprint": "sha256:1350494c125eea95d40401181200ed4e2151d5ddeeba510966b58e8fe771ae62",
+  "fingerprint": "sha256:841e18205446e3115fdb30231bffe5d06e7555e09d883534da7aee4ebbef2109",
   "metrics": [
     {
       "baseline": 13,
-      "baseline_commit": "add8a535bca3769a91291fb31012b7447e1682b8",
+      "baseline_commit": "4e378352656d55fd9a9b37ae561ab77d5a46b0a2",
       "evidence": "inventory rows still failing closed as NEED_EVIDENCE",
       "final": 7,
-      "final_commit": "48c0bcb23265827f77be59b334d27effe9199844",
+      "final_commit": "b7d276045f74b0d3f4c523f8257d4ae06fb12bd6",
       "metric_id": "contracts_with_undecided_disposition",
       "moved": true,
       "unit": "contracts"
     },
     {
       "baseline": 282,
-      "baseline_commit": "add8a535bca3769a91291fb31012b7447e1682b8",
+      "baseline_commit": "4e378352656d55fd9a9b37ae561ab77d5a46b0a2",
       "evidence": "M18-02 assigned a domain to every identity it later records",
       "final": 0,
-      "final_commit": "48c0bcb23265827f77be59b334d27effe9199844",
+      "final_commit": "b7d276045f74b0d3f4c523f8257d4ae06fb12bd6",
       "metric_id": "identities_without_a_declared_domain",
       "moved": true,
       "unit": "identities"
     },
     {
       "baseline": 250136,
-      "baseline_commit": "aea047c471e3cc87654fc67e64c6b9db6f216cfd",
+      "baseline_commit": "15db3061b5d1c386db46551196a6d164f114baff",
       "evidence": "the v1 bindings and reachability sections, sized on the shipped manifest",
       "final": 0,
-      "final_commit": "aea047c471e3cc87654fc67e64c6b9db6f216cfd",
+      "final_commit": "15db3061b5d1c386db46551196a6d164f114baff",
       "metric_id": "manifest_bytes_restating_a_computable_fact",
       "moved": true,
       "unit": "bytes"
     },
     {
       "baseline": 326123,
-      "baseline_commit": "aea047c471e3cc87654fc67e64c6b9db6f216cfd",
+      "baseline_commit": "15db3061b5d1c386db46551196a6d164f114baff",
       "evidence": "the shipped v1 wire against the v2 it projects from, sized here not copied",
       "final": 78696,
-      "final_commit": "aea047c471e3cc87654fc67e64c6b9db6f216cfd",
+      "final_commit": "15db3061b5d1c386db46551196a6d164f114baff",
       "metric_id": "public_manifest_wire_bytes",
       "moved": true,
       "unit": "bytes"
     },
     {
       "baseline": 4,
-      "baseline_commit": "48c0bcb23265827f77be59b334d27effe9199844",
+      "baseline_commit": "b7d276045f74b0d3f4c523f8257d4ae06fb12bd6",
       "evidence": "M18-05's own retirement record, which carries both ends of this number",
       "final": 0,
-      "final_commit": "48c0bcb23265827f77be59b334d27effe9199844",
+      "final_commit": "b7d276045f74b0d3f4c523f8257d4ae06fb12bd6",
       "metric_id": "schemas_restating_a_wire_with_no_reader",
       "moved": true,
       "unit": "contracts"
     },
     {
       "baseline": 89,
-      "baseline_commit": "add8a535bca3769a91291fb31012b7447e1682b8",
+      "baseline_commit": "4e378352656d55fd9a9b37ae561ab77d5a46b0a2",
       "evidence": "the headline number, which the chain moved by nothing",
       "final": 89,
-      "final_commit": "48c0bcb23265827f77be59b334d27effe9199844",
+      "final_commit": "b7d276045f74b0d3f4c523f8257d4ae06fb12bd6",
       "metric_id": "shipped_schema_files",
       "moved": false,
       "unit": "files"

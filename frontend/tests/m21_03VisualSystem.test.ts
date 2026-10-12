@@ -1,5 +1,5 @@
 /**
- * M21-03 — the visual system, audited rather than eyeballed.
+ * the visual system, audited rather than eyeballed.
  *
  * The plan's section 3 values are a specification to implement, not a result.
  * Every colour pair is re-verified here against the surfaces it actually sits
@@ -173,7 +173,7 @@ describe("M21-03 colour", () => {
   });
 
   it("reserves saturated colour for state and leaves headings unhued", () => {
-    // AC-M21-03-04.
+    // AC--04.
     expect(declarations).toMatch(
       /--h3-text-title-accent:\s*var\(--h3-text-primary\)/,
     );
@@ -339,7 +339,7 @@ describe("M21-03 CJK variant", () => {
   });
 
   it("drops the transform and the tracking that do nothing to Han glyphs", () => {
-    // AC-M21-03-16. `uppercase` is a no-op on Han, so the size cue would vanish
+    // AC--16. `uppercase` is a no-op on Han, so the size cue would vanish
     // with nothing replacing it, and .11em tracking reads as broken spacing.
     expect(block).toMatch(/--h3-t-sec-track:\s*0\s*;/);
     expect(block).toMatch(/--h3-t-sec-transform:\s*none/);
@@ -403,7 +403,7 @@ describe("M21-03 control material", () => {
   });
 
   it("clears the WCAG 2.2 target size and depresses on :active", () => {
-    // AC-M21-03-07. 24px is the 2.5.8 minimum; the default sits above it.
+    // AC--07. 24px is the 2.5.8 minimum; the default sits above it.
     expect(declarations).toMatch(/--h3-control-height:\s*26px/);
     expect(declarations).toMatch(/--h3-control-height-sm:\s*24px/);
     expect(declarations).toMatch(
@@ -441,7 +441,7 @@ describe("M21-03 control material", () => {
 });
 
 /**
- * M21-06 — selection and hover become visible, and stay auditable.
+ * selection and hover become visible, and stay auditable.
  *
  * The user asked for saturated selected fills, hover feedback on unselected
  * controls, and one rounded-rectangle shape for every control. Two things make
@@ -571,7 +571,7 @@ describe("M21-06 shape and state layer", () => {
 
   it("keeps hover visible when forced colours discard the tint", () => {
     // Located by its selector, never as the sheet's last forced-colors block: later modules append
-    // forced-colors blocks of their own (M25-41 did), and a positional lookup then reads theirs.
+    // forced-colors blocks of their own ( did), and a positional lookup then reads theirs.
     const hover = declarations.indexOf(
       ".h3c :is(button, select):not([data-h3-plain]):hover:not(:disabled),",
     );

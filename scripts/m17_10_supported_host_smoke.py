@@ -1,4 +1,4 @@
-"""Run the privacy-safe M17-10 boundary sample on an explicitly supplied ComfyUI host.
+"""Run the privacy-safe boundary sample on an explicitly supplied ComfyUI host.
 
 The caller supplies the host working directory.  This script never starts, discovers, restarts or
 patches ComfyUI, and prints only bounded content-free identities and accounting.
@@ -92,7 +92,7 @@ def _segment(
         task_mode=mode,
         source_id=f"source.{segment_id}",
         reference_ids=() if mode is TaskMode.T2VA else (f"reference.{segment_id}",),
-        # M17-25. Three frames is not a length the H3 lattice can produce, so the
+        # . Three frames is not a length the H3 lattice can produce, so the
         # smoke sample now asks for the shortest one that is. The boundary sample
         # does not depend on the value.
         duration=SegmentDuration.from_frame_count(5),
@@ -210,7 +210,7 @@ def _workspace_setup(
         expected_format="video.mp4",
         expected_shape=(3, 32, 32, 3),
         timeout_ms=60_000,
-        # M17-20 D6: the smoke lane measures the full output-producing graph,
+        #  D6: the smoke lane measures the full output-producing graph,
         # which is the domain App Mode now materializes.
         fingerprint_domain=FingerprintDomain.OUTPUT_PRODUCING_GRAPH,
     )

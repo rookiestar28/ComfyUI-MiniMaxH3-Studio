@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { SUPPORTED_LOCALES, sidebarCopy } from "../src/i18n/catalog";
 
 /**
- * M17-27 — each admission verdict must say what it measured and which route it
+ * each admission verdict must say what it measured and which route it
  * judges.
  *
  * The panel renders three verdicts about three different routes at once. The
@@ -39,7 +39,7 @@ const CREATED_WORKFLOW = {
 /**
  * Each locale's own way of saying the connect route is unaffected.
  *
- * M21-05 removed this sentence. It is kept here as the thing that must now be
+ *  removed this sentence. It is kept here as the thing that must now be
  * *absent*: the notice no longer has to disclaim itself, because it renders
  * inside the affordance it judges instead of above the one it does not.
  */
@@ -81,7 +81,7 @@ describe("M17-27 the missing-asset notice states what was measured", () => {
   it.each(SUPPORTED_LOCALES)(
     "no longer has to disclaim the connect route (%s)",
     (locale) => {
-      // M21-05. The sentence was true and necessary while the notice rendered
+      // . The sentence was true and necessary while the notice rendered
       // above the connect section. Scoping the notice to the materialize
       // actions is what makes it unnecessary, so its continued presence would
       // mean the placement regressed.
@@ -111,7 +111,7 @@ describe("M17-27 the incompatible verdict names the route it judges", () => {
 });
 
 /**
- * M17-28 — the relocated verdict must not inherit the missing one's claim.
+ * the relocated verdict must not inherit the missing one's claim.
  *
  * `missing_asset` used to fire for a host that had every official weight
  * installed, just not under the exact filename the template materializes with.

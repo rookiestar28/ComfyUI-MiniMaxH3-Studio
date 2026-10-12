@@ -1,14 +1,14 @@
-"""M25-21: freeze the machine-readable NLE hardening coverage manifest.
+"""freeze the machine-readable NLE hardening coverage manifest.
 
-The manifest is generated from what already exists, not authored, for the reason M25-20 gives for
+The manifest is generated from what already exists, not authored, for the reason gives for
 its own: a hand-kept copy of 34 command rows and seven shell rows drifts the day either source
 moves. Its membership joins
 
-- the 34 canonical command rows of the M25-16 ``NleControlCoverageManifestV1``, keyed by the
+- the 34 canonical command rows of the ``NleControlCoverageManifestV1``, keyed by the
   backend ``command`` (plan section 14.3), never by the display ``operation_id``;
 - the seven frozen ``SidebarEditorUiInvariantV1`` rows, which stay non-command coverage;
 - the non-command action and import inventory (transport, the embedded-audio follower, the deferred
-  audio negative, the M25-19 output actions and the Production import);
+  audio negative, the output actions and the Production import);
 - the owned recovery seams; and
 - the frozen numeric measurements of plan sections 6 and 14.
 
@@ -186,7 +186,7 @@ UI_ROWS: Final[dict[str, dict[str, Any]]] = {
         "close_reasons": [],
         "focus_targets": {"activation": '[data-h3-director-function="{function}"]'},
         "fallback_vocabulary": [],
-        # M25-44: the Clip editor function's draft lives in the full editor (`nle.track`); the
+        # the Clip editor function's draft lives in the full editor (`nle.track`); the
         # compact editor that wrote `authoring.view`/`authoring.draft` is no longer mounted.
         "retention_slots": [
             "navigation.function",
@@ -250,7 +250,7 @@ UI_ROWS: Final[dict[str, dict[str, Any]]] = {
         "a11y": "every close reason lands on its frozen focus target",
         "recovery": "every close keeps valid drafts and releases every owner before a reopen",
     },
-    # M25-44 (one NLE): an unsupported runtime no longer falls back to a compact editor; the
+    #  (one NLE): an unsupported runtime no longer falls back to a compact editor; the
     # launcher's unavailable region carries the surface status alone.
     "overlay_unavailable_status": {
         "owned_selector": '[data-h3-nle-unavailable="overlay_v1"] [data-h3-nle-status="surface"]',
@@ -298,8 +298,8 @@ ZERO_EFFECTS: Final = {
     "provider": 0,
 }
 
-# Non-command action inventory. Transport and the follower come from the M25-16 manifest's
-# non-command rows; the output actions are the M25-19 inventory the NLE render affordance exposes.
+# Non-command action inventory. Transport and the follower come from the manifest's
+# non-command rows; the output actions are the inventory the NLE render affordance exposes.
 TRANSPORT_A11Y: Final = (
     f"{ACTIONS_SPEC}::hardening a11y transport controls are named 44px targets reachable by "
     "keyboard and touch"
@@ -457,7 +457,7 @@ MEASUREMENTS: Final = (
     ("stress.main_thread_busy_ratio", "NLE-STRESS-V1", "ratio", "<=", 0.5, PLAYBACK_WORKLOAD),
     ("stress.idle_long_task_max", "NLE-STRESS-V1", "ms", "<=", 50, PLAYBACK_WORKLOAD),
     ("stress.render_p95", "NLE-STRESS-V1", "ms", "<=", 16, PLAYBACK_WORKLOAD),
-    # M25-45 AC45-04: the whole compositor, from the render call to the frame after it. The
+    #  AC45-04: the whole compositor, from the render call to the frame after it. The
     # row above is the overlay's React commit, which is a different quantity and stays where
     # it was; a larger preview is a claim about what the viewer waits for, so it is measured.
     ("stress.presentation_p95", "NLE-STRESS-V1", "ms", "<=", 50, PLAYBACK_WORKLOAD),
@@ -524,7 +524,7 @@ MEASUREMENTS: Final = (
     ("floor.follower_injections", "NLE-STRESS-V1", "count", ">=", 10, SEAM_WORKLOAD),
     ("floor.remount_cycles", "NLE-STRESS-V1", "count", ">=", 25, REMOUNT_WORKLOAD),
     ("floor.edit_phase_wall", "NLE-STRESS-V1", "ms", "<=", 1_200_000, EDIT_WORKLOAD),
-    # M25-16-overlay-v1-smoke inherited budgets.
+    # overlay-v1-smoke inherited budgets.
     ("smoke.heap_growth", "M25-16-overlay-v1-smoke", "bytes", "<=", 128 * MIB, SMOKE_WORKLOAD),
     ("smoke.playback_advancing", "M25-16-overlay-v1-smoke", "ms", ">=", 300_000, SMOKE_WORKLOAD),
     ("smoke.nle_dom_nodes_max", "M25-16-overlay-v1-smoke", "count", "<=", 1500, SMOKE_WORKLOAD),

@@ -1,4 +1,4 @@
-"""M25-35: independent managed generations accumulate as members of one stable project."""
+"""independent managed generations accumulate as members of one stable project."""
 
 from __future__ import annotations
 

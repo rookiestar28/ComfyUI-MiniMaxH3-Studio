@@ -1,4 +1,4 @@
-// M25-16 integrated-shell performance harness: the REAL production render fragment
+//  integrated-shell performance harness: the REAL production render fragment
 // (`createPresentationBinding`'s `EntrySidebar`, i.e. `H3Sidebar` and `NleOverlay` as siblings)
 // mounted from a real `createShellSession` + all six real session factories, exactly as
 // `entry.tsx` composes them -- the only substitutions are the ComfyUI host double (the
@@ -174,7 +174,7 @@ const shape: FixtureShape =
               : shapeName === "portrait"
                 ? PORTRAIT_SHAPE
                 : SMOKE_SHAPE;
-// `render=1` answers the accepted M25-19 capability read as supported (so the render affordance
+// `render=1` answers the accepted capability read as supported (so the render affordance
 // mounts); `capabilityDelayMs` holds every capability reply that long so a spec can close and
 // reopen the overlay while the first generation's read is still pending (corrective F2). The
 // default keeps the capability unsupported so the budget rows measure the same surface as before.
@@ -187,32 +187,32 @@ let capabilityReads = 0;
 let renderJobRequests = 0;
 // `import=1` runs the Production-to-Authoring import journeys (corrective F4 / AC11): every
 // authoring action, production read and import is forwarded to the persistent real-registry
-// fixture (`scripts/m25_16_import_fixture.py`) instead of the stateless timeline oracle, the
+// fixture (`scripts/_import_fixture.py`) instead of the stateless timeline oracle, the
 // Production stage is seeded with that fixture's ready outputs, and `target=absent|ready`
 // decides whether the shell must first create its Authoring target or reuse the fixture's.
 const importMode = query.get("import") === "1";
 // `viewDestroy=1` mounts the sidebar through the real extension-registration lifecycle
 // (`createExtensionRegistration` + the fixture's `registerSidebarTab`) instead of the raw
 // `deps.mount.mount` call every other mode uses, so a real "native sidebar close" callback
-// (M25-20 `ui_invariant.view_destroy_cleanup`) is reachable from a genuine simulated host
+// ( `ui_invariant.view_destroy_cleanup`) is reachable from a genuine simulated host
 // event. Default mode is untouched so every other spec targeting this harness keeps its
 // existing bootstrap exactly as before.
 const viewDestroyMode = query.get("viewDestroy") === "1";
 // `compositionSource=1` answers every `read_timeline_history` with a fresh
 // `/__nle_fixture/bootstrap` call instead of the cached wire every other mode returns after the
-// first load (M25-20 `render_and_browser`: one page presents a whole series of compositions in
+// first load ( `render_and_browser`: one page presents a whole series of compositions in
 // turn through the real "Refresh professional timeline" affordance, and a Playwright `page.route`
 // interception -- not this module -- decides what each bootstrap actually resolves to). Default
 // mode keeps the existing cached-after-first-load behavior unchanged.
 const compositionSourceMode = query.get("compositionSource") === "1";
-// `outputJob=1` lets the M25-19 output client and preview owner reach the network, where the
-// journey's own `page.route` serves the render job, its status and the output media (M25-21
+// `outputJob=1` lets the output client and preview owner reach the network, where the
+// journey's own `page.route` serves the render job, its status and the output media (
 // `action.output.*`). Those two clients require a real `Response` -- declared length, no-store
 // headers, a BYOB body -- which this module's duck-typed fixture replies cannot be. Default mode
 // keeps the old bodiless 503, so every existing journey still observes that no render job ran.
 const outputJobMode = query.get("outputJob") === "1";
 const importTarget = query.get("target") === "ready" ? "ready" : "absent";
-// `mediaSetup=1` (M25-33) forwards the media runtime status, setup and job routes, the output
+// `mediaSetup=1` forwards the media runtime status, setup and job routes, the output
 // capability read and the clip preview route to the network, where the journey's own `page.route`
 // doubles answer them, and seeds the compact editor's video source as previewable. The product
 // clients receive real `Response`s; nothing here decides a runtime state. `locale` picks the
@@ -243,7 +243,7 @@ type HandlerSample = Readonly<{
 const handlerSamples: HandlerSample[] = [];
 const eventTimingEntriesMs: number[] = [];
 /**
- * M25-45 AC45-04: what each presented frame cost, from the compositor call to the frame after it.
+ *  AC45-04: what each presented frame cost, from the compositor call to the frame after it.
  *
  * Bounded so a ten-minute playback workload cannot grow the harness's own heap into the budget it
  * is measuring; the cap is far above the sample count any journey reads, and a run that reached it
@@ -280,7 +280,7 @@ let receiptCount = 0;
 const closeReasons: string[] = [];
 
 function commitStateSnapshot(phase: string): string {
-  // M25-21 B3-D56: the authoring status, the selected clip and the playhead are here because a
+  //  B3-D56: the authoring status, the selected clip and the playhead are here because a
   // commit that changes none of the four status projections is otherwise indistinguishable from
   // the commit before it, and "two identical renders" is a description of the probe rather than
   // of the product. The playhead is published through its own channel (`createPlayheadChannel`),
@@ -355,12 +355,12 @@ const onNleRender: ProfilerOnRenderCallback = (
   _startTime,
 ) => {
   nleCommitDurationsMs.push(actualDuration);
-  // IMPORTANT (M25-21 B3-D54): this is a trailing window, not the first 64 commits. A workload
+  // IMPORTANT ( B3-D54): this is a trailing window, not the first 64 commits. A workload
   // that runs for ten minutes reaches an over-budget edit long after the first 64 commits are
   // spent, and a per-edit commit count with no record of what each commit saw cannot be routed
   // to a cause. Keep the cap: an unbounded log on a 600 s fixture is its own memory measurement.
-  // IMPORTANT (M25-21 B3-D59): the trim phase must stay the LAST segment of every entry. Accepted
-  // M25-16 recovery rows assert `state.endsWith(":reconciling")`, so appending any further field
+  // IMPORTANT ( B3-D59): the trim phase must stay the LAST segment of every entry. Accepted
+  //  recovery rows assert `state.endsWith(":reconciling")`, so appending any further field
   // here -- a render duration was appended during the B3-D56 investigation -- silently fails two
   // journeys that have nothing to do with whatever was appended.
   commitStates.push(commitStateSnapshot(phase));
@@ -458,7 +458,7 @@ for (const type of [
 // The real `createAuthoringActionClient` posts to the real `/h3-context/v1/authoring/action`
 // route (unmodified production code); this translator answers exactly the three actions the NLE
 // overlay lifecycle and its timeline dispatch exercise, reusing the accepted
-// `scripts/m25_16_timeline_fixture.py` oracle through the same `/__nle_fixture/*` endpoints
+// `scripts/_timeline_fixture.py` oracle through the same `/__nle_fixture/*` endpoints
 // `nleWorkspace.tsx`'s `canonical=1` mode already relies on -- the Playwright spec intercepts
 // those paths and runs the oracle; this module only shapes the real authoring-action wire around
 // it so `runAuthoringIntent`'s real pending/conflict/receipt bookkeeping executes for real.
@@ -934,7 +934,7 @@ Object.assign(
   createMediaRuntimeSession(runtime),
 );
 
-// M25-21 B3-D56: `renderCurrent` re-renders the whole `EntrySidebar` tree, and the NLE Profiler
+//  B3-D56: `renderCurrent` re-renders the whole `EntrySidebar` tree, and the NLE Profiler
 // reports every commit of its own subtree including the shared ones, so two `renderCurrent` calls
 // in separate tasks with no state change between them are two commits that look identical in any
 // DOM probe. This wrapper counts the calls and keeps the immediate caller's frame, which is what
@@ -997,7 +997,7 @@ let destroyView: () => void = () => {
     "destroyView requires the harness to be loaded with ?viewDestroy=1",
   );
 };
-// M25-21: the host's own re-render of the destroyed tab, so a journey can prove what a real
+// the host's own re-render of the destroyed tab, so a journey can prove what a real
 // destroy/render cycle retains and releases.
 let renderView: () => void = () => {
   throw new Error(
@@ -1088,7 +1088,7 @@ export type NleShellHarnessSnapshot = Readonly<{
   fetchPaths: readonly string[];
   queuedPrompts: number;
   bounds: OverlayBounds;
-  /** M25-44: the three splitter shares the session holds. */
+  /** the three splitter shares the session holds. */
   layout: Readonly<{ bin: number; inspector: number; top: number }>;
   /** Empty V2 authoring remains observable even when no render snapshot can be materialized. */
   authoringStateV2: NleAuthoringStateV2 | null;
@@ -1098,7 +1098,7 @@ export type NleShellHarnessSnapshot = Readonly<{
   mediaOwnership: ReturnType<typeof mediaOwnership>;
   /** What the harness client was asked to prepare; apart from every owner fact. */
   mediaPreparation: ReturnType<typeof mediaPreparation>;
-  /** M25-33: the Media tools session as the product holds it (codes only). */
+  /** the Media tools session as the product holds it (codes only). */
   mediaRuntime: Readonly<{
     status: string;
     jobId: string | null;
@@ -1120,7 +1120,7 @@ export type NleShellHarnessSnapshot = Readonly<{
   sidebarCommitDurationsMs: readonly number[];
   nleCommits: number;
   eventTimingEntries: readonly number[];
-  /** M25-45 AC45-04: one row per presented frame; see `PresentationMeasurement`. */
+  /**  AC45-04: one row per presented frame; see `PresentationMeasurement`. */
   presentationSamples: readonly PresentationMeasurement[];
   presentationSamplesDropped: number;
 }>;
@@ -1149,7 +1149,7 @@ type HarnessApi = Readonly<{
   /** The host's re-render of the same tab after `destroyView` (`?viewDestroy=1` only). */
   renderView(): void;
   /**
-   * M25-33: the state App Mode's bootstrap leaves when a new workflow replaces the Production
+   * the state App Mode's bootstrap leaves when a new workflow replaces the Production
    * workspace (`appModeSession.ts`): the projection the user acted on no longer exists. A journey
    * uses it to prove a waiting import never continues against a workspace that is gone.
    */
@@ -1314,3 +1314,8 @@ window.nleShellHarness = {
     measurementStartedAt = performance.now();
   },
 };
+
+// Mark the complete synchronous surface, not just the sidebar's first mount.
+(
+  window as unknown as Window & { __h3HarnessBoot: { phase: string } }
+).__h3HarnessBoot.phase = "booted";

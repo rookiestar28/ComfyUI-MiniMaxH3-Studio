@@ -1,4 +1,4 @@
-// M25-33 AC33-03/06/07: the one Media tools card appears where import, clip preview and final
+//  AC33-03/06/07: the one Media tools card appears where import, clip preview and final
 // output are blocked by the runtime, a continued preview reopens exactly once, a host without the
 // renderer offers no install, and the monitor separates "no clip" from "runtime unavailable".
 
@@ -471,7 +471,7 @@ describe("final output placement and empty timeline", () => {
       },
       mediaTools: media,
     });
-    // M25-44: the final output card lives in the chrome bar's Export popover, shown open here.
+    // the final output card lives in the chrome bar's Export popover, shown open here.
     return render(
       <>
         <NleExportMenu
@@ -527,7 +527,7 @@ describe("final output placement and empty timeline", () => {
   it("says the timeline has no clips instead of reporting the monitor unavailable", () => {
     const view = workspace(undefined, { clips: false });
     const empty = view.container.querySelector("[data-h3-nle-empty=timeline]");
-    // M25-64 (row #27): the empty-timeline overlay's title and hint.
+    //  (row #27): the empty-timeline overlay's title and hint.
     expect(empty?.textContent).toContain("Nothing on the timeline yet");
     // B-M2563-11: it names the card's visible "+" and drag, not the context menu's command.
     expect(empty?.textContent).toContain("+");

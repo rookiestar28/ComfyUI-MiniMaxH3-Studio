@@ -1,6 +1,6 @@
 """Read the explicitly supplied ComfyUI host and publish its capability.
 
-`M17-20` `D1` splits this in two on purpose. The decision -- what a host state
+`` `D1` splits this in two on purpose. The decision -- what a host state
 means for each materialization basis -- lives in the pure
 `core.generation_profile`. This module only *observes*, and it observes in
 process: node-class presence, bounded template structure, whether each

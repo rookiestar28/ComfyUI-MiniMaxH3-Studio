@@ -1,4 +1,4 @@
-// M25-62: the redesigned clip, grips, help text, empty lane, playhead layer and scroll bar as
+// the redesigned clip, grips, help text, empty lane, playhead layer and scroll bar as
 // NleTimeline wires them (A62-3..A62-7). jsdom has no layout and no `matchMedia`, so this is the
 // fine-pointer DOM contract; the rendered boxes and both pointer modes are proven in the browser
 // by `m25_62TimelineSurface.spec.ts`.
@@ -384,7 +384,7 @@ describe("M25-62 empty lane (A62-7)", () => {
     const zone = view.container.querySelector<HTMLElement>(
       "[data-h3-nle-empty-lane]",
     )!;
-    // M25-63: the bin's Add is the "+" on a thumbnail.
+    // the bin's Add is the "+" on a thumbnail.
     expect(zone.textContent).toBe("Drag media here, or press + on a thumbnail");
     expect(zone.closest('[data-h3-nle-track="track-0"]')).not.toBeNull();
     expect(zone.getAttribute("aria-hidden")).toBeNull();

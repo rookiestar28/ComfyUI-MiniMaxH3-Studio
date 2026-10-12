@@ -84,7 +84,7 @@ export interface HostLogScan {
    * Findings from the host or an unrelated installed pack.
    *
    * GUARD: these are recorded, never fatal. TEST_SOP section 4 fails a row on a handler error
-   * that *names an owned route*, and M25-45's AC45-08 says unrelated pre-existing pack messages
+   * that *names an owned route*, and 's AC45-08 says unrelated pre-existing pack messages
    * are recorded separately -- so a caller that also throws on this list would fail owned rows for
    * another pack's defect, on a host the repository is required to tolerate as it finds it. The
    * throwaway runner this replaced did exactly that; it passed only because the hosts it ran on

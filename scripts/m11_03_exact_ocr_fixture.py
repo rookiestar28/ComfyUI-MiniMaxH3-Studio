@@ -1,4 +1,4 @@
-"""Offline M11-03 exact OCR fixture.
+"""Offline exact OCR fixture.
 
 The fixture injects a host-shaped CLIP and bounded image payloads.  It exercises exact Unicode
 preservation, script/language, polygon, frame/time persistence, user-required comparison, visible

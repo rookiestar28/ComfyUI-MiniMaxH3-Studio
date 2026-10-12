@@ -59,7 +59,7 @@ describe("generation sequence App Mode driver", () => {
       attempt: 1,
       transaction_id: "generation.command.1",
       queue_prompt_id: "prompt.generated.1",
-      // M17-20 D6: the observation reports the graph it measured, taken from the
+      //  D6: the observation reports the graph it measured, taken from the
       // command rather than assumed, so the sequence authority compares like
       // with like.
       fingerprint_domain: "output_producing_graph",

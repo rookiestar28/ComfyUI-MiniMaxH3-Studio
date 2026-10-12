@@ -1,8 +1,8 @@
-"""M23-31: the coordinator's job state and the ManagedRun aggregate never disagree.
+"""the coordinator's job state and the ManagedRun aggregate never disagree.
 
 The aggregate is a second record of the same run, and a second record is only safe when something
 checks that it agrees with the first. Without this module the mirror inside `_publish` would be
-exactly the divergent-authority defect M23-31 exists to remove -- the `_cancel` bug one layer up.
+exactly the divergent-authority defect exists to remove -- the `_cancel` bug one layer up.
 
 The correspondence below is the whole claim. It is written as data rather than as branches so that
 a new job state has to be classified here before it can be published at all.
@@ -33,6 +33,10 @@ from comfyui_h3_context.adapters.comfyui_sequence_coordinator import (
 from comfyui_h3_context.core.generation_sequence import GenerationJobState
 from comfyui_h3_context.core.managed_run import ManagedRunState, ManagedRunTrigger
 from comfyui_h3_context.core.production_workbench import ProductionWorkbenchProjection
+
+# CRITICAL: the module teardown verifies rows accumulated across every test here;
+# splitting this population between workers makes that coverage assertion incomplete.
+pytestmark = pytest.mark.xdist_group("coordinator_projection_rows")
 
 #: This module's file name, matched against pytest node ids (`tests/<name>.py::<test>`), so the
 #: guard below can tell a whole-module run from a filtered one.
@@ -139,7 +143,7 @@ def test_the_aggregate_agrees_through_a_terminal_and_a_later_cancel(
 
 
 def test_the_aggregate_records_the_two_joins_prepare_made(tmp_path: Path) -> None:
-    # The M23-19 class. The production workspace and the prepared sequence are recorded together,
+    # The class. The production workspace and the prepared sequence are recorded together,
     # at the moment the join is made, from the values `_prepare` already holds -- not reconstructed
     # later from a second source.
     coordinator, prepared, production = _run(tmp_path)
@@ -204,7 +208,7 @@ def test_output_verification_failure_is_not_a_lifecycle_transition() -> None:
 #: the aggregate actually sat at `submitted`, because the mirror emitted no trigger for it.
 #:
 #: `running` was then listed here on the same faith -- no test in this repository had ever
-#: dispatched `record_running` -- and so was `succeeded`, whose job path the M23-15 suite covers
+#: dispatched `record_running` -- and so was `succeeded`, whose job path the suite covers
 #: eight times over while checking nothing about the aggregate. The acceptance review caught both.
 #: Adding a row without a test in this module that reaches it is how all three return.
 _EXERCISED_ROWS = frozenset(
@@ -345,7 +349,7 @@ def test_the_aggregate_agrees_when_artifact_verification_fails(tmp_path: Path) -
 def test_the_aggregate_agrees_after_a_dispatched_record_running(tmp_path: Path) -> None:
     # The `running` row, driven rather than declared. The re-review found that no test anywhere in
     # this repository dispatched the coordinator's `record_running` action -- not this module, not
-    # the 51 M23-15 tests -- so the row sat in `_EXERCISED_ROWS` on the strength of a mapping
+    # the 51 tests -- so the row sat in `_EXERCISED_ROWS` on the strength of a mapping
     # nobody had run. That is the same shape as the `output_verification_failed` defect this round
     # fixed, in the very table built to stop it. This drives the action for real.
     coordinator, prepared, _ = _run(tmp_path)
@@ -376,7 +380,7 @@ def test_the_aggregate_agrees_after_a_dispatched_record_running(tmp_path: Path) 
 def test_the_aggregate_agrees_at_a_successful_terminal(tmp_path: Path) -> None:
     # The `succeeded` row, driven rather than declared. The re-review found it listed as exercised
     # on the same faith `running` had been: `record_terminal(kind="success")` is dispatched eight
-    # times across the M23-15 suite, so the job path is well covered, but those tests predate the
+    # times across the suite, so the job path is well covered, but those tests predate the
     # aggregate and check nothing about it -- so the correspondence itself had never been driven.
     #
     # The success path is two dispatches, not one: the terminal is recorded first and the artifact

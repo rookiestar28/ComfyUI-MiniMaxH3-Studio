@@ -1,4 +1,4 @@
-"""M11-06 source-PTS action, state, motion, camera, edit, and style contracts."""
+"""source-PTS action, state, motion, camera, edit, and style contracts."""
 
 from __future__ import annotations
 

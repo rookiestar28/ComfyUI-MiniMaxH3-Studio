@@ -1,5 +1,5 @@
 // App Mode census: read-only observation of the visible canvas and of a compiled prompt
-// against it. No host call, no write (M23-28 split).
+// against it. No host call, no write ( split).
 
 import { H3_NODE_TYPES } from "./graphAdapter";
 import { rebindExistingContextAuthoring } from "./templateMaterialization";
@@ -340,7 +340,7 @@ function widgetValuesMatchCompiledNode(
       scalarMatches("duration_seconds", 2)
     );
   }
-  // M23-29: native anchor geometry, length and reference-size widgets belong to
+  // native anchor geometry, length and reference-size widgets belong to
   // the operator graph. Admission owns only the compiled prompt binding below.
   return true;
 }
@@ -576,7 +576,7 @@ export function compiledPromptMatchesVisibleGraph(
   for (const { id, node } of output) {
     const classType = node.class_type;
     if (typeof classType !== "string" || compiledTypes.has(id)) return false;
-    // M17-20 D11: the compiled prompt now contains the template's own nodes as
+    //  D11: the compiled prompt now contains the template's own nodes as
     // well as the H3 chain, so it can be larger than the canonical census. What
     // must still hold is that nothing was invented: every compiled node has to
     // correspond to a node the user can actually see. The host prunes visible
@@ -608,7 +608,7 @@ export function compiledPromptMatchesVisibleGraph(
     const bindings = visibleBindings.get(id);
     if (compiledInputs === undefined || bindings === undefined) return false;
     for (const [name, [originId, originSlot]] of bindings) {
-      // M23-29: the native anchor's side-branch wiring is operator-owned.
+      // the native anchor's side-branch wiring is operator-owned.
       // Admission compares only the Product Shell prompt join written by this
       // repository; geometry, length and media branches execute under ComfyUI.
       if (

@@ -1,4 +1,4 @@
-// M25-16 NLE-EDGE-TRIM-V1 at the component seam: the grip drives one accepted `trim_clip`
+//  NLE-EDGE-TRIM-V1 at the component seam: the grip drives one accepted `trim_clip`
 // transaction per pointer release or keyboard commit, cancels on Escape or a changed pixel
 // mapping without sending anything, and settles from the accepted authoring state (accepted,
 // rejected, lost response) rather than from the local draft.
@@ -153,7 +153,7 @@ function subject(
 }
 
 /**
- * M25-62 (R7): under a fine pointer a selected clip keeps inline grips down to 24 px, so the rail
+ *  (R7): under a fine pointer a selected clip keeps inline grips down to 24 px, so the rail
  * is reached at Fit, where jsdom's 120 px lane puts every fixture clip at the 20 px floor.
  */
 function fitTimeline(container: HTMLElement) {
@@ -234,7 +234,7 @@ describe("M25-16 edge trim gesture at the workspace seam", () => {
         '[data-h3-nle-control="clip.trim"]:not([hidden])',
       ),
     ];
-    // M25-62 (R7): the rail's pair, plus the one inline grip a sub-24 px clip keeps.
+    //  (R7): the rail's pair, plus the one inline grip a sub-24 px clip keeps.
     const rail = grips.filter((member) =>
       member.classList.contains("h3-nle-rail-grip"),
     );
@@ -592,7 +592,7 @@ describe("M25-16 edge trim gesture at the workspace seam", () => {
   });
 
   it("keeps a lost response uncertain and reconciles it read-only without replaying", async () => {
-    // M25-16 corrective F1: the session never rejects the intent promise. Transport loss reaches
+    //  corrective F1: the session never rejects the intent promise. Transport loss reaches
     // the component only as the accepted authoring state `error/outcome_unknown`, which must read
     // as an unknown outcome (never a rejection) until one read-only reconciliation lands.
     const timeline = vi.fn(async () => undefined);

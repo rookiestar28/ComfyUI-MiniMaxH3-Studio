@@ -212,7 +212,7 @@ export type ProductionRuntimeProducerOptions = Readonly<{
   runPrefix: string;
   timeoutMs?: number;
   /**
-   * `direct` starts the parent from this helper (the accepted M26-05 two-child row). `native`
+   * `direct` starts the parent from this helper (the accepted two-child row). `native`
    * installs observation and projection only; the caller activates the product's own Start.
    */
   start: "direct" | "native";

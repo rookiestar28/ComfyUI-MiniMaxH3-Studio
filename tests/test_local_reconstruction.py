@@ -1,4 +1,4 @@
-"""M13-10 public local-reconstruction end-to-end acceptance tests."""
+"""public local-reconstruction end-to-end acceptance tests."""
 
 from __future__ import annotations
 

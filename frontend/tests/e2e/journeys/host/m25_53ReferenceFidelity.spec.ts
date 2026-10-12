@@ -51,7 +51,7 @@ import {
 const AUTHORING_ROUTE = "/h3-context/v1/authoring/action";
 // Require a visible waveform trace, not isolated anti-alias/noise pixels.
 const MIN_COMPOSED_WAVEFORM_PIXELS = 100;
-// IMPORTANT (M25-64 B-M2564-13): since M25-62 the waveform is stroked in the resolved
+// IMPORTANT ( B-M2564-13): since the waveform is stroked in the resolved
 // `--h3-nle-waveform` role colour, not in a cyan family, and a cyan rule counts none of it. A
 // pixel is the waveform's when every channel is within this many levels of that colour: the stroke
 // is opaque and pixel-aligned, so its core pixels carry the colour exactly (measured on the host:
@@ -375,7 +375,7 @@ async function expectLoadedAssetCard(
   );
 }
 
-// M25-64 B-M2564-13: the colour the timeline paints its waveform with, resolved where its canvas
+//  B-M2564-13: the colour the timeline paints its waveform with, resolved where its canvas
 // sits (the light and dark palettes differ) and normalised through a scratch context. An empty,
 // invalid or translucent colour cannot be matched exactly, which is an observer failure.
 type WaveformColour = Readonly<{
@@ -847,7 +847,7 @@ async function readClipDecorationLayout(
   );
 }
 
-// M25-64: the rectangle the composited observer actually samples, in the screenshot's device
+// the rectangle the composited observer actually samples, in the screenshot's device
 // pixels. `reason` is null only for a region that can decide the assertions made on it: a region
 // with no usable width or rows, or with a waveform band smaller than the waveform minimum, is an
 // observer failure, never a reading of zero pixels.
@@ -1192,7 +1192,7 @@ async function retainRowEvidence(
   );
 }
 
-// M25-64: content-free observer evidence (widths, counts, pointer mode, sampling rectangles and
+// content-free observer evidence (widths, counts, pointer mode, sampling rectangles and
 // the path each step took), rewritten after every observation so a failed row keeps what led
 // to it.
 async function retainObserverEvidence(
@@ -2240,7 +2240,7 @@ test("M25-53 reference fidelity editing through verified export", async ({
         });
       }
       if (isTimelineRaster(this)) {
-        // M25-62: the waveform stroke is the resolved `--h3-nle-waveform` role token rather than
+        // the waveform stroke is the resolved `--h3-nle-waveform` role token rather than
         // a fixed rgba literal. Resolve it where the canvas sits and normalise it through a
         // scratch context, the form the canvas stores a style in.
         const waveformToken = getComputedStyle(this.canvas)
@@ -2252,7 +2252,7 @@ test("M25-53 reference fidelity editing through verified export", async ({
           waveformToken !== "" &&
           normaliser !== null &&
           String(this.strokeStyle) === String(normaliser.strokeStyle);
-        // M25-64 B-M2564-13: the stroke's own colour, for the immediate pixel count below.
+        //  B-M2564-13: the stroke's own colour, for the immediate pixel count below.
         const waveformHex = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(
           normaliser === null ? "" : String(normaliser.strokeStyle),
         );
@@ -2819,7 +2819,7 @@ test("M25-53 reference fidelity editing through verified export", async ({
 
   // Range insert and overwrite are distinct visible commands. Each is observed and then undone so
   // the final three-source recipe remains simple enough for an independent byte observer.
-  // M25-63: the range commands live in the card's menu (right-click on the card).
+  // the range commands live in the card's menu (right-click on the card).
   const rangeCard = overlay.locator(
     `[data-h3-nle-asset="${expectation.assetIds[1]}"]`,
   );
@@ -2923,7 +2923,7 @@ test("M25-53 reference fidelity editing through verified export", async ({
       );
     }
   };
-  // M25-64: content-free observer evidence for this row, kept beside the captures.
+  // content-free observer evidence for this row, kept beside the captures.
   const observerEvidence = {
     schema: "m25-64-host-observer-evidence/1",
     clipMenuRoutes: [] as unknown[],
@@ -2940,7 +2940,7 @@ test("M25-53 reference fidelity editing through verified export", async ({
       observedBundleSha256,
       evidenceRunId,
     );
-  // M25-64: a page crash, a page close and a browser disconnect each carry their own wall-clock
+  // a page crash, a page close and a browser disconnect each carry their own wall-clock
   // time, so a failure that coincides with the runner's bound can be ordered against it rather
   // than attributed to it.
   const pageEvent = (event: string) => {
@@ -2953,7 +2953,7 @@ test("M25-53 reference fidelity editing through verified export", async ({
     .context()
     .browser()
     ?.on("disconnected", () => pageEvent("browser disconnected"));
-  // IMPORTANT (M25-64 B-M2564-11): the edit affordances follow one rule since M25-62 (R7,
+  // IMPORTANT ( B-M2564-11): the edit affordances follow one rule since (R7,
   // B-M2562-03), restated here rather than imported so a product change to it fails this row.
   // A clip's display width is its admitted duration times the timeline scale, never less than
   // 20 px. Under a fine pointer, a selected clip below 24 px has the trim rail (its grips and its
@@ -3260,7 +3260,7 @@ test("M25-53 reference fidelity editing through verified export", async ({
     () => select(primaryClips()[2]!.clipId).click(),
     ["select_clips"],
   );
-  // M25-64 B-M2564-11: the same rule decides where the grips are: inline for a clip wide enough,
+  //  B-M2564-11: the same rule decides where the grips are: inline for a clip wide enough,
   // on the trim rail below that (the hermetic `clip.trim` recipe).
   const gripRoute = await clipRoute(primaryClips()[2]!.clipId);
   const inlineGrip = overlay.locator(
@@ -3478,7 +3478,7 @@ test("M25-53 reference fidelity editing through verified export", async ({
     name: "Scale (%)",
     exact: true,
   });
-  // M25-64 (R10): 600 % is 60,000 bp.
+  //  (R10): 600 % is 60,000 bp.
   await scaleField.fill("600");
   await transact(() => scaleField.press("Enter"), ["set_visual_transform"]);
   const scaledImage = latest!.authoring.clips.find(
@@ -3488,7 +3488,7 @@ test("M25-53 reference fidelity editing through verified export", async ({
     transform: { scale_x_bp: 60_000, scale_y_bp: 60_000 },
   });
 
-  // M25-64 (diagnosis): the transform overlay's render conditions as the page exposes them --
+  //  (diagnosis): the transform overlay's render conditions as the page exposes them --
   // the monitor's view and fallback, its status, the presented frame against the selected clip's
   // accepted range, the laid-out picture, the selection and the overlay itself. The layer
   // geometry the overlay also needs is the session's and is not in the page; it is the remaining
@@ -3916,7 +3916,7 @@ test("M25-53 reference fidelity editing through verified export", async ({
     tolerance: WAVEFORM_COLOUR_TOLERANCE,
   };
   await recordObserverEvidence();
-  // M25-64: every composited reading records the rectangle it sampled, and a region that cannot
+  // every composited reading records the rectangle it sampled, and a region that cannot
   // decide the filmstrip and waveform assertions fails here as an observer failure.
   const readCompositedObserved = async (label: string, screenshot: Buffer) => {
     const pixels = await readCompositedClipDecorationPixels(

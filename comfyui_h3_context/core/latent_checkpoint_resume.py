@@ -1,6 +1,6 @@
-"""Exact latent checkpoint resume admission and the qualified split composition (M20-05).
+"""Exact latent checkpoint resume admission and the qualified split composition.
 
-Downstream of the M19-08 row `completed_boundary_resume = supported`
+Downstream of the row `completed_boundary_resume = supported`
 (`structural_resume_executes_no_bitexact_oracle`).  Two measured facts shape everything here.
 The host is nondeterministic end to end -- identical single passes do not reproduce
 themselves, and VAE decode alone does not either -- so nothing in this module compares
@@ -11,7 +11,7 @@ consuming the checkpointed trajectory latent, which the row measured to deliver 
 requested frame count.
 
 A checkpoint's boundary is DECLARED, not inferred.  The writer fingerprints a
-:class:`LatentCheckpointBoundary` and stores it as the M20-04 receipt's
+:class:`LatentCheckpointBoundary` and stores it as the receipt's
 ``execution_fingerprint`` -- the execution state the artifact embodies.  Admission recomputes
 the expected fingerprint from the caller's declaration and refuses on any difference, so a
 partially-written or undeclared step state can never be admitted by looking plausible.
@@ -41,7 +41,7 @@ LATENT_RESUME_COMPOSITION_SCHEMA = "h3.context.latent_resume_composition.v1"
 MAX_RESUME_TOTAL_STEPS = 10_000
 MAX_RESUME_SEED = 2**64 - 1
 
-#: The sampler topology exactly as the M19-08 row qualified it.  These are host node class
+#: The sampler topology exactly as the row qualified it. These are host node class
 #: names; pinning them here keeps the composition builder deterministic and refuses silent
 #: topology drift, the same way ``native_h3`` pins the conditioning node names.
 QUALIFIED_SCHEDULER_NODE = "BasicScheduler"
@@ -94,7 +94,7 @@ def _bounded_integer(value: object, field: str, minimum: int, maximum: int) -> i
 class LatentResumeAuthority:
     """The frozen consumption of the accepted profile's supported resume row.
 
-    Same shape and same refusal as the M20-04 descriptor authority: the projection exists
+    Same shape and same refusal as the descriptor authority: the projection exists
     only in the ``SUPPORTED`` state, and capability absence is a construction refusal, not a
     value with a flag.
     """
@@ -149,7 +149,7 @@ class LatentCheckpointBoundary:
     ``completed_steps`` is the number of sampling steps the writer claims are done out of
     ``total_steps``; the checkpoint's latent spans the full temporal extent
     (``requested_frames``) in a partially-denoised state.  The declaration's canonical
-    fingerprint is stored as the M20-04 receipt's ``execution_fingerprint``, which is what
+    fingerprint is stored as the receipt's ``execution_fingerprint``, which is what
     makes the boundary declared rather than inferred: admission recomputes it and any
     difference -- a different split, a different schedule length, a different seed, a
     different extent -- is a refusal, not a negotiation.
@@ -413,7 +413,7 @@ def build_resume_composition(
 ) -> dict[str, dict[str, object]]:
     """Render the qualified stage-2-only fragment as a deterministic prompt-graph dict.
 
-    Exactly the topology the M19-08 row measured: the full schedule is built and split at the
+    Exactly the topology the row measured: the full schedule is built and split at the
     declared completed step, stage 2 consumes the high tail under ``DisableNoise``, and the
     checkpoint latent enters as ``latent_image``.  A terminal boundary refuses -- there is no
     zero-step composition.

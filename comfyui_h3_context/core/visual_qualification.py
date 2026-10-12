@@ -1,6 +1,6 @@
 """Fail-closed M11 visual-runtime qualification bindings.
 
-The binding joins a frozen M11-01 benchmark candidate, an M11-08 acceptance result, and one exact
+The binding joins a frozen benchmark candidate, an acceptance result, and one exact
 model manifest.  It never discovers a model, runs media, or turns injected contract evidence into a
 supported runtime claim.
 """

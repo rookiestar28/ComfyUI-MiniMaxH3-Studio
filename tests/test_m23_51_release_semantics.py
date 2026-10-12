@@ -1,4 +1,4 @@
-"""M23-51: releasing a run and detaching a client are different questions with different answers.
+"""releasing a run and detaching a client are different questions with different answers.
 
 The defect this item exists to remove is one conditional short of a data-loss bug and one
 conditional short of a stranded workspace, and it is the same conditional. `release_sequence`

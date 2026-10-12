@@ -129,7 +129,10 @@ class SecurityBaselineTests(unittest.TestCase):
             outside.write_text("outside", encoding="utf-8")
             try:
                 for candidate in ("../outside-h3-context.txt", outside):
-                    with self.subTest(candidate=candidate), self.assertRaises(SecurityPolicyError):
+                    with (
+                        self.subTest(candidate_case=type(candidate).__name__),
+                        self.assertRaises(SecurityPolicyError),
+                    ):
                         validate_local_path(candidate, root)
 
                 directory = root / "directory"

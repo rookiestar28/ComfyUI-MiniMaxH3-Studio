@@ -1,4 +1,4 @@
-"""M22-03 local loopback prompt-model transport and session tests."""
+"""local loopback prompt-model transport and session tests."""
 
 from __future__ import annotations
 
@@ -71,7 +71,7 @@ MODEL_ID = "qwen3.8:27b-bf16"
 DIGEST = "sha256:" + "1" * 64
 #: What Ollama actually puts on the wire: bare lowercase hex, no algorithm prefix. These
 #: fixtures used to carry the repository spelling instead, which quietly made a correct host
-#: impossible to model and hid a real digest-domain mismatch (M22-13).
+#: impossible to model and hid a real digest-domain mismatch.
 WIRE_DIGEST = DIGEST.removeprefix("sha256:")
 LICENSE_DIGEST = "sha256:" + "2" * 64
 LADDER = ContextProfileLadder(
@@ -199,7 +199,7 @@ def ollama_tags(*, digest: str | None = WIRE_DIGEST, name: str = MODEL_ID) -> di
 
 
 #: A completed answer from the exact model that was asked, with no reasoning trace: the shape
-#: the M22-13 request explicitly demands. Every field here is load-bearing, and the tests
+#: the request explicitly demands. Every field here is load-bearing, and the tests
 #: below drop one at a time to prove it. The message is named separately so the variants
 #: can extend it without the whole answer collapsing to `dict[str, object]`.
 OLLAMA_MESSAGE: dict[str, object] = {"role": "assistant", "content": "a quiet street, low sun"}
@@ -252,7 +252,7 @@ class LoopbackOnlyTests(unittest.TestCase):
         self.assertEqual(MAX_PROMPT_MODEL_REQUEST_BYTES, MAX_OLLAMA_REQUEST_BYTES)
         self.assertEqual(MAX_PROMPT_MODEL_RESPONSE_BYTES, MAX_OLLAMA_RESPONSE_BYTES)
         self.assertEqual(OLLAMA_PROMPT_PATHS, frozenset({"/api/tags", "/api/show", "/api/chat"}))
-        # Routes that mutate the operator model store are absent by intent (M22-13). Naming
+        # Routes that mutate the operator model store are absent by intent. Naming
         # them here means adding one cannot pass as an oversight.
         for mutating in ("/api/pull", "/api/create", "/api/delete", "/api/copy", "/api/push"):
             self.assertNotIn(mutating, OLLAMA_PROMPT_PATHS)
@@ -371,7 +371,7 @@ class SessionTests(unittest.TestCase):
         self.assertEqual(messages[-1]["content"][1]["type"], "image_url")
 
     def test_the_local_lane_is_text_only_however_the_row_is_written(self) -> None:
-        """M22-13: the curated local model reports `vision`, so a catalog row that declared image
+        """the curated local model reports `vision`, so a catalog row that declared image
         media must still not open a media path this lane never qualified."""
 
         declared = session_request(images=("aGVsbG8=",), media=("text", "image"))
@@ -383,7 +383,7 @@ class SessionTests(unittest.TestCase):
         self.assertEqual(str(caught.exception), "session_media_unsupported")
 
     def test_only_a_completed_reasoning_free_answer_from_the_exact_model_is_read(self) -> None:
-        """M22-13: each of these is a property the request asked for, so missing it refuses."""
+        """each of these is a property the request asked for, so missing it refuses."""
 
         for label, response in (
             ("unfinished", {**OLLAMA_CHAT, "done": False}),
@@ -418,7 +418,7 @@ class SessionTests(unittest.TestCase):
         self.assertIsNotNone(run_prompt_model_session(session_request(), exchange).answer)
 
     def test_the_local_chat_body_switches_off_every_capability_it_did_not_qualify(self) -> None:
-        """M22-13: `thinking`, `tools` and `vision` are all declared by the curated model, so the
+        """`thinking`, `tools` and `vision` are all declared by the curated model, so the
         body says so explicitly rather than trusting the server's defaults, and it unloads after."""
 
         payload = build_request_payload(session_request())

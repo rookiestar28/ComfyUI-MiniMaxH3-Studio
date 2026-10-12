@@ -27,7 +27,7 @@ _ROUTE_POLICY = RoutePolicy(
     owner_attribute=_ROUTE_OWNER_ATTRIBUTE,
     method="GET",
     # CRITICAL: a browser omits `Origin` on a same-origin GET, so this read-only route admits an
-    # absent header. Before M23-47 it read no origin at all, which let any page on any origin read
+    # absent header. Before it read no origin at all, which let any page on any origin read
     # this host's bundle digest and build inputs.
     origin=OriginRule.EXACT_OR_ABSENT,
     refusals=(BuildProvenanceError, OSError),

@@ -120,7 +120,7 @@ function render() {
       : undefined;
   root.render(
     <main aria-label="NLE sequence workspace">
-      {/* M25-63: planning lives in Production only. The harness keeps its flows by
+      {/* planning lives in Production only. The harness keeps its flows by
           mounting Production's planning section beside the editor's Sequence tab, the
           composition the product has when the sidebar and the editor are both open. */}
       <section aria-label="Production">

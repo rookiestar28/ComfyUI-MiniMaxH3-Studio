@@ -1,4 +1,4 @@
-"""M19-06 closeout matrix tests.
+"""closeout matrix tests.
 
 Two things are worth pinning here.
 
@@ -205,7 +205,7 @@ class GeneratedMatrixTests(unittest.TestCase):
                 self.assertEqual(set(row["readings"][index]["value"] for index in range(5)), {"0"})
 
     def test_the_host_observable_surface_never_moved_once_it_existed(self) -> None:
-        """M19-03 built it precisely so M19-04 and M19-05 could not change it unnoticed."""
+        """built it precisely so and could not change it unnoticed."""
 
         row = self._row("node_surface_fingerprint")
         self.assertEqual(row["verdict"], "held")
@@ -219,7 +219,7 @@ class GeneratedMatrixTests(unittest.TestCase):
         self.assertEqual(len({entry["value"] for entry in row["readings"]}), 1)
 
     def test_the_bundle_moved_exactly_once_and_the_item_is_named(self) -> None:
-        """M19-04 records why: a changed module graph reallocates minified identifiers."""
+        """records why: a changed module graph reallocates minified identifiers."""
 
         values = [entry["value"] for entry in self._row("bundle_sha256")["readings"]]
         self.assertEqual(len(set(values)), 2)
@@ -228,7 +228,7 @@ class GeneratedMatrixTests(unittest.TestCase):
         self.assertEqual(values[4], values[3])
 
     def test_the_frontend_cohort_and_what_it_left_are_reported_separately(self) -> None:
-        """AC-M19-04-04 was corrected for exactly this reason; the matrix keeps both readable."""
+        """AC--04 was corrected for exactly this reason; the matrix keeps both readable."""
 
         cohort = [entry["value"] for entry in self._row("largest_graph_module_bytes")["readings"]]
         directory = [entry["value"] for entry in self._row("largest_host_module_bytes")["readings"]]

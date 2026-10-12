@@ -87,7 +87,7 @@ type Selection = Readonly<{
   scene: ResolvedCompositionScene;
   fingerprint: string;
   ownerId: string | null;
-  // The owner's clip as the validated snapshot gives it: its audio member and its extent.
+  // The clip as the validated snapshot gives it: its audio member and its extent.
   ownerClip: CompositionClip | null;
   assetId: string | null;
   sourceStartSample: number | null;

@@ -1,4 +1,4 @@
-"""M26-03 real canonical Context materialization and cleanup coverage."""
+"""real canonical Context materialization and cleanup coverage."""
 
 from __future__ import annotations
 

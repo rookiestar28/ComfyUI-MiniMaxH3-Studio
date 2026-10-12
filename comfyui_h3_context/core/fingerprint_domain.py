@@ -10,9 +10,9 @@ domain.  A consumer that needs a runtime semantic identity then asks for one
 
 Two boundaries are deliberate.
 
-The helper is **additive**.  It is used by identities introduced from M18-02 onward; the 289
+The helper is **additive**. It is used by identities introduced onward; the 289
 existing fingerprint sites keep their exact bytes.  Threading a domain tag through them would change
-every fingerprint value in the repository -- the outcome the M18-02 plan prohibits, because it
+every fingerprint value in the repository -- the outcome the plan prohibits, because it
 invalidates accepted artifacts, caches and receipts.  Existing identities gain a *recorded* domain
 in :class:`FingerprintDomainAssignment`, not a new value.
 
@@ -56,7 +56,7 @@ class FingerprintDomainError(ContractValidationError):
 
 
 class IdentityDomain(str, Enum):
-    """What an identity is *for*.  The inclusion rules are the frozen M18-02 matrix.
+    """What an identity is *for*. The inclusion rules are the frozen matrix.
 
     `SEMANTIC` is the only domain a runtime may consume as an execution, cache or receipt identity.
     The other four exist so that a digest computed for a different question cannot silently answer
@@ -67,7 +67,7 @@ class IdentityDomain(str, Enum):
     and `OUTPUT_PRODUCING_GRAPH` -- a different axis entirely: *which part of the graph* a recompute
     identity covers, where both members are semantic identities under this vocabulary.  Renaming an
     accepted M17 public export for a naming preference is outside this item, so the collision is
-    recorded here and belongs to M19-02, which owns core public API and export reduction.
+    recorded here and belongs to, which owns core public API and export reduction.
     """
 
     #: Fields that decide execution, cache reuse or a receipt: prompt text, intent graph,
@@ -94,8 +94,8 @@ NON_SEMANTIC_DOMAINS = frozenset(IdentityDomain) - {IdentityDomain.SEMANTIC}
 class FingerprintConsumerKind(str, Enum):
     """Whether an assignment is about an inventoried contract or a named place in the code.
 
-    Both are needed and neither substitutes for the other.  `CONTRACT` covers the M18-01
-    inventory, which is what AC-M18-02-01 counts.  `IDENTITY_SITE` covers a specific computation
+    Both are needed and neither substitutes for the other. `CONTRACT` covers the
+    inventory, which is what AC--01 counts. `IDENTITY_SITE` covers a specific computation
     whose domain is not a property of any one contract -- the browser's graph-projection digest is
     computed over a live graph object, and the sidebar prompt agreement is one field inside a
     projection whose other fields answer a different question.
@@ -133,7 +133,7 @@ def _consumer_id(value: object, field_name: str) -> str:
     """Admit a repository-owned `$id` URI by prefix, and everything else by the general text rule.
 
     `KNOWN_IDENTITY_NAMESPACES` is imported rather than restated: which URI namespaces this
-    repository declares is one fact, and the M18-01 inventory already owns it.  A second copy here
+    repository declares is one fact, and the inventory already owns it. A second copy here
     would be exactly the redundant authority the M18 chain exists to remove, and it would drift the
     first time a namespace is added.
     """
@@ -220,7 +220,7 @@ def require_semantic_identity(
     *,
     purpose: str = "a runtime semantic identity",
 ) -> str:
-    """Return the digest of a semantic identity, refusing every other domain (AC-M18-02-03).
+    """Return the digest of a semantic identity, refusing every other domain (AC--03).
 
     A release-integrity digest stays complete and usable for what it is for; what it may not do is
     stand in for an execution, cache or receipt identity.  The same refusal covers presentation,
@@ -309,7 +309,7 @@ class FingerprintDomainAssignment:
 class FingerprintDomainAssignmentSet:
     """Every assigned consumer, once, in one order.
 
-    The "once" is the enforced half of AC-M18-02-01: a consumer named twice is a consumer with two
+    The "once" is the enforced half of AC--01: a consumer named twice is a consumer with two
     domains, and there is no reading of that which is safe, so it is refused here rather than
     resolved by a precedence rule nobody would remember.
     """
@@ -337,7 +337,7 @@ class FingerprintDomainAssignmentSet:
 
     @property
     def fingerprint(self) -> str:
-        """Fold per-assignment canonical bytes, as the M18-01 inventory does and for one reason.
+        """Fold per-assignment canonical bytes, as the inventory does and for one reason.
 
         `canonical_fingerprint` bounds a collection at 256 items because a product wire that
         large is a defect.  A repository-wide record is legitimately larger, so each row is

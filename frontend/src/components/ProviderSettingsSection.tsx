@@ -21,14 +21,14 @@ import { UNSCOPED, type SidebarRetention } from "../state/sidebarRetention";
 import { useRetainedSlot } from "./useRetainedSlot";
 
 /**
- * M22-06 — provider selection, disclosure and consent, inside the existing
+ * provider selection, disclosure and consent, inside the existing
  * Settings page.
  *
  * Three rules shape everything here.
  *
  * **Identity is not copy.** Profile identifiers, model identifiers, digests,
  * adapter and parser versions, hosts and ports render verbatim in every locale.
- * Translating one would break the pinning discipline `M22-01` establishes and
+ * Translating one would break the pinning discipline `` establishes and
  * make a fingerprint unreproducible, so they are never routed through the
  * catalog.
  *
@@ -58,7 +58,7 @@ export type ProviderSettingsSectionProps = {
   busy?: boolean;
   busyIntent?: ProviderIntent;
   onCredentialClearerChange?(clearer: (() => void) | undefined): void;
-  /** M25-21: only the two disclosure states are retained; never the credential. */
+  /** only the two disclosure states are retained; never the credential. */
   retention?: SidebarRetention;
 };
 
@@ -94,7 +94,7 @@ export function ProviderSettingsSection({
       retainedView.write(UNSCOPED, next);
     };
   // IMPORTANT: the credential is never retained. It lives only in this field's state and is
-  // cleared by every rotation below and by unmount; M25-21 retention must not gain a slot for it.
+  // cleared by every rotation below and by unmount; retention must not gain a slot for it.
   const [credential, setCredential] = useState("");
   const selectRef = useRef<HTMLSelectElement | null>(null);
   const modelSelectRef = useRef<HTMLSelectElement | null>(null);
@@ -727,7 +727,7 @@ export function reachableFrom(remediation: string): boolean {
   // `in` walks the prototype chain, so `"toString" in FOCUSED_REMEDIATIONS` is
   // true and would render a button with no label and no effect. The remediation
   // arrives as an unvalidated string from the wire, so the lookup has to be an
-  // own-property one -- the same rule the M21-03 remediation table follows.
+  // own-property one -- the same rule the remediation table follows.
   return (
     remediation === "retry_later" ||
     Object.hasOwn(FOCUSED_REMEDIATIONS, remediation)

@@ -1,5 +1,5 @@
 /**
- * M17-20 phase 2, decision D11 option (b): App Mode materializes by loading the
+ *  phase 2, decision D11 option (b): App Mode materializes by loading the
  * pinned official template workflow and splicing the H3 context pipeline into
  * it, rather than by expanding the template into an API prompt.
  *
@@ -100,7 +100,7 @@ export type {
  * The context pipeline, minus the conditioning node.
  *
  * The shipped `H3 Context Assistant - Base` subgraph carries its own
- * `MiniMaxH3ImageToVideo`, which is the truncated historical graph M17-20 exists
+ * `MiniMaxH3ImageToVideo`, which is the truncated historical graph exists
  * to replace. Splicing that package into a template would leave two anchors on
  * one canvas and no way to say which one the prompt belongs to, so the pipeline
  * is declared here without it: the template already owns the conditioning node,
@@ -278,7 +278,7 @@ type ReferenceCounts = {
   /**
    * How many reference videos submit their own soundtrack.
    *
-   * M17-17: this is what makes the Reference Registry the owner of the pairing.
+   * this is what makes the Reference Registry the owner of the pairing.
    * `paired_audios[i]` belongs to `videos[i]`, so the count is either every video
    * or none -- a partially paired set is sparse multi-video pairing, which this
    * item explicitly does not open.
@@ -429,10 +429,10 @@ function loaderOutputs(
  * The authored duration is written into the template's own duration control
  * rather than into the anchor's `length`. That is deliberate and is what keeps
  * one alignment authority: the template drives `length` through a
- * `ComfyMathExpression` carrying the official expression, and M17-25 proved that
+ * `ComfyMathExpression` carrying the official expression, and proved that
  * expression equals `core/length.py` over every integer millisecond in the
  * tested range. Writing an aligned frame count here would put the lattice rule
- * in a second place, which is the defect M17-25 removed.
+ * in a second place, which is the defect removed.
  *
  * Media is bound the same way round. The caller supplies the loader class and
  * the widget values the user already chose on their own canvas; this rebuilds
@@ -946,7 +946,7 @@ export function spliceContextPipeline(
     // edge remain exactly as assembled; only this owned declaration consumer is
     // added to the already-selected frame output.
   } else if (connecting) {
-    // Ref2VA Connect remains outside M23-38. Nothing else is touched here.
+    // Ref2VA Connect remains outside. Nothing else is touched here.
   } else if (family === "image_to_video") {
     const registry = byKey.get(REGISTRY_KEY);
     for (const role of FRAME_BINDINGS[options.taskMode] ?? []) {
@@ -989,7 +989,7 @@ export function spliceContextPipeline(
       });
       connect(node, 0, components, "video", "VIDEO");
       connect(components, 0, anchor, `ref_videos.ref_video_${index}`, "IMAGE");
-      // M17-17: the soundtrack reaches the anchor only by way of the registry
+      // the soundtrack reaches the anchor only by way of the registry
       // that owns it. Binding the anchor without binding the registry is what
       // made the typed report describe a different request from the queued one.
       if (soundtrack === "included") {

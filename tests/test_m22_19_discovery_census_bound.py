@@ -1,9 +1,9 @@
-"""M22-19. A hosted model catalogue is bigger than a local Ollama tag list.
+""". A hosted model catalogue is bigger than a local Ollama tag list.
 
 The readiness census refused any listing past 64 rows, which is a sensible population for a handful
-of pulled local models and simply false for a hosted catalogue: the retained M22-14 Gemini discovery
+of pulled local models and simply false for a hosted catalogue: the retained Gemini discovery
 response was 8339 bytes, on the order of a hundred and fifty rows. No remote profile had ever
-reached the product's readiness control before M22-17, so nothing had exercised the ceiling.
+reached the product's readiness control before, so nothing had exercised the ceiling.
 
 The second test class here is the one that matters most. A draft of this item proposed decoupling
 the projection window from the ingest ceiling so that raising one could not move the other. That

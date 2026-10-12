@@ -28,7 +28,7 @@ export const SIDEBAR_FOCUS_KEYS = [
   "production-retain-output",
   "production-retained-refresh",
   "settings-provider",
-  // M25-33: the Media tools card's status line in Settings and its one primary control.
+  // the Media tools card's status line in Settings and its one primary control.
   "settings-media-tools",
   "media-tools-primary",
   "app-stage-intent",
@@ -65,7 +65,7 @@ export const SIDEBAR_FOCUS_KEYS = [
   "workspace-export",
   "workspace-copy",
   "workspace-import",
-  // M25-16: the full-editor launcher inside `clip_editor` and the overlay's own close control.
+  // the full-editor launcher inside `clip_editor` and the overlay's own close control.
   "nle-open-overlay",
   "nle-close-overlay",
 ] as const;

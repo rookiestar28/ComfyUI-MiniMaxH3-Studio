@@ -1,7 +1,7 @@
 // App Mode route resolution: the three ways a run obtains one validated candidate workflow
 // and its owned reference -- rebinding the existing canvas, materializing the pinned template,
 // or connecting the context pipeline into a user canvas. Nothing here calls the host or writes
-// the canvas; the controller owns the transaction around these resolutions (M23-28 split).
+// the canvas; the controller owns the transaction around these resolutions ( split).
 import { classifyHostMappingReadiness } from "./hostSeamContract";
 import {
   OfficialAssetResolutionError,
@@ -95,7 +95,7 @@ export function createHostDetachedGraph(
   }
 }
 
-// CRITICAL (M23-37, frontend 1.51.9): a definitions-carrying candidate must be compiled from
+// CRITICAL (, frontend 1.51.9): a definitions-carrying candidate must be compiled from
 // the loaded root canvas. A detached compile loses the anchor prompt binding on that host.
 export async function compileLoadedCandidate(
   app: AppModeApp,
@@ -112,7 +112,7 @@ export async function compileLoadedCandidate(
   }
 }
 
-// IMPORTANT (M24-08, B-M1605-EXIST-01): only candidates with neither subgraph definitions nor a
+// IMPORTANT (, B-M1605-EXIST-01): only candidates with neither subgraph definitions nor a
 // root graph id use this execution identity; see candidateRequiresHostLoadBeforeCompile.
 export async function compileDetachedCandidate(
   app: AppModeApp,
@@ -225,7 +225,7 @@ export async function resolveMaterializeRoute(
   options: MaterializeRouteOptions,
 ): Promise<ResolvedMaterializeRoute> {
   const signal = options.signal;
-  // M17-20 D11 option (b): the pinned official template *is* the workflow.
+  //  D11 option (b): the pinned official template *is* the workflow.
   // The H3 context pipeline is spliced into its prompt input; the sampler,
   // decode and sink chain arrive from the template unmodified, which is
   // what makes the materialized graph directly generation-capable instead
@@ -248,7 +248,7 @@ export async function resolveMaterializeRoute(
     const template = await Promise.resolve(options.loadTemplate(templateName));
     throwIfCancelled(signal);
     let materializationTemplate = record(template) ?? {};
-    // M17-29. Resolve against the host's already-loaded combo arrays and
+    // . Resolve against the host's already-loaded combo arrays and
     // finish every serialized mutation before the first canvas write.
     // Connect/adopt never enter this block, so a later user choice cannot
     // be overwritten by the materialization ladder.
@@ -388,7 +388,7 @@ export function resolveConnectRoute(
   signal: AbortSignal | undefined,
   designatedAnchorId: number | undefined,
 ): ResolvedRouteCandidate {
-  // M17-20 D13. The canvas is the graph; this route inserts the context
+  //  D13. The canvas is the graph; this route inserts the context
   // pipeline into it and rewires exactly one native H3 anchor's `prompt`.
   // Everything else the user assembled is left alone, which is why the
   // splice runs in connect mode and why nothing here reads or rewrites a

@@ -4,13 +4,13 @@ import { describe, expect, it } from "vitest";
 
 const css = readFileSync(join(process.cwd(), "src/styles/tokens.css"), "utf8");
 // Guards that scan for variable references must read declarations, not prose:
-// the M17-22 corrective comment quotes the very `var(--error-text, ...)` it
+// the corrective comment quotes the very `var(--error-text,...)` it
 // removed, and a raw-text scan would report the fix as the defect.
 const declarations = css.replace(/\/\*[\s\S]*?\*\//g, "");
 
 describe("M17-12 frozen industrial presentation", () => {
   it("contains the exact dark/light palette and pairwise page identities", () => {
-    // M21-03 superseded the M17-12 neutral ladder and identity hues under the
+    //  superseded the neutral ladder and identity hues under the
     // user-accepted visual direction of 2026-08-18. The guard is unchanged in
     // kind -- an exact literal list plus the three page identities -- and pins
     // the new values; the contrast of every pair is audited separately in
@@ -31,13 +31,13 @@ describe("M17-12 frozen industrial presentation", () => {
     expect(css).toContain("--h3-page-outline-context");
     expect(css).toContain("--h3-page-outline-production");
     expect(css).toContain("--h3-page-outline-settings");
-    // Section headings carry no hue (AC-M21-03-04): the accent name survives
+    // Section headings carry no hue (AC--04): the accent name survives
     // for the identity guard above, but it resolves to the top text step.
     expect(css).toMatch(/--h3-text-title-accent:\s*var\(--h3-text-primary\)/);
   });
 
   it("freezes disjoint container boundaries and accessibility fallbacks", () => {
-    // M21-03 AC-01 removed the >= 641px two-column page grid, so that boundary
+    //  AC-01 removed the >= 641px two-column page grid, so that boundary
     // is gone with it. The rest stay disjoint, and the absence is asserted
     // rather than left as a silently shorter list.
     for (const boundary of [
@@ -88,7 +88,7 @@ describe("M17-21 presentation redesign", () => {
   });
 
   it("publishes one button variant vocabulary for every page", () => {
-    // M21-03 reduced four treatments to three (AC-M21-03-06). `quiet` rendered
+    //  reduced four treatments to three (AC--06). `quiet` rendered
     // as a second kind of secondary beside the bare default, so it was removed
     // rather than redefined; the default now carries the secondary material.
     for (const variant of ["primary", "danger"])
@@ -99,10 +99,10 @@ describe("M17-21 presentation redesign", () => {
   });
 
   it("reserves the fault signal for destructive and failed affordances", () => {
-    // M21-03 split the two jobs the one warm value used to hold. The page
+    //  split the two jobs the one warm value used to hold. The page
     // identity stays on `--h3-signal-orange`; the danger *state* becomes its own
     // audited tone, so a failed affordance no longer reads as "this is the
-    // Production page". The invariant M17-21 protected is unchanged and now
+    // Production page". The invariant protected is unchanged and now
     // asserted directly: the fault signal appears nowhere but those two roles.
     expect(css).toMatch(/--h3-tone-danger:\s*#[0-9a-f]{6}/i);
     expect(css).not.toMatch(/--h3-tone-danger:\s*var\(--h3-signal-orange\)/);
@@ -131,7 +131,7 @@ describe("M17-21 presentation redesign", () => {
         new RegExp(`\\.h3p-c\\[data-tone="${tone}"\\]\\s*\\{`),
       );
     expect(css).toMatch(/\.h3p-kv\s*>\s*div\s*\{[^}]*display:\s*grid;/s);
-    // M21-03 order 6 replaced the dashed empty box -- which mimicked a
+    //  order 6 replaced the dashed empty box -- which mimicked a
     // disabled input -- with one quiet receding line, so the rule is gone
     // with its markup rather than left as unreachable CSS.
     expect(css).not.toContain(".h3p-e {");
@@ -170,7 +170,7 @@ describe("M17-22 host theme binding", () => {
     // dark values and do not change with the theme, so binding the palette to
     // them would keep the panel dark in light mode.
     //
-    // `--error-text` is on this list because of the M17-22 corrective, and it is
+    // `--error-text` is on this list because of the corrective, and it is
     // the reason the list is asserted at all rather than trusted: the first pass
     // of this test omitted it, `--dg` was still `var(--error-text, #ff8585)`, and
     // the panel rendered danger text in the host's #ff4444 at 3.886 on
@@ -192,7 +192,7 @@ describe("M17-22 host theme binding", () => {
 
   it("leaves exactly one inert host reference, and no rendered colour", () => {
     // `--h3-operation` keeps `var(--p-primary-color, #d5a24b)` because the
-    // accepted M17-00 contract pins that shape. It is inert: nothing consumes
+    // accepted contract pins that shape. It is inert: nothing consumes
     // it, so it cannot reach a rendered colour. This asserts both halves, so
     // that adding a consumer forces the host-derivation question to be answered
     // deliberately rather than by inheritance.
@@ -201,7 +201,7 @@ describe("M17-22 host theme binding", () => {
     );
     expect(declarations.match(/var\(--h3-operation/g)).toBeNull();
 
-    // The whole-file sweep is the part that matters. The M17-22 guard list was
+    // The whole-file sweep is the part that matters. The guard list was
     // written from the plan's measured table and still missed `--error-text`,
     // which `--dg` was consuming a few lines below the code under audit. An
     // enumerated list can only catch names someone remembered; this catches any
@@ -313,7 +313,7 @@ describe("M17-23 bounded segment presentation", () => {
   });
 
   it("gives the single edit target its own accent, not the reserved signal", () => {
-    // AC-M17-21-03 keeps exactly one warm accent for destructive and failed
+    // AC--03 keeps exactly one warm accent for destructive and failed
     // affordances, and set selection already owns the blue. Borrowing either
     // for the edit target would either dilute the fault signal or make two
     // different meanings look the same, so the role gets its own token.
@@ -333,7 +333,7 @@ describe("M17-23 bounded segment presentation", () => {
 
   it("keeps the card grid two-track for every segment but the edit target", () => {
     // The third track exists only to seat the badge and collapses to zero
-    // elsewhere, so the accepted M17-21 D7 geometry is unchanged.
+    // elsewhere, so the accepted D7 geometry is unchanged.
     const card = css.match(/\.h3p-s\s*>\s*li\s*\{([^}]*)\}/)?.[1];
     expect(card).toMatch(
       /grid-template-columns:\s*minmax\(0,\s*1fr\)\s*auto\s*auto;/,

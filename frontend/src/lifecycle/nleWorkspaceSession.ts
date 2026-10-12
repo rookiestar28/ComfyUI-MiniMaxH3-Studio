@@ -1,4 +1,4 @@
-// M25-16 NLE workspace session: the overlay lifecycle, the explicit Production-output import,
+//  NLE workspace session: the overlay lifecycle, the explicit Production-output import,
 // the M26 planning/readiness/sequence/assembly projection and the B1 leave/return flow, all
 // held in the one shell session and dispatched as named backend actions.
 //
@@ -60,7 +60,7 @@ import type { ShellRuntime } from "./shellSession";
 /**
  * The reference used before any managed child has written an owned projection. The accepted
  * child resolver captures the current canvas against this reference (an empty owned set), which
- * is exactly how the accepted M26-04 host qualification seeded its first child.
+ * is exactly how the accepted host qualification seeded its first child.
  */
 export const UNBOUND_OWNED_GRAPH_REFERENCE: OwnedGraphReference = Object.freeze(
   {
@@ -316,7 +316,7 @@ export function createNleWorkspaceSession(ctx: ShellRuntime) {
       return;
     }
     const generation = surface.generation + 1;
-    // M25-21: only this explicit open applies retained geometry, clamped to today's viewport.
+    // only this explicit open applies retained geometry, clamped to today's viewport.
     const retained = session.retention.restore("nle.overlay", UNSCOPED).value;
     patch({
       surface: Object.freeze({
@@ -458,7 +458,7 @@ export function createNleWorkspaceSession(ctx: ShellRuntime) {
     patch({ surface: Object.freeze({ ...surface, pane }) });
   }
 
-  /** M25-44: a splitter move; a local view change that issues no command. */
+  /** a splitter move; a local view change that issues no command. */
   function nleSetLayout(requested: NleLayout): void {
     const surface = state().surface;
     if (surface.status !== "expanded") return;
@@ -484,7 +484,7 @@ export function createNleWorkspaceSession(ctx: ShellRuntime) {
   }
 
   /**
-   * M25-44 (one NLE): the create action the retired compact editor was the only home of. It
+   *  (one NLE): the create action the retired compact editor was the only home of. It
    * creates the Authoring workspace from the current Context; while the overlay is open it then
    * initializes the timeline history, because an explicit open is otherwise the only initializer
    * and the open already happened.
@@ -501,7 +501,7 @@ export function createNleWorkspaceSession(ctx: ShellRuntime) {
       });
   }
 
-  // ------------------------------------------------------------------ M25-29 import
+  // ------------------------------------------------------------------ import
 
   const importSlice = createNleWorkspaceImport({
     ctx,
@@ -544,7 +544,7 @@ export function createNleWorkspaceSession(ctx: ShellRuntime) {
     nleSetTargetSeconds,
   } = planningSlice;
 
-  // ------------------------------------------------------------------ M26-04 readiness
+  // ------------------------------------------------------------------ readiness
 
   function readinessSelection(): ManagedReadinessSelection | undefined {
     const plan = state().planning.plan;

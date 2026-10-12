@@ -1,4 +1,4 @@
-"""M16-06 offline drift classification and report-only process tests."""
+"""offline drift classification and report-only process tests."""
 
 from __future__ import annotations
 

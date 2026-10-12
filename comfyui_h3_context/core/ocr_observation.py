@@ -1,4 +1,4 @@
-"""Strict exact-text and spatial OCR contracts for M11-03.
+"""Strict exact-text and spatial OCR contracts for.
 
 The core keeps OCR as untrusted, source-owned evidence.  It never opens media, normalizes text,
 executes recognized instructions, or turns a candidate into a user-owned exact-text constraint.

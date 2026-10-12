@@ -137,7 +137,7 @@ describe("H3 sidebar presentation contract", () => {
         onChooseNative={() => undefined}
       />,
     );
-    // M17-27: assert the verdict is announced, not that it contains the word
+    // assert the verdict is announced, not that it contains the word
     // "incompatible". That word was a proxy for the reason code, and pinning it
     // stopped the copy from being able to say which route the verdict is about.
     expect(

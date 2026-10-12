@@ -25,7 +25,7 @@ OUTPUT_RESPONSE_SECONDS: Final = 120
 OUTPUT_WRITE_SECONDS: Final = 10
 OUTPUT_JOB_PATH: Final = "/h3-context/v1/authoring/render"
 OUTPUT_MEDIA_PATH: Final = "/h3-context/v1/authoring/output"
-#: M25-16: the read-only capability projection the expanded workspace reads before it mounts
+#: : the read-only capability projection the expanded workspace reads before it mounts
 #: the final-output leaf. Its path deliberately shares no prefix with the `{handle}` routes.
 OUTPUT_CAPABILITY_PATH: Final = "/h3-context/v1/authoring/output-capability"
 

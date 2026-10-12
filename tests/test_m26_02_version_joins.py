@@ -1,4 +1,4 @@
-"""Focused current-admission and retained-execution version joins for M26-02."""
+"""Focused current-admission and retained-execution version joins for."""
 
 from __future__ import annotations
 

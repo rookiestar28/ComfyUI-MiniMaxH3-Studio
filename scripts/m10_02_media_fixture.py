@@ -1,4 +1,4 @@
-"""Run the deterministic M10-02 media admission/probe fixture without I/O or a decoder."""
+"""Run the deterministic media admission/probe fixture without I/O or a decoder."""
 
 from __future__ import annotations
 

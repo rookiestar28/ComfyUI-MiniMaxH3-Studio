@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Operator-configured local perception host",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "python_executable", "temporary_root", "profiles"],
+  "properties": {
+    "schema": {"const": "h3-context-perception-host/1"},
+    "python_executable": {"$ref": "#/$defs/path"},
+    "temporary_root": {"$ref": "#/$defs/path"},
+    "weight_path": {"$ref": "#/$defs/path"},
+    "processor_dir": {"$ref": "#/$defs/path"},
+    "profiles": {
+      "type": "array", "minItems": 1, "maxItems": 2, "uniqueItems": true,
+      "items": {"enum": ["qwen38_27b_q4_visual_v2", "whisper_large_v3_cpu_en_v1"]}
+    }
+  },
+  "allOf": [{
+    "if": {"properties": {"profiles": {"contains": {"const": "whisper_large_v3_cpu_en_v1"}}}},
+    "then": {"required": ["weight_path", "processor_dir"]}
+  }],
+  "$defs": {
+    "path": {
+      "type": "string", "minLength": 3, "pattern": "^[A-Za-z]:[\\\\/]",
+      "description": "Existing native Windows local-drive absolute path. The loader also rejects aliases, links, reparse components and wrong filesystem types."
+    }
+  }
+}

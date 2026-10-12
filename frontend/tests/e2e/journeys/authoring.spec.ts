@@ -1,6 +1,6 @@
 import { expect, test } from "../fixtures/h3Page";
 
-// M20-03, re-aimed by M25-44 (one NLE): the Clip editor function no longer mounts an editing
+// , re-aimed by (one NLE): the Clip editor function no longer mounts an editing
 // surface. It shows the full-editor launcher and a read-only project summary that owns the
 // Authoring workspace lifecycle the compact editor used to offer -- start from the current Context,
 // refresh, and a labelled two-step release. Editing is covered on the full editor
@@ -30,7 +30,7 @@ async function createWorkspace(page: import("@playwright/test").Page) {
   return summary;
 }
 
-// B-M2544-02: the lifecycle actions follow the owner's sidebar action-row rule. Each is an icon tile
+// B-M2544-02: the lifecycle actions follow the sidebar action-row rule. Each is an icon tile
 // (no visible text; the full label is its accessible name) on the shared five-column grid that spans
 // the summary edge to edge, all in one row starting at the left, with its description on hover.
 async function expectActionTiles(

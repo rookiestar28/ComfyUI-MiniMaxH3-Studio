@@ -1,4 +1,4 @@
-// M25-45: the monitor publishes its status to the chrome bar instead of printing it under the
+// the monitor publishes its status to the chrome bar instead of printing it under the
 // picture.
 //
 // IMPORTANT: this is a channel, not workspace state, for the same reason the playhead is one. The

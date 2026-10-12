@@ -1,4 +1,4 @@
-// M25-33 AC33-02/03/06/09: the Media tools card states, its single primary action, focus return,
+//  AC33-02/03/06/09: the Media tools card states, its single primary action, focus return,
 // the advanced folder field kept out of the normal path, and plain copy in all three locales.
 
 import {

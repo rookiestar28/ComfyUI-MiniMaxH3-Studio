@@ -7,6 +7,57 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // CRITICAL: install before the module graph; a failed static import leaves an empty
+      // responsive page and otherwise turns boot failure into a misleading button timeout.
+      window.__h3HarnessBoot = { phase: "html", events: [] };
+      window.__h3RecordBootError = (kind, error, filename) => {
+        const names = [
+          "Error",
+          "TypeError",
+          "ReferenceError",
+          "SyntaxError",
+          "RangeError",
+          "URIError",
+          "EvalError",
+          "AggregateError",
+        ];
+        const name = names.includes(error?.constructor?.name)
+          ? error.constructor.name
+          : "unknown";
+        let module = null;
+        try {
+          const path = new URL(filename, location.href).pathname;
+          if (path === "/nleShell.tsx") module = "nleShell.tsx";
+          const relative = path.split("/frontend/src/")[1];
+          if (
+            relative &&
+            /^[a-zA-Z0-9_/-]+\.[cm]?[jt]sx?$/.test(relative) &&
+            !relative.split("/").includes("..")
+          )
+            module = `src/${relative}`;
+        } catch {}
+        if (window.__h3HarnessBoot.events.length < 32)
+          window.__h3HarnessBoot.events.push({ kind, name, module });
+      };
+      window.addEventListener(
+        "error",
+        (event) => {
+          if (event.target instanceof HTMLScriptElement)
+            window.__h3RecordBootError("module-error", null, event.target.src);
+          else if (event instanceof ErrorEvent)
+            window.__h3RecordBootError(
+              "window-error",
+              event.error,
+              event.filename,
+            );
+        },
+        true,
+      );
+      window.addEventListener("unhandledrejection", (event) => {
+        window.__h3RecordBootError("unhandled-rejection", event.reason, "");
+      });
+    </script>
     <script type="module" src="/nleShell.tsx"></script>
   </body>
 </html>

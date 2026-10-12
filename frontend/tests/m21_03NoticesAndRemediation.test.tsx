@@ -1,5 +1,5 @@
 /**
- * M21-03 AC-09, AC-10, AC-11 — one remediation mechanism and one notice surface.
+ *  AC-09, AC-10, AC-11 — one remediation mechanism and one notice surface.
  */
 
 import { act, cleanup, render, screen } from "@testing-library/react";

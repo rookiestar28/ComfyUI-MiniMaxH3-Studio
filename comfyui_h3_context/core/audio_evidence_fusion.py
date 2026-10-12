@@ -1,4 +1,4 @@
-"""Provenance-preserving audio evidence fusion and confidence calibration for M12-06.
+"""Provenance-preserving audio evidence fusion and confidence calibration for.
 
 This pure-core module consumes bounded, already-produced ASR, speaker, audio-event, reference, and
 audiovisual-grounding observations.  It does not decode media, discover a provider, run an LLM/VLM,

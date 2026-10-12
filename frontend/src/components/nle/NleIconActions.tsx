@@ -1,13 +1,16 @@
-// M25-41: compact icon actions for crowded planning rows. Each action is an icon tile (M25-43: on a
+// compact icon actions for crowded planning rows. Each action is an icon tile (: on a
 // shared column grid that fills the row) whose accessible name is the full label; its concrete
 // description appears in one tooltip above the group on pointer hover (also over an unavailable
 // action) and on keyboard focus.
 
 import {
   createContext,
+  memo,
   useContext,
   useEffect,
   useId,
+  useLayoutEffect,
+  useMemo,
   useRef,
   type ReactNode,
 } from "react";
@@ -49,7 +52,7 @@ export type NleIconName =
   | "zoomIn"
   | "more"
   | "rebase"
-  // M25-61 redesign glyphs: drawn for this repository on the same 24-unit grid and stroke.
+  //  redesign glyphs: drawn for this repository on the same 24-unit grid and stroke.
   | "close"
   | "check"
   | "warning"
@@ -65,9 +68,9 @@ export type NleIconName =
   | "trackImage"
   | "text"
   | "cornerGrip"
-  // M25-64: a picture with a play mark, for the empty monitor.
+  // a picture with a play mark, for the empty monitor.
   | "preview"
-  // M25-64: an arrow turning back to its start, for an inspector section's reset.
+  // an arrow turning back to its start, for an inspector section's reset.
   | "reset"
   // The inspector's six picture alignments: the edge or centre line, and two bars against it.
   | "alignLeft"
@@ -76,7 +79,7 @@ export type NleIconName =
   | "alignTop"
   | "alignCentreY"
   | "alignBottom"
-  // M25-63: the save indicator's in-progress ring (a broken circle, not a spinner).
+  // the save indicator's in-progress ring (a broken circle, not a spinner).
   | "pending"
   // Storyboard script: a page receiving an arrow, and written lines parted by a cut.
   | "scriptFromContext"
@@ -255,8 +258,29 @@ export function NleIconGroup({
       document.removeEventListener("pointerdown", onDown, true);
     };
   };
+  // IMPORTANT: the context value keeps its identity for the group's life, so a memoized icon action
+  // whose own props are unchanged bails out of an edit's renders; a new value each render would
+  // re-render every action in the group. It delegates to the show/hide published after the latest
+  // commit, so it never runs a stale closure if they come to read render-time values.
+  const committedTip = useRef({ show, hide });
+  useLayoutEffect(() => {
+    committedTip.current = { show, hide };
+  });
+  const tip = useMemo(
+    () => ({
+      tipId,
+      show: (
+        key: string,
+        text: string,
+        immediate: boolean,
+        target: HTMLElement | null,
+      ) => committedTip.current.show(key, text, immediate, target),
+      hide: (key?: string) => committedTip.current.hide(key),
+    }),
+    [tipId],
+  );
   return (
-    <TipContext.Provider value={{ tipId, show, hide }}>
+    <TipContext.Provider value={tip}>
       <div
         role="group"
         aria-label={label}
@@ -290,7 +314,7 @@ export function NleIconGroup({
   );
 }
 
-export function NleIconButton({
+function NleIconButtonView({
   icon,
   label,
   description,
@@ -313,7 +337,7 @@ export function NleIconButton({
   description: string;
   hue: NleIconHue;
   control: string;
-  // M25-44: a workspace lifecycle action (the clip editor tab's summary) is named by
+  // a workspace lifecycle action (the clip editor tab's summary) is named by
   // `data-h3-nle-action`; `data-h3-nle-control` stays reserved for planning and editing controls,
   // which the tab must never render.
   kind?: "control" | "action";
@@ -324,10 +348,10 @@ export function NleIconButton({
   expanded?: boolean;
   hasPopup?: "menu";
   pressed?: boolean;
-  /** M25-62: the shortcut in `aria-keyshortcuts` syntax; the description names it for sight. */
+  /** the shortcut in `aria-keyshortcuts` syntax; the description names it for sight. */
   keyShortcuts?: string;
   /**
-   * M25-62: a visual break before this action in a toolbar row -- a CSS separator, or the start
+   * a visual break before this action in a toolbar row -- a CSS separator, or the start
    * of the right-aligned group. It adds no element, so toolbar node budgets are unchanged.
    */
   slotBreak?: "separator" | "group";
@@ -379,6 +403,11 @@ export function NleIconButton({
   );
 }
 
+// IMPORTANT: an action re-renders only when its own props change; parents that keep an action's
+// handler stable (the timeline toolbar's committed delegates) let it skip an edit's renders. The
+// group's context value is stable for the same reason.
+export const NleIconButton = memo(NleIconButtonView);
+
 const PATHS: Record<NleIconName, readonly string[]> = {
   // Stacked layers: gather the planning context.
   layers: ["M12 3 3 8l9 5 9-5-9-5Z", "m3 13 9 5 9-5", "m3 17.5 9 5 9-5"],
@@ -420,32 +449,32 @@ const PATHS: Record<NleIconName, readonly string[]> = {
     "M3 7a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7Z",
     "M12 11v5M9.5 13.5h5",
   ],
-  // M25-44: picture with a mountain: the Media tab of the bin.
+  // picture with a mountain: the Media tab of the bin.
   media: [
     "M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z",
     "m3 16 5-5 4 4 3-3 6 6",
     "M15.5 9h.01",
   ],
-  // M25-44: arrow out of a tray: export the final video.
+  // arrow out of a tray: export the final video.
   export: [
     "M12 15V3",
     "m8 7 4-4 4 4",
     "M4 14v5a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-5",
   ],
-  // M25-44: two arrows in a circle: read the workspace again.
+  // two arrows in a circle: read the workspace again.
   refresh: [
     "M20 11a8 8 0 0 0-14.9-4",
     "M4 4v4h4",
     "M4 13a8 8 0 0 0 14.9 4",
     "M20 20v-4h-4",
   ],
-  // M25-44: eject: release the workspace.
+  // eject: release the workspace.
   release: ["M12 4v9", "m8 9 4-5 4 5", "M5 19h14"],
-  // M25-44: check mark: confirm the release.
+  // check mark: confirm the release.
   confirm: ["m5 12 5 5 9-10"],
-  // M25-44: return arrow: keep the workspace.
+  // return arrow: keep the workspace.
   keep: ["M9 14 4 9l5-5", "M4 9h10a6 6 0 0 1 0 12h-3"],
-  // M25-45 transport: the five monitor controls.
+  //  transport: the five monitor controls.
   play: ["M8 5.5 19 12 8 18.5v-13Z"],
   pause: ["M9 5v14M15 5v14"],
   stepBack: ["M6 5v14", "M18 5.5 8 12l10 6.5v-13Z"],
@@ -463,7 +492,7 @@ const PATHS: Record<NleIconName, readonly string[]> = {
   fullscreenExit: [
     "M9 4v4a1 1 0 0 1-1 1H4M15 4v4a1 1 0 0 0 1 1h4M15 20v-4a1 1 0 0 1 1-1h4M9 20v-4a1 1 0 0 0-1-1H4",
   ],
-  // M25-47: repository-owned timeline edit glyphs. Keep one path per new action so the
+  // repository-owned timeline edit glyphs. Keep one path per new action so the
   // 60-node toolbar budget is not consumed by decorative SVG fragments.
   undo: ["M9 7 4 12l5 5M5 12h8a6 6 0 1 1 0 12"],
   redo: ["m15 7 5 5-5 5M19 12h-8a6 6 0 1 0 0 12"],
@@ -532,7 +561,7 @@ export const NLE_ICON_NAMES = Object.freeze(
   Object.keys(PATHS) as NleIconName[],
 );
 
-export function NleActionIcon({
+function NleActionIconView({
   name,
   size = 18,
 }: {
@@ -560,3 +589,7 @@ export function NleActionIcon({
     </svg>
   );
 }
+
+// IMPORTANT: glyph output depends only on name/size. Keep this memo boundary;
+// authoring status updates otherwise rebuild every unchanged SVG in the editor.
+export const NleActionIcon = memo(NleActionIconView);

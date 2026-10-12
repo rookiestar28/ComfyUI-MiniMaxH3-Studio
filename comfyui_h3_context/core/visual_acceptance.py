@@ -1,6 +1,6 @@
-"""M11-08 visual-perception acceptance and disposition contracts.
+"""visual-perception acceptance and disposition contracts.
 
-The gate consumes the frozen M11-01 benchmark metadata and optional, explicitly supplied profile
+The gate consumes the frozen benchmark metadata and optional, explicitly supplied profile
 measurements.  It never discovers a provider, starts a process, opens media, contacts a server, or
 turns an unavailable route into a qualified profile.  With the current offline plan the expected
 terminal result is ``unsupported_research``.

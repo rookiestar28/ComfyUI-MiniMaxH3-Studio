@@ -1,5 +1,5 @@
-// The 34 canonical M25-11 command recipes, shared by the M25-16 command matrix (canonical
-// harness) and the M25-21 hardening journeys (integrated shell). Each recipe prepares its row on
+// The 34 canonical command recipes, shared by the command matrix (canonical
+// harness) and the hardening journeys (integrated shell). Each recipe prepares its row on
 // the smoke fixture through accepted setup commands, then activates the row's real overlay control
 // by pointer, keyboard or touch. The two harnesses expose the same `receipts` counter and accepted
 // `timelineSnapshot`, so a recipe cannot tell them apart; the caller supplies the reader.
@@ -64,7 +64,7 @@ export function control(page: Page, operation: string): Locator {
 let activationProbe: ((target: Locator) => Promise<void>) | undefined;
 
 /**
- * M25-21: inspect the exact element a recipe's own activation is about to press, in the state it
+ * inspect the exact element a recipe's own activation is about to press, in the state it
  * is pressed in (after the recipe filled its inputs). The probe is consumed by that one press.
  */
 export function probeNextActivation(probe: (target: Locator) => Promise<void>) {
@@ -124,7 +124,7 @@ export function clipButton(page: Page, clipId: string): Locator {
 /**
  * The clip's selection button, scrolled into the timeline's mounted rows first.
  *
- * IMPORTANT (M25-44 B-M2544-08): the tracks grid mounts only the rows inside its scroll window
+ * IMPORTANT ( B-M2544-08): the tracks grid mounts only the rows inside its scroll window
  * (`NleTimeline.tsx` virtual window). The reference shell's timeline region shows three rows at
  * the default layout, and an earlier recipe can leave the grid scrolled, so a clip on another track
  * has no button at all and a click on its locator waits for the whole test budget. Scroll the grid
@@ -235,7 +235,7 @@ export async function openClipMenu(page: Page, clipId: string) {
     `[data-h3-nle-clip="${clipId}"] [data-h3-nle-menu-trigger="clip"], ` +
       `.h3-nle-trim-rail[data-h3-nle-trim-clip="${clipId}"] [data-h3-nle-menu-trigger="clip"]`,
   );
-  // M25-62 (B-M2562-03): under a fine pointer a selected clip narrower than 96 px has no inline
+  //  (B-M2562-03): under a fine pointer a selected clip narrower than 96 px has no inline
   // trigger and opens its menu by a context click. A coarse pointer still requires the trigger or
   // the rail, so a touch regression cannot hide behind the fallback.
   const coarse = await page.evaluate(
@@ -504,7 +504,7 @@ export function commandRecipes(snapshot: SnapshotReader) {
     ) => {
       await page.locator('[data-h3-nle-pane="assets"]').click();
       if (operation !== "asset.insert") {
-        // M25-63: range commands live in the card's menu. Open it the way this row's input
+        // range commands live in the card's menu. Open it the way this row's input
         // reaches it: a right-click (pointer), Shift+F10 on the card (keyboard), or the card's
         // inline trigger (touch, which has no right-click). The row then activates the item.
         const card = page.locator("[data-h3-nle-asset]").first();
@@ -640,7 +640,7 @@ export function commandRecipes(snapshot: SnapshotReader) {
       kind: "trim_clip",
       prepare: selectClip0,
       act: async (page, via, _context, mark) => {
-        // M25-62 (R7): a clip wide enough for its grips trims inline (8 px fine, 44 px coarse);
+        //  (R7): a clip wide enough for its grips trims inline (8 px fine, 44 px coarse);
         // a narrower one trims through the rail.
         const handle = page.locator(
           '[data-h3-nle-clip="clip-0"] .h3-nle-grip[data-h3-nle-trim-edge="end"]:not([hidden]), ' +
@@ -885,7 +885,7 @@ export function commandRecipes(snapshot: SnapshotReader) {
           await press(target, page, via);
           return;
         }
-        // IMPORTANT: accepted M25-46 reserves Enter on a clip body for the keyboard move draft;
+        // IMPORTANT: accepted reserves Enter on a clip body for the keyboard move draft;
         // Space is the selection command. Sending Enter silently exercises a different owner.
         await takeProbe(target);
         await target.focus();

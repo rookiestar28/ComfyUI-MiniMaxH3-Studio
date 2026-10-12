@@ -1,4 +1,4 @@
-"""M26-02 pure planning context, storyboard admission, and segment proposal contracts."""
+"""pure planning context, storyboard admission, and segment proposal contracts."""
 
 from __future__ import annotations
 

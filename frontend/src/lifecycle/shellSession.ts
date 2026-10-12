@@ -1,4 +1,4 @@
-// Shell session (M23-28): the one mutable session object that replaced the module-level
+// Shell session: the one mutable session object that replaced the module-level
 
 // bindings of entry.tsx, the shared service dependencies and the late-bound action table
 
@@ -64,6 +64,8 @@ import type { createAuthoringOutputCapabilityClient } from "../host/authoringOut
 import type { createMediaRuntimeClient } from "../host/mediaRuntimeClient";
 import type { createWorkspaceStateClient } from "../host/workspaceStateClient";
 import type { createRetainedAssetsClient } from "../host/retainedAssetsClient";
+import type { createPerceptionHostClient } from "../host/perceptionHostClient";
+import type { createPerceptionHostLifecycle } from "./perceptionHostSession";
 import type { createProjectDocumentClient } from "../host/projectDocumentClient";
 import type { createProjectRecoveryClient } from "../host/projectRecoveryClient";
 import type { createProjectPersistenceSession } from "./projectPersistenceSession";
@@ -202,7 +204,7 @@ export function createShellSession() {
      * switching workflows underneath a run: it abandons the run, drops the
      * workspace and Production state, and reports the transaction cancelled. That
      * is right for a foreign switch and wrong for this module's own materialization
-     * (M17-20 D11), which reaches the canvas through the same host seam -- on a real
+     * ( D11), which reaches the canvas through the same host seam -- on a real
      * host every App Mode run cancelled itself the instant it wrote the graph.
      *
      * A depth counter rather than a boolean because the rollback path can write the
@@ -211,7 +213,7 @@ export function createShellSession() {
      * cancels the run.
      */
     ownedGraphConfigureDepth: 0,
-    // M17-20 D1: the backend decides whether this host can generate. The shell asks
+    //  D1: the backend decides whether this host can generate. The shell asks
     // once per task mode, caches the answer and re-renders when it lands; it never
     // derives one, and a pending answer blocks nothing here because the App Mode
     // start gate re-checks and fails closed before any queue submission.
@@ -249,12 +251,12 @@ export function createShellSession() {
         }>
       | undefined,
     authoringState: { status: "absent" } as AuthoringViewState,
-    /** M25-16: overlay, import, planning, readiness and sequence projection; mount memory only. */
+    /** overlay, import, planning, readiness and sequence projection; mount memory only. */
     nleWorkspace: initialNleWorkspaceState as NleWorkspaceState,
-    /** M25-33: Media tools status, the one setup job and at most one continuation; mount memory. */
+    /** Media tools status, the one setup job and at most one continuation; mount memory. */
     mediaRuntime: initialMediaRuntimeState as MediaRuntimeState,
     /**
-     * M25-21: bounded editing-state retention across navigation and view release. Only
+     * bounded editing-state retention across navigation and view release. Only
      * complete extension disposal clears it; view release tears down resources, not drafts.
      */
     retention: createSidebarRetention(),
@@ -287,7 +289,7 @@ export function createShellSession() {
     }) as LanguageSettingSnapshot,
     languageSettingsDispose: undefined as (() => void) | undefined,
     /**
-     * M22-06 provider state.
+     *  provider state.
      *
      * It stays `undefined` until the seam answers once, so the Settings surface
      * renders nothing rather than an empty control that reads as broken. Nothing
@@ -433,6 +435,7 @@ export type ShellDeps = Readonly<{
   mediaRuntimeClient: ReturnType<typeof createMediaRuntimeClient>;
   workspaceStateClient?: ReturnType<typeof createWorkspaceStateClient>;
   retainedAssetsClient?: ReturnType<typeof createRetainedAssetsClient>;
+  perceptionHostClient?: ReturnType<typeof createPerceptionHostClient>;
   projectDocumentClient?: ReturnType<typeof createProjectDocumentClient>;
   projectRecoveryClient?: ReturnType<typeof createProjectRecoveryClient>;
   authoringOutputPreview: ReturnType<typeof createOutputPreview>;
@@ -443,7 +446,7 @@ export type ShellDeps = Readonly<{
   h3SidebarProfilerObserver?: ProfilerOnRenderCallback;
   nleOverlayProfilerObserver?: ProfilerOnRenderCallback;
   /**
-   * M25-45 AC45-04: one sample per frame the monitor actually presented. Omitted by normal entry
+   *  AC45-04: one sample per frame the monitor actually presented. Omitted by normal entry
    * wiring, and the composition session then arms no measurement animation frame at all.
    */
   nlePresentationObserver?: (sample: PresentationMeasurement) => void;
@@ -459,6 +462,7 @@ export type ShellActions = ReturnType<typeof createAppModeSession> &
   ReturnType<typeof createMediaRuntimeSession> &
   ReturnType<typeof createWorkspaceStateLifecycle> &
   ReturnType<typeof createRetainedAssetsLifecycle> &
+  ReturnType<typeof createPerceptionHostLifecycle> &
   ReturnType<typeof createProjectPersistenceSession>;
 
 export type ShellRuntime = Readonly<{

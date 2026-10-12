@@ -1,4 +1,4 @@
-"""M15-02 public downstream producer-node acceptance tests."""
+"""public downstream producer-node acceptance tests."""
 
 from __future__ import annotations
 

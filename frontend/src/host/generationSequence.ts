@@ -34,7 +34,7 @@ export type GenerationSequenceHostObservation = {
   graph_fingerprint: string;
   compiled_prompt_fingerprint: string;
   queue_prompt_id: string;
-  // M17-20 D6: the observation reports which graph it measured, so the sequence
+  //  D6: the observation reports which graph it measured, so the sequence
   // authority compares like with like instead of reading a domain change as a
   // drifted graph.
   fingerprint_domain: GenerationFingerprintDomain;

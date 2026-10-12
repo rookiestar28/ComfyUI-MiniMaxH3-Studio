@@ -3,7 +3,7 @@
 Current model-free connection qualification uses prompt_model_qualification.py. These legacy
 results cannot qualify or activate v6 connections.
 
-M22-15 native Anthropic qualification with hermetic and separately authorized live modes.
+ native Anthropic qualification with hermetic and separately authorized live modes.
 
 Hermetic mode exercises the exact Models/Messages request, parser, consent and receipt path
 against in-process fixtures. Live mode uses the same product path only after the caller repeats the

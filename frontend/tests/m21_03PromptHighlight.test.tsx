@@ -1,5 +1,5 @@
 /**
- * M21-03 AC-08 — highlighting the prompt must not touch the prompt.
+ *  AC-08 — highlighting the prompt must not touch the prompt.
  *
  * The property that matters is a partition: every input, however malformed,
  * comes back out byte-identical. A highlighter that "helpfully" trimmed, joined
