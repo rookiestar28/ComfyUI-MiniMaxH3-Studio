@@ -120,6 +120,7 @@
         "frontend/tests/authoringMediaSourceLease.test.ts",
         "frontend/tests/authoringVideoSourceOwner.test.ts",
         "frontend/tests/e2e/journeys/host/mediaSourceLeases.spec.ts",
+        "frontend/tests/e2e/journeys/host/productionAuthoringImportHost.spec.ts",
         "frontend/tests/e2e/journeys/mediaSourceLeases.spec.ts",
         "frontend/tests/nleAssetPreparation.test.tsx",
         "frontend/tests/nleMediaBin.test.tsx",
@@ -7518,6 +7519,7 @@
         "frontend/tests/authoringMediaLeaseCodec.test.ts",
         "frontend/tests/authoringMediaPreparation.test.ts",
         "frontend/tests/authoringMediaSourceLease.test.ts",
+        "frontend/tests/e2e/journeys/host/productionAuthoringImportHost.spec.ts",
         "tests/test_m25_48_asset_scoped_leases.py",
         "tests/test_m25_75_asset_preparation.py",
         "tests/test_m25_75_first_use_counts.py",
@@ -7604,8 +7606,6 @@
         "comfyui_h3_context/adapters/media_runtime_discovery_worker.py",
         "frontend/src/contracts/authoringMediaLeaseCodec.ts",
         "frontend/tests/e2e/journeys/host/mediaSourceLeases.spec.ts",
-        "tests/test_m25_31_media_runtime_setup.py",
-        "tests/test_m25_33_media_setup_entry.py",
         "tests/test_m25_74_derivative_rework_counts.py",
         "tests/test_m25_74_lease_stream_threads.py",
         "tests/test_m25_75_asset_preparation.py",
@@ -9475,30 +9475,6 @@
     },
     {
       "authority_paths": [
-        "comfyui_h3_context/adapters/media_runtime_installer.py"
-      ],
-      "blockers": [
-        "unknown_consumer"
-      ],
-      "boundary": "untrusted_input",
-      "compatibility": "unknown",
-      "consumers": [],
-      "contract_id": "h3.context.managed_media_runtime_source.v1",
-      "dialect": "not_applicable",
-      "disposition": "NEED_EVIDENCE",
-      "evidence": "no reader resolved by the five discovery rules; absence is not disuse",
-      "fingerprint_domain": "h3.context.managed_media_runtime_source.v1",
-      "kind": "python_wire",
-      "persistence": "transient",
-      "producers": [
-        "comfyui_h3_context/adapters/media_runtime_installer.py"
-      ],
-      "publication": "packaged",
-      "reachability": "unsupported",
-      "reachability_source": "none"
-    },
-    {
-      "authority_paths": [
         "comfyui_h3_context/core/managed_sequence.py"
       ],
       "blockers": [],
@@ -10135,8 +10111,6 @@
         "comfyui_h3_context/adapters/comfyui_authoring_media_leases.py",
         "comfyui_h3_context/adapters/comfyui_media_runtime_setup.py",
         "comfyui_h3_context/core/authoring_media.py",
-        "tests/test_m25_31_media_runtime_setup.py",
-        "tests/test_m25_33_media_setup_entry.py",
         "tests/test_m25_74_derivative_rework_counts.py",
         "tests/test_m25_74_lease_stream_threads.py",
         "tests/test_m25_75_asset_preparation.py",
@@ -10195,8 +10169,7 @@
       "compatibility": "old_readers_unaffected",
       "consumers": [
         "frontend/src/contracts/mediaRuntimeCodec.ts",
-        "frontend/tests/fixtures/media_runtime_wire_v3.json",
-        "tests/test_m25_31_media_runtime_setup.py"
+        "frontend/tests/fixtures/media_runtime_wire_v4.json"
       ],
       "contract_id": "h3.context.media_runtime_resolution.v1",
       "dialect": "not_applicable",
@@ -10220,54 +10193,25 @@
       "boundary": "untrusted_input",
       "compatibility": "old_readers_unaffected",
       "consumers": [
-        "frontend/src/contracts/mediaRuntimeCodec.ts",
-        "frontend/tests/e2e/helpers/mediaRuntimeDouble.ts",
-        "frontend/tests/fixtures/media_runtime_wire_v3.json",
-        "tests/test_m25_31_media_runtime_setup.py",
-        "tests/test_m25_33_media_setup_entry.py"
-      ],
-      "contract_id": "h3.context.media_runtime_setup_job.v1",
-      "dialect": "not_applicable",
-      "disposition": "KEEP",
-      "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
-      "fingerprint_domain": "h3.context.media_runtime_setup_job.v1",
-      "kind": "python_wire",
-      "persistence": "transient",
-      "producers": [
-        "comfyui_h3_context/adapters/comfyui_media_runtime_setup.py"
-      ],
-      "publication": "packaged",
-      "reachability": "unsupported",
-      "reachability_source": "none"
-    },
-    {
-      "authority_paths": [
-        "comfyui_h3_context/adapters/comfyui_media_runtime_setup.py"
-      ],
-      "blockers": [],
-      "boundary": "untrusted_input",
-      "compatibility": "old_readers_unaffected",
-      "consumers": [
         "comfyui_h3_context/adapters/comfyui_authoring_media_leases.py",
         "comfyui_h3_context/adapters/media_runtime_discovery_worker.py",
         "comfyui_h3_context/core/authoring_media.py",
         "frontend/src/contracts/mediaRuntimeCodec.ts",
-        "frontend/tests/fixtures/media_runtime_wire_v3.json",
+        "frontend/tests/e2e/helpers/mediaRuntimeDouble.ts",
         "frontend/tests/mediaRuntimeClient.test.ts",
-        "tests/test_m25_31_media_runtime_setup.py",
-        "tests/test_m25_33_media_setup_entry.py",
         "tests/test_m25_74_derivative_rework_counts.py",
         "tests/test_m25_74_lease_stream_threads.py",
         "tests/test_m25_75_asset_preparation.py",
         "tests/test_m25_generated_media_derivatives.py",
         "tests/test_m25_media_derivative_contract.py",
-        "tests/test_m25_media_derivative_routes.py"
+        "tests/test_m25_media_derivative_routes.py",
+        "tests/test_manual_media_tools.py"
       ],
-      "contract_id": "h3.context.media_runtime_setup_request.v1",
+      "contract_id": "h3.context.media_runtime_setup_request.v2",
       "dialect": "not_applicable",
       "disposition": "KEEP",
       "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
-      "fingerprint_domain": "h3.context.media_runtime_setup_request.v1",
+      "fingerprint_domain": "h3.context.media_runtime_setup_request.v2",
       "kind": "python_wire",
       "persistence": "transient",
       "producers": [
@@ -10292,16 +10236,16 @@
         "comfyui_h3_context/adapters/workspace_state_service.py",
         "frontend/src/contracts/mediaRuntimeCodec.ts",
         "frontend/tests/e2e/journeys/host/productionAuthoringImportHost.spec.ts",
-        "frontend/tests/fixtures/media_runtime_wire_v3.json",
-        "tests/test_m25_31_media_runtime_setup.py",
+        "frontend/tests/fixtures/media_runtime_wire_v4.json",
+        "frontend/tests/mediaRuntimeCodec.test.ts",
         "tests/test_m25_32_media_runtime_activation.py",
-        "tests/test_m25_33_media_setup_entry.py"
+        "tests/test_manual_media_tools.py"
       ],
-      "contract_id": "h3.context.media_runtime_status.v3",
+      "contract_id": "h3.context.media_runtime_status.v4",
       "dialect": "not_applicable",
       "disposition": "KEEP",
       "evidence": "untrusted_input boundary keeps a reader this repository cannot re-migrate",
-      "fingerprint_domain": "h3.context.media_runtime_status.v3",
+      "fingerprint_domain": "h3.context.media_runtime_status.v4",
       "kind": "python_wire",
       "persistence": "transient",
       "producers": [
@@ -10405,6 +10349,7 @@
         "frontend/tests/e2e/journeys/host/contentExtentHost.spec.ts",
         "frontend/tests/e2e/journeys/host/m25_52EmbeddedAudioWaveform.spec.ts",
         "frontend/tests/e2e/journeys/host/m25_53ReferenceFidelity.spec.ts",
+        "frontend/tests/e2e/journeys/host/productionAuthoringImportHost.spec.ts",
         "frontend/tests/nleAuthoringAssetBin.test.tsx",
         "frontend/tests/nleAuthoringAssetManifest.test.ts",
         "frontend/tests/nleTitleInsertion.test.ts",
@@ -10464,9 +10409,8 @@
         "frontend/tests/perceptionHostEntry.test.tsx",
         "frontend/tests/perceptionHostSession.test.ts",
         "frontend/tests/perceptionHostStatus.test.tsx",
-        "tests/test_m25_31_media_runtime_setup.py",
         "tests/test_m25_32_media_runtime_activation.py",
-        "tests/test_m25_33_media_setup_entry.py",
+        "tests/test_manual_media_tools.py",
         "tests/test_perception_host_status.py",
         "tests/test_perception_settings_lifecycle.py"
       ],
@@ -11423,9 +11367,8 @@
         "frontend/src/contracts/projectRecoveryCodec.ts",
         "frontend/tests/fixtures/entryHostModules.ts",
         "frontend/tests/projectRecovery.test.tsx",
-        "tests/test_m25_31_media_runtime_setup.py",
         "tests/test_m25_32_media_runtime_activation.py",
-        "tests/test_m25_33_media_setup_entry.py"
+        "tests/test_manual_media_tools.py"
       ],
       "contract_id": "h3.context.project_recovery.status.v1",
       "dialect": "not_applicable",
@@ -11880,9 +11823,8 @@
         "comfyui_h3_context/adapters/workspace_state_service.py",
         "frontend/src/contracts/retainedAssetsCodec.ts",
         "frontend/tests/retainedAssetFixtures.ts",
-        "tests/test_m25_31_media_runtime_setup.py",
         "tests/test_m25_32_media_runtime_activation.py",
-        "tests/test_m25_33_media_setup_entry.py"
+        "tests/test_manual_media_tools.py"
       ],
       "contract_id": "h3.context.retained_assets_status.v1",
       "dialect": "not_applicable",
@@ -12960,9 +12902,8 @@
         "comfyui_h3_context/adapters/retained_asset_service.py",
         "frontend/src/contracts/workspaceStateCodec.ts",
         "tests/fixtures/workspace_state_v1.json",
-        "tests/test_m25_31_media_runtime_setup.py",
         "tests/test_m25_32_media_runtime_activation.py",
-        "tests/test_m25_33_media_setup_entry.py"
+        "tests/test_manual_media_tools.py"
       ],
       "contract_id": "h3.context.workspace_state_status.v1",
       "dialect": "not_applicable",
@@ -15544,6 +15485,6 @@
       "reachability_source": "none"
     }
   ],
-  "fingerprint": "sha256:92ba0a9a5f29a5c3899eb98141b6c0005d227e7e1d6c04f294c2a82d8f0a6505",
+  "fingerprint": "sha256:94be69f36c4d65a92277c49327bf2c56010d8c3b0087940515f7836c331b2c7e",
   "schema": "h3-context-contract-inventory/1"
 }

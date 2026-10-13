@@ -14,11 +14,14 @@ import { expect, test, type Page } from "../../host/fixture";
 import { diffGraphSurroundings } from "../../../support/surroundingsDiff";
 import {
   decodeAuthoringProjection,
-  decodeTimelineHistoryProjection,
+  decodeTimelineHistoryProjectionV2,
+  NLE_AUTHORING_SCHEMA,
+  NLE_AUTHORING_PROFILE_ID,
   encodeAuthoringAction,
 } from "../../../../src/contracts/authoringWorkbenchCodec";
 import {
-  decodeProductionAuthoringImportResponseV1,
+  decodeProductionAuthoringImportResponse,
+  PRODUCTION_AUTHORING_IMPORT_RESPONSE_SCHEMA_V2,
   encodeProductionAuthoringImportRequest,
 } from "../../../../src/contracts/productionAuthoringImportCodec";
 import {
@@ -35,7 +38,14 @@ import {
 } from "../../../../src/contracts/authoringOutputCodec";
 import { decodeSidebarWorkspaceProjection } from "../../../../src/contracts/sidebarWorkspaceCodec";
 import {
+  NLE_AUTHORING_ASSET_LEASE_REQUEST_SCHEMA,
+  AUTHORING_MEDIA_LEASE_GEOMETRY_HEADER,
+  decodeAuthoringMediaGeometry,
+} from "../../../../src/contracts/authoringMediaLeaseCodec";
+import { sidebarCopy } from "../../../../src/i18n/catalog";
+import {
   assertCandidateBundleInjection,
+  appModeQueueDiagnostic,
   awaitHostExecution,
   beginSettledH3InteractionPhase,
   candidateBackendMode,
@@ -56,6 +66,15 @@ import {
   waitForHostGraphSettled,
   watchHostExecution,
 } from "../../host/environment";
+
+// CRITICAL: the current editor uses content-extent history/import v2. A legacy v1 decoder
+// rejects real initialization before the manual setup journey can verify preview or render.
+function decodeImportedProduction(value: unknown) {
+  const response = decodeProductionAuthoringImportResponse(value);
+  if (response.schema !== PRODUCTION_AUTHORING_IMPORT_RESPONSE_SCHEMA_V2)
+    throw new Error("the current host import must return content-extent v2");
+  return response;
+}
 
 type M2548ArtifactLocator = Readonly<{
   filename: string;
@@ -143,14 +162,13 @@ async function postHostAction(
 }
 
 // the same causal import, run on a host whose media tools were never configured.
-// `ready` asserts the tools are found without setup; `install` starts from missing tools and
-// continues the refused import through the Media tools card's one Install and continue click,
-// then renders the imported clip. Unset keeps the AC11 row unchanged.
+// `ready` uses the discovered pair; `local` selects existing pinned tools, retries import explicitly
+// and renders the imported clip. Unset keeps the ordinary row unchanged.
 const mediaJourney = process.env.H3_CONTEXT_M25_34_MEDIA_JOURNEY;
 const expectedMediaSource = process.env.H3_CONTEXT_M25_34_EXPECTED_SOURCE;
-// The install journey always renders; a ready journey renders when asked (the restart row).
+// The local journey always renders; a ready journey renders when asked (the restart row).
 const renderJourney =
-  mediaJourney === "install" ||
+  mediaJourney === "local" ||
   (mediaJourney === "ready" && process.env.H3_CONTEXT_M25_34_RENDER === "1");
 const ux14Journey = process.env.H3_CONTEXT_M25_56_UX14;
 const installedCandidateInventory =
@@ -158,9 +176,9 @@ const installedCandidateInventory =
 if (
   mediaJourney !== undefined &&
   mediaJourney !== "ready" &&
-  mediaJourney !== "install"
+  mediaJourney !== "local"
 )
-  throw new Error("H3_CONTEXT_M25_34_MEDIA_JOURNEY must be ready or install");
+  throw new Error("H3_CONTEXT_M25_34_MEDIA_JOURNEY must be ready or local");
 if (mediaJourney === "ready" && expectedMediaSource === undefined)
   throw new Error("the ready media journey names its expected source");
 if (ux14Journey !== undefined && ux14Journey !== "1")
@@ -200,10 +218,7 @@ type MediaRuntimeStatusSample = Readonly<{
   features: Readonly<Record<string, string>>;
   reasons: Readonly<Record<string, string>>;
   actions: readonly string[];
-  // The install descriptor is on the wire in every state; only the `install_supported` action is
-  // the offer, so evidence records the two separately.
-  installDescribed: boolean;
-  setupRunning: boolean;
+  manualDescribed: boolean;
 }>;
 
 async function readMediaRuntimeStatus(
@@ -232,11 +247,9 @@ async function readMediaRuntimeStatus(
     features,
     reasons,
     actions: Array.isArray(wire.actions) ? wire.actions.map(String) : [],
-    installDescribed:
-      wire.install !== null &&
-      typeof wire.install === "object" &&
-      Number(wire.install.approximate_bytes) > 0,
-    setupRunning: wire.setup?.state === "running",
+    manualDescribed:
+      typeof wire.manual?.archive_sha256 === "string" &&
+      Number(wire.manual?.approximate_bytes) > 0,
   };
 }
 
@@ -496,8 +509,8 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
       candidateBackendMode !== "exact",
     "M25-48 requires its explicit prepared fixture and an exact installed candidate",
   );
-  // The install journey downloads and verifies the fixed archive on the host, then renders.
-  test.setTimeout((mediaJourney === "install" ? 40 : 10) * 60_000);
+  // The local journey selects an already present verified pair, then renders the retried import.
+  test.setTimeout((mediaJourney === "local" ? 40 : 10) * 60_000);
   if (hostUrl === undefined) throw new Error("H3_CONTEXT_HOST_URL is required");
 
   const queueBefore = await supportedHostQueueCounts(page);
@@ -585,8 +598,14 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
       mediaLeaseControls.push(
         Object.freeze({
           operation: String(body?.operation ?? ""),
-          scope: body?.scope,
-          clipId: body?.clipId,
+          scope:
+            body?.schema === NLE_AUTHORING_ASSET_LEASE_REQUEST_SCHEMA
+              ? "asset"
+              : body?.scope,
+          clipId:
+            body?.schema === NLE_AUTHORING_ASSET_LEASE_REQUEST_SCHEMA
+              ? null
+              : body?.clipId,
           derivativeKind: body?.derivativeKind,
           status: response.status(),
         }),
@@ -866,12 +885,45 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
   const submit = container.locator('[data-h3-focus-key="app-submit"]');
   await expect(submit).toBeEnabled({ timeout: 30_000 });
   const fromSubmission = (await sampleProgress(page)).submitted;
+  // CRITICAL: a cold Start prepares the canvas without execution; only the subsequent
+  // explicit Queue current graph action reaches the projector and model-free host queue.
   await submit.click();
-  await expect
-    .poll(async () => (await sampleProgress(page, fromSubmission)).started, {
-      timeout: 180_000,
-    })
-    .toBe(1);
+  await expect(submit).toHaveText(sidebarCopy("en").queueCurrentGraph, {
+    timeout: 30_000,
+  });
+  await expect(submit).toBeEnabled();
+  expect((await sampleProgress(page)).submitted).toBe(fromSubmission);
+  await submit.click();
+  try {
+    await expect
+      .poll(async () => (await sampleProgress(page, fromSubmission)).started, {
+        timeout: 180_000,
+      })
+      .toBe(1);
+  } catch (error) {
+    const diagnostic = await appModeQueueDiagnostic(
+      page,
+      "h3-context-m23-32-terminal-waiting",
+      "__h3QueueCount",
+    );
+    console.info(
+      "HOST_MEDIA_START_DIAGNOSTIC " +
+        JSON.stringify({
+          shellStatus: diagnostic.shellStatus,
+          shellReason: diagnostic.shellReason,
+          appModeState: diagnostic.appModeState,
+          appModePhase: diagnostic.appModePhase,
+          generationBlocker: diagnostic.generationBlocker,
+          errorClass: diagnostic.errorClass,
+          graphLoads: diagnostic.graphLoads,
+          submitDisabled: diagnostic.submitDisabled,
+          routeCount: routeReceipts.length,
+          preparationCount: preparations.length,
+          closeRequestCount: closeRequests.length,
+        }),
+    );
+    throw error;
+  }
   const result = await awaitHostExecution(page, fromSubmission, 180_000);
   expect(result.errors).toEqual([]);
   expect(reportedArtifactNames(result.outputs)).toEqual([]);
@@ -1218,8 +1270,7 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
     Object.fromEntries(MEDIA_FEATURES.map((feature) => [feature, state]));
   if (mediaStatusBefore !== null) {
     expect(mediaStatusBefore.status).toBe(200);
-    expect(mediaStatusBefore.schema).toBe("h3.context.media_runtime_status.v3");
-    expect(mediaStatusBefore.setupRunning).toBe(false);
+    expect(mediaStatusBefore.schema).toBe("h3.context.media_runtime_status.v4");
   }
   if (mediaJourney === "ready") {
     expect(mediaStatusBefore).toMatchObject({
@@ -1228,9 +1279,9 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
       sourceKind: expectedMediaSource,
       features: allFeatures("ready"),
     });
-    expect(mediaStatusBefore!.actions).not.toContain("install_supported");
-  } else if (mediaJourney === "install") {
-    // Missing tools are installable after an exhaustive search and after one truncated by a long
+    expect(mediaStatusBefore!.actions).toContain("rescan");
+  } else if (mediaJourney === "local") {
+    // Missing tools can be selected after an exhaustive search and after one truncated by a long
     // PATH that still examined the managed directory ( B-M2534-01); the reason says which.
     expect(["supported_pair_missing", "discovery_limit"]).toContain(
       mediaStatusBefore!.resolutionReason,
@@ -1240,9 +1291,9 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
       sourceKind: "none",
       features: allFeatures("setup_required"),
       reasons: allFeatures(mediaStatusBefore!.resolutionReason),
-      installDescribed: true,
+      manualDescribed: true,
     });
-    expect(mediaStatusBefore!.actions).toContain("install_supported");
+    expect(mediaStatusBefore!.actions).toContain("use_local_directory");
   }
   page.on("response", onResponse);
   // IMPORTANT: re-homes Production import into the expanded editor's Media tab. The
@@ -1262,9 +1313,12 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
     .poll(() => importWire.length, { timeout: 60_000 })
     .toBeGreaterThan(0);
   let mediaSetupEvidence: Readonly<Record<string, unknown>> | null = null;
-  if (mediaJourney === "install") {
-    // The missing tools refuse the import once; the card beside the refusal offers exactly one
-    // Install and continue, and the refused import then continues once on the same workspace.
+  if (mediaJourney === "local") {
+    // CRITICAL: use an already present pinned pair. The host row never downloads tools and
+    // selecting a folder never continues the refused import; the original control retries it.
+    const directory = process.env.H3_CONTEXT_MEDIA_LOCAL_DIRECTORY;
+    if (!directory)
+      throw new Error("the local journey requires an existing tool directory");
     await expect(
       overlay.locator('[data-h3-nle-status="import"]'),
     ).toHaveAttribute("data-code", "service_unavailable");
@@ -1272,105 +1326,82 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
     const card = overlay.locator(
       '[data-h3-media-tools-placement="contextual-sidebar"]',
     );
-    await expect(card).toHaveAttribute(
-      "data-h3-media-tools",
-      "setup_required",
-      {
-        timeout: 60_000,
-      },
-    );
-    const install = card.locator('[data-h3-media-tools-action="primary"]');
-    await expect(install).toHaveCount(1);
-    await expect(install).toHaveText("Install and continue");
-    const visibleInputs = () =>
-      card.evaluate(
-        (element) =>
-          Array.from(
-            element.querySelectorAll("input, textarea, select"),
-          ).filter((field) => field.checkVisibility()).length,
-      );
-    expect(await visibleInputs()).toBe(0);
-    expect(setupPosts).toEqual([]);
-    const installStarted = Date.now();
-    await install.click();
-    await expect(card).toHaveAttribute("data-h3-media-tools", "installing", {
-      timeout: 30_000,
-    });
-    await expect
-      .poll(() => importWire.length, { timeout: 30 * 60_000 })
-      .toBe(2);
-    const installSeconds = Math.round((Date.now() - installStarted) / 1_000);
-    expect(setupPosts).toEqual(["install_supported"]);
-    const [refused, continued] = importWire;
-    expect(continued!.request.request_id).not.toBe(refused!.request.request_id);
+    await expect(card).toHaveAttribute("data-h3-media-tools", "setup_required");
+    await card
+      .getByRole("textbox", { name: "FFmpeg bin folder" })
+      .fill(directory);
+    await card.locator('[data-h3-media-tools-action="primary"]').click();
+    await expect(card).toHaveCount(0);
+    expect(setupPosts).toEqual(["use_local_directory"]);
+    expect(importWire).toHaveLength(1);
+    await importControl.click();
+    await expect.poll(() => importWire.length, { timeout: 60_000 }).toBe(2);
+    const [refused, retried] = importWire;
     expect({
-      ...continued!.request,
+      ...retried!.request,
       request_id: refused!.request.request_id,
     }).toEqual(refused!.request);
-    const statusAfterInstall = await settledMediaRuntimeStatus(page);
-    expect(statusAfterInstall).toMatchObject({
+    const statusAfterSelection = await settledMediaRuntimeStatus(page);
+    expect(statusAfterSelection).toMatchObject({
       resolutionState: "located",
-      sourceKind: "managed",
+      sourceKind: "local_selection",
       features: allFeatures("ready"),
-      setupRunning: false,
     });
     mediaSetupEvidence = Object.freeze({
-      refusedImportStatus: refused!.status,
-      refusalCode: "service_unavailable",
-      cardStateBeforeClick: "setup_required",
-      primaryActions: 1,
-      visibleTextInputs: 0,
-      confirmationClicks: 1,
-      setupPosts: [...setupPosts],
-      installSeconds,
-      continuedImportRequests: 1,
-      continuedRequestSameWorkspaceAndRevisions: true,
-      statusAfterInstall: {
-        resolutionState: statusAfterInstall.resolutionState,
-        sourceKind: statusAfterInstall.sourceKind,
-        features: statusAfterInstall.features,
-      },
+      refusedImportStatus: 503,
+      manualSelectionPosts: 1,
+      automaticRetryRequests: 0,
+      explicitRetryRequests: 1,
+      sourceAfterSelection: statusAfterSelection.sourceKind,
     });
     console.info(
-      `M25_34_MEDIA_SETUP_EVIDENCE ${JSON.stringify(mediaSetupEvidence)}`,
+      `MEDIA_MANUAL_SETUP_EVIDENCE ${JSON.stringify(mediaSetupEvidence)}`,
     );
   }
   // IMPORTANT: a refused import cannot publish the follow-up history read. Assert the admitted
   // continuation first so a real host rejection remains visible instead of becoming a 60 s wait.
   const admittedImport = importWire[importWire.length - 1]!;
   expect(admittedImport.status, JSON.stringify(admittedImport.body)).toBe(200);
-  await expect
-    .poll(
-      () =>
-        authoringWire.filter(
-          (entry) => entry.action === "read_timeline_history",
-        ).length,
-      { timeout: 60_000 },
-    )
-    .toBeGreaterThan(0);
-  page.off("response", onResponse);
-  // Target creation and history initialization are the shell's separate accepted actions;
-  // the import is one request; the refresh read follows it. A refused import reads nothing, and
-  // its continuation reuses the target and history it already created.
-  expect(authoringWire.map((entry) => entry.action)).toEqual([
+  // CRITICAL: an explicit import after manual setup re-ensures the same target and reads its
+  // existing history before importing. Wait for the final refresh, not that pre-import read.
+  const expectedAuthoringActions = [
     "ensure_authoring_from_production",
     "initialize_timeline_history",
+    ...(mediaJourney === "local"
+      ? ["ensure_authoring_from_production", "read_timeline_history"]
+      : []),
     "read_timeline_history",
-  ]);
-  expect(importWire).toHaveLength(mediaJourney === "install" ? 2 : 1);
-  if (mediaJourney === "install") importWire.shift();
+  ];
+  await expect
+    .poll(() => authoringWire.map((entry) => entry.action), {
+      timeout: 60_000,
+    })
+    .toEqual(expectedAuthoringActions);
+  page.off("response", onResponse);
+  expect(importWire).toHaveLength(mediaJourney === "local" ? 2 : 1);
+  if (mediaJourney === "local") importWire.shift();
   const ensureEntry = authoringWire[0]!;
   expect(ensureEntry.status).toBe(201);
   const createdAuthoring = decodeAuthoringProjection(ensureEntry.body);
   const initializeEntry = authoringWire[1]!;
   expect(initializeEntry.status).toBe(200);
-  const initializedHistory = decodeTimelineHistoryProjection(
+  const initializedHistory = decodeTimelineHistoryProjectionV2(
     initializeEntry.body,
   );
   expect(initializedHistory.workspaceHandle).toBe(
     createdAuthoring.workspaceHandle,
   );
   expect(initializedHistory.rejection).toBeNull();
+  if (mediaJourney === "local") {
+    expect(authoringWire[2]!.status).toBe(200);
+    expect(decodeAuthoringProjection(authoringWire[2]!.body)).toEqual(
+      createdAuthoring,
+    );
+    expect(authoringWire[3]!.status).toBe(200);
+    expect(decodeTimelineHistoryProjectionV2(authoringWire[3]!.body)).toEqual(
+      initializedHistory,
+    );
+  }
   const beforeHistory = initializedHistory;
   const importRequest = importWire[0]!.request;
   expect(importRequest.authoring_workspace_handle).toBe(
@@ -1414,10 +1445,9 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
       firstImportResponse.status,
       JSON.stringify(firstImportResponse.body),
     ).toBe(200);
-    const firstImport = decodeProductionAuthoringImportResponseV1(
-      firstImportResponse.body,
-    );
+    const firstImport = decodeImportedProduction(firstImportResponse.body);
     expect(firstImport.receipt.disposition).toBe("created");
+    expect(firstImport.historyProjection.renderSnapshot).toBeNull();
     expect(firstImport.receipt.rows).toEqual([
       expect.objectContaining({
         segmentId: selectedOutput.segmentId,
@@ -1432,11 +1462,11 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
     expect(firstImport.receipt.legacyTimeline.nextRevision).toBe(
       firstImport.receipt.legacyTimeline.priorRevision,
     );
-    expect(firstImport.receipt.nle.nextWorkspaceRevision).toBe(
-      firstImport.receipt.nle.priorWorkspaceRevision + 1,
+    expect(firstImport.receipt.nleAuthoring.nextWorkspaceRevision).toBe(
+      firstImport.receipt.nleAuthoring.priorWorkspaceRevision + 1,
     );
-    expect(firstImport.receipt.nle.nextTimelineRevision).toBe(
-      firstImport.receipt.nle.priorTimelineRevision,
+    expect(firstImport.receipt.nleAuthoring.nextTimelineRevision).toBe(
+      firstImport.receipt.nleAuthoring.priorTimelineRevision,
     );
 
     const exactReplayResponse = await postHostAction(
@@ -1457,46 +1487,46 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
       ),
     );
     expect(afterFirstReadResponse.status).toBe(200);
-    const afterFirstHistory = decodeTimelineHistoryProjection(
+    const afterFirstHistory = decodeTimelineHistoryProjectionV2(
       afterFirstReadResponse.body,
     );
     const importedAssetId = firstImport.receipt.rows[0]!.assetId;
     const importedOrdinal =
-      afterFirstHistory.snapshot.assets
+      afterFirstHistory.authoring.assets
         .filter((asset) => asset.kind === "video" || asset.kind === "image")
         .findIndex((asset) => asset.assetId === importedAssetId) + 1;
     expect(importedOrdinal).toBeGreaterThan(0);
-    expect(afterFirstHistory.snapshot.assets).toHaveLength(
-      beforeHistory.snapshot.assets.length + 1,
+    expect(afterFirstHistory.authoring.assets).toHaveLength(
+      beforeHistory.authoring.assets.length + 1,
     );
     expect(
-      afterFirstHistory.snapshot.assets.some(
+      afterFirstHistory.authoring.assets.some(
         (asset) => asset.assetId === importedAssetId && asset.kind === "video",
       ),
     ).toBe(true);
-    expect(afterFirstHistory.snapshot.workspaceRevision).toBe(
-      beforeHistory.snapshot.workspaceRevision + 1,
+    expect(afterFirstHistory.authoring.workspaceRevision).toBe(
+      beforeHistory.authoring.workspaceRevision + 1,
     );
-    expect(afterFirstHistory.snapshot.workspaceFingerprint).not.toBe(
-      beforeHistory.snapshot.workspaceFingerprint,
+    expect(afterFirstHistory.authoring.workspaceFingerprint).not.toBe(
+      beforeHistory.authoring.workspaceFingerprint,
     );
-    expect(afterFirstHistory.snapshot.publicFingerprint).not.toBe(
-      beforeHistory.snapshot.publicFingerprint,
+    expect(afterFirstHistory.authoring.authoringFingerprint).not.toBe(
+      beforeHistory.authoring.authoringFingerprint,
     );
-    expect(afterFirstHistory.snapshot.timelineRevision).toBe(
-      beforeHistory.snapshot.timelineRevision,
+    expect(afterFirstHistory.authoring.timelineRevision).toBe(
+      beforeHistory.authoring.timelineRevision,
     );
-    expect(afterFirstHistory.snapshot.timelineFingerprint).toBe(
-      beforeHistory.snapshot.timelineFingerprint,
+    expect(afterFirstHistory.authoring.timelineFingerprint).toBe(
+      beforeHistory.authoring.timelineFingerprint,
     );
-    expect(afterFirstHistory.snapshot.tracks).toEqual(
-      beforeHistory.snapshot.tracks,
+    expect(afterFirstHistory.authoring.tracks).toEqual(
+      beforeHistory.authoring.tracks,
     );
-    expect(afterFirstHistory.snapshot.clips).toEqual(
-      beforeHistory.snapshot.clips,
+    expect(afterFirstHistory.authoring.clips).toEqual(
+      beforeHistory.authoring.clips,
     );
     expect(
-      afterFirstHistory.snapshot.clips.some(
+      afterFirstHistory.authoring.clips.some(
         (clip) => clip.assetId === importedAssetId,
       ),
     ).toBe(false);
@@ -1525,12 +1555,14 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
       expectedAuthoringTimelineContentFingerprint:
         firstImport.authoringProjection.timeline.contentFingerprint,
       expectedNleWorkspaceRevision:
-        afterFirstHistory.snapshot.workspaceRevision,
-      expectedNleTimelineRevision: afterFirstHistory.snapshot.timelineRevision,
+        afterFirstHistory.authoring.workspaceRevision,
+      expectedNleTimelineRevision: afterFirstHistory.authoring.timelineRevision,
       expectedNleTimelineFingerprint:
-        afterFirstHistory.snapshot.timelineFingerprint,
-      expectedNlePublicFingerprint:
-        afterFirstHistory.snapshot.publicFingerprint,
+        afterFirstHistory.authoring.timelineFingerprint,
+      authoringSchema: NLE_AUTHORING_SCHEMA,
+      profileId: NLE_AUTHORING_PROFILE_ID,
+      expectedNleAuthoringFingerprint:
+        afterFirstHistory.authoring.authoringFingerprint,
       entries: [
         {
           segmentId: selectedOutput.segmentId!,
@@ -1544,7 +1576,7 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
       alreadyImportedRequest,
     );
     expect(alreadyImportedResponse.status).toBe(200);
-    const alreadyImported = decodeProductionAuthoringImportResponseV1(
+    const alreadyImported = decodeImportedProduction(
       alreadyImportedResponse.body,
     );
     expect(alreadyImported.receipt.disposition).toBe("already_imported");
@@ -1568,7 +1600,7 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
       ),
     );
     expect(afterReplayReadResponse.status).toBe(200);
-    const afterReplayHistory = decodeTimelineHistoryProjection(
+    const afterReplayHistory = decodeTimelineHistoryProjectionV2(
       afterReplayReadResponse.body,
     );
     expect(afterReplayHistory).toEqual(afterFirstHistory);
@@ -1596,12 +1628,13 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
     // asset-thumbnail lease contract. Only then insert it as one separate timeline transaction.
     // The import was issued from this already-open Media surface.
     await expect(overlay).toBeVisible({ timeout: 30_000 });
+    // IMPORTANT: the v2 bin identifies assets directly; its virtual rows have no ordinal selector.
     const importedCard = overlay.locator(
-      `[data-h3-nle-card-index="${importedOrdinal}"]`,
+      `[data-h3-nle-asset="${importedAssetId}"]`,
     );
     await expect(importedCard).toBeVisible();
     // IMPORTANT: media cards have no tone contract. Readiness is established by the exact
-    // thumbnail lease lifecycle and decoded 64 x 64 canvas below; a presentation-only tone
+    // thumbnail lease lifecycle and decoded wire-bound canvas below; a presentation-only tone
     // selector made the supplied-host row impossible before either contract could be observed.
     const importedThumbnail = importedCard.locator(
       '[data-h3-nle-thumbnail=""]',
@@ -1611,6 +1644,10 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
       .poll(() => mediaLeaseControls.length, { timeout: 60_000 })
       .toBeGreaterThan(0);
     const createResponse = mediaLeaseResponses[0]!;
+    expect(createResponse.request().postDataJSON()).toMatchObject({
+      schema: NLE_AUTHORING_ASSET_LEASE_REQUEST_SCHEMA,
+      assetId: importedAssetId,
+    });
     const createReceipt = (await createResponse.json()) as Record<
       string,
       unknown
@@ -1654,6 +1691,14 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
         status: 200,
       },
     ]);
+    const thumbnailGeometry = decodeAuthoringMediaGeometry(
+      await mediaLeaseResponses[1]!.headerValue(
+        AUTHORING_MEDIA_LEASE_GEOMETRY_HEADER,
+      ),
+      "thumbnail",
+    );
+    if (thumbnailGeometry === null)
+      throw new Error("the opened thumbnail must bind its decoded geometry");
     await expect
       .poll(() =>
         importedThumbnail.evaluate((canvas) => ({
@@ -1661,7 +1706,10 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
           height: (canvas as HTMLCanvasElement).height,
         })),
       )
-      .toEqual({ width: 64, height: 64 });
+      .toEqual({
+        width: thumbnailGeometry.derivativeWidth,
+        height: thumbnailGeometry.derivativeHeight,
+      });
     //  U08 on the host: before insertion the monitor says the timeline has no clip; it
     // never reports the media tools unavailable.
     const emptyTimelineNote = overlay.locator('[data-h3-nle-empty="timeline"]');
@@ -1696,26 +1744,26 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
       ),
     );
     expect(afterInsertReadResponse.status).toBe(200);
-    const afterInsertHistory = decodeTimelineHistoryProjection(
+    const afterInsertHistory = decodeTimelineHistoryProjectionV2(
       afterInsertReadResponse.body,
     );
-    expect(afterInsertHistory.snapshot.timelineRevision).toBe(
-      afterFirstHistory.snapshot.timelineRevision + 1,
+    expect(afterInsertHistory.authoring.timelineRevision).toBe(
+      afterFirstHistory.authoring.timelineRevision + 1,
     );
     expect(
-      afterInsertHistory.snapshot.clips.filter(
+      afterInsertHistory.authoring.clips.filter(
         (clip) => clip.assetId === importedAssetId,
       ),
     ).toHaveLength(1);
-    expect(afterInsertHistory.snapshot.assets).toEqual(
-      afterFirstHistory.snapshot.assets,
+    expect(afterInsertHistory.authoring.assets).toEqual(
+      afterFirstHistory.authoring.assets,
     );
     if (mediaJourney !== undefined)
       await expect(emptyTimelineNote).toHaveCount(0);
     if (renderJourney) {
       //  U03: the tools installed a moment ago decode the clip in the monitor and render
       // the final video, which the browser then decodes. A job status alone proves neither.
-      const insertedClip = afterInsertHistory.snapshot.clips.find(
+      const insertedClip = afterInsertHistory.authoring.clips.find(
         (clip) => clip.assetId === importedAssetId,
       )!;
       const monitorCanvas = overlay.locator(".h3-nle-monitor canvas");
@@ -1732,8 +1780,8 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
               colors++;
           return colors;
         });
-      // The fixed host fixture is 64 x 64 and is sampled once per 16 pixels. Sixteen lit samples
-      // prove a decoded picture while remaining below the measured 30-sample sparse frame.
+      // Sample the decoded canvas every sixteen pixels; require a visible picture rather than
+      // treating a successful lease or a nonzero canvas size alone as playback evidence.
       const minimumDecodedPixelSamples = 16;
       const seekFrame = insertedClip.startFrame + 12;
       const seek = overlay.locator('[data-h3-nle-control="transport.seek"]');
@@ -1748,9 +1796,36 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
         "aria-valuetext",
         /^\d{2,}:\d{2}:\d{2}:\d{2}$/,
       );
-      await expect
-        .poll(pixels, { timeout: 60_000 })
-        .toBeGreaterThanOrEqual(minimumDecodedPixelSamples);
+      try {
+        await expect
+          .poll(pixels, { timeout: 60_000 })
+          .toBeGreaterThanOrEqual(minimumDecodedPixelSamples);
+      } catch (error) {
+        console.info(
+          `MEDIA_MONITOR_DIAGNOSTIC ${JSON.stringify({
+            canvas: await monitorCanvas.evaluate((element) => {
+              const canvas = element as HTMLCanvasElement;
+              const rect = canvas.getBoundingClientRect();
+              return {
+                width: canvas.width,
+                height: canvas.height,
+                displayWidth: rect.width,
+                displayHeight: rect.height,
+                presentedFrame: canvas.getAttribute(
+                  "data-h3-nle-presented-frame",
+                ),
+              };
+            }),
+            seekFrame,
+            keptFrame: await seek.getAttribute("aria-valuenow"),
+            monitor: await overlay
+              .locator('[data-h3-nle-status="monitor"]')
+              .textContent(),
+            leases: mediaLeaseControls,
+          })}`,
+        );
+        throw error;
+      }
       const monitorColors = await pixels();
       if (ux14Journey === "1") {
         const monitorStatus = overlay.locator('[data-h3-nle-status="monitor"]');
@@ -1926,9 +2001,12 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
         frames: rendered.frame_count,
         rate: "24/1",
       });
-      // Content, judged by the observer ffmpeg against the imported source file itself: inside
-      // the clip the rendered picture's centre carries the source's luma; after the clip ends it
-      // does not. The centre crop lies inside the clip for any fit of the square source.
+      // CRITICAL: content-extent rendering ends with the last clip, so a legacy fixed-capacity
+      // black-tail sample is outside the output. Check the exact extent and actual source pixels.
+      expect(rendered.frame_count).toBe(
+        afterInsertHistory.authoring.contentEndExclusive,
+      );
+      // The centre crop lies inside the clip for any fit of the square source.
       const observerFfmpeg = process.env.H3_CONTEXT_M25_34_OBSERVER_FFMPEG;
       const sourceMedia = process.env.H3_CONTEXT_M25_34_SOURCE_MEDIA;
       if (observerFfmpeg === undefined || sourceMedia === undefined)
@@ -1985,18 +2063,14 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
         return Number(match[1]);
       };
       const insideFrame = insertedClip.startFrame + 12;
-      const afterFrame =
-        insertedClip.startFrame + insertedClip.durationFrames + 24;
-      expect(afterFrame).toBeLessThan(rendered.frame_count);
+      expect(insideFrame).toBeLessThan(rendered.frame_count);
       const sourceLuma = meanLuma(
         sourceMedia,
         insertedClip.sourceStartFrame + 12,
         lumaCropSide,
       );
       const insideLuma = meanLuma(originalPath, insideFrame, lumaCropSide);
-      const afterLuma = meanLuma(originalPath, afterFrame, lumaCropSide);
       expect(Math.abs(insideLuma - sourceLuma)).toBeLessThanOrEqual(4);
-      expect(Math.abs(afterLuma - sourceLuma)).toBeGreaterThan(20);
       await download.delete();
       renderEvidence = Object.freeze({
         monitorSeekFrame: seekFrame,
@@ -2018,10 +2092,9 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
         },
         contentLuma: {
           insideFrame,
-          afterFrame,
+          contentEndExclusive: afterInsertHistory.authoring.contentEndExclusive,
           source: sourceLuma,
           inside: insideLuma,
-          after: afterLuma,
         },
       });
       console.info(
@@ -2230,11 +2303,11 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
         firstImport.receipt.legacyTimeline.nextRevision -
         firstImport.receipt.legacyTimeline.priorRevision,
       nleWorkspaceRevisionDelta:
-        firstImport.receipt.nle.nextWorkspaceRevision -
-        firstImport.receipt.nle.priorWorkspaceRevision,
+        firstImport.receipt.nleAuthoring.nextWorkspaceRevision -
+        firstImport.receipt.nleAuthoring.priorWorkspaceRevision,
       nleTimelineRevisionDelta:
-        firstImport.receipt.nle.nextTimelineRevision -
-        firstImport.receipt.nle.priorTimelineRevision,
+        firstImport.receipt.nleAuthoring.nextTimelineRevision -
+        firstImport.receipt.nleAuthoring.priorTimelineRevision,
       tracksStable: true,
       clipsStable: true,
       selectionStable: true,
@@ -2324,8 +2397,8 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
   });
   expect(importEvidence).not.toBeNull();
   if (mediaJourney === "ready") expect(setupPosts).toEqual([]);
-  if (mediaJourney === "install")
-    expect(setupPosts).toEqual(["install_supported"]);
+  if (mediaJourney === "local")
+    expect(setupPosts).toEqual(["use_local_directory"]);
   if (renderJourney) expect(renderEvidence).not.toBeNull();
   if (ux14Journey === "1") expect(ux14Evidence).not.toBeNull();
 
@@ -2404,9 +2477,10 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
               resolutionReason: mediaStatusBefore!.resolutionReason,
               sourceKind: mediaStatusBefore!.sourceKind,
               features: mediaStatusBefore!.features,
-              installDescribed: mediaStatusBefore!.installDescribed,
-              installActionOffered:
-                mediaStatusBefore!.actions.includes("install_supported"),
+              manualDescribed: mediaStatusBefore!.manualDescribed,
+              localSelectionOffered: mediaStatusBefore!.actions.includes(
+                "use_local_directory",
+              ),
             },
             setupPosts: [...setupPosts],
             setup: mediaSetupEvidence,

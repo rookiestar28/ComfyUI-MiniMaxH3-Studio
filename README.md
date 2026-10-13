@@ -18,6 +18,22 @@ implementation.
 
 <details>
 
+<summary><strong>1.2.1 — Manual media tools setup and sequence assembly fix</strong></summary>
+
+- The extension no longer downloads or installs FFmpeg. **Settings → Media tools** now opens the
+  exact download page, shows the archive name and SHA-256, and admits the extracted **bin**
+  folder after verifying both programs. Retry the action you started once the tools are selected.
+- A **?** button beside **Media tools** explains setup, checksum verification and the supported
+  build in English, Traditional Chinese and Simplified Chinese.
+- Tools that 1.2.0 or earlier already set up keep working without changes. Leftover files from an
+  earlier interrupted setup are removed only when you choose the cleanup control.
+- Sequences built from your own ComfyUI video generations now assemble; earlier versions
+  refused those segments because of their color tag and their millisecond-rounded length.
+
+</details>
+
+<details>
+
 <summary><strong>1.2.0 — Title decorations, editor updates and local perception setup</strong></summary>
 
 - Style titles with strokes, sharp shadows and background padding. Preserve literal line breaks
@@ -152,7 +168,8 @@ Public source and Registry packages include the test suites and their support fi
 - **MiniMax H3 model weights** and suitable hardware to generate video. Building and checking
   prompts needs no weights.
 - **Windows x64 with 64-bit Python** for the clip editor, Production import, longer-video assembly
-  and final rendering, plus the [media tools](#media-tools), which are found or installed for you.
+  and final rendering, plus the [media tools](#media-tools), which you provide and the extension
+  verifies.
 
 The package has no required Python dependencies and never installs or changes ComfyUI, its
 frontend or your models.
@@ -216,24 +233,26 @@ still waiting in the browser.
 ### Media tools
 
 The clip editor, Production import, longer-video assembly and final rendering use one exact FFmpeg
-build on Windows x64 with 64-bit Python: the gyan.dev full build `2026-02-26-git-6695528af6`. No
-path setup is needed.
+build on Windows x64 with 64-bit Python: the gyan.dev full build `2026-02-26-git-6695528af6`.
 
-- **Already installed.** If that build's `ffmpeg.exe` and `ffprobe.exe` are in your Python
-  environment or on `PATH`, they are found the first time you use a media feature.
-- **Not installed.** When a feature needs the tools, a **Media tools** card appears with **Install
-  and continue**. It downloads the build from its GitHub release (about 235 MB), checks it, keeps
-  only the two programs with their license and readme, then carries on with what you started.
-  **Cancel setup** stops the download without changing your work. The same **Install** button is
-  in **Settings → Media tools**.
-- **Where it goes.** The installed copy (about 425 MB) lives in ComfyUI's private user data,
-  outside this package, and is reused after restarts.
-- **Offline or managed computers.** In **Settings → Media tools → Advanced**, enter a folder that
-  holds both programs of that build and choose **Use this folder**. **Use automatic setup** returns
-  to the default. The download never uses a proxy, so use this option on computers that need one.
+- **Provide the supported tools.** In **Settings → Media tools**, choose **Open download page**
+  (the [release page](https://github.com/GyanD/codexffmpeg/releases/tag/2026-02-26-git-6695528af6)),
+  download `ffmpeg-2026-02-26-git-6695528af6-full_build.zip` (about 235 MB), compare the archive
+  SHA-256 shown on the card, and extract it yourself. Enter the **bin** folder containing both
+  `ffmpeg.exe` and `ffprobe.exe`, then choose **Use folder**. The extension verifies both programs
+  before saving the selection. Retry your original action after selecting them. The **?** button
+  beside **Media tools** shows these steps, including checksum commands, in your language.
+- **Automatic discovery.** A supported pair in your Python environment or on `PATH` is found on
+  first use. Choose **Check again** after changing `PATH`; **Advanced → Search automatically**
+  clears a saved local selection and restores discovery. An installation made by an earlier
+  version is still discovered and reused. Earlier setup leftovers are removed only by the explicit
+  cleanup control, which preserves an older copy until its managed replacement is verified.
+- **Offline or managed computers.** Select a locally provided supported pair with **Use folder**.
+  The extension performs no media-tool download, archive extraction or executable installation.
 - **Administrators** can set `H3_CONTEXT_AUTHORIZED_FFMPEG_PATH` and
   `H3_CONTEXT_AUTHORIZED_FFPROBE_PATH` to the two programs in one folder; this overrides everything
-  else. `H3_CONTEXT_AUTHORIZED_MEDIA_SCRATCH_ROOT` can name the temporary media folder.
+  else. `H3_CONTEXT_AUTHORIZED_MEDIA_SCRATCH_ROOT` can also name the temporary media folder; it is
+  accepted only together with both program paths.
 
 Any other FFmpeg build, a modified file, Windows on ARM, 32-bit Python or a non-Windows host is not
 used, and the card says why. To check a copy yourself, compare these SHA-256 fingerprints:
@@ -920,7 +939,7 @@ Review workflows and screenshots before sharing them. More detail is in
 
 | Problem                                                   | What to check                                                                                                                                              |
 | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A media feature says it is unavailable                    | Open **Settings → Media tools** and follow the card: **Install**, **Check again**, or the reason shown.                                                    |
+| A media feature says it is unavailable                    | Open **Settings → Media tools** and follow the card: **Use folder**, **Check again**, or the reason shown.                                                 |
 | **Import** is missing or does nothing                     | Select up to three finished segments in Production first.                                                                                                  |
 | An imported clip is in the bin but not on the timeline    | Import only adds sources; press **+** on its card.                                                                                                         |
 | An imported clip became unavailable                       | Keep its Production project available, or open a saved project and explicitly relink compatible retained media. A released source is never silently replaced. |
@@ -953,8 +972,7 @@ screenshots.
 ## License
 
 Apache-2.0; see [LICENSE](LICENSE) and [NOTICE](NOTICE). The bundled Noto Sans fonts use the SIL
-Open Font License 1.1. FFmpeg is not included: it is downloaded only when you choose **Install**
-and is licensed separately under GPL-3.0-or-later. The official workflow templates are served by
-the ComfyUI frontend (Comfy-Org `workflow_templates`, MIT) and are not redistributed here. Models
-and provider services have their own terms. This project is not affiliated with or endorsed by
-MiniMax.
+Open Font License 1.1. FFmpeg is not included: you provide the supported build yourself, and it is
+licensed separately under GPL-3.0-or-later. The official workflow templates are served by the
+ComfyUI frontend (Comfy-Org `workflow_templates`, MIT) and are not redistributed here. Models and
+provider services have their own terms. This project is not affiliated with or endorsed by MiniMax.

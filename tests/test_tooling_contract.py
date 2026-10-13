@@ -306,6 +306,54 @@ class ToolingContractTests(unittest.TestCase):
                 )
             ),
         }
+        # IMPORTANT: the Registry policy check pins exact normalized subprocess call shapes by
+        # SHA-256, so a new spawn cannot hide behind a whole-module exemption. They digest this
+        # repository's own public source and authenticate nothing. Pinned here independently,
+        # split like every literal above, and never learned from the script or the baseline.
+        registry_call_pins = {
+            "registry_call_resolution": (
+                "ad6fa60292-88f9009dab-9f2d6bd121-38d8b3bdd0-fe616f8198-64a4cf9da1-8899".replace(
+                    "-", ""
+                )
+            ),
+            "registry_call_spawn": (
+                "dba75ea297-3f80cb0951-54e0f1cf40-7ffa938206-2e4fb8fc90-08235ee6a3-c4f9".replace(
+                    "-", ""
+                )
+            ),
+            "registry_call_spawn_tree": (
+                "c7a722d395-3267817018-d913d36991-c5e8abeb8f-7c3b975e38-b5f91ef8e1-3bf7".replace(
+                    "-", ""
+                )
+            ),
+            "registry_call_spawn_terminate": (
+                "fb5272f38d-b378271c33-689146c613-04f10ba44c-215c5dd1c4-2ebea9c654-da7d".replace(
+                    "-", ""
+                )
+            ),
+            "registry_call_perception": (
+                "6ddd71485e-539063b1ba-2c571a02c5-ce250d52d9-a98edc517d-7f0f56ac76-c2d5".replace(
+                    "-", ""
+                )
+            ),
+            "registry_call_dependency_probe": (
+                "3ac7acab13-247f837f11-19eba9efc6-6cb7c19857-153e615acf-174f639870-8d56".replace(
+                    "-", ""
+                )
+            ),
+            "registry_call_address_probe": (
+                "a64bc08c2f-59c5581305-53d7d2b882-e236715988-673d567a6c-1f707ccb00-34df".replace(
+                    "-", ""
+                )
+            ),
+        }
+        # The manual media-tool wire fixture repeats the public FFmpeg archive SHA-256 that
+        # `media_runtime_pin.py` pins; it binds download integrity, never authentication.
+        media_archive_digest = (
+            "ad18ecdedf-ca6d51c28c-f12f2c9628-7ce1150686-578b75bff2-efcd06ff34-bb30".replace(
+                "-", ""
+            )
+        )
         # CRITICAL: one place that knows what each approved row is *for*. Before these
         # literals were named once, hashed, and never referred to again, so nothing in this test --
         # or anywhere else -- could tell that a row had gone inert. Seven had, across four files,
@@ -315,6 +363,8 @@ class ToolingContractTests(unittest.TestCase):
         approved_literals = {
             **font_revisions,
             **perception_digests,
+            **registry_call_pins,
+            "media_archive_digest": media_archive_digest,
             "backend": backend_revision,
             "current_backend": current_backend_revision,
             "chain_first": chain_first,
@@ -416,6 +466,8 @@ class ToolingContractTests(unittest.TestCase):
             "m22_21_tree": ("comfyui_h3_context/contracts/prompt_model_profiles_v5.json",),
             "m23_24_commit": ("comfyui_h3_context/contracts/build_provenance_v1.json",),
             "m23_24_tree": ("comfyui_h3_context/contracts/build_provenance_v1.json",),
+            **{identity: ("scripts/registry_policy_check.py",) for identity in registry_call_pins},
+            "media_archive_digest": ("frontend/tests/fixtures/media_runtime_wire_v4.json",),
         }
         # CRITICAL: every approved row must still describe something that exists. A row whose
         # literal has left the tree is inert -- it can never match again -- and both sides of the
@@ -441,7 +493,7 @@ class ToolingContractTests(unittest.TestCase):
             for identity, paths in approved_paths.items()
             for path in paths
         )
-        self.assertEqual(sum(expected.values()), 54)
+        self.assertEqual(sum(expected.values()), 62)
         # SECURITY: these four matches are the exact public repository owner/name, not
         # credentials. Bind literal, detector and paths; never allow arbitrary Base64 rows.
         repository_name = "rookiestar28/" + "ComfyUI-" + "MiniMaxH3-Studio"
@@ -467,7 +519,16 @@ class ToolingContractTests(unittest.TestCase):
         )
         fixture_match = "ad8649af30-91cf8af0f2-c679b92a47-b82287b425".replace("-", "")
         expected[(fixture_path, "AWS Access Key", fixture_match)] = 1
-        self.assertEqual(sum(expected.values()), 59)
+        # IMPORTANT: this match is the supplied-host lane test feeding an unsupported journey
+        # value to its environment parser, which must refuse it. Not a credential; bind the exact
+        # literal, detector and path, written split so this file holds no matching literal.
+        refused_assignment = "H3_CONTEXT_" + "M25_34_" + "MEDIA_JOURNEY" + "=install"
+        refused_path = "tests/test_m25_54_supplied_host_lane.py"
+        with self.subTest(refused_assignment_path=refused_path):
+            self.assertIn(refused_assignment, (ROOT / refused_path).read_text(encoding="utf-8"))
+        refused_hash = hashlib.sha1(refused_assignment.encode(), usedforsecurity=False).hexdigest()
+        expected[(refused_path, "Base64 High Entropy String", refused_hash)] = 1
+        self.assertEqual(sum(expected.values()), 68)
         # CRITICAL: approve public hex values only inside independently pinned complete inputs.
         # Learning this census from scanner output or unpinned files would admit new credentials.
         public_hash_inputs = {
@@ -492,7 +553,7 @@ class ToolingContractTests(unittest.TestCase):
             for literal in literals:
                 match_hash = hashlib.sha1(literal, usedforsecurity=False).hexdigest()
                 expected[(path, "Hex High Entropy String", match_hash)] = 1
-        self.assertEqual(sum(expected.values()), 1983)
+        self.assertEqual(sum(expected.values()), 1992)
         observed: Counter[tuple[str, str, str]] = Counter()
         for path, findings in baseline.get("results", {}).items():
             normalized_path = path.replace("\\", "/")
@@ -503,7 +564,7 @@ class ToolingContractTests(unittest.TestCase):
                 observed[
                     (normalized_path, finding.get("type", ""), finding.get("hashed_secret", ""))
                 ] += 1
-        self.assertEqual(sum(observed.values()), 1983)
+        self.assertEqual(sum(observed.values()), 1992)
         self.assertEqual(observed, expected)
 
     def test_hosted_ci_uses_separate_public_lanes(self) -> None:

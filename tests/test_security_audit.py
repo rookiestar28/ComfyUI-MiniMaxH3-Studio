@@ -361,39 +361,35 @@ license-files = ["LICENSE", "NOTICE"]
             )
         )
 
-    def test_media_runtime_egress_is_confined_to_the_download_transport(self) -> None:
+    def test_media_setup_and_recovery_have_no_egress_exception(self) -> None:
         body = (
-            "import http.client\nimport socket\nimport ssl\n\n\n"
-            "def go():\n    return socket.create_connection(('a', 443))\n"
+            "import http.client\nimport socket\nimport ssl\n\ndef go():\n"
+            "    return socket.create_connection(('a', 443))\n"
+        )
+        names = (
+            "media_runtime_pin.py",
+            "media_runtime_leftovers.py",
+            "comfyui_media_runtime_setup.py",
+            "media_runtime_download.py",
         )
         with tempfile.TemporaryDirectory() as temporary:
             package = Path(temporary) / "comfyui_h3_context"
             adapters = package / "adapters"
             adapters.mkdir(parents=True)
-            (adapters / "media_runtime_download.py").write_text(body, encoding="utf-8")
-            self.assertEqual(audit_runtime_package(package), ())
-
-            # The installer and the setup routes handle untrusted archive bytes and client
-            # requests; neither may open a connection or resolve a name on its own.
-            for relative in ("media_runtime_installer.py", "comfyui_media_runtime_setup.py"):
-                (adapters / relative).write_text(body, encoding="utf-8")
-            (adapters / "media_runtime_download.py").write_text(
-                "import socket\n\n\ndef go():\n    return socket.getaddrinfo('a', None)\n",
-                encoding="utf-8",
-            )
+            for name in names:
+                (adapters / name).write_text(body, encoding="utf-8")
             findings = audit_runtime_package(package)
-        for relative in ("media_runtime_installer.py", "comfyui_media_runtime_setup.py"):
+        for name in names:
             for line, module in enumerate(("http.client", "socket", "ssl"), start=1):
                 self.assertIn(
-                    f"adapters/{relative}:{line}: forbidden runtime import {module}", findings
+                    f"adapters/{name}:{line}: forbidden runtime import {module}", findings
                 )
-            self.assertIn(
-                f"adapters/{relative}:7: forbidden network call socket.create_connection", findings
+            self.assertTrue(
+                any(
+                    f"adapters/{name}:" in finding and "forbidden network call" in finding
+                    for finding in findings
+                )
             )
-        self.assertIn(
-            "adapters/media_runtime_download.py:5: forbidden network call socket.getaddrinfo",
-            findings,
-        )
 
     def test_native_render_process_exception_never_grants_neighbor_or_network_imports(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

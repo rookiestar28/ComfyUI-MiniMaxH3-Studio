@@ -10,7 +10,7 @@ Accepted title strokes, shadows and background padding are preserved by Save/Ope
 recovery, including undo/redo. Older projects without those settings keep their existing style.
 Project format version 1 remains in use, but a project using these optional decorations requires
 a reader that supports them. Version 1.1.0 readers refuse such a project rather than silently
-discarding the decorations; use version 1.2.0 to reopen it.
+discarding the decorations; use version 1.2.0 or later to reopen it.
 
 ## Save And Open
 

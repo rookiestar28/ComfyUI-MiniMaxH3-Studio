@@ -27,7 +27,7 @@
     },
     {
       "path": "comfyui_h3_context/contracts/build_provenance_v1.json",
-      "sha256": "sha256:9d9d5d0e3f2cfd484c7881aa8aef57eab2f38d252354cd180a8c94e3cec68b29",
+      "sha256": "sha256:2944b1d321c272cc552f22c8ef1033ef8925ea4317015185d89444e4222b7eb0",
       "size": 1712
     },
     {
@@ -42,7 +42,7 @@
     },
     {
       "path": "comfyui_h3_context/contracts/installation_profiles_v1.json",
-      "sha256": "sha256:cabbf16655a297d8a1e96cfdc869b13d15c0f4e661266c500310a7fac8269c2c",
+      "sha256": "sha256:48eb69f0fda12aacb0f52d3c0960d240a747fed604da73ef1e1730dec0ca52e7",
       "size": 3377
     },
     {
@@ -67,7 +67,7 @@
     },
     {
       "path": "frontend/package.json",
-      "sha256": "sha256:5e72016628a9e99d77138c622213e2ed69ed0e380f3f98219855ff193303a33e",
+      "sha256": "sha256:860f5cebd1d88370b879d96c4288d6be8eb0be714feb89183539b339aa92cdd4",
       "size": 1307
     },
     {
@@ -92,8 +92,8 @@
     },
     {
       "path": "frontend/src/components/AuthoringPreviewMonitor.tsx",
-      "sha256": "sha256:ac4fdaa79704b704ee380c0e33e90a3c10b07b7338d4951ae67b6b5be16da577",
-      "size": 20142
+      "sha256": "sha256:a48026cf7c6f47b61b8c6b39828425ca5ce4c8f05974fbeb99ad383b90be0274",
+      "size": 19528
     },
     {
       "path": "frontend/src/components/CompositionPreview.tsx",
@@ -107,8 +107,8 @@
     },
     {
       "path": "frontend/src/components/MediaToolsCard.tsx",
-      "sha256": "sha256:c8ec35586c5c2bebe1092c71cd2055000d2b75534c06f22614c1be82cf308d3a",
-      "size": 22542
+      "sha256": "sha256:b678719e43adf6ee7f25ee5b1d965049d8c1fc3c9925556d753e73051d8cccd0",
+      "size": 19566
     },
     {
       "path": "frontend/src/components/NoticeSurface.tsx",
@@ -189,6 +189,11 @@
       "path": "frontend/src/components/authoringOutputCopy.ts",
       "sha256": "sha256:c5f0489d38354b38bf5eae9c42fe900fdfa3d22d23c0146e85281f23dc02892e",
       "size": 4308
+    },
+    {
+      "path": "frontend/src/components/mediaToolsCard.css",
+      "sha256": "sha256:4f48a4cd367ea474fd220816292f63fbc8491226dbba174156f5d85a7af6a8c4",
+      "size": 1927
     },
     {
       "path": "frontend/src/components/nle/NleAuthoringAssetBin.tsx",
@@ -492,8 +497,8 @@
     },
     {
       "path": "frontend/src/components/plainReasons.ts",
-      "sha256": "sha256:e37bfabcb94e149f9f8dad4c48f1ffcbd789093e40c577ade7bc8eedbd13919d",
-      "size": 57077
+      "sha256": "sha256:1b0db076f7bb9ceeb7438eac6f652ba9a7e9d522e6b778e7a30649fbf1d28f48",
+      "size": 53288
     },
     {
       "path": "frontend/src/components/productionStateLabels.ts",
@@ -597,8 +602,8 @@
     },
     {
       "path": "frontend/src/contracts/mediaRuntimeCodec.ts",
-      "sha256": "sha256:bc0303420c32418f9cd159e2f1ebdf21a750a2d710509e062e5772164cd791ee",
-      "size": 11850
+      "sha256": "sha256:24054b7d47089ca4f3a785d0f78be33cefab61a270e6bea6b40df43aed8ca51c",
+      "size": 8741
     },
     {
       "path": "frontend/src/contracts/nleReferenceUiContract.ts",
@@ -947,8 +952,8 @@
     },
     {
       "path": "frontend/src/host/mediaRuntimeClient.ts",
-      "sha256": "sha256:0e4f5f6b885ccca1f8c68bc0a24c076ec783e951d19cb0a513f133c4efe0c99a",
-      "size": 7594
+      "sha256": "sha256:ec65f95b0d7d49c855113959e0c4f8dcbe4735d84e94b3a129575e9ccb8a5adc",
+      "size": 6090
     },
     {
       "path": "frontend/src/host/modalKeyboardGuard.ts",
@@ -1172,8 +1177,8 @@
     },
     {
       "path": "frontend/src/lifecycle/mediaRuntimeSession.ts",
-      "sha256": "sha256:1abab61dd66fb3baa8d730ed939a66b13c3f47edf877410c8dca4429d8e89bd2",
-      "size": 20982
+      "sha256": "sha256:5e050b899ca2aeb7bdbe4ad6fb5cb9d06fc26e0446651d415062a6eea645accf",
+      "size": 8392
     },
     {
       "path": "frontend/src/lifecycle/mountController.tsx",
@@ -1202,8 +1207,8 @@
     },
     {
       "path": "frontend/src/lifecycle/nleWorkspaceSession.ts",
-      "sha256": "sha256:9d85177435dd344005bf7f93059a0fc596452aff21522fbd1dc047c8a56c5597",
-      "size": 37574
+      "sha256": "sha256:572ff3609821d732e656804d38d34e3cccaf325b6e00289465fc474b97202cf7",
+      "size": 37526
     },
     {
       "path": "frontend/src/lifecycle/perceptionHostSession.ts",
@@ -1212,8 +1217,8 @@
     },
     {
       "path": "frontend/src/lifecycle/presentationBinding.tsx",
-      "sha256": "sha256:5758715ed8256150d914a434420904b5d90ff73eed35034c95882afedeedea25",
-      "size": 32378
+      "sha256": "sha256:f032a1a2c3c81d72941adc3826cd2d00a8e6bf1001aaf4214a3f108e71170843",
+      "size": 32279
     },
     {
       "path": "frontend/src/lifecycle/projectFileSession.ts",
@@ -1417,8 +1422,8 @@
     },
     {
       "path": "frontend/src/state/mediaRuntimeState.ts",
-      "sha256": "sha256:6254790c52cd142422ca97066e1eb778de54977e072cac3112a001a9180d53b4",
-      "size": 4114
+      "sha256": "sha256:4c4d72048b5aa5ebb53c0290050884976111fbcd4798aff8ce274dee0323fb31",
+      "size": 2606
     },
     {
       "path": "frontend/src/state/nleWorkspaceState.ts",
@@ -1482,7 +1487,7 @@
     },
     {
       "path": "governance/contracts/sbom.spdx.json",
-      "sha256": "sha256:3498975e7489c4e593334cb8234e8b6266258f1cc91ca2e6ef266483aa79ec0c",
+      "sha256": "sha256:724ebdec838086dcedc16c5a4c0a24c177bce233c8c716ab2ba6ddf2f1a7087c",
       "size": 80683
     },
     {
@@ -1492,7 +1497,7 @@
     },
     {
       "path": "pyproject.toml",
-      "sha256": "sha256:3e9a5ceefc0d388d4d2145f405640651763adefbd041dd480e2827ece916f909",
+      "sha256": "sha256:273779f45f552e1dd8fac31fdbba1774c1d7d4d151ecb92da7d0eb3067a8df62",
       "size": 4112
     },
     {
@@ -1515,15 +1520,15 @@
   "runtime_entries": [
     {
       "path": "comfyui_h3_context/web/h3-context-sidebar.js",
-      "sha256": "sha256:3b1731ddb750eefeed6ab16b1f9323f12081d7f15a824a8c7a3bd1600f90b770",
-      "size": 1917831
+      "sha256": "sha256:fefc67f48395bb9e64ee6cf8c4626e40259f9b2f433a411038b6ed4e238b83c7",
+      "size": 1909494
     }
   ],
   "schema": "h3-context-supply-chain/1",
   "spdx": {
     "package_count": 176,
     "path": "governance/contracts/sbom.spdx.json",
-    "sha256": "sha256:3498975e7489c4e593334cb8234e8b6266258f1cc91ca2e6ef266483aa79ec0c",
+    "sha256": "sha256:724ebdec838086dcedc16c5a4c0a24c177bce233c8c716ab2ba6ddf2f1a7087c",
     "version": "SPDX-2.3"
   },
   "version": 1

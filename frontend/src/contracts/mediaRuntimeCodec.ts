@@ -1,17 +1,8 @@
-// the fail-closed decoder for the media runtime status (v3) and setup job (v1) wires.
-//
-// Every key set is exact and every enumerated value is closed. An unknown value is a typed decode
-// failure, which the surface shows as "status unavailable" and never as ready: a newer server
-// vocabulary must not be read as a capability this client cannot describe. The closed lists below
-// are pinned against the server's own vocabularies by `tests/fixtures/media_runtime_wire_v3.json`,
-// which the backend suite regenerates from the service and this suite decodes.
-
+// Closed manual media-tool status/request contracts. Unknown keys and vocabulary fail closed.
 export const MEDIA_RUNTIME_STATUS_SCHEMA =
-  "h3.context.media_runtime_status.v3" as const;
-export const MEDIA_RUNTIME_JOB_SCHEMA =
-  "h3.context.media_runtime_setup_job.v1" as const;
+  "h3.context.media_runtime_status.v4" as const;
 export const MEDIA_RUNTIME_REQUEST_SCHEMA =
-  "h3.context.media_runtime_setup_request.v1" as const;
+  "h3.context.media_runtime_setup_request.v2" as const;
 const RESOLUTION_SCHEMA = "h3.context.media_runtime_resolution.v1";
 
 export const MEDIA_RUNTIME_RESOLUTION_STATES = [
@@ -70,64 +61,15 @@ export const MEDIA_RUNTIME_FEATURE_REASONS = [
   "render_qualification_unavailable",
 ] as const;
 export const MEDIA_RUNTIME_ACTIONS = [
-  "install_supported",
   "rescan",
   "use_local_directory",
   "restore_auto",
-  "cancel_setup",
   "reclaim_parked_runtime",
 ] as const;
-export const MEDIA_RUNTIME_JOB_STATES = [
-  "running",
-  "succeeded",
-  "failed",
-  "cancelled",
+export const MEDIA_RUNTIME_RECOVERY_STATES = [
+  "parked_runtime",
+  "abandoned_setup",
 ] as const;
-export const MEDIA_RUNTIME_JOB_PHASES = [
-  "checking",
-  "downloading",
-  "extracting",
-  "verifying",
-  "publishing",
-  "activating",
-  "done",
-] as const;
-export const MEDIA_RUNTIME_JOB_REASONS = [
-  ...MEDIA_RUNTIME_RESOLUTION_REASONS,
-  "advanced_override_active",
-  "already_available",
-  "archive_invalid",
-  "cancelled",
-  "config_conflict",
-  "config_invalid",
-  "config_write_failed",
-  "digest_mismatch",
-  "download_failed",
-  "download_timeout",
-  "egress_refused",
-  "installed",
-  "insufficient_space",
-  "internal_failure",
-  "invalid_request",
-  "local_selection_active",
-  "media_runtime_busy",
-  "network_timeout",
-  "network_unavailable",
-  "permission_denied",
-  "publication_failed",
-  "reclaim_unsafe",
-  "redirect_refused",
-  "runtime_busy",
-  "selection_invalid_path",
-  "selection_unsupported_pair",
-  "setup_busy",
-  "size_mismatch",
-  "source_unavailable",
-  "tls_failed",
-  "verification_failed",
-  "write_failed",
-] as const;
-export const MEDIA_RUNTIME_RECOVERY_STATES = ["parked_runtime"] as const;
 export const MEDIA_RUNTIME_REFUSAL_CODES = [
   "config_conflict",
   "config_corrupt",
@@ -146,7 +88,6 @@ export const MEDIA_RUNTIME_REFUSAL_CODES = [
   "selection_invalid_path",
   "selection_unsupported_pair",
   "setup_busy",
-  "setup_job_not_found",
   "unsupported_host",
   "unsupported_platform",
   "worker_failure",
@@ -158,21 +99,8 @@ export type MediaRuntimeFeatureState =
 export type MediaRuntimeFeatureReason =
   (typeof MEDIA_RUNTIME_FEATURE_REASONS)[number];
 export type MediaRuntimeAction = (typeof MEDIA_RUNTIME_ACTIONS)[number];
-export type MediaRuntimeJobState = (typeof MEDIA_RUNTIME_JOB_STATES)[number];
-export type MediaRuntimeJobPhase = (typeof MEDIA_RUNTIME_JOB_PHASES)[number];
-export type MediaRuntimeJobReason = (typeof MEDIA_RUNTIME_JOB_REASONS)[number];
 export type MediaRuntimeRefusalCode =
   (typeof MEDIA_RUNTIME_REFUSAL_CODES)[number];
-
-export type MediaRuntimeJob = Readonly<{
-  schema: typeof MEDIA_RUNTIME_JOB_SCHEMA;
-  jobId: string;
-  state: MediaRuntimeJobState;
-  phase: MediaRuntimeJobPhase;
-  reason: MediaRuntimeJobReason | null;
-  completedBytes: number;
-  totalBytes: number;
-}>;
 
 export type MediaRuntimeFeatureReadiness = Readonly<{
   state: MediaRuntimeFeatureState;
@@ -190,9 +118,9 @@ export type MediaRuntimeStatus = Readonly<{
     revision: number;
     selection: (typeof MEDIA_RUNTIME_CONFIG_SELECTIONS)[number];
   }> | null;
-  setup: MediaRuntimeJob | null;
-  install: Readonly<{
-    profile: string;
+  manual: Readonly<{
+    archiveName: string;
+    archiveSha256: string;
     sourceLabel: string;
     releasePage: string;
     license: string;
@@ -209,8 +137,8 @@ export type MediaRuntimeStatus = Readonly<{
 /** Byte counts share the server's canonical integer range and the manifest's archive bound. */
 const MAX_BYTES = 2 ** 53 - 1;
 const MAX_TEXT = 256;
-const JOB_ID = /^[0-9a-f]{32}$/;
-const RELEASE_PAGE = /^https:\/\/github\.com\/[A-Za-z0-9._/-]{1,200}$/;
+const RELEASE_PAGE =
+  /^https:\/\/github\.com\/GyanD\/codexffmpeg\/releases\/tag\/[A-Za-z0-9._-]{1,100}$/;
 
 export class MediaRuntimeDecodeError extends Error {
   constructor() {
@@ -264,47 +192,12 @@ function count(value: unknown): number {
   return value as number;
 }
 
-export function decodeMediaRuntimeJob(value: unknown): MediaRuntimeJob {
-  const wire = record(value, [
-    "schema",
-    "job_id",
-    "state",
-    "phase",
-    "reason",
-    "progress",
-  ]);
-  if (wire.schema !== MEDIA_RUNTIME_JOB_SCHEMA) invalid();
-  if (typeof wire.job_id !== "string" || !JOB_ID.test(wire.job_id)) invalid();
-  const state = member(wire.state, MEDIA_RUNTIME_JOB_STATES);
-  const phase = member(wire.phase, MEDIA_RUNTIME_JOB_PHASES);
-  const reason =
-    wire.reason === null
-      ? null
-      : member(wire.reason, MEDIA_RUNTIME_JOB_REASONS);
-  // A running job has no terminal reason yet, and a terminal job always names one.
-  if ((state === "running") !== (reason === null)) invalid();
-  const progress = record(wire.progress, ["completed_bytes", "total_bytes"]);
-  const completedBytes = count(progress.completed_bytes);
-  const totalBytes = count(progress.total_bytes);
-  if (totalBytes > 0 && completedBytes > totalBytes) invalid();
-  return Object.freeze({
-    schema: MEDIA_RUNTIME_JOB_SCHEMA,
-    jobId: wire.job_id,
-    state,
-    phase,
-    reason,
-    completedBytes,
-    totalBytes,
-  });
-}
-
 export function decodeMediaRuntimeStatus(value: unknown): MediaRuntimeStatus {
   const wire = record(value, [
     "schema",
     "resolution",
     "config",
-    "setup",
-    "install",
+    "manual",
     "features",
     "recovery",
     "actions",
@@ -325,15 +218,23 @@ export function decodeMediaRuntimeStatus(value: unknown): MediaRuntimeStatus {
       selection: member(raw.selection, MEDIA_RUNTIME_CONFIG_SELECTIONS),
     });
   }
-  const install = record(wire.install, [
-    "profile",
+  const manual = record(wire.manual, [
+    "archive_name",
+    "archive_sha256",
     "source_label",
     "release_page",
     "license",
     "approximate_bytes",
   ]);
-  const releasePage = text(install.release_page);
+  const releasePage = text(manual.release_page);
   if (!RELEASE_PAGE.test(releasePage)) invalid();
+  const archiveName = text(manual.archive_name);
+  const archiveSha256 = text(manual.archive_sha256);
+  if (
+    !/^ffmpeg-[A-Za-z0-9._-]{1,100}-full_build\.zip$/.test(archiveName) ||
+    !/^[0-9a-f]{64}$/.test(archiveSha256)
+  )
+    invalid();
   const rawFeatures = record(wire.features, MEDIA_RUNTIME_FEATURES);
   const features = {} as Record<
     MediaRuntimeFeature,
@@ -376,13 +277,13 @@ export function decodeMediaRuntimeStatus(value: unknown): MediaRuntimeStatus {
       sourceKind: member(resolution.source_kind, MEDIA_RUNTIME_SOURCE_KINDS),
     }),
     config,
-    setup: wire.setup === null ? null : decodeMediaRuntimeJob(wire.setup),
-    install: Object.freeze({
-      profile: text(install.profile),
-      sourceLabel: text(install.source_label),
+    manual: Object.freeze({
+      archiveName,
+      archiveSha256,
+      sourceLabel: text(manual.source_label),
       releasePage,
-      license: text(install.license),
-      approximateBytes: count(install.approximate_bytes),
+      license: text(manual.license),
+      approximateBytes: count(manual.approximate_bytes),
     }),
     features: Object.freeze(features),
     recovery,

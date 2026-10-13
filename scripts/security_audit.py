@@ -112,11 +112,6 @@ RUNTIME_ALLOWED_FORBIDDEN_IMPORTS = {
     # environment, so a blocked filesystem call can be ended by killing it.
     "adapters/media_runtime_discovery_worker.py": frozenset({"ctypes"}),
     "adapters/media_runtime_resolution.py": frozenset({"subprocess"}),
-    # CRITICAL: the managed media runtime download is the only egress the installer has. It fetches
-    # one fixed release archive over verifying TLS, follows redirects only to the release-asset
-    # hosts, and connects to the single address the killable resolver validated. Archive
-    # validation, extraction and publication live in neighbouring modules that get none of this.
-    "adapters/media_runtime_download.py": frozenset({"http.client", "socket", "ssl"}),
     # CRITICAL: the semantic Ollama lane owns one exact nonblocking loopback socket transport so
     # its cumulative deadline cannot be renewed by lower-level HTTP timeouts.
     "adapters/ollama_native.py": frozenset({"http.client", "socket"}),
@@ -195,9 +190,6 @@ RUNTIME_ALLOWED_NETWORK_CALLS = {
     "adapters/prompt_model_transport.py": frozenset(
         {"getaddrinfo", "socket.getaddrinfo", "socket.create_connection"}
     ),
-    # The media runtime download never resolves a name itself: it reuses the transport's killable
-    # resolver and only connects to the address that resolver already admitted.
-    "adapters/media_runtime_download.py": frozenset({"socket.create_connection"}),
 }
 PRIVATE_PATH_PATTERN = re.compile(
     r"(?i)(?:[A-Za-z]:[\\/](?:Users|home|mnt|private|workspace|root|tmp|var)[\\/]|/(?:Users|home|mnt|private|workspace|root|tmp|var)/)"

@@ -128,7 +128,7 @@ if os.environ.get("H3_CONTEXT_HOST_TWO_ENDED_BRIDGE_CANARY") == "1":
         TWO_ENDED_BRIDGE_CANARY_NODE_ID: "H3 Context (two-ended AV bridge canary)",
     }
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"
 WEB_DIRECTORY = "web"
 
 # CRITICAL: this bounded operator attempt runs after node registration. Its module owner survives

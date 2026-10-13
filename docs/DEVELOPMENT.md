@@ -150,14 +150,16 @@ installing models, changing a running ComfyUI host or queueing generation.
 
 `scripts/product_completeness.py` checks source-declared runtime and developer inputs and performs
 an isolated product import/resource smoke. `scripts/registry_payload.py` audits the actual packed
-archive against the tracked source. Missing tests, fixtures, configurations, tooling or runtime
+archive against the tracked source. `scripts/registry_policy_check.py <archive.zip>` is an offline
+check that packaged runtime sources do not download, extract or install executables; it reads
+archive members in memory and runs none of them. Missing tests, fixtures, configurations, tooling or runtime
 resources fail these checks; private records and generated dependency/cache material stay excluded.
 
 Build a Python source distribution from a Git checkout whose reviewed public inputs are tracked:
 
 ```powershell
 & .\.venv\Scripts\python.exe -m build --sdist
-& .\.venv\Scripts\python.exe scripts/sdist_payload.py --archive dist/minimax_h3_studio-1.2.0.tar.gz
+& .\.venv\Scripts\python.exe scripts/sdist_payload.py --archive dist/minimax_h3_studio-1.2.1.tar.gz
 ```
 
 The standard build backend copies public tracked files into a fresh temporary tree and respects

@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import importlib
 import json
+import re
 import subprocess
 from pathlib import Path
 from typing import Any, cast
@@ -12,7 +13,26 @@ from typing import Any, cast
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "1.2.0"
+
+
+def _current_version() -> str:
+    # IMPORTANT: these tests build their fixtures from the live version authorities, so VERSION
+    # must follow pyproject.toml. A hardcoded release number makes every guard test fail with
+    # VERSION_AUTHORITIES_DISAGREE on the next release's version bump. Read it with a literal
+    # pattern, not the guard's own reader, so the unit under test does not supply its oracle.
+    found = re.findall(
+        r'^version = "([0-9]+\.[0-9]+\.[0-9]+)"$',
+        (ROOT / "pyproject.toml").read_text(encoding="utf-8"),
+        flags=re.M,
+    )
+    assert len(found) == 1, found
+    return str(found[0])
+
+
+VERSION = _current_version()
+_MAJOR, _MINOR, _PATCH = VERSION.split(".")
+# A well-formed version that differs from every live authority.
+OTHER = f"{_MAJOR}.{_MINOR}.{int(_PATCH) + 1}"
 PATHS = (
     "pyproject.toml",
     "frontend/package.json",
@@ -34,17 +54,17 @@ def payloads() -> dict[str, bytes]:
 def mismatch(values: dict[str, bytes], field: int) -> None:
     path = PATHS[min(field, 5)]
     if field in {0, 2, 3}:
-        values[path] = values[path].replace(b"1.2.0", b"1.2.1")
+        values[path] = values[path].replace(VERSION.encode(), OTHER.encode())
         return
     document = json.loads(values[path])
     if field == 1:
-        document["version"] = "1.2.1"
+        document["version"] = OTHER
     elif field == 4:
-        document["profiles"][0]["distribution"] = "minimax-h3-studio==1.2.1"
+        document["profiles"][0]["distribution"] = f"minimax-h3-studio=={OTHER}"
     elif field == 5:
-        document["package"]["version"] = "1.2.1"
+        document["package"]["version"] = OTHER
     else:
-        document["artifact"]["prefix"] = "minimax_h3_studio-1.2.1"
+        document["artifact"]["prefix"] = f"minimax_h3_studio-{OTHER}"
     values[path] = json.dumps(document).encode()
 
 
@@ -86,17 +106,18 @@ def test_ambiguous_or_computed_version_authority_is_refused(defect: str) -> None
     if defect == "missing":
         del values[PATHS[0]]
     elif defect == "expected":
-        expected = "1.2.1"
+        expected = OTHER
     elif defect == "computed":
         values[PATHS[2]] = values[PATHS[2]].replace(
-            b'__version__ = "1.2.0"', b'__version__ = "1.2." + "0"'
+            f'__version__ = "{VERSION}"'.encode(),
+            f'__version__ = "{VERSION[:-1]}" + "{VERSION[-1]}"'.encode(),
         )
     elif defect == "duplicate_assignment":
-        values[PATHS[2]] += b'\n__version__ = "1.2.0"\n'
+        values[PATHS[2]] += f'\n__version__ = "{VERSION}"\n'.encode()
     elif defect == "duplicate_json":
-        values[PATHS[1]] = b'{"version":"1.2.1","version":"1.2.0"}'
+        values[PATHS[1]] = f'{{"version":"{OTHER}","version":"{VERSION}"}}'.encode()
     elif defect == "nonfinite":
-        values[PATHS[1]] = b'{"version":"1.2.0","x":NaN}'
+        values[PATHS[1]] = f'{{"version":"{VERSION}","x":NaN}}'.encode()
     elif defect == "boolean":
         values[PATHS[1]] = b'{"version":true}'
     elif defect == "duplicate_profile":
@@ -105,8 +126,8 @@ def test_ambiguous_or_computed_version_authority_is_refused(defect: str) -> None
         values[PATHS[4]] = json.dumps(document).encode()
     else:
         values[PATHS[3]] = values[PATHS[3]].replace(
-            b'distribution="minimax-h3-studio==1.2.0"',
-            b'distribution="minimax-h3-studio==" + "1.2.0"',
+            f'distribution="minimax-h3-studio=={VERSION}"'.encode(),
+            f'distribution="minimax-h3-studio==" + "{VERSION}"'.encode(),
         )
     with pytest.raises(ValueError, match="VERSION"):
         guard().validate_version_authorities(values, expected)
@@ -260,7 +281,7 @@ def test_guard_refusal_performs_zero_pushes_and_preserves_all_remote_refs(
         git(repo, "commit", "--quiet", "-m", "test: extra ancestor")
         candidate = git(repo, "rev-parse", "HEAD")
     elif defect == "wrong_version":
-        (repo / "frontend/package.json").write_text('{"version":"1.2.1"}')
+        (repo / "frontend/package.json").write_text(f'{{"version":"{OTHER}"}}')
         git(repo, "add", "frontend/package.json")
         git(repo, "commit", "--amend", "--quiet", "-m", "test: version disagreement")
         candidate = git(repo, "rev-parse", "HEAD")
@@ -366,16 +387,19 @@ def test_invalid_version_shapes_have_zero_remote_effect(remote: Any, defect: str
     repo, bare, parent, candidate = remote
     expected = VERSION
     if defect == "expected":
-        expected = "1.2.1"
+        expected = OTHER
     elif defect == "missing":
         git(repo, "rm", "--quiet", PATHS[0])
     elif defect == "computed":
         target = repo / PATHS[2]
         target.write_bytes(
-            target.read_bytes().replace(b'__version__ = "1.2.0"', b'__version__ = "1.2." + "0"')
+            target.read_bytes().replace(
+                f'__version__ = "{VERSION}"'.encode(),
+                f'__version__ = "{VERSION[:-1]}" + "{VERSION[-1]}"'.encode(),
+            )
         )
     elif defect == "duplicate_json":
-        (repo / PATHS[1]).write_bytes(b'{"version":"1.2.1","version":"1.2.0"}')
+        (repo / PATHS[1]).write_bytes(f'{{"version":"{OTHER}","version":"{VERSION}"}}'.encode())
     else:
         target = repo / PATHS[4]
         data = json.loads(target.read_bytes())

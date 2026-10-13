@@ -43,6 +43,7 @@ ROW_CONTROL_ALLOWLIST = frozenset(
         "H3_CONTEXT_HOST_HEADED",
         "H3_CONTEXT_M25_34_EXPECTED_SOURCE",
         "H3_CONTEXT_M25_34_MEDIA_JOURNEY",
+        "H3_CONTEXT_MEDIA_LOCAL_DIRECTORY",
         "H3_CONTEXT_M25_34_OBSERVER_FFMPEG",
         "H3_CONTEXT_M25_34_OBSERVER_FFPROBE",
         "H3_CONTEXT_M25_34_RENDER",
@@ -238,7 +239,7 @@ def parse_row_environment(values: Iterable[str]) -> dict[str, str]:
             or any(character in content for character in "\r\n\0")
         ):
             raise ValueError(f"invalid value for admitted row control {name}")
-        if name == "H3_CONTEXT_M25_34_MEDIA_JOURNEY" and content not in {"ready", "install"}:
+        if name == "H3_CONTEXT_M25_34_MEDIA_JOURNEY" and content not in {"ready", "local"}:
             raise ValueError(f"invalid value for admitted row control {name}")
         if name == "H3_CONTEXT_M25_34_EXPECTED_SOURCE" and content not in {
             "explicit_override",

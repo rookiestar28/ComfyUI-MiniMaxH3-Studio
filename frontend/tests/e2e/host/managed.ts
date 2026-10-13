@@ -99,6 +99,25 @@ export type SerializedGraph = {
  * show, because only a real host announces a configure back to its extensions.
  */
 export async function instrumentHostGraphLoads(page: Page): Promise<void> {
+  // CRITICAL: extension registration precedes workflow-store initialization on a cold host.
+  // Wait for its authority contract before capture; a longer graph-settle sleep cannot fix it.
+  await page.waitForFunction(
+    () => {
+      const store = (window as any).comfyAPI?.app?.app?.extensionManager
+        ?.workflow;
+      const active = store?.activeWorkflow;
+      return (
+        Array.isArray(store?.openWorkflows) &&
+        ((active === null && store.openWorkflows.length === 0) ||
+          (active !== null &&
+            typeof active === "object" &&
+            !Array.isArray(active) &&
+            store.openWorkflows.includes(active)))
+      );
+    },
+    undefined,
+    { timeout: 30_000 },
+  );
   await page.evaluate(() => {
     const runtime = window as unknown as {
       comfyAPI: { app: { app: any } };

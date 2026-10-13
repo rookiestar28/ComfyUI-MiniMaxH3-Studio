@@ -364,8 +364,9 @@
         "adapters.managed_asset_resolution",
         "adapters.managed_mode_qualification",
         "adapters.managed_sequence_service",
-        "adapters.media_runtime_installer",
+        "adapters.media_runtime_leftovers",
         "adapters.media_runtime_manager",
+        "adapters.media_runtime_pin",
         "adapters.media_runtime_resolution",
         "adapters.production_assembly_execution",
         "adapters.production_authoring_import_service",
@@ -1903,10 +1904,10 @@
   ],
   "edge_kind_totals": {
     "function_local": 111,
-    "module_level": 1757,
+    "module_level": 1755,
     "type_checking": 128
   },
-  "fingerprint": "sha256:2ef37a73bfd835e63ffdad70e1cfb182618baa76c4194bc951d39b5f70cd3a10",
+  "fingerprint": "sha256:5ffe538dc89b42b76e232665ed4f29401792cad5fa5f3a113a35916ac9ba5dab",
   "forbidden_imports": [],
   "layer_inversions": [],
   "modules": [
@@ -1960,6 +1961,7 @@
         "tests/test_m25_29_production_authoring_import.py",
         "tests/test_m25_30_media_runtime_resolution.py",
         "tests/test_m25_32_media_runtime_activation.py",
+        "tests/test_m25_33_media_setup_entry.py",
         "tests/test_m25_authoring_audio_rate_compatibility.py",
         "tests/test_m25_authoring_initialization.py",
         "tests/test_m25_authoring_media_leases.py",
@@ -1976,6 +1978,7 @@
         "tests/test_m26_05_public_assembly_requalification.py",
         "tests/test_managed_artifact_scopes.py",
         "tests/test_managed_sequence_expiry_recovery.py",
+        "tests/test_manual_media_tools.py",
         "tests/test_media_lease_completion.py",
         "tests/test_media_preview.py",
         "tests/test_native_composition.py",
@@ -2519,7 +2522,7 @@
       "disposition": "movable",
       "inbound": 19,
       "layer": "adapters",
-      "lines": 3767,
+      "lines": 3792,
       "module": "adapters.av_reconstruction_media",
       "outbound": 10,
       "owning_rules": [
@@ -2926,16 +2929,17 @@
       "disposition": "movable",
       "inbound": 2,
       "layer": "adapters",
-      "lines": 745,
+      "lines": 473,
       "module": "adapters.comfyui_media_runtime_setup",
       "outbound": 7,
       "owning_rules": [
-        "direct_module"
+        "direct_module",
+        "submodule_as_name"
       ],
       "owning_tests": [
-        "tests/test_m25_31_media_runtime_setup.py",
         "tests/test_m25_32_media_runtime_activation.py",
-        "tests/test_m25_33_media_setup_entry.py"
+        "tests/test_m25_33_media_setup_entry.py",
+        "tests/test_manual_media_tools.py"
       ],
       "reasons": []
     },
@@ -3344,7 +3348,6 @@
       ],
       "owning_tests": [
         "tests/test_m25_30_media_runtime_resolution.py",
-        "tests/test_m25_31_media_runtime_setup.py",
         "tests/test_m25_33_media_setup_entry.py",
         "tests/test_m25_74_derivative_rework_counts.py",
         "tests/test_m25_74_executable_pin_scope.py"
@@ -3527,24 +3530,7 @@
         "direct_module"
       ],
       "owning_tests": [
-        "tests/test_m25_30_media_runtime_resolution.py",
-        "tests/test_m25_31_media_runtime_setup.py",
-        "tests/test_m25_33_media_setup_entry.py"
-      ],
-      "reasons": []
-    },
-    {
-      "disposition": "movable",
-      "inbound": 2,
-      "layer": "adapters",
-      "lines": 360,
-      "module": "adapters.media_runtime_download",
-      "outbound": 2,
-      "owning_rules": [
-        "direct_module"
-      ],
-      "owning_tests": [
-        "tests/test_m25_31_media_runtime_setup.py"
+        "tests/test_m25_30_media_runtime_resolution.py"
       ],
       "reasons": []
     },
@@ -3552,14 +3538,13 @@
       "disposition": "movable",
       "inbound": 1,
       "layer": "adapters",
-      "lines": 960,
-      "module": "adapters.media_runtime_installer",
-      "outbound": 6,
+      "lines": 289,
+      "module": "adapters.media_runtime_leftovers",
+      "outbound": 4,
       "owning_rules": [
-        "direct_module"
+        "submodule_as_name"
       ],
       "owning_tests": [
-        "tests/test_m25_31_media_runtime_setup.py",
         "tests/test_m25_33_media_setup_entry.py"
       ],
       "reasons": []
@@ -3586,7 +3571,22 @@
     },
     {
       "disposition": "movable",
-      "inbound": 11,
+      "inbound": 2,
+      "layer": "adapters",
+      "lines": 52,
+      "module": "adapters.media_runtime_pin",
+      "outbound": 2,
+      "owning_rules": [
+        "direct_module"
+      ],
+      "owning_tests": [
+        "tests/test_m25_33_media_setup_entry.py"
+      ],
+      "reasons": []
+    },
+    {
+      "disposition": "movable",
+      "inbound": 12,
       "layer": "adapters",
       "lines": 1466,
       "module": "adapters.media_runtime_resolution",
@@ -3598,7 +3598,6 @@
         "tests/test_comfyui_media_runtime.py",
         "tests/test_m23_67_posix_host_roots.py",
         "tests/test_m25_30_media_runtime_resolution.py",
-        "tests/test_m25_31_media_runtime_setup.py",
         "tests/test_m25_32_media_runtime_activation.py",
         "tests/test_m25_33_media_setup_entry.py",
         "tests/test_m25_authoring_output_runtime.py",
@@ -3909,7 +3908,7 @@
     },
     {
       "disposition": "movable",
-      "inbound": 3,
+      "inbound": 2,
       "layer": "adapters",
       "lines": 1583,
       "module": "adapters.prompt_model_transport",
@@ -3930,7 +3929,6 @@
         "tests/test_m22_19_discovery_census_bound.py",
         "tests/test_m22_20_reachability_fidelity.py",
         "tests/test_m22_23_boundary_backstop.py",
-        "tests/test_m25_31_media_runtime_setup.py",
         "tests/test_model_discovery_metadata.py",
         "tests/test_prompt_model_dialects.py",
         "tests/test_prompt_model_session.py",
@@ -4735,7 +4733,6 @@
         "tests/test_av_seam_store.py",
         "tests/test_m17_14_production_closeout.py",
         "tests/test_m25_30_media_runtime_resolution.py",
-        "tests/test_m25_31_media_runtime_setup.py",
         "tests/test_m25_77_clip_audio_amplitude.py",
         "tests/test_m25_authoring_audio_rate_compatibility.py",
         "tests/test_media_preview.py",
@@ -7335,7 +7332,7 @@
     },
     {
       "disposition": "movable",
-      "inbound": 23,
+      "inbound": 22,
       "layer": "core",
       "lines": 2912,
       "module": "core.prompt_model_provider",
@@ -7362,7 +7359,6 @@
         "tests/test_m22_20_reachability_fidelity.py",
         "tests/test_m22_22_credential_encodability.py",
         "tests/test_m22_23_boundary_backstop.py",
-        "tests/test_m25_31_media_runtime_setup.py",
         "tests/test_model_discovery_metadata.py",
         "tests/test_prompt_model_budget.py",
         "tests/test_prompt_model_dialects.py",
@@ -7996,7 +7992,7 @@
     },
     {
       "disposition": "movable",
-      "inbound": 21,
+      "inbound": 20,
       "layer": "core",
       "lines": 145,
       "module": "core.safe_paths",

@@ -12,7 +12,7 @@ import {
 } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import wireFixture from "./fixtures/media_runtime_wire_v3.json";
+import wireFixture from "./fixtures/media_runtime_wire_v4.json";
 import { AuthoringPreviewMonitor } from "../src/components/AuthoringPreviewMonitor";
 import { NleExportMenu } from "../src/components/nle/NleExportMenu";
 import { NleWorkspace } from "../src/components/nle/NleWorkspace";
@@ -29,7 +29,6 @@ import { decodeProductionWorkbenchProjection } from "../src/contracts/production
 import { UNSUPPORTED_OUTPUT_CAPABILITY } from "../src/host/authoringOutputCapabilityClient";
 import {
   initialMediaRuntimeState,
-  intentIdentity,
   type MediaRuntimeIntent,
   type MediaRuntimeState,
   type MediaToolsBinding,
@@ -54,8 +53,6 @@ function tools(state: MediaRuntimeState): MediaToolsBinding {
     state,
     ensure: vi.fn(),
     report: vi.fn(),
-    install: vi.fn(),
-    cancel: vi.fn(),
     dismiss: vi.fn(),
     rescan: vi.fn(),
     reclaim: vi.fn(),
@@ -273,7 +270,7 @@ describe("Production import placement", () => {
     expect(screen.getByText(/Import completed/u)).toBeTruthy();
   });
 
-  it("shows the card under a runtime-refused import and continues the eligible selection", () => {
+  it("shows the card under a runtime-refused import and offers manual selection", () => {
     const media = tools(initialMediaRuntimeState);
     const { view } = mount(refused, media);
     const card = view.container.querySelector<HTMLElement>(
@@ -284,16 +281,12 @@ describe("Production import placement", () => {
     cleanup();
     const missing = tools(readState(wire("status_setup_required")));
     mount(refused, missing);
-    fireEvent.click(
-      screen.getByRole("button", { name: "Install and continue" }),
+    fireEvent.change(
+      screen.getByRole("textbox", { name: "FFmpeg bin folder" }),
+      { target: { value: "C:/tools/bin" } },
     );
-    expect(missing.install).toHaveBeenCalledWith({
-      kind: "production_import",
-      productionWorkspaceHandle: `pw_${"p".repeat(32)}`,
-      productionWorkspaceId: "workspace.1",
-      segmentIds: ["segment.1"],
-      outputHandles: [READY_HANDLE],
-    });
+    fireEvent.click(screen.getByRole("button", { name: "Use folder" }));
+    expect(missing.useLocalDirectory).toHaveBeenCalledWith("C:/tools/bin");
   });
 
   it("needs only the original action when the runtime is ready", () => {
@@ -341,7 +334,7 @@ describe("clip preview placement", () => {
     overlayGeneration: null,
   };
 
-  it("reports an unsupported preview, offers setup and reopens once on its own continuation", async () => {
+  it("reports an unsupported preview, offers setup without automatically reopening", async () => {
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:active");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
     let runtimeReady = false;
@@ -367,63 +360,16 @@ describe("clip preview placement", () => {
     await screen.findByText("Preview unavailable for this source format.");
     // The card reports from its mount effect, which can flush after the text is found under load.
     await waitFor(() => expect(missing.report).toHaveBeenCalledWith("preview"));
-    fireEvent.click(
-      screen.getByRole("button", { name: "Install and continue" }),
+    fireEvent.change(
+      screen.getByRole("textbox", { name: "FFmpeg bin folder" }),
+      { target: { value: "C:/tools/bin" } },
     );
-    expect(missing.install).toHaveBeenCalledWith(intent);
-    expect(openPreview).toHaveBeenCalledTimes(1);
-
+    fireEvent.click(screen.getByRole("button", { name: "Use folder" }));
+    expect(missing.useLocalDirectory).toHaveBeenCalledWith("C:/tools/bin");
     runtimeReady = true;
-    // A continuation for another clip does not reopen this one.
-    const ready = readState(wire("status_override"));
-    act(() =>
-      result.rerender(
-        view(
-          tools({
-            ...ready,
-            resume: {
-              kind: "clip_preview",
-              token: 1,
-              identity: intentIdentity({ ...intent, clipId: "clip-2" }),
-            },
-          }),
-        ),
-      ),
-    );
+    act(() => result.rerender(view(tools(readState(wire("status_override"))))));
     expect(openPreview).toHaveBeenCalledTimes(1);
-    act(() =>
-      result.rerender(
-        view(
-          tools({
-            ...ready,
-            resume: {
-              kind: "clip_preview",
-              token: 2,
-              identity: intentIdentity(intent),
-            },
-          }),
-        ),
-      ),
-    );
-    await screen.findByLabelText("Preview clip-1");
-    expect(openPreview).toHaveBeenCalledTimes(2);
     expect(result.container.querySelector("[data-h3-media-tools]")).toBeNull();
-    // Re-rendering with the same token never reopens it again.
-    act(() =>
-      result.rerender(
-        view(
-          tools({
-            ...ready,
-            resume: {
-              kind: "clip_preview",
-              token: 2,
-              identity: intentIdentity(intent),
-            },
-          }),
-        ),
-      ),
-    );
-    await waitFor(() => expect(openPreview).toHaveBeenCalledTimes(2));
   });
 
   it("keeps a genuinely unsupported source format free of setup once the runtime is ready", async () => {
@@ -484,7 +430,7 @@ describe("final output placement and empty timeline", () => {
     );
   }
 
-  it("offers setup under an unsupported render and captures the snapshot and overlay", () => {
+  it("offers setup under an unsupported render with context wording", () => {
     const media = tools(readState(wire("status_setup_required")));
     const view = workspace(media);
     expect(
@@ -497,15 +443,13 @@ describe("final output placement and empty timeline", () => {
     )!;
     expect(card.dataset.h3MediaTools).toBe("setup_required");
     expect(media.report).toHaveBeenCalledWith("render");
-    fireEvent.click(
-      screen.getByRole("button", { name: "Install and continue" }),
+    fireEvent.change(
+      screen.getByRole("textbox", { name: "FFmpeg bin folder" }),
+      { target: { value: "C:/tools/bin" } },
     );
-    const captured = (media.install as ReturnType<typeof vi.fn>).mock
-      .calls[0]![0] as MediaRuntimeIntent;
-    expect(captured).toMatchObject({
-      kind: "final_render",
-      overlayGeneration: 1,
-    });
+    fireEvent.click(screen.getByRole("button", { name: "Use folder" }));
+    expect(media.useLocalDirectory).toHaveBeenCalledWith("C:/tools/bin");
+    expect(card.dataset.h3MediaToolsContext).toBe("final_render");
     // The render action itself is never started from here.
     expect(screen.queryByRole("button", { name: /render/i })).toBeNull();
   });

@@ -228,7 +228,7 @@ export function createPresentationBinding(ctx: ShellRuntime) {
     if (current === id) return;
     // programmatic or user navigation closes an expanded editor before the transition.
     actions.nleCloseOverlay("top_level_navigation");
-    actions.mediaRuntimeLeaveContext("page");
+
     actions.workspaceStateLeave?.();
     actions.retainedAssetsLeave?.();
     actions.perceptionHostLeave?.();
@@ -310,7 +310,6 @@ export function createPresentationBinding(ctx: ShellRuntime) {
       onOpen: actions.nleOpenOverlay,
       onStartAuthoring: () => void actions.nleStartAuthoring(),
       onFunctionChange: () => {
-        actions.mediaRuntimeLeaveContext("function");
         actions.nleCloseOverlay("function_switch");
       },
       requestedFunction: session.nleWorkspace.functionRequest,

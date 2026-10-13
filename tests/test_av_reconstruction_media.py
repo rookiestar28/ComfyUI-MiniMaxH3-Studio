@@ -26,6 +26,7 @@ from test_av_reconstruction import _plan_kwargs
 import comfyui_h3_context.adapters.av_reconstruction_media as media_module
 from comfyui_h3_context.adapters.av_reconstruction_media import (
     AVMediaAdapterError,
+    M26DerivedMediaLease,
     QualifiedAVMediaAdapter,
 )
 from comfyui_h3_context.adapters.av_reconstruction_transport import AVTransportError
@@ -666,6 +667,95 @@ def test_inconsistent_probe_timestamps_and_durations_fail_closed(
                 artifact_output_fingerprint=_fp(payload),
                 payload=payload,
             )
+
+
+def _millisecond_rounded_probe(
+    *, audio_samples: int, audio_duration: str, format_duration: str, video_frames: int = 24
+) -> bytes:
+    """A 24 fps / 32 kHz probe whose audio timeline is ``audio_samples`` long.
+
+    Host SaveVideo MP4s state the stream and format durations in the movie timescale (1/1000 s):
+    a 124-frame (5 s segment) output decodes 165,334 audio samples but declares 5.167 s.
+    """
+
+    value = cast(
+        dict[str, Any],
+        json.loads(
+            _probe_payload(
+                sample_rate=32_000,
+                frame_rate=24,
+                video_frame_count=video_frames,
+                video_duration=f"{video_frames / 24:.6f}",
+                audio_duration=audio_duration,
+                format_duration=format_duration,
+            )
+        ),
+    )
+    frames = cast(list[dict[str, Any]], value["frames"])
+    last_audio = [frame for frame in frames if frame["media_type"] == "audio"][-1]
+    last_audio["duration"] = audio_samples - 31 * 1024
+    assert 0 < last_audio["duration"] <= 1024
+    return json.dumps(value, separators=(",", ":")).encode("utf-8")
+
+
+def _inspect_probe(monkeypatch: pytest.MonkeyPatch, probe_payload: bytes) -> AVMediaDescriptor:
+    payload = b"synthetic-private-segment"
+    with tempfile.TemporaryDirectory() as temporary:
+        adapter, _ = _adapter(Path(temporary), monkeypatch, probe_payload=probe_payload)
+        return adapter.inspect_payload(
+            segment_id="segment.1",
+            artifact_receipt_fingerprint=_fp(b"receipt"),
+            artifact_output_fingerprint=_fp(payload),
+            payload=payload,
+        )
+
+
+@pytest.mark.parametrize(
+    ("video_frames", "format_duration"),
+    # The second case makes the audio the longest stream, so the format duration is rounded too.
+    ((24, "1.000000"), (23, "1.000000")),
+)
+def test_millisecond_rounded_container_durations_are_admitted(
+    monkeypatch: pytest.MonkeyPatch, video_frames: int, format_duration: str
+) -> None:
+    descriptor = _inspect_probe(
+        monkeypatch,
+        _millisecond_rounded_probe(
+            audio_samples=31_990,
+            audio_duration="1.000000",
+            format_duration=format_duration,
+            video_frames=video_frames,
+        ),
+    )
+
+    # The decoded timeline stays the authority; the rounded declaration is only cross-checked.
+    assert descriptor.audio is not None
+    assert descriptor.audio.decoded_sample_count == 31_990
+    assert descriptor.audio.end_time == AVRational(3_199, 3_200)
+    assert descriptor.video is not None
+    assert descriptor.video.decoded_frame_count == video_frames
+
+
+@pytest.mark.parametrize(
+    ("audio_samples", "audio_duration"),
+    (
+        (31_990, "1.001000"),  # on the millisecond grid, but 1.3125 ms from the timeline
+        (31_968, "1.000000"),  # exactly 1 ms from the timeline: not a rounding of it
+        (31_990, "1.000300"),  # off the millisecond grid: only the one-tick tolerance applies
+    ),
+)
+def test_declared_durations_beyond_millisecond_rounding_fail_closed(
+    monkeypatch: pytest.MonkeyPatch, audio_samples: int, audio_duration: str
+) -> None:
+    with pytest.raises(AVMediaAdapterError, match="inspection_invalid"):
+        _inspect_probe(
+            monkeypatch,
+            _millisecond_rounded_probe(
+                audio_samples=audio_samples,
+                audio_duration=audio_duration,
+                format_duration="1.000000",
+            ),
+        )
 
 
 @pytest.mark.parametrize("missing_audio", (False, True))
@@ -2578,3 +2668,254 @@ def test_m26_media_bridge_crops_exact_frame_and_sample_tail_then_releases_only_l
         lease.release()
         assert lease._lease.released
         assert tuple((root / "scratch").iterdir()) == ()
+
+
+def _with_video_transfer(payload: bytes, transfer: str) -> bytes:
+    value = json.loads(payload)
+    for stream in value["streams"]:
+        if stream["codec_type"] == "video":
+            stream["color_transfer"] = transfer
+    return json.dumps(value, separators=(",", ":")).encode("utf-8")
+
+
+# The exact pre-conversion crop graph. A BT.709 source must keep it byte for byte, because the
+# derived input's receipt and every stored assembly built from it depend on the crop's output.
+_BT709_CROP_GRAPH = (
+    "[0:v:0]trim=start_frame=0:end_frame=360,setpts=PTS-STARTPTS,format=yuv420p[v];"
+    "[0:a:0]atrim=start_sample=0:end_sample=480000,asetpts=PTS-STARTPTS,aresample=32000,"
+    "aformat=sample_fmts=fltp:channel_layouts=stereo[a]"
+)
+
+
+@pytest.mark.parametrize(
+    ("transfer", "expected_graph"),
+    (
+        ("bt709", _BT709_CROP_GRAPH),
+        (
+            "iec61966-2-1",
+            "[0:v:0]trim=start_frame=0:end_frame=360,setpts=PTS-STARTPTS,"
+            "colorspace=all=bt709,"
+            "setparams=range=tv:color_primaries=bt709:color_trc=bt709:colorspace=bt709,"
+            "format=yuv420p[v];"
+            "[0:a:0]atrim=start_sample=0:end_sample=480000,asetpts=PTS-STARTPTS,aresample=32000,"
+            "aformat=sample_fmts=fltp:channel_layouts=stereo[a]",
+        ),
+        ("smpte170m", None),
+    ),
+)
+def test_m26_crop_admits_native_srgb_outputs_by_conversion_only(
+    monkeypatch: pytest.MonkeyPatch, transfer: str, expected_graph: str | None
+) -> None:
+    """Host CreateVideo tags native H3 outputs sRGB; the M26 crop must admit and convert them."""
+
+    original_payload = b"synthetic-m26-native-output"
+    derived_payload = b"synthetic-m26-derived-input"
+    original_probe = _with_video_transfer(
+        _probe_payload(
+            video_frame_count=362,
+            format_duration="15.083333",
+            video_duration="15.083333",
+            audio_duration="15.000000",
+            sample_rate=32_000,
+            seconds=15,
+            frame_rate=24,
+        ),
+        transfer,
+    )
+    derived_probe = _probe_payload(
+        video_frame_count=360,
+        format_duration="15.000000",
+        video_duration="15.000000",
+        audio_duration="15.000000",
+        sample_rate=32_000,
+        seconds=15,
+        frame_rate=24,
+    )
+    with tempfile.TemporaryDirectory() as temporary:
+        root = Path(temporary)
+        ffmpeg = (root / "ffmpeg.exe").resolve()
+        ffprobe = (root / "ffprobe.exe").resolve()
+        ffmpeg.write_bytes(b"synthetic ffmpeg")
+        ffprobe.write_bytes(b"synthetic ffprobe")
+        invocations: list[MediaProcessInvocation] = []
+        probe_calls = 0
+
+        def fake_run(
+            _self: SubprocessMediaRunner,
+            invocation: MediaProcessInvocation,
+            cancellation: object = None,
+        ) -> ProcessCapture:
+            nonlocal probe_calls
+            del cancellation
+            invocations.append(invocation)
+            if invocation.tool == "ffmpeg":
+                invocation.output_leases[0].path.write_bytes(derived_payload)
+                return ProcessCapture(
+                    status=ProcessStatus.SUCCEEDED,
+                    exit_code=0,
+                    owned_output_bytes=len(derived_payload),
+                    artifacts=invocation.output_leases,
+                )
+            probe_calls += 1
+            return ProcessCapture(
+                status=ProcessStatus.SUCCEEDED,
+                stdout=original_probe if probe_calls == 1 else derived_probe,
+                exit_code=0,
+            )
+
+        _stub_media_pins(monkeypatch)
+        monkeypatch.setattr(SubprocessMediaRunner, "run", fake_run)
+        adapter = QualifiedAVMediaAdapter(
+            ffmpeg_path=ffmpeg,
+            ffprobe_path=ffprobe,
+            scratch_root=(root / "scratch").resolve(),
+            clock_ms=lambda: 400,
+        )
+
+        def derive() -> M26DerivedMediaLease:
+            return adapter.derive_m26_input(
+                segment_id="segment.m26.native",
+                original_receipt_fingerprint=_fp(b"m26-native-receipt"),
+                original_source=_ReplaySource(original_payload),
+                contribution_frames=360,
+                contribution_samples=480_000,
+            )
+
+        if expected_graph is None:
+            with pytest.raises(AVMediaAdapterError, match="m26_source_contribution_invalid"):
+                derive()
+            assert all(item.tool != "ffmpeg" for item in invocations)
+            return
+        lease = derive()
+        crop = next(item for item in invocations if item.tool == "ffmpeg")
+        assert crop.argv[crop.argv.index("-filter_complex") + 1] == expected_graph
+        assert crop.argv[crop.argv.index("-color_trc") + 1] == "bt709"
+        assert lease.original_descriptor.video is not None
+        assert lease.original_descriptor.video.color_transfer == transfer
+        lease.release()
+
+
+def test_real_native_srgb_output_is_cropped_by_pixel_conversion(tmp_path: Path) -> None:
+    """A host-shaped source (sRGB transfer, B-frames) crops to BT.709 with converted pixels."""
+
+    ffmpeg_value = os.environ.get("H3_CONTEXT_AUTHORIZED_FFMPEG_PATH")
+    ffprobe_value = os.environ.get("H3_CONTEXT_AUTHORIZED_FFPROBE_PATH")
+    if not ffmpeg_value or not ffprobe_value:
+        pytest.skip("exact authorized media tool paths were not explicitly supplied")
+    ffmpeg = Path(ffmpeg_value).resolve(strict=True)
+    ffprobe = Path(ffprobe_value).resolve(strict=True)
+    source = tmp_path / "native.mp4"
+    subprocess.run(  # noqa: S603 - exact authorized binary, fixed argv.
+        [
+            str(ffmpeg),
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-nostdin",
+            "-f",
+            "lavfi",
+            "-i",
+            "color=c=0x808080:s=864x480:r=24:d=2",
+            "-f",
+            "lavfi",
+            "-i",
+            "sine=frequency=330:sample_rate=32000:duration=2",
+            "-map",
+            "0:v:0",
+            "-map",
+            "1:a:0",
+            "-frames:v",
+            "48",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "medium",
+            "-crf",
+            "18",
+            "-pix_fmt",
+            "yuv420p",
+            # The VUI carries what the host writes: BT.709 primaries and matrix, sRGB transfer.
+            "-x264-params",
+            "colorprim=bt709:transfer=iec61966-2-1:colormatrix=bt709:range=limited",
+            "-color_range",
+            "tv",
+            "-colorspace",
+            "bt709",
+            "-color_primaries",
+            "bt709",
+            "-color_trc",
+            "iec61966-2-1",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "192k",
+            "-ar",
+            "32000",
+            "-ac",
+            "2",
+            "-video_track_timescale",
+            "12288",
+            "-n",
+            str(source),
+        ],
+        stdin=subprocess.DEVNULL,
+        capture_output=True,
+        check=True,
+        timeout=60,
+    )
+    payload = source.read_bytes()
+    adapter = QualifiedAVMediaAdapter(
+        ffmpeg_path=ffmpeg,
+        ffprobe_path=ffprobe,
+        scratch_root=(tmp_path / "scratch").resolve(),
+        clock_ms=lambda: 1,
+    )
+    lease = adapter.derive_m26_input(
+        segment_id="segment.m26.native.real",
+        original_receipt_fingerprint=_fp(b"m26-native-real-receipt"),
+        original_source=_ReplaySource(payload),
+        contribution_frames=48,
+        contribution_samples=64_000,
+    )
+    try:
+        assert lease.original_descriptor.video is not None
+        assert lease.original_descriptor.video.color_transfer == "iec61966-2-1"
+        descriptor = lease.inspect(
+            segment_id="segment.m26.native.real",
+            derived_receipt_fingerprint=_fp(b"m26-native-real-derived"),
+        )
+        assert descriptor.video is not None
+        assert descriptor.video.color_transfer == "bt709"
+        assert descriptor.video.decoded_frame_count == 48
+
+        def middle_luma(path: Path) -> int:
+            frame = subprocess.run(  # noqa: S603 - exact authorized binary, fixed argv.
+                [
+                    str(ffmpeg),
+                    "-v",
+                    "error",
+                    "-nostdin",
+                    "-i",
+                    str(path),
+                    "-vf",
+                    "select=eq(n\\,24)",
+                    "-frames:v",
+                    "1",
+                    "-f",
+                    "rawvideo",
+                    "-pix_fmt",
+                    "gray",
+                    "-",
+                ],
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                check=True,
+                timeout=60,
+            ).stdout
+            return frame[240 * 864 + 432]
+
+        # sRGB mid-grey re-encoded through the BT.709 curve is darker by about ten luma codes;
+        # an unchanged value would mean the crop relabelled the transfer instead of converting.
+        assert middle_luma(source) - middle_luma(lease._lease.path) >= 4
+    finally:
+        lease.release()

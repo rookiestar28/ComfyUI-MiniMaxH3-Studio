@@ -56,7 +56,7 @@ export const UNEXPORTED_COPY_TABLES: readonly CopyTable[] = [
     file: "src/components/AuthoringPreviewMonitor.tsx",
     identifier: "copy",
   },
-  { file: "src/components/MediaToolsCard.tsx", identifier: "copy" },
+  { file: "src/components/MediaToolsCard.tsx", identifier: "mediaToolsCopy" },
   { file: "src/components/PerceptionHostStatus.tsx", identifier: "copy" },
   { file: "src/components/ProductionWorkbench.tsx", identifier: "copy" },
   { file: "src/components/ProjectFileControls.tsx", identifier: "COPY" },

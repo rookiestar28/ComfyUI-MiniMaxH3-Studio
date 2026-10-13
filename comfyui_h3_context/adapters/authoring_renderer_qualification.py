@@ -27,7 +27,7 @@ from .authoring_render_service import RenderExecutionIdentity, RenderServiceErro
 
 # Exact executed corpus evidence; item acceptance still requires the native gate and review.
 _ACCEPTED_EVIDENCE: Final[str | None] = (
-    "sha256:d9fcad4d7d2713faf141f93a53e6f164f231a9972c7708e187681ab3719936f8"
+    "sha256:26ccf5750cba59f4de3397459af0544ef1b500dbedc519b30e0ef283be5111fc"
 )
 _PACKAGE = Path(__file__).resolve().parents[1]
 _EVIDENCE = _PACKAGE / "contracts" / "authoring_renderer_qualification_v2.json"

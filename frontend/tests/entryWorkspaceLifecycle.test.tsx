@@ -4,6 +4,7 @@ import {
   fireEvent,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -1112,7 +1113,12 @@ describe("entry provider settings failure lifecycle", () => {
     });
 
     fireEvent.click(await screen.findByRole("button", { name: "Settings" }));
-    expect((await screen.findByRole("alert")).textContent).toContain(
+    const providerSettings = await screen.findByRole("region", {
+      name: "Assisted authoring provider",
+    });
+    expect(
+      (await within(providerSettings).findByRole("alert")).textContent,
+    ).toContain(
       "Provider settings could not be loaded. The current state could not be confirmed.",
     );
     expect(

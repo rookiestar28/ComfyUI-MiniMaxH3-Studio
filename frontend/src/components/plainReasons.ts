@@ -369,30 +369,9 @@ const en: Tables = {
       advanced_override_active:
         "The host administrator's media tools setting is in effect.",
       already_available: "Media tools are already available.",
-      installed: "Media tools were installed.",
-      archive_invalid: "The downloaded file was damaged. Install again.",
-      cancelled: "Setup was cancelled.",
-      digest_mismatch:
-        "The download did not match the expected file. Install again.",
-      size_mismatch:
-        "The download did not match the expected file. Install again.",
-      verification_failed:
-        "The installed media tools could not be verified. Install again.",
-      download_failed: "The download failed. Install again.",
-      download_timeout: "The download took too long. Install again.",
-      network_timeout: "The download took too long. Install again.",
-      network_unavailable:
-        "The network is unavailable. Check the connection, then install again.",
-      egress_refused: "The download address was refused. Try again later.",
-      redirect_refused: "The download address was refused. Try again later.",
-      tls_failed:
-        "A secure connection to the download could not be made. Try again later.",
-      source_unavailable:
-        "The download source is unavailable. Try again later.",
-      insufficient_space: "There is not enough disk space for the media tools.",
+
       permission_denied: "The media tools folder is not writable.",
-      publication_failed:
-        "The media tools could not be put in place. Install again.",
+
       local_selection_active:
         "A folder you chose is in use. Use automatic setup first.",
       media_runtime_busy:
@@ -402,7 +381,7 @@ const en: Tables = {
       reclaim_unsafe: "The earlier copy is still needed, so it was kept.",
       setup_busy:
         "Another media tools action is running. Try again in a moment.",
-      setup_job_not_found: "The setup could not be found. Check again.",
+
       internal_failure:
         "Something went wrong with the media tools. Check again.",
       invalid_request: "The request was not accepted. Check again.",
@@ -698,29 +677,15 @@ const zhTW: Tables = {
       pair_admitted: "媒體工具已就緒。",
       advanced_override_active: "主機管理員的媒體工具設定正在生效。",
       already_available: "媒體工具已可使用。",
-      installed: "已安裝媒體工具。",
-      archive_invalid: "下載的檔案已損壞，請重新安裝。",
-      cancelled: "已取消安裝。",
-      digest_mismatch: "下載內容與預期的檔案不符，請重新安裝。",
-      size_mismatch: "下載內容與預期的檔案不符，請重新安裝。",
-      verification_failed: "無法驗證已安裝的媒體工具，請重新安裝。",
-      download_failed: "下載失敗，請重新安裝。",
-      download_timeout: "下載耗時過久，請重新安裝。",
-      network_timeout: "下載耗時過久，請重新安裝。",
-      network_unavailable: "網路無法使用，請檢查連線後重新安裝。",
-      egress_refused: "下載位址遭拒，請稍後再試。",
-      redirect_refused: "下載位址遭拒，請稍後再試。",
-      tls_failed: "無法與下載來源建立安全連線，請稍後再試。",
-      source_unavailable: "下載來源目前無法使用，請稍後再試。",
-      insufficient_space: "磁碟空間不足，無法安裝媒體工具。",
+
       permission_denied: "媒體工具資料夾無法寫入。",
-      publication_failed: "無法將媒體工具放置到位，請重新安裝。",
+
       local_selection_active: "目前正在使用您選擇的資料夾，請先改用自動設定。",
       media_runtime_busy: "媒體工具正在使用中，請在目前工作完成後再試。",
       runtime_busy: "媒體工具正在使用中，請在目前工作完成後再試。",
       reclaim_unsafe: "較早的副本仍然需要，因此已保留。",
       setup_busy: "另一個媒體工具動作正在執行，請稍後再試。",
-      setup_job_not_found: "找不到此安裝作業，請再次檢查。",
+
       internal_failure: "媒體工具發生錯誤，請再次檢查。",
       invalid_request: "要求未被接受，請再次檢查。",
       media_type_rejected: "要求未被接受，請再次檢查。",
@@ -1007,29 +972,15 @@ const zhCN: Tables = {
       pair_admitted: "媒体工具已就绪。",
       advanced_override_active: "主机管理员的媒体工具设置正在生效。",
       already_available: "媒体工具已可使用。",
-      installed: "已安装媒体工具。",
-      archive_invalid: "下载的文件已损坏，请重新安装。",
-      cancelled: "已取消安装。",
-      digest_mismatch: "下载内容与预期的文件不符，请重新安装。",
-      size_mismatch: "下载内容与预期的文件不符，请重新安装。",
-      verification_failed: "无法验证已安装的媒体工具，请重新安装。",
-      download_failed: "下载失败，请重新安装。",
-      download_timeout: "下载耗时过久，请重新安装。",
-      network_timeout: "下载耗时过久，请重新安装。",
-      network_unavailable: "网络不可用，请检查连接后重新安装。",
-      egress_refused: "下载地址被拒绝，请稍后再试。",
-      redirect_refused: "下载地址被拒绝，请稍后再试。",
-      tls_failed: "无法与下载来源建立安全连接，请稍后再试。",
-      source_unavailable: "下载来源当前不可用，请稍后再试。",
-      insufficient_space: "磁盘空间不足，无法安装媒体工具。",
+
       permission_denied: "媒体工具文件夹无法写入。",
-      publication_failed: "无法将媒体工具放置到位，请重新安装。",
+
       local_selection_active: "当前正在使用你选择的文件夹，请先改用自动设置。",
       media_runtime_busy: "媒体工具正在使用中，请在当前任务完成后再试。",
       runtime_busy: "媒体工具正在使用中，请在当前任务完成后再试。",
       reclaim_unsafe: "较早的副本仍然需要，因此已保留。",
       setup_busy: "另一个媒体工具操作正在运行，请稍后再试。",
-      setup_job_not_found: "找不到此安装任务，请再次检查。",
+
       internal_failure: "媒体工具发生错误，请再次检查。",
       invalid_request: "请求未被接受，请再次检查。",
       media_type_rejected: "请求未被接受，请再次检查。",

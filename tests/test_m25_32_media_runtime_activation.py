@@ -422,41 +422,18 @@ def test_cold_absent_to_ready_keeps_the_same_consumers_and_composition(
         output.close()
 
 
-def test_the_setup_install_job_activates_through_refresh(tmp_path: Path) -> None:
+def test_rescan_activates_user_supplied_tools_through_refresh(tmp_path: Path) -> None:
     harness = Harness(MISSING)
     consumer = Consumer()
     harness.manager.add_consumer(consumer)
-
-    class Installer:
-        def run(self) -> None:
-            harness.resolver.result = located(tmp_path)
-
     setup = MediaRuntimeSetupService(
         resolver=harness.resolver,  # type: ignore[arg-type]
         manager=harness.manager,
-        downloader_factory=lambda: cast(Any, object()),
-        installer_factory=lambda _layout, **_kwargs: cast(Any, Installer()),
-        manifest_provider=lambda: cast(
-            Any,
-            type(
-                "Manifest",
-                (),
-                {
-                    "profile_component": "p",
-                    "source_label": "s",
-                    "release_page_url": "https://example.invalid/",
-                    "license_name": "l",
-                    "archive_bytes": 1,
-                },
-            )(),
-        ),
-        thread_starter=lambda target: target(),
-        job_id_factory=lambda: "a" * 32,
+        parked_scanner=lambda *_: (),
+        abandoned_scanner=lambda *_: (),
     )
-
-    job = setup.start_install()
-
-    assert setup.job(cast(str, job["job_id"]))["reason"] == "installed"
+    harness.resolver.result = located(tmp_path)
+    setup.rescan()
     binding = harness.manager.current()
     assert binding is not None and binding.source_kind is SourceKind.MANAGED
     assert consumer.attached == [binding]
@@ -655,7 +632,7 @@ def test_a_busy_local_selection_is_a_409_with_config_bytes_unchanged(tmp_path: P
     setup = MediaRuntimeSetupService(
         resolver=harness.resolver,  # type: ignore[arg-type]
         manager=harness.manager,
-        thread_starter=lambda target: target(),
+        abandoned_scanner=lambda *_: (),
     )
     with harness.manager.lease(), pytest.raises(MediaRuntimeSetupError) as refused:
         setup.use_local_directory("C:\\tools", 0)
@@ -751,14 +728,14 @@ def test_status_carries_features_and_no_locator(tmp_path: Path) -> None:
     setup = MediaRuntimeSetupService(
         resolver=harness.resolver,  # type: ignore[arg-type]
         manager=harness.manager,
-        thread_starter=lambda target: target(),
+        abandoned_scanner=lambda *_: (),
         parked_scanner=lambda _layout, _manifest: (),
     )
 
     status = setup.status()
 
     #  bumped the wire to v3 (adds `recovery`); the feature projection is unchanged.
-    assert status["schema"] == STATUS_SCHEMA == "h3.context.media_runtime_status.v3"
+    assert status["schema"] == STATUS_SCHEMA == "h3.context.media_runtime_status.v4"
     assert status["features"] == {
         feature: {"state": "ready", "reason": None} for feature in FEATURES
     }

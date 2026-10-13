@@ -7,7 +7,6 @@
 import type {
   MediaRuntimeAction,
   MediaRuntimeFeature,
-  MediaRuntimeJob,
   MediaRuntimeStatus,
 } from "../contracts/mediaRuntimeCodec";
 import type { MediaRuntimeClientCode } from "../host/mediaRuntimeClient";
@@ -50,30 +49,14 @@ export const MEDIA_RUNTIME_INTENT_FEATURE: Readonly<
   final_render: "render",
 });
 
-export type MediaRuntimeNotice =
-  | "continued"
-  | "select_again"
-  | "continuation_cleared"
-  | "continuation_replaced"
-  | "feature_not_ready"
-  | "outcome_unknown";
-
-export type MediaRuntimeResume = Readonly<{
-  kind: MediaRuntimeIntentKind;
-  token: number;
-  /** `intentIdentity` of the continued intent, so exactly the matching surface reacts. */
-  identity: string;
-}>;
+export type MediaRuntimeNotice = "retry_action";
 
 export type MediaRuntimeState = Readonly<{
   status: "unread" | "reading" | "read" | "unavailable";
   wire: MediaRuntimeStatus | null;
-  job: MediaRuntimeJob | null;
-  pending: MediaRuntimeIntent | null;
   busy: MediaRuntimeAction | null;
   refusal: MediaRuntimeClientCode | null;
   notice: MediaRuntimeNotice | null;
-  resume: MediaRuntimeResume | null;
   /** Bumped when focus returns to the card's primary control. */
   focusPrimary: number;
 }>;
@@ -81,55 +64,17 @@ export type MediaRuntimeState = Readonly<{
 export const initialMediaRuntimeState: MediaRuntimeState = Object.freeze({
   status: "unread",
   wire: null,
-  job: null,
-  pending: null,
   busy: null,
   refusal: null,
   notice: null,
-  resume: null,
   focusPrimary: 0,
 });
-
-/** A stable, content-free key over an intent's captured identity. */
-export function intentIdentity(intent: MediaRuntimeIntent): string {
-  switch (intent.kind) {
-    case "production_import":
-      return JSON.stringify([
-        intent.kind,
-        intent.productionWorkspaceHandle,
-        intent.productionWorkspaceId,
-        intent.segmentIds,
-        intent.outputHandles,
-      ]);
-    case "clip_preview":
-      return JSON.stringify([
-        intent.kind,
-        intent.workspaceHandle,
-        intent.referenceRevision,
-        intent.timelineRevision,
-        intent.timelineContentFingerprint,
-        intent.clipId,
-        intent.overlayGeneration,
-      ]);
-    case "final_render":
-      return JSON.stringify([
-        intent.kind,
-        intent.workspaceHandle,
-        intent.workspaceRevision,
-        intent.timelineRevision,
-        intent.publicFingerprint,
-        intent.overlayGeneration,
-      ]);
-  }
-}
 
 /** What every surface receives; the functions are stable for the session's lifetime. */
 export type MediaToolsBinding = Readonly<{
   state: MediaRuntimeState;
   ensure(): void;
   report(feature: MediaRuntimeFeature): void;
-  install(intent: MediaRuntimeIntent | null): void;
-  cancel(): void;
   dismiss(): void;
   rescan(): void;
   reclaim(): void;

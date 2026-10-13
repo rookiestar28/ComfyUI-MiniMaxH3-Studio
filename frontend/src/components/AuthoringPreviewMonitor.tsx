@@ -16,7 +16,6 @@ import {
 import type { AuthoringAdjacentRelation } from "../host/authoringAdjacentPreview";
 import type { Locale } from "../i18n/catalog";
 import {
-  intentIdentity,
   type MediaRuntimeIntent,
   type MediaToolsBinding,
 } from "../state/mediaRuntimeState";
@@ -295,19 +294,6 @@ export function AuthoringPreviewMonitor({
       overlayGeneration,
     ],
   );
-  const resume = mediaTools?.state.resume ?? null;
-  // IMPORTANT: a continuation is consumed once. A token seen at mount belongs to an earlier
-  // preview; only a later token whose identity is this exact clip, revision and overlay reopens.
-  const seenResume = useRef(resume?.token ?? 0);
-  useEffect(() => {
-    if (resume === null || resume.token === seenResume.current) return;
-    seenResume.current = resume.token;
-    if (
-      resume.kind === "clip_preview" &&
-      resume.identity === intentIdentity(mediaIntent)
-    )
-      reopen((value) => value + 1);
-  }, [resume, mediaIntent]);
   const runtimeBlocked =
     snapshot.status === "unavailable" && snapshot.reason === "unsupported";
   const activeIdentity =

@@ -390,7 +390,7 @@ export function createNleWorkspaceSession(ctx: ShellRuntime) {
     if (surface.status !== "opening" && surface.status !== "expanded") return;
     stopSequencePolling();
     releaseCapabilityRead();
-    actions.mediaRuntimeLeaveContext("overlay");
+
     // Close cancels only unaccepted local pointer/transport work; accepted commands stay.
     patch({
       surface: Object.freeze({

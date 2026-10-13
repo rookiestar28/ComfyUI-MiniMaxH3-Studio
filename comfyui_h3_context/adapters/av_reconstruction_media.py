@@ -125,6 +125,11 @@ _PROCESS_SLOTS = threading.BoundedSemaphore(qualified_av_limits().process_concur
 _PREVIEW_MAX_SOURCE_BYTES = 64 * 1024 * 1024
 _PREVIEW_MAX_OUTPUT_BYTES = 8 * 1024 * 1024
 _PREVIEW_MAX_DURATION_MS = 30_000
+# IMPORTANT: host CreateVideo tags native H3 outputs with the sRGB transfer (`iec61966-2-1`)
+# since ComfyUI 0.34.0; stock fixtures carry `bt709`. The M26 crop admits both
+# and converts sRGB pixels to BT.709. Requiring `bt709` alone refuses every real generation
+# (`m26_source_contribution_invalid`); admitting sRGB without the conversion would relabel colour.
+_M26_SRGB_TRANSFER = "iec61966-2-1"
 # IMPORTANT: the two encodes a user waits for -- the import normalization here and the
 # derivative generator's proxy -- take their thread count from this one rule, and the
 # generator's profile fingerprint, which keys its cache, names the rule and its value. The
@@ -579,7 +584,16 @@ def _rational(value: Fraction) -> AVRational:
 
 def _duration_matches(observed: Fraction, expected: Fraction, time_base: Fraction) -> bool:
     tolerance = max(time_base, Fraction(1, 1_000_000))
-    return abs(observed - expected) <= tolerance
+    if abs(observed - expected) <= tolerance:
+        return True
+    # IMPORTANT: MP4 states stream (edit list) and format durations in the movie timescale,
+    # 1/1000 s for host SaveVideo output. A 124-frame (5 s segment) H3 output decodes 165,334
+    # samples at 32 kHz but declares 5.167 s, ten ticks away, so a one-tick check refused every
+    # 5 s and 15 s segment. A declaration on the millisecond grid strictly within one millisecond
+    # of the decoded timeline is that rounding. Do not widen this to a plain tolerance: an
+    # off-grid declaration keeps the one-tick bound, and callers use the decoded counts, never
+    # the declaration.
+    return (observed * 1000).denominator == 1 and abs(observed - expected) < Fraction(1, 1000)
 
 
 def _rotation(stream: Mapping[str, object]) -> int:
@@ -2438,6 +2452,7 @@ class QualifiedAVMediaAdapter:
         *,
         contribution_frames: int,
         contribution_samples: int,
+        convert_srgb: bool = False,
     ) -> MediaProcessInvocation:
         capability = qualified_ffmpeg_capability()
         limits = qualified_av_limits()
@@ -2457,7 +2472,16 @@ class QualifiedAVMediaAdapter:
         filters = (
             "[0:v:0]"
             f"trim=start_frame=0:end_frame={contribution_frames},"
-            "setpts=PTS-STARTPTS,format=yuv420p[v];"
+            "setpts=PTS-STARTPTS,"
+            # CRITICAL: the filter reads the source's declared sRGB transfer and converts pixels
+            # (the Authoring import conversion). BT.709 sources keep their exact crop graph.
+            + (
+                "colorspace=all=bt709,"
+                "setparams=range=tv:color_primaries=bt709:color_trc=bt709:colorspace=bt709,"
+                if convert_srgb
+                else ""
+            )
+            + "format=yuv420p[v];"
             "[0:a:0]"
             f"atrim=start_sample=0:end_sample={contribution_samples},"
             "asetpts=PTS-STARTPTS,aresample=32000,"
@@ -2602,7 +2626,7 @@ class QualifiedAVMediaAdapter:
                 or video.color_range != target.color_range
                 or video.color_space != target.color_space
                 or video.color_primaries != target.color_primaries
-                or video.color_transfer != target.color_transfer
+                or video.color_transfer not in (target.color_transfer, _M26_SRGB_TRANSFER)
                 or video.rotation_degrees != 0
                 or video.frame_rate != AVRational(24, 1)
                 or video.decoded_frame_count < contribution_frames
@@ -2623,6 +2647,7 @@ class QualifiedAVMediaAdapter:
                     derived,
                     contribution_frames=contribution_frames,
                     contribution_samples=contribution_samples,
+                    convert_srgb=video.color_transfer == _M26_SRGB_TRANSFER,
                 ),
                 cancellation,
             )

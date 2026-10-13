@@ -1,18 +1,10 @@
-// the same-origin client for the / media runtime status, setup and job routes.
-//
-// Nothing here throws. Every outcome is typed: a decoded status or job, or a closed failure code.
-// A POST whose response is lost or unreadable carries `outcomeUnknown`, because the server may have
-// started the job; the session then re-reads status and adopts the running job instead of sending
-// the action again. The client sends only a closed action name, a job id, one directory string
-// and a config revision.
+// Same-origin offline selection client. Lost mutations are reconciled by a read, never resent.
 
 import {
   MEDIA_RUNTIME_REQUEST_SCHEMA,
-  decodeMediaRuntimeJob,
   decodeMediaRuntimeStatus,
   isMediaRuntimeRefusalCode,
   type MediaRuntimeAction,
-  type MediaRuntimeJob,
   type MediaRuntimeRefusalCode,
   type MediaRuntimeStatus,
 } from "../contracts/mediaRuntimeCodec";
@@ -22,7 +14,6 @@ export const MEDIA_RUNTIME_STATUS_ROUTE =
 export const MEDIA_RUNTIME_SETUP_ROUTE =
   "/h3-context/v1/media-runtime/setup" as const;
 const MAX_RESPONSE_CHARS = 16 * 1024;
-const JOB_ID = /^[0-9a-f]{32}$/;
 
 export type MediaRuntimeClientCode =
   | MediaRuntimeRefusalCode
@@ -41,11 +32,7 @@ export type MediaRuntimeClientFailure = Readonly<{
 export type MediaRuntimeStatusResult =
   | Readonly<{ ok: true; status: MediaRuntimeStatus }>
   | MediaRuntimeClientFailure;
-export type MediaRuntimeJobResult =
-  Readonly<{ ok: true; job: MediaRuntimeJob }> | MediaRuntimeClientFailure;
-
 export type MediaRuntimeActionPayload = Readonly<{
-  jobId?: string;
   directory?: string;
   expectedRevision?: number;
 }>;
@@ -99,19 +86,15 @@ function requestBody(
 ): Record<string, unknown> | undefined {
   const envelope = { schema: MEDIA_RUNTIME_REQUEST_SCHEMA, action };
   switch (action) {
-    case "install_supported":
     case "rescan":
     case "reclaim_parked_runtime":
       return envelope;
-    case "cancel_setup":
-      return payload.jobId !== undefined && JOB_ID.test(payload.jobId)
-        ? { ...envelope, job_id: payload.jobId }
-        : undefined;
     case "use_local_directory":
       return typeof payload.directory === "string" &&
         payload.directory.length > 0 &&
         payload.directory.length <= 4096 &&
-        Number.isSafeInteger(payload.expectedRevision)
+        Number.isSafeInteger(payload.expectedRevision) &&
+        (payload.expectedRevision ?? -1) >= 0
         ? {
             ...envelope,
             directory: payload.directory,
@@ -119,7 +102,8 @@ function requestBody(
           }
         : undefined;
     case "restore_auto":
-      return Number.isSafeInteger(payload.expectedRevision)
+      return Number.isSafeInteger(payload.expectedRevision) &&
+        (payload.expectedRevision ?? -1) >= 0
         ? { ...envelope, expected_revision: payload.expectedRevision }
         : undefined;
   }
@@ -169,30 +153,11 @@ export function createMediaRuntimeClient({
         : result;
     },
 
-    async readJob(
-      jobId: string,
-      signal?: AbortSignal,
-    ): Promise<MediaRuntimeJobResult> {
-      if (!JOB_ID.test(jobId)) return failure("invalid_request", false);
-      const result = await read(
-        `${MEDIA_RUNTIME_SETUP_ROUTE}/${jobId}`,
-        decodeMediaRuntimeJob,
-        signal,
-      );
-      return result.ok
-        ? Object.freeze({ ok: true, job: result.value })
-        : result;
-    },
-
-    /**
-     * `install_supported` and `cancel_setup` answer with the job; every other action answers with
-     * the refreshed status.
-     */
     async send(
       action: MediaRuntimeAction,
       payload: MediaRuntimeActionPayload,
       signal?: AbortSignal,
-    ): Promise<MediaRuntimeStatusResult | MediaRuntimeJobResult> {
+    ): Promise<MediaRuntimeStatusResult> {
       const request = requestBody(action, payload);
       if (request === undefined) return failure("invalid_request", false);
       let response: Response;
@@ -206,13 +171,13 @@ export function createMediaRuntimeClient({
         });
       } catch (error) {
         // CRITICAL: the request may have left the browser. Only a status re-read may decide
-        // whether the job started; resending would be a second click the user never made.
+        // whether the selection changed; resending would be a second click the user never made.
         return failure(
           aborted(error, signal) ? "aborted" : "transport_failure",
           true,
         );
       }
-      const expected = action === "install_supported" ? 202 : 200;
+      const expected = 200;
       if (response.status !== expected) {
         if (response.status >= 200 && response.status < 300)
           return failure("unexpected_status", true);
@@ -220,12 +185,10 @@ export function createMediaRuntimeClient({
       }
       try {
         const value = await body(response);
-        return action === "install_supported" || action === "cancel_setup"
-          ? Object.freeze({ ok: true, job: decodeMediaRuntimeJob(value) })
-          : Object.freeze({
-              ok: true,
-              status: decodeMediaRuntimeStatus(value),
-            });
+        return Object.freeze({
+          ok: true,
+          status: decodeMediaRuntimeStatus(value),
+        });
       } catch {
         return failure("malformed_response", true);
       }

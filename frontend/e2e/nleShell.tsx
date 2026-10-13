@@ -1101,12 +1101,8 @@ export type NleShellHarnessSnapshot = Readonly<{
   /** the Media tools session as the product holds it (codes only). */
   mediaRuntime: Readonly<{
     status: string;
-    jobId: string | null;
-    jobState: string | null;
-    pendingKind: string | null;
     notice: string | null;
     refusal: string | null;
-    resumeKind: string | null;
   }>;
   previewRequests: number;
   // Legacy-shaped fields, reused with the nle-overlay-only semantics the old harness gave them.
@@ -1247,12 +1243,8 @@ window.nleShellHarness = {
     mediaPreparation: mediaPreparation(),
     mediaRuntime: {
       status: session.mediaRuntime.status,
-      jobId: session.mediaRuntime.job?.jobId ?? null,
-      jobState: session.mediaRuntime.job?.state ?? null,
-      pendingKind: session.mediaRuntime.pending?.kind ?? null,
       notice: session.mediaRuntime.notice,
       refusal: session.mediaRuntime.refusal,
-      resumeKind: session.mediaRuntime.resume?.kind ?? null,
     },
     previewRequests,
     commitDurationsMs: [...nleCommitDurationsMs],

@@ -193,13 +193,13 @@ def test_every_registered_http_route_has_mechanical_responsibility_ownership() -
     #  made declared policy authoritative for route discovery. adds the managed
     # sequence action and current-projection routes; adds one manual import route;
     # adds the bodiless GET output-capability route; adds the media runtime status, setup and
-    # setup-job routes. Keep the exact total pinned so another route
+    # setup routes; manual setup removes the job route. Keep the exact total pinned so another route
     # cannot enter without an explicit responsibility review.
     # Recovery metadata adds one bounded POST, not a filesystem or execution route.
     # Retained media adds separate finite-command and explicit-preview POST edges.
     # Editable draft recovery adds one finite, owner-qualified POST edge.
     # Operator perception exposes one finite GET readiness projection, without configuration writes.
-    assert len(routes) == 34
+    assert len(routes) == 33
     assert [row for row in routes if row["module"].endswith("/comfyui_perception_status.py")] == [
         {
             "handler": "_status",

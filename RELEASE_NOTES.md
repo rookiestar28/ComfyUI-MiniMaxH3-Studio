@@ -1,3 +1,39 @@
+# Release 1.2.1
+
+## Manual media tools setup
+
+- The extension no longer downloads, extracts or installs FFmpeg. **Settings → Media tools**
+  replaces in-panel installation with a manual setup guide: **Open download page** opens the
+  exact release page in your browser, and the card shows the archive name and its SHA-256 with a
+  copy button.
+- Enter the extracted **bin** folder and choose **Use folder**. Both programs are verified against
+  their fixed digests before the selection is saved. A supported pair in your Python environment
+  or on `PATH` is still found automatically; choose **Check again** after changing `PATH`.
+- A **?** button beside **Media tools** explains download, checksum verification (with Windows
+  commands), extraction, folder selection and why other builds are refused. It is available in
+  English, Traditional Chinese and Simplified Chinese.
+- After you select the tools, retry the original media action yourself; it is not resumed
+  automatically.
+- Clean up known earlier setup leftovers only when requested, preserving unknown files and any
+  parked runtime without a verified replacement.
+
+## Sequence assembly fix
+
+- Sequences built from your own ComfyUI video generations now assemble. Earlier versions
+  refused these segments: first because of the color tag ComfyUI writes into its video files,
+  and then, for 5-second and 15-second segments, because the file states its length rounded to
+  the millisecond.
+- Segments with that color tag are converted to the standard video color space while they are
+  prepared for assembly. Segments that are already standard are prepared as before.
+
+## Upgrade and limits
+
+Replace the complete package, restart ComfyUI and refresh the browser. Tools that 1.2.0 or an
+earlier version already installed are still discovered and verified; no action is needed. The
+supported build, platforms and project format are unchanged from 1.2.0.
+
+---
+
 # Release 1.2.0
 
 ## Titles and editing

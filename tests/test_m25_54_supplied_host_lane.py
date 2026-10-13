@@ -86,6 +86,22 @@ class SuppliedHostLaneUnitTests(unittest.TestCase):
             with self.subTest(value=value), self.assertRaisesRegex(ValueError, "loopback"):
                 lane.validate_host_url(value)
 
+    def test_manual_media_journey_requires_explicit_local_authority(self) -> None:
+        self.assertEqual(
+            lane.parse_row_environment(
+                [
+                    "H3_CONTEXT_M25_34_MEDIA_JOURNEY=local",
+                    "H3_CONTEXT_MEDIA_LOCAL_DIRECTORY=C:/qualified/bin",
+                ]
+            ),
+            {
+                "H3_CONTEXT_M25_34_MEDIA_JOURNEY": "local",
+                "H3_CONTEXT_MEDIA_LOCAL_DIRECTORY": "C:/qualified/bin",  # pragma: allowlist secret
+            },
+        )
+        with self.assertRaises(ValueError):
+            lane.parse_row_environment(["H3_CONTEXT_M25_34_MEDIA_JOURNEY=install"])
+
     def test_row_selection_and_controls_are_explicit_and_bounded(self) -> None:
         row = lane.parse_row(
             "tests/e2e/journeys/host/sidebarResizeHost.spec.ts::"

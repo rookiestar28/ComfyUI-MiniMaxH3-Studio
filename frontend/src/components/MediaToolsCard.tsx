@@ -1,263 +1,184 @@
-// the one Media tools card, in Settings and where import, clip preview or final output is
-// blocked by the backend media runtime.
-//
-// The card renders only the decoded status and the one setup job the session holds. Normal screens
-// show availability, the install source, its approximate size, license and release page, and at
-// most one primary action; locators, hashes and codec lists never appear. The advanced folder field
-// lives in Settings only, behind a disclosure.
-
 import { useEffect, useId, useRef, useState } from "react";
-
+import type { Locale } from "../i18n/catalog";
 import {
   MEDIA_RUNTIME_FEATURES,
   type MediaRuntimeFeature,
-  type MediaRuntimeFeatureReadiness,
-  type MediaRuntimeJob,
   type MediaRuntimeStatus,
 } from "../contracts/mediaRuntimeCodec";
-import type { Locale } from "../i18n/catalog";
-import {
-  MEDIA_RUNTIME_INTENT_FEATURE,
-  type MediaRuntimeIntent,
-  type MediaRuntimeState,
-  type MediaToolsBinding,
+import type {
+  MediaRuntimeIntent,
+  MediaRuntimeState,
+  MediaToolsBinding,
 } from "../state/mediaRuntimeState";
 import { plainReason } from "./plainReasons";
+import mediaToolsStyles from "./mediaToolsCard.css?inline";
 
-const copy = {
+export const mediaToolsCopy = {
   en: {
     title: "Media tools",
     description:
-      "Import, clip preview and final output use media tools on this ComfyUI host.",
-    checking: "Checking media tools…",
-    statusUnavailable: "Media tools status is unavailable.",
-    checkAgain: "Check again",
+      "Import, preview and final video use a supported FFmpeg and FFprobe pair.",
+    needed: "Set up media tools to use this feature.",
     ready: "Media tools are ready.",
-    source: {
-      managed: "Installed by this extension.",
-      explicit_override: "Set up by the host administrator.",
-      local_selection: "Using the folder you chose.",
-      python_prefix: "Found with this ComfyUI installation.",
-      system_path: "Found on this computer.",
-    },
-    needed: {
-      settings: "Import, clip preview and final output need media tools.",
-      import: "Importing needs media tools.",
-      preview: "Clip preview needs media tools.",
-      derivatives: "Clip preparation needs media tools.",
-      assembly: "Sequence assembly needs media tools.",
-      render: "Final output needs media tools.",
-    },
-    details: "{source}, about {size} MB, {license}.",
-    releasePage: "Release page",
-    install: "Install",
-    installAndContinue: "Install and continue",
-    installAgain: "Install again",
-    cancel: "Cancel setup",
-    progress: "Setup progress",
-    progressBytes: "{done} of {total} MB",
-    phase: {
-      checking: "Checking the download…",
-      downloading: "Downloading media tools…",
-      extracting: "Extracting media tools…",
-      verifying: "Verifying media tools…",
-      publishing: "Installing media tools…",
-      activating: "Starting media tools…",
-      done: "Finishing setup…",
-    },
-    failed: "Setup did not finish.",
-    adminControl:
-      "Change the media tools setting on the ComfyUI host, then check again.",
-    starting: "Media tools are starting…",
-    renderUnavailable: "Final output is not available on this host.",
-    recovery: "An earlier copy of the media tools is kept aside.",
-    recoveryKept:
-      "It stays in place until the current media tools are confirmed ready.",
-    reclaim: "Remove earlier copy",
+    manual:
+      "Open the release page, download the exact archive below and extract it yourself. Then enter its bin folder, which contains ffmpeg.exe and ffprobe.exe.",
+    releasePage: "Open download page",
+    help: "FFmpeg setup help",
+    closeHelp: "Close help",
+    version: "Pinned version",
+    license: "Licence",
+    helpDownload:
+      "Open the download page and choose the exact archive shown here.",
+    helpVerify:
+      "Before extracting, compare the archive's SHA-256 with the value shown here. On Windows, use either command, replacing <file> with the archive path:",
+    helpExtract: "Extract the verified archive yourself.",
+    helpSelect:
+      "Enter its bin folder containing ffmpeg.exe and ffprobe.exe, or add that folder to PATH, then choose Check again.",
+    helpPins:
+      "Only the pinned FFmpeg and FFprobe executables are supported. A different build is refused because its executable checksums do not match.",
+    helpEarlier: "A verified setup made by an earlier version keeps working.",
+    archive: "Archive",
+    checksum: "Archive SHA-256",
+    copy: "Copy SHA-256",
+    copied: "Copied",
+    copyFailed: "Could not copy. Select and copy the checksum.",
+    folder: "FFmpeg bin folder",
+    useFolder: "Use folder",
+    path: "You can also place the supported pair on PATH, then check again.",
+    checkAgain: "Check again",
     advanced: "Advanced",
-    folder: "Media tools folder",
-    useFolder: "Use this folder",
-    restoreAuto: "Use automatic setup",
-    dismiss: "Dismiss",
-    notice: {
-      continued: "Media tools are ready. Continuing.",
-      select_again:
-        "Media tools are ready, but the selection changed. Select again.",
-      continuation_cleared: "The waiting action was cleared.",
-      continuation_replaced:
-        "The earlier waiting action was replaced by this one.",
-      feature_not_ready:
-        "Setup finished, but this feature is still unavailable.",
-      outcome_unknown: "The setup request could not be confirmed. Check again.",
+    restoreAuto: "Search automatically",
+    retry: "Tools are selected. Retry the original action when you are ready.",
+    checking: "Checking media tools…",
+    unavailable: "Media tool status is unavailable.",
+    renderUnavailable:
+      "Final video is unavailable on this host. Selecting tools cannot enable its renderer.",
+    recovery: "Earlier setup left temporary files or an earlier copy behind.",
+    reclaim: "Clean up earlier setup files",
+    recoveryKept:
+      "The earlier copy is kept until a supported managed replacement is verified.",
+    source: {
+      managed: "Set up by an earlier version",
+      explicit_override: "Host override",
+      local_selection: "Selected folder",
+      python_prefix: "Python environment",
+      system_path: "System PATH",
+      none: "No source selected",
     },
   },
   "zh-TW": {
     title: "媒體工具",
-    description: "匯入、剪輯預覽與最終輸出會使用此 ComfyUI 主機上的媒體工具。",
-    checking: "正在檢查媒體工具…",
-    statusUnavailable: "無法取得媒體工具狀態。",
-    checkAgain: "再次檢查",
+    description: "匯入、預覽與最終影片使用支援的 FFmpeg 與 FFprobe 工具組。",
+    needed: "請設定媒體工具以使用此功能。",
     ready: "媒體工具已就緒。",
-    source: {
-      managed: "由此擴充功能安裝。",
-      explicit_override: "由主機管理員設定。",
-      local_selection: "使用您選擇的資料夾。",
-      python_prefix: "在此 ComfyUI 安裝中找到。",
-      system_path: "在此電腦上找到。",
-    },
-    needed: {
-      settings: "匯入、剪輯預覽與最終輸出需要媒體工具。",
-      import: "匯入需要媒體工具。",
-      preview: "剪輯預覽需要媒體工具。",
-      derivatives: "準備剪輯需要媒體工具。",
-      assembly: "組裝序列需要媒體工具。",
-      render: "最終輸出需要媒體工具。",
-    },
-    details: "{source}，約 {size} MB，{license}。",
-    releasePage: "發行頁面",
-    install: "安裝",
-    installAndContinue: "安裝並繼續",
-    installAgain: "重新安裝",
-    cancel: "取消安裝",
-    progress: "安裝進度",
-    progressBytes: "{done} / {total} MB",
-    phase: {
-      checking: "正在檢查下載…",
-      downloading: "正在下載媒體工具…",
-      extracting: "正在解壓縮媒體工具…",
-      verifying: "正在驗證媒體工具…",
-      publishing: "正在安裝媒體工具…",
-      activating: "正在啟動媒體工具…",
-      done: "正在完成安裝…",
-    },
-    failed: "安裝未完成。",
-    adminControl: "請在 ComfyUI 主機上變更媒體工具設定，然後再次檢查。",
-    starting: "媒體工具正在啟動…",
-    renderUnavailable: "此主機無法提供最終輸出。",
-    recovery: "較早的媒體工具副本已另外保留。",
-    recoveryKept: "在確認目前的媒體工具就緒之前，會保留這份副本。",
-    reclaim: "移除較早的副本",
+    manual:
+      "開啟發行頁面，下載下方指定的壓縮檔並自行解壓縮，再輸入包含 ffmpeg.exe 與 ffprobe.exe 的 bin 資料夾。",
+    releasePage: "開啟下載網址",
+    help: "FFmpeg 設定說明",
+    closeHelp: "關閉說明",
+    version: "指定版本",
+    license: "授權",
+    helpDownload: "開啟下載網址，選擇此處顯示的指定壓縮檔。",
+    helpVerify:
+      "解壓縮前，請將壓縮檔的 SHA-256 與此處的校驗碼比對。在 Windows 可使用以下任一指令，將 <file> 換成壓縮檔路徑：",
+    helpExtract: "自行解壓縮已驗證的壓縮檔。",
+    helpSelect:
+      "輸入包含 ffmpeg.exe 與 ffprobe.exe 的 bin 資料夾，或將該資料夾加入 PATH，再按「重新檢查」。",
+    helpPins:
+      "僅支援指定的 FFmpeg 與 FFprobe 執行檔。其他版本的執行檔校驗碼不符，因此無法使用。",
+    helpEarlier: "由先前版本完成且通過驗證的設定可繼續使用。",
+    archive: "壓縮檔",
+    checksum: "壓縮檔 SHA-256",
+    copy: "複製 SHA-256",
+    copied: "已複製",
+    copyFailed: "無法複製，請選取並複製校驗碼。",
+    folder: "FFmpeg bin 資料夾",
+    useFolder: "使用資料夾",
+    path: "也可將支援的工具組放入 PATH，再重新檢查。",
+    checkAgain: "重新檢查",
     advanced: "進階",
-    folder: "媒體工具資料夾",
-    useFolder: "使用此資料夾",
-    restoreAuto: "使用自動設定",
-    dismiss: "關閉",
-    notice: {
-      continued: "媒體工具已就緒，正在繼續。",
-      select_again: "媒體工具已就緒，但選取內容已變更，請重新選取。",
-      continuation_cleared: "已清除等待中的動作。",
-      continuation_replaced: "較早等待中的動作已由此動作取代。",
-      feature_not_ready: "安裝已完成，但此功能仍無法使用。",
-      outcome_unknown: "無法確認安裝要求的結果，請再次檢查。",
+    restoreAuto: "自動搜尋",
+    retry: "工具已選定，準備好後請重試原本的操作。",
+    checking: "正在檢查媒體工具…",
+    unavailable: "無法讀取媒體工具狀態。",
+    renderUnavailable: "此主機無法輸出最終影片，選擇工具無法啟用其渲染器。",
+    recovery: "先前的設定留下了暫存檔或舊版工具。",
+    reclaim: "清理先前設定的檔案",
+    recoveryKept: "在確認受支援的替代工具前，會保留舊版工具。",
+    source: {
+      managed: "由先前版本設定",
+      explicit_override: "主機指定",
+      local_selection: "選定的資料夾",
+      python_prefix: "Python 環境",
+      system_path: "系統 PATH",
+      none: "尚未選定來源",
     },
   },
   "zh-CN": {
     title: "媒体工具",
-    description: "导入、剪辑预览与最终输出会使用此 ComfyUI 主机上的媒体工具。",
-    checking: "正在检查媒体工具…",
-    statusUnavailable: "无法获取媒体工具状态。",
-    checkAgain: "再次检查",
+    description: "导入、预览与最终视频使用支持的 FFmpeg 与 FFprobe 工具组。",
+    needed: "请设置媒体工具以使用此功能。",
     ready: "媒体工具已就绪。",
-    source: {
-      managed: "由此扩展安装。",
-      explicit_override: "由主机管理员设置。",
-      local_selection: "使用你选择的文件夹。",
-      python_prefix: "在此 ComfyUI 安装中找到。",
-      system_path: "在此电脑上找到。",
-    },
-    needed: {
-      settings: "导入、剪辑预览与最终输出需要媒体工具。",
-      import: "导入需要媒体工具。",
-      preview: "剪辑预览需要媒体工具。",
-      derivatives: "准备剪辑需要媒体工具。",
-      assembly: "组装序列需要媒体工具。",
-      render: "最终输出需要媒体工具。",
-    },
-    details: "{source}，约 {size} MB，{license}。",
-    releasePage: "发布页面",
-    install: "安装",
-    installAndContinue: "安装并继续",
-    installAgain: "重新安装",
-    cancel: "取消安装",
-    progress: "安装进度",
-    progressBytes: "{done} / {total} MB",
-    phase: {
-      checking: "正在检查下载…",
-      downloading: "正在下载媒体工具…",
-      extracting: "正在解压媒体工具…",
-      verifying: "正在验证媒体工具…",
-      publishing: "正在安装媒体工具…",
-      activating: "正在启动媒体工具…",
-      done: "正在完成安装…",
-    },
-    failed: "安装未完成。",
-    adminControl: "请在 ComfyUI 主机上更改媒体工具设置，然后再次检查。",
-    starting: "媒体工具正在启动…",
-    renderUnavailable: "此主机无法提供最终输出。",
-    recovery: "较早的媒体工具副本已另行保留。",
-    recoveryKept: "在确认当前的媒体工具就绪之前，会保留这份副本。",
-    reclaim: "移除较早的副本",
+    manual:
+      "打开发布页面，下载下方指定的压缩文件并自行解压，再输入包含 ffmpeg.exe 与 ffprobe.exe 的 bin 文件夹。",
+    releasePage: "打开下载网址",
+    help: "FFmpeg 设置说明",
+    closeHelp: "关闭说明",
+    version: "指定版本",
+    license: "许可",
+    helpDownload: "打开下载网址，选择此处显示的指定压缩文件。",
+    helpVerify:
+      "解压前，请将压缩文件的 SHA-256 与此处的校验码比对。在 Windows 可使用以下任一命令，将 <file> 换成压缩文件路径：",
+    helpExtract: "自行解压已验证的压缩文件。",
+    helpSelect:
+      "输入包含 ffmpeg.exe 与 ffprobe.exe 的 bin 文件夹，或将该文件夹加入 PATH，再点击“重新检查”。",
+    helpPins:
+      "仅支持指定的 FFmpeg 与 FFprobe 可执行文件。其他版本的可执行文件校验码不符，因此无法使用。",
+    helpEarlier: "由先前版本完成且通过验证的设置可继续使用。",
+    archive: "压缩文件",
+    checksum: "压缩文件 SHA-256",
+    copy: "复制 SHA-256",
+    copied: "已复制",
+    copyFailed: "无法复制，请选中并复制校验码。",
+    folder: "FFmpeg bin 文件夹",
+    useFolder: "使用文件夹",
+    path: "也可将支持的工具组放入 PATH，再重新检查。",
+    checkAgain: "重新检查",
     advanced: "高级",
-    folder: "媒体工具文件夹",
-    useFolder: "使用此文件夹",
-    restoreAuto: "使用自动设置",
-    dismiss: "关闭",
-    notice: {
-      continued: "媒体工具已就绪，正在继续。",
-      select_again: "媒体工具已就绪，但选择内容已更改，请重新选择。",
-      continuation_cleared: "已清除等待中的操作。",
-      continuation_replaced: "较早等待中的操作已被此操作取代。",
-      feature_not_ready: "安装已完成，但此功能仍不可用。",
-      outcome_unknown: "无法确认安装请求的结果，请再次检查。",
+    restoreAuto: "自动搜索",
+    retry: "工具已选定，准备好后请重试原来的操作。",
+    checking: "正在检查媒体工具…",
+    unavailable: "无法读取媒体工具状态。",
+    renderUnavailable: "此主机无法输出最终视频，选择工具无法启用其渲染器。",
+    recovery: "先前的设置留下了临时文件或旧版工具。",
+    reclaim: "清理先前设置的文件",
+    recoveryKept: "在确认支持的替代工具前，会保留旧版工具。",
+    source: {
+      managed: "由先前版本设置",
+      explicit_override: "主机指定",
+      local_selection: "选定的文件夹",
+      python_prefix: "Python 环境",
+      system_path: "系统 PATH",
+      none: "尚未选择来源",
     },
   },
 } as const;
 
 export type MediaToolsPlacement =
   "settings" | "contextual-sidebar" | "contextual-overlay";
+export type MediaToolsView = Readonly<{
+  kind:
+    | "checking"
+    | "status_unavailable"
+    | "ready"
+    | "setup_required"
+    | "render_unavailable"
+    | "starting"
+    | "unavailable";
+  reason?: string | null;
+}>;
 
-type MediaToolsView =
-  | Readonly<{ kind: "checking" }>
-  | Readonly<{ kind: "status_unavailable" }>
-  | Readonly<{ kind: "installing"; job: MediaRuntimeJob }>
-  | Readonly<{ kind: "ready" }>
-  | Readonly<{ kind: "setup_required" }>
-  | Readonly<{ kind: "failed"; reason: string | null }>
-  | Readonly<{ kind: "starting" }>
-  | Readonly<{ kind: "render_unavailable" }>
-  | Readonly<{ kind: "unavailable"; reason: string | null }>;
-
-const STARTING_REASONS: ReadonlySet<string> = new Set([
-  "activating",
-  "discovering",
-  "discovery_in_progress",
-]);
-
-function fill(value: string, values: Record<string, string | number>): string {
-  let output = value;
-  for (const [key, replacement] of Object.entries(values))
-    output = output.replace(`{${key}}`, String(replacement));
-  return output;
-}
-
-function megabytes(bytes: number): string {
-  return String(Math.max(1, Math.round(bytes / (1024 * 1024))));
-}
-
-function runningJob(state: MediaRuntimeState): MediaRuntimeJob | null {
-  // IMPORTANT: the session's job is never older than the wire's `setup` (a status read adopts it,
-  // and only later poll or action results replace it). Falling back to the wire while the session
-  // holds a terminal job would show a job the user just cancelled as still installing.
-  if (state.job !== null)
-    return state.job.state === "running" ? state.job : null;
-  return state.wire?.setup?.state === "running" ? state.wire.setup : null;
-}
-
-/** The readiness a placement is about; Settings summarizes the features the card can repair. */
-function readinessFor(
-  wire: MediaRuntimeStatus,
-  feature: MediaRuntimeFeature | undefined,
-): MediaRuntimeFeatureReadiness {
+function readiness(wire: MediaRuntimeStatus, feature?: MediaRuntimeFeature) {
   if (feature !== undefined) return wire.features[feature];
   const rows = MEDIA_RUNTIME_FEATURES.map((name) => wire.features[name]).filter(
     (row) => row.reason !== "render_qualification_unavailable",
@@ -268,54 +189,36 @@ function readinessFor(
     wire.features.import
   );
 }
-
-/** One view per state; a failed read never shows the last good status as ready. */
 export function deriveMediaToolsView(
   state: MediaRuntimeState,
   feature?: MediaRuntimeFeature,
 ): MediaToolsView {
-  const job = runningJob(state);
-  if (job !== null) return { kind: "installing", job };
   if (state.status === "unavailable") return { kind: "status_unavailable" };
-  const wire = state.wire;
-  if (wire === null) return { kind: "checking" };
-  const readiness = readinessFor(wire, feature);
-  if (readiness.state === "ready") return { kind: "ready" };
-  if (state.job?.state === "failed")
-    return { kind: "failed", reason: state.job.reason };
-  if (readiness.state === "setup_required") return { kind: "setup_required" };
-  if (readiness.reason === "render_qualification_unavailable")
+  if (state.wire === null) return { kind: "checking" };
+  const row = readiness(state.wire, feature);
+  if (row.state === "ready") return { kind: "ready" };
+  if (row.state === "setup_required") return { kind: "setup_required" };
+  if (row.reason === "render_qualification_unavailable")
     return { kind: "render_unavailable" };
-  if (readiness.reason !== null && STARTING_REASONS.has(readiness.reason))
+  if (
+    ["activating", "discovering", "discovery_in_progress"].includes(
+      row.reason ?? "",
+    )
+  )
     return { kind: "starting" };
-  return { kind: "unavailable", reason: readiness.reason };
+  return { kind: "unavailable", reason: row.reason };
 }
-
-/**
- * Whether a contextual surface shows the card. `blocked` is the surface's own runtime refusal;
- * `proactive` lets a surface show a known `setup_required` before the user is refused.
- */
 export function mediaToolsCardVisible(
   state: MediaRuntimeState,
   feature: MediaRuntimeFeature,
   blocked: boolean,
   proactive = false,
 ): boolean {
-  const readiness =
+  const row =
     state.status === "unavailable" ? undefined : state.wire?.features[feature];
-  const needsSetup = proactive && readiness?.state === "setup_required";
-  if (runningJob(state) !== null)
-    return (
-      blocked ||
-      needsSetup ||
-      (state.pending !== null &&
-        MEDIA_RUNTIME_INTENT_FEATURE[state.pending.kind] === feature)
-    );
-  if (!blocked) return needsSetup;
   return (
-    readiness?.state !== "ready" ||
-    state.notice !== null ||
-    state.refusal !== null
+    (proactive && row?.state === "setup_required") ||
+    (blocked && (row?.state !== "ready" || state.refusal !== null))
   );
 }
 
@@ -329,107 +232,67 @@ export function MediaToolsCard({
   placement: MediaToolsPlacement;
   binding: MediaToolsBinding;
   locale: Locale;
-  /** The feature a contextual placement is blocked on; Settings leaves it unset. */
   feature?: MediaRuntimeFeature;
-  /** The original action to continue after setup; `null` installs without continuing. */
   intent?: MediaRuntimeIntent | null;
 }) {
-  const text = copy[locale];
-  const titleId = useId();
-  const folderId = useId();
+  const text = mediaToolsCopy[locale];
   const { state } = binding;
   const view = deriveMediaToolsView(state, feature);
   const wire = state.wire;
   const settings = placement === "settings";
-  const statusLine = useRef<HTMLParagraphElement | null>(null);
-  const primary = useRef<HTMLButtonElement | null>(null);
-  // Focus is moved only for a card the user acted in, so two cards visible in one overlay never
-  // compete and an unrelated status change never takes focus from where the user is.
-  const engaged = useRef(false);
+  const titleId = useId();
+  const folderId = useId();
+  const helpId = useId();
+  const helpTitleId = useId();
+  const [helpOpen, setHelpOpen] = useState(false);
+  const helpTrigger = useRef<HTMLButtonElement>(null);
+  const helpPanel = useRef<HTMLDivElement>(null);
   const [folder, setFolder] = useState("");
-
-  // Reads happen when a surface can use them: once on the first Settings open, and whenever a
-  // contextual card mounts because its surface was refused by the runtime.
+  const [copyState, setCopyState] = useState<"copied" | "copyFailed" | null>(
+    null,
+  );
+  const primary = useRef<HTMLButtonElement>(null);
+  const engaged = useRef(false);
+  useEffect(() => {
+    if (helpOpen) helpPanel.current?.focus();
+  }, [helpOpen]);
+  const closeHelp = () => {
+    setHelpOpen(false);
+    helpTrigger.current?.focus();
+  };
   const ensure = binding.ensure;
   const report = binding.report;
   useEffect(() => {
     if (feature === undefined) ensure();
     else report(feature);
   }, [ensure, report, feature]);
-
-  const installing = view.kind === "installing";
+  const initialFocus = useRef(state.focusPrimary);
   useEffect(() => {
-    if (installing && engaged.current) statusLine.current?.focus();
-  }, [installing]);
-
-  const focusPrimary = state.focusPrimary;
-  const firstFocus = useRef(focusPrimary);
-  useEffect(() => {
-    if (focusPrimary === firstFocus.current || !engaged.current) return;
-    (primary.current ?? statusLine.current)?.focus();
-  }, [focusPrimary]);
-
+    if (state.focusPrimary !== initialFocus.current && engaged.current)
+      primary.current?.focus();
+  }, [state.focusPrimary]);
+  const offers = (
+    action: "use_local_directory" | "restore_auto" | "reclaim_parked_runtime",
+  ) =>
+    state.status !== "unavailable" && wire?.actions.includes(action) === true;
   const busy = state.busy !== null;
-  const offers = (action: MediaRuntimeStatus["actions"][number]) =>
-    wire?.actions.includes(action) === true;
-  const install = () => binding.install(settings ? null : intent);
-
-  let message: string;
-  let detail: string | null = null;
-  let action: Readonly<{ label: string; run(): void }> | null = null;
-  switch (view.kind) {
-    case "checking":
-      message = text.checking;
-      break;
-    case "status_unavailable":
-      message = text.statusUnavailable;
-      action = { label: text.checkAgain, run: binding.rescan };
-      break;
-    case "installing":
-      message = text.phase[view.job.phase];
-      break;
-    case "ready":
-      message = text.ready;
-      if (settings && wire !== null && wire.resolution.sourceKind !== "none")
-        detail = text.source[wire.resolution.sourceKind];
-      break;
-    case "setup_required":
-      message = text.needed[feature ?? "settings"];
-      if (offers("install_supported"))
-        action = {
-          label: settings ? text.install : text.installAndContinue,
-          run: install,
-        };
-      break;
-    case "failed":
-      message = text.failed;
-      detail =
-        view.reason === "advanced_override_active"
-          ? text.adminControl
-          : plainReason(locale, "mediaRuntime", view.reason);
-      if (
-        view.reason !== "advanced_override_active" &&
-        offers("install_supported")
-      )
-        action = { label: text.installAgain, run: install };
-      break;
-    case "starting":
-      message = text.starting;
-      break;
-    case "render_unavailable":
-      message = text.renderUnavailable;
-      break;
-    case "unavailable":
-      message = plainReason(locale, "mediaRuntime", view.reason);
-      if (offers("rescan"))
-        action = { label: text.checkAgain, run: binding.rescan };
-      break;
-  }
-  const showInstallSource =
-    wire !== null && (view.kind === "setup_required" || view.kind === "failed");
-  const job = view.kind === "installing" ? view.job : null;
+  const manualVisible =
+    wire !== null &&
+    (settings ||
+      view.kind === "setup_required" ||
+      view.kind === "unavailable") &&
+    view.kind !== "render_unavailable";
+  const message =
+    view.kind === "ready"
+      ? text.ready
+      : view.kind === "setup_required"
+        ? text.needed
+        : view.kind === "render_unavailable"
+          ? text.renderUnavailable
+          : view.kind === "checking" || view.kind === "starting"
+            ? text.checking
+            : text.unavailable;
   const Heading = settings ? "h3" : "h4";
-
   return (
     <section
       className={
@@ -438,138 +301,156 @@ export function MediaToolsCard({
       aria-labelledby={titleId}
       data-h3-media-tools={view.kind}
       data-h3-media-tools-placement={placement}
-      data-h3-media-tools-reason={
-        view.kind === "failed" || view.kind === "unavailable"
-          ? (view.reason ?? undefined)
-          : undefined
-      }
+      data-h3-media-tools-context={intent?.kind}
       onClickCapture={() => {
         engaged.current = true;
       }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && helpOpen) {
+          // Keep help dismissal local so Escape does not also close the enclosing editor.
+          event.preventDefault();
+          event.stopPropagation();
+          closeHelp();
+        }
+      }}
     >
-      <Heading id={titleId} className="h3-sec">
-        {text.title}
-      </Heading>
+      <style>{mediaToolsStyles}</style>
+      <div className="h3s-mt-heading">
+        <Heading id={titleId} className="h3-sec">
+          {text.title}
+        </Heading>
+        <button
+          ref={helpTrigger}
+          type="button"
+          className="h3-icon-button h3s-mt-help-toggle"
+          aria-label={text.help}
+          title={text.help}
+          aria-expanded={helpOpen}
+          aria-controls={helpId}
+          disabled={wire === null}
+          data-h3-media-tools-action="help"
+          onClick={() => (helpOpen ? closeHelp() : setHelpOpen(true))}
+        >
+          <span aria-hidden="true">?</span>
+        </button>
+      </div>
+      {helpOpen && wire ? (
+        <div
+          ref={helpPanel}
+          id={helpId}
+          role="region"
+          aria-labelledby={helpTitleId}
+          tabIndex={-1}
+          className="h3s-mt-help"
+          data-h3-media-tools-help
+        >
+          <h4 id={helpTitleId}>{text.help}</h4>
+          <p>{text.description}</p>
+          <dl>
+            <dt>{text.version}</dt>
+            <dd>
+              <code>{wire.manual.releasePage.split("/").at(-1)}</code>
+            </dd>
+            <dt>{text.archive}</dt>
+            <dd>
+              <code>{wire.manual.archiveName}</code>
+            </dd>
+            <dt>{text.checksum}</dt>
+            <dd>
+              <code>{wire.manual.archiveSha256}</code>
+            </dd>
+            <dt>{text.license}</dt>
+            <dd>{wire.manual.license}</dd>
+          </dl>
+          <ol>
+            <li>{text.helpDownload}</li>
+            <li>
+              {text.helpVerify}
+              <code className="h3s-mt-command">
+                Get-FileHash -Algorithm SHA256 &lt;file&gt;
+              </code>
+              <code className="h3s-mt-command">
+                certutil -hashfile &lt;file&gt; SHA256
+              </code>
+            </li>
+            <li>{text.helpExtract}</li>
+            <li>{text.helpSelect}</li>
+          </ol>
+          <p>{text.helpPins}</p>
+          <p>{text.helpEarlier}</p>
+          <button
+            type="button"
+            data-h3-media-tools-action="close-help"
+            onClick={closeHelp}
+          >
+            {text.closeHelp}
+          </button>
+        </div>
+      ) : null}
       {settings ? <p className="h3ds">{text.description}</p> : null}
       <p
-        ref={statusLine}
         className="h3s-mt-state"
         role="status"
         aria-live="polite"
-        tabIndex={-1}
         data-h3-focus-key={settings ? "settings-media-tools" : undefined}
+        tabIndex={-1}
       >
         <span className="h3-val">{message}</span>
-        {detail !== null ? <span className="h3-meta">{detail}</span> : null}
+        {view.kind === "ready" && wire ? (
+          <span className="h3-meta">
+            {text.source[wire.resolution.sourceKind]}
+          </span>
+        ) : null}
       </p>
       {settings &&
-      view.kind !== "render_unavailable" &&
       wire?.features.render.reason === "render_qualification_unavailable" ? (
         <p className="h3-meta" data-h3-media-tools-render="unavailable">
           {text.renderUnavailable}
         </p>
       ) : null}
-      {job !== null ? (
-        <>
-          <progress
-            aria-label={text.progress}
-            max={job.totalBytes > 0 ? job.totalBytes : undefined}
-            value={job.totalBytes > 0 ? job.completedBytes : undefined}
-          />
-          {job.totalBytes > 0 ? (
-            <p className="h3-meta" aria-hidden="true">
-              {fill(text.progressBytes, {
-                done: megabytes(job.completedBytes),
-                total: megabytes(job.totalBytes),
-              })}
-            </p>
-          ) : null}
-        </>
-      ) : null}
-      {showInstallSource ? (
-        <p className="h3-meta" data-h3-media-tools-source="install">
-          {fill(text.details, {
-            source: wire.install.sourceLabel,
-            size: megabytes(wire.install.approximateBytes),
-            license: wire.install.license,
-          })}{" "}
+      {manualVisible && wire ? (
+        <div data-h3-media-tools-source="manual">
+          <p>{text.manual}</p>
+          <p className="h3-meta">
+            {wire.manual.sourceLabel} ·{" "}
+            {Math.round(wire.manual.approximateBytes / 1048576)} MB ·{" "}
+            {wire.manual.license}
+          </p>
           <a
-            href={wire.install.releasePage}
+            className="h3s-mt-download"
+            data-variant="primary"
+            data-h3-media-tools-action="download"
+            href={wire.manual.releasePage}
             target="_blank"
             rel="noopener noreferrer"
           >
             {text.releasePage}
           </a>
-        </p>
-      ) : null}
-      {state.refusal !== null && view.kind !== "status_unavailable" ? (
-        <p
-          role="alert"
-          className="h3s-mt-rejection"
-          data-h3-media-tools-refusal={state.refusal}
-        >
-          {plainReason(locale, "mediaRuntime", state.refusal)}
-        </p>
-      ) : null}
-      {state.notice !== null ? (
-        <p
-          className="h3s-mt-notice"
-          role="status"
-          data-h3-media-tools-notice={state.notice}
-        >
-          <span>{text.notice[state.notice]}</span>
-          <button type="button" onClick={binding.dismiss}>
-            {text.dismiss}
+          <p style={{ overflowWrap: "anywhere" }}>
+            {text.archive}: <code>{wire.manual.archiveName}</code>
+          </p>
+          <p style={{ overflowWrap: "anywhere" }}>
+            {text.checksum}:{" "}
+            <code data-h3-media-tools-sha>{wire.manual.archiveSha256}</code>
+          </p>
+          <button
+            type="button"
+            data-h3-media-tools-action="copy"
+            onClick={() => {
+              // Clipboard access can be absent on a host served outside a secure browser context.
+              void Promise.resolve()
+                .then(() =>
+                  navigator.clipboard.writeText(wire.manual.archiveSha256),
+                )
+                .then(
+                  () => setCopyState("copied"),
+                  () => setCopyState("copyFailed"),
+                );
+            }}
+          >
+            {text.copy}
           </button>
-        </p>
-      ) : null}
-      {action !== null ? (
-        <button
-          ref={primary}
-          type="button"
-          data-h3-focus-key="media-tools-primary"
-          data-h3-media-tools-action="primary"
-          disabled={busy}
-          onClick={action.run}
-        >
-          {action.label}
-        </button>
-      ) : null}
-      {job !== null ? (
-        <button
-          ref={primary}
-          type="button"
-          data-h3-focus-key="media-tools-primary"
-          data-h3-media-tools-action="cancel"
-          // IMPORTANT: a job this page started arrives from the install reply, not a status read,
-          // so the last status predates it and never lists `cancel_setup`. Only a status that
-          // describes this same running job may withhold Cancel; otherwise Cancel is dead.
-          disabled={
-            busy ||
-            (wire?.setup?.jobId === job.jobId &&
-              wire.setup.state === "running" &&
-              !offers("cancel_setup"))
-          }
-          onClick={binding.cancel}
-        >
-          {text.cancel}
-        </button>
-      ) : null}
-      {settings && wire?.recovery != null && job === null ? (
-        <div className="h3s-mt-recovery" data-h3-media-tools-recovery="true">
-          <p>{text.recovery}</p>
-          {wire.recovery.reclaimable && offers("reclaim_parked_runtime") ? (
-            <button type="button" disabled={busy} onClick={binding.reclaim}>
-              {text.reclaim}
-            </button>
-          ) : (
-            <p className="h3-meta">{text.recoveryKept}</p>
-          )}
-        </div>
-      ) : null}
-      {settings && wire !== null && job === null ? (
-        <details className="h3s-mt-advanced">
-          <summary>{text.advanced}</summary>
+          {copyState ? <p role="status">{text[copyState]}</p> : null}
           <div className="h3s-r">
             <label htmlFor={folderId}>{text.folder}</label>
             <input
@@ -583,7 +464,10 @@ export function MediaToolsCard({
             />
           </div>
           <button
+            ref={primary}
             type="button"
+            data-h3-focus-key="media-tools-primary"
+            data-h3-media-tools-action="primary"
             disabled={
               busy || folder.trim() === "" || !offers("use_local_directory")
             }
@@ -591,11 +475,55 @@ export function MediaToolsCard({
           >
             {text.useFolder}
           </button>
+          <p className="h3-meta">{text.path}</p>
+        </div>
+      ) : null}
+      {view.kind !== "render_unavailable" ? (
+        <button
+          type="button"
+          disabled={busy}
+          data-h3-media-tools-action="rescan"
+          onClick={binding.rescan}
+        >
+          {text.checkAgain}
+        </button>
+      ) : null}
+      {state.refusal !== null ? (
+        <p
+          role="alert"
+          className="h3s-mt-rejection"
+          data-h3-media-tools-refusal={state.refusal}
+        >
+          {plainReason(locale, "mediaRuntime", state.refusal)}
+        </p>
+      ) : null}
+      {state.notice !== null ? (
+        <p role="status" data-h3-media-tools-notice={state.notice}>
+          {text.retry}
+        </p>
+      ) : null}
+      {settings && wire?.recovery ? (
+        <div className="h3s-mt-recovery" data-h3-media-tools-recovery="true">
+          <p>{text.recovery}</p>
+          {wire.recovery.reclaimable && offers("reclaim_parked_runtime") ? (
+            <button type="button" disabled={busy} onClick={binding.reclaim}>
+              {text.reclaim}
+            </button>
+          ) : (
+            <p>{text.recoveryKept}</p>
+          )}
+        </div>
+      ) : null}
+      {manualVisible && wire ? (
+        <details className="h3s-mt-advanced">
+          <summary>{text.advanced}</summary>
           {offers("restore_auto") ? (
             <button type="button" disabled={busy} onClick={binding.restoreAuto}>
               {text.restoreAuto}
             </button>
-          ) : null}
+          ) : (
+            <p className="h3-meta">{text.path}</p>
+          )}
         </details>
       ) : null}
     </section>

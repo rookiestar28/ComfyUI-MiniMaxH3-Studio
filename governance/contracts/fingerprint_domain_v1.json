@@ -3347,17 +3347,6 @@
     },
     {
       "authority_paths": [
-        "comfyui_h3_context/adapters/media_runtime_installer.py"
-      ],
-      "consumer_id": "h3.context.managed_media_runtime_source.v1",
-      "domain": "semantic",
-      "domain_version": 1,
-      "evidence": "a typed runtime wire carries the instance values that decide execution, cache reuse or a receipt",
-      "kind": "contract",
-      "rule": "typed_runtime_wire_is_semantic"
-    },
-    {
-      "authority_paths": [
         "comfyui_h3_context/core/managed_sequence.py"
       ],
       "consumer_id": "h3.context.managed_mode_qualification.v1",
@@ -3680,7 +3669,7 @@
       "authority_paths": [
         "comfyui_h3_context/adapters/comfyui_media_runtime_setup.py"
       ],
-      "consumer_id": "h3.context.media_runtime_setup_job.v1",
+      "consumer_id": "h3.context.media_runtime_setup_request.v2",
       "domain": "semantic",
       "domain_version": 1,
       "evidence": "a typed runtime wire carries the instance values that decide execution, cache reuse or a receipt",
@@ -3691,18 +3680,7 @@
       "authority_paths": [
         "comfyui_h3_context/adapters/comfyui_media_runtime_setup.py"
       ],
-      "consumer_id": "h3.context.media_runtime_setup_request.v1",
-      "domain": "semantic",
-      "domain_version": 1,
-      "evidence": "a typed runtime wire carries the instance values that decide execution, cache reuse or a receipt",
-      "kind": "contract",
-      "rule": "typed_runtime_wire_is_semantic"
-    },
-    {
-      "authority_paths": [
-        "comfyui_h3_context/adapters/comfyui_media_runtime_setup.py"
-      ],
-      "consumer_id": "h3.context.media_runtime_status.v3",
+      "consumer_id": "h3.context.media_runtime_status.v4",
       "domain": "semantic",
       "domain_version": 1,
       "evidence": "a typed runtime wire carries the instance values that decide execution, cache reuse or a receipt",
@@ -6275,6 +6253,6 @@
       "rule": "declared_identity_site"
     }
   ],
-  "fingerprint": "sha256:b7989e903645f35a9421163309f225a8f8ff9b5f9fe84e5501bff862f1da760b",
+  "fingerprint": "sha256:f5fd4abbfce09cdf02c8b74a79c728c427df599d93edad25215292d046c4c4ab",
   "schema": "h3-context-fingerprint-domain-assignment/1"
 }

@@ -49,7 +49,7 @@
       "path": "frontend/src/entry.tsx"
     }
   ],
-  "fingerprint": "sha256:e78cb35dd8e94f1d516edd3ad2fef4ea25cff94efb8f8891d40f9546a2b54e42",
+  "fingerprint": "sha256:33cc22be286ab3dd149111bf0b2cad35de580dd147bad31b8866f04c98ea53db",
   "known_violations": [],
   "modules": [
     {
@@ -803,7 +803,7 @@
         "comfyui_h3_context/core/safe_paths.py"
       ],
       "language": "python",
-      "lines": 3767,
+      "lines": 3792,
       "path": "comfyui_h3_context/adapters/av_reconstruction_media.py",
       "source_reachability": {
         "class": "product",
@@ -1354,13 +1354,13 @@
         "comfyui_h3_context/adapters/comfyui_route_seam.py",
         "comfyui_h3_context/adapters/composition_root.py",
         "comfyui_h3_context/adapters/media_runtime_discovery_worker.py",
-        "comfyui_h3_context/adapters/media_runtime_download.py",
-        "comfyui_h3_context/adapters/media_runtime_installer.py",
+        "comfyui_h3_context/adapters/media_runtime_leftovers.py",
         "comfyui_h3_context/adapters/media_runtime_manager.py",
+        "comfyui_h3_context/adapters/media_runtime_pin.py",
         "comfyui_h3_context/adapters/media_runtime_resolution.py"
       ],
       "language": "python",
-      "lines": 745,
+      "lines": 473,
       "path": "comfyui_h3_context/adapters/comfyui_media_runtime_setup.py",
       "source_reachability": {
         "class": "product",
@@ -2207,40 +2207,14 @@
     },
     {
       "imports": [
-        "comfyui_h3_context/adapters/prompt_model_transport.py",
-        "comfyui_h3_context/core/prompt_model_provider.py"
-      ],
-      "language": "python",
-      "lines": 360,
-      "path": "comfyui_h3_context/adapters/media_runtime_download.py",
-      "source_reachability": {
-        "class": "product",
-        "evidence": "product_closure",
-        "owners": [
-          "comfyui_h3_context/__init__.py",
-          "comfyui_h3_context/adapters/assisted_draft_execution.py",
-          "comfyui_h3_context/adapters/authoring_derivative_generator.py",
-          "comfyui_h3_context/adapters/authoring_derivative_source.py",
-          "comfyui_h3_context/adapters/authoring_generated_source.py",
-          "comfyui_h3_context/adapters/authoring_image_source.py",
-          "comfyui_h3_context/adapters/authoring_native_renderer.py",
-          "comfyui_h3_context/adapters/authoring_output_preview.py"
-        ],
-        "retained_reason": "reachable from a shipped entry point"
-      }
-    },
-    {
-      "imports": [
         "comfyui_h3_context/adapters/executable_admission.py",
-        "comfyui_h3_context/adapters/media_runtime_download.py",
+        "comfyui_h3_context/adapters/media_runtime_pin.py",
         "comfyui_h3_context/adapters/media_runtime_resolution.py",
-        "comfyui_h3_context/adapters/segment_artifact_store.py",
-        "comfyui_h3_context/core/av_reconstruction.py",
-        "comfyui_h3_context/core/safe_paths.py"
+        "comfyui_h3_context/adapters/segment_artifact_store.py"
       ],
       "language": "python",
-      "lines": 960,
-      "path": "comfyui_h3_context/adapters/media_runtime_installer.py",
+      "lines": 289,
+      "path": "comfyui_h3_context/adapters/media_runtime_leftovers.py",
       "source_reachability": {
         "class": "product",
         "evidence": "product_closure",
@@ -2269,6 +2243,30 @@
       "language": "python",
       "lines": 539,
       "path": "comfyui_h3_context/adapters/media_runtime_manager.py",
+      "source_reachability": {
+        "class": "product",
+        "evidence": "product_closure",
+        "owners": [
+          "comfyui_h3_context/__init__.py",
+          "comfyui_h3_context/adapters/assisted_draft_execution.py",
+          "comfyui_h3_context/adapters/authoring_derivative_generator.py",
+          "comfyui_h3_context/adapters/authoring_derivative_source.py",
+          "comfyui_h3_context/adapters/authoring_generated_source.py",
+          "comfyui_h3_context/adapters/authoring_image_source.py",
+          "comfyui_h3_context/adapters/authoring_native_renderer.py",
+          "comfyui_h3_context/adapters/authoring_output_preview.py"
+        ],
+        "retained_reason": "reachable from a shipped entry point"
+      }
+    },
+    {
+      "imports": [
+        "comfyui_h3_context/adapters/media_runtime_resolution.py",
+        "comfyui_h3_context/core/av_reconstruction.py"
+      ],
+      "language": "python",
+      "lines": 52,
+      "path": "comfyui_h3_context/adapters/media_runtime_pin.py",
       "source_reachability": {
         "class": "product",
         "evidence": "product_closure",
@@ -9071,7 +9069,7 @@
         "frontend/src/state/mediaRuntimeState.ts"
       ],
       "language": "typescript",
-      "lines": 611,
+      "lines": 597,
       "path": "frontend/src/components/AuthoringPreviewMonitor.tsx",
       "source_reachability": {
         "class": "product",
@@ -9159,7 +9157,7 @@
         "frontend/src/state/mediaRuntimeState.ts"
       ],
       "language": "typescript",
-      "lines": 603,
+      "lines": 531,
       "path": "frontend/src/components/MediaToolsCard.tsx",
       "source_reachability": {
         "class": "product",
@@ -10784,7 +10782,7 @@
         "frontend/src/i18n/catalog.ts"
       ],
       "language": "typescript",
-      "lines": 1071,
+      "lines": 1022,
       "path": "frontend/src/components/plainReasons.ts",
       "source_reachability": {
         "class": "product",
@@ -11107,7 +11105,7 @@
     {
       "imports": [],
       "language": "typescript",
-      "lines": 400,
+      "lines": 301,
       "path": "frontend/src/contracts/mediaRuntimeCodec.ts",
       "source_reachability": {
         "class": "product",
@@ -12384,7 +12382,7 @@
         "frontend/src/contracts/mediaRuntimeCodec.ts"
       ],
       "language": "typescript",
-      "lines": 236,
+      "lines": 199,
       "path": "frontend/src/host/mediaRuntimeClient.ts",
       "source_reachability": {
         "class": "product",
@@ -13195,7 +13193,7 @@
         "frontend/src/state/mediaRuntimeState.ts"
       ],
       "language": "typescript",
-      "lines": 571,
+      "lines": 237,
       "path": "frontend/src/lifecycle/mediaRuntimeSession.ts",
       "source_reachability": {
         "class": "product",
@@ -13362,7 +13360,7 @@
         "frontend/src/state/shellState.ts"
       ],
       "language": "typescript",
-      "lines": 797,
+      "lines": 796,
       "path": "frontend/src/lifecycle/presentationBinding.tsx",
       "source_reachability": {
         "class": "product",
@@ -14152,7 +14150,7 @@
         "frontend/src/host/mediaRuntimeClient.ts"
       ],
       "language": "typescript",
-      "lines": 138,
+      "lines": 83,
       "path": "frontend/src/state/mediaRuntimeState.ts",
       "source_reachability": {
         "class": "product",
@@ -14431,18 +14429,6 @@
       "path_symbol": "GENERATION_PROFILE_ROUTE",
       "responsibilities": [
         "application",
-        "domain",
-        "response"
-      ]
-    },
-    {
-      "handler": "_read_job",
-      "method": "GET",
-      "module": "comfyui_h3_context/adapters/comfyui_media_runtime_setup.py",
-      "path_symbol": "JOB_ROUTE",
-      "responsibilities": [
-        "application",
-        "decode",
         "domain",
         "response"
       ]

@@ -81,11 +81,9 @@ ABSENT_ORIGIN_ROUTES = frozenset(
         "/h3-context/v1/authoring/render/{handle}",
         "/h3-context/v1/authoring/output/{handle}/preview",
         "/h3-context/v1/authoring/output/{handle}/download",
-        # the media runtime status and setup-job reads are same-origin fetch GETs the
-        # browser sends without Origin; both reject foreign fetch metadata. Neither writes state or
-        # downloads: status may run bounded local discovery, and the job read is a projection.
+        # Media status admits same-origin fetch GETs without Origin and rejects foreign fetch
+        # metadata. It may run bounded local discovery; manual setup has no job projection.
         "/h3-context/v1/media-runtime",
-        "/h3-context/v1/media-runtime/setup/{job_id}",
         # The perception GET reads only cached finite readiness; it never retries settings IO.
         "/h3-context/v1/perception/status",
     }

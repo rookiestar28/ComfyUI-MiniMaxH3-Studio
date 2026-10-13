@@ -1,0 +1,200 @@
+{
+  "samples": {
+    "status_override": {
+      "actions": ["rescan"],
+      "config": {
+        "revision": 0,
+        "selection": "auto"
+      },
+      "features": {
+        "assembly": {
+          "reason": null,
+          "state": "ready"
+        },
+        "derivatives": {
+          "reason": null,
+          "state": "ready"
+        },
+        "import": {
+          "reason": null,
+          "state": "ready"
+        },
+        "preview": {
+          "reason": null,
+          "state": "ready"
+        },
+        "render": {
+          "reason": null,
+          "state": "ready"
+        }
+      },
+      "manual": {
+        "approximate_bytes": 246558061,
+        "archive_name": "ffmpeg-2026-02-26-git-6695528af6-full_build.zip",
+        "archive_sha256": "ad18ecdedfca6d51c28cf12f2c96287ce1150686578b75bff2efcd06ff34bb30",
+        "license": "GPL-3.0-or-later",
+        "release_page": "https://github.com/GyanD/codexffmpeg/releases/tag/2026-02-26-git-6695528af6",
+        "source_label": "Gyan.dev FFmpeg full build"
+      },
+      "recovery": null,
+      "resolution": {
+        "reason": "pair_admitted",
+        "schema": "h3.context.media_runtime_resolution.v1",
+        "source_kind": "explicit_override",
+        "state": "located"
+      },
+      "schema": "h3.context.media_runtime_status.v4"
+    },
+    "status_ready_recovery": {
+      "actions": ["rescan", "use_local_directory", "reclaim_parked_runtime"],
+      "config": {
+        "revision": 0,
+        "selection": "auto"
+      },
+      "features": {
+        "assembly": {
+          "reason": null,
+          "state": "ready"
+        },
+        "derivatives": {
+          "reason": null,
+          "state": "ready"
+        },
+        "import": {
+          "reason": null,
+          "state": "ready"
+        },
+        "preview": {
+          "reason": null,
+          "state": "ready"
+        },
+        "render": {
+          "reason": null,
+          "state": "ready"
+        }
+      },
+      "manual": {
+        "approximate_bytes": 246558061,
+        "archive_name": "ffmpeg-2026-02-26-git-6695528af6-full_build.zip",
+        "archive_sha256": "ad18ecdedfca6d51c28cf12f2c96287ce1150686578b75bff2efcd06ff34bb30",
+        "license": "GPL-3.0-or-later",
+        "release_page": "https://github.com/GyanD/codexffmpeg/releases/tag/2026-02-26-git-6695528af6",
+        "source_label": "Gyan.dev FFmpeg full build"
+      },
+      "recovery": {
+        "reclaimable": true,
+        "state": "parked_runtime"
+      },
+      "resolution": {
+        "reason": "pair_admitted",
+        "schema": "h3.context.media_runtime_resolution.v1",
+        "source_kind": "managed",
+        "state": "located"
+      },
+      "schema": "h3.context.media_runtime_status.v4"
+    },
+    "status_setup_required": {
+      "actions": ["rescan", "use_local_directory"],
+      "config": {
+        "revision": 0,
+        "selection": "auto"
+      },
+      "features": {
+        "assembly": {
+          "reason": "supported_pair_missing",
+          "state": "setup_required"
+        },
+        "derivatives": {
+          "reason": "supported_pair_missing",
+          "state": "setup_required"
+        },
+        "import": {
+          "reason": "supported_pair_missing",
+          "state": "setup_required"
+        },
+        "preview": {
+          "reason": "supported_pair_missing",
+          "state": "setup_required"
+        },
+        "render": {
+          "reason": "supported_pair_missing",
+          "state": "setup_required"
+        }
+      },
+      "manual": {
+        "approximate_bytes": 246558061,
+        "archive_name": "ffmpeg-2026-02-26-git-6695528af6-full_build.zip",
+        "archive_sha256": "ad18ecdedfca6d51c28cf12f2c96287ce1150686578b75bff2efcd06ff34bb30",
+        "license": "GPL-3.0-or-later",
+        "release_page": "https://github.com/GyanD/codexffmpeg/releases/tag/2026-02-26-git-6695528af6",
+        "source_label": "Gyan.dev FFmpeg full build"
+      },
+      "recovery": null,
+      "resolution": {
+        "reason": "supported_pair_missing",
+        "schema": "h3.context.media_runtime_resolution.v1",
+        "source_kind": "none",
+        "state": "unavailable"
+      },
+      "schema": "h3.context.media_runtime_status.v4"
+    }
+  },
+  "schema": "h3.context.media_runtime_wire_fixture.v4",
+  "vocabularies": {
+    "actions": [
+      "rescan",
+      "use_local_directory",
+      "restore_auto",
+      "reclaim_parked_runtime"
+    ],
+    "feature_reasons": [
+      "activating",
+      "activation_failed",
+      "config_corrupt",
+      "config_unsupported",
+      "discovering",
+      "discovery_in_progress",
+      "discovery_limit",
+      "discovery_timeout",
+      "invalid_config",
+      "local_selection_invalid_path",
+      "local_selection_unsupported_pair",
+      "override_incomplete",
+      "override_invalid_marker",
+      "override_invalid_path",
+      "override_split_directory",
+      "override_unsupported_pair",
+      "pair_admitted",
+      "private_root_invalid",
+      "render_qualification_unavailable",
+      "supported_pair_missing",
+      "unsupported_host",
+      "unsupported_platform",
+      "worker_failure"
+    ],
+    "feature_states": ["ready", "setup_required", "unavailable"],
+    "recovery_states": ["parked_runtime", "abandoned_setup"],
+    "refusal_codes": [
+      "config_conflict",
+      "config_corrupt",
+      "config_unsupported",
+      "config_write_failed",
+      "discovery_limit",
+      "discovery_timeout",
+      "internal_failure",
+      "invalid_request",
+      "media_runtime_busy",
+      "media_type_rejected",
+      "origin_rejected",
+      "private_root_invalid",
+      "reclaim_unsafe",
+      "request_too_large",
+      "selection_invalid_path",
+      "selection_unsupported_pair",
+      "setup_busy",
+      "unsupported_host",
+      "unsupported_platform",
+      "worker_failure"
+    ]
+  }
+}

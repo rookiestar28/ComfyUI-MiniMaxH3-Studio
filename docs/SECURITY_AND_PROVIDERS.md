@@ -29,8 +29,8 @@ Optional features have their own setup and permission boundaries:
 
 - **Assisted authoring** runs only after you pick a profile and give the permission it asks for.
   No provider, model or fallback is ever chosen automatically.
-- **Media tools** are found on your computer automatically, but downloading them needs you to
-  choose **Install**.
+- **Media tools** are supplied by you and verified locally. The extension does not download or
+  install them.
 
 - **Local perception** requires the host operator's existing local setup. Visual analysis also
   requires permission to send the selected frames to the local Ollama service. See
@@ -187,16 +187,14 @@ Windows x64 with 64-bit Python (gyan.dev full build `2026-02-26-git-6695528af6`)
 - **Only that build is used.** Both programs are checked against fixed SHA-256 digests when found
   and again on every use; any other copy is ignored.
 - **Finding it** looks, in order, at an administrator's override, a folder you chose in
-  **Settings**, the copy this extension installed, your Python environment and then `PATH` (at most
+  **Settings**, a copy set up by an earlier version, your Python environment and then `PATH` (at most
   32 folders). It never runs a program to identify it and skips network paths and links.
-- **Installing** happens only when you choose **Install**. The archive comes over HTTPS from the
-  fixed GitHub release, is checked against fixed digests and is unpacked without running anything
-  from it. Only the two programs and their license and readme are kept, in ComfyUI's private user
-  data. The download sends no prompt, media or credential, never uses a proxy, and never changes
-  `PATH` or other packs. On a computer that needs a proxy, choose a folder under **Advanced**
-  instead.
-- **Remove earlier copy** appears only when an interrupted update left an old copy behind, and runs
-  only when you choose it.
+- **Manual setup**: download the exact archive linked in **Media tools**, check its displayed
+  SHA-256 and extract it yourself. **Use folder** admits only the supported pair in its **bin**
+  folder, without contacting any remote service. Selecting it does not retry an interrupted media
+  action; retry that action explicitly. Existing earlier-version installations remain discoverable.
+- **Cleanup** runs only when explicitly requested. It removes known earlier temporary names,
+  preserves unknown files and links, and retains a parked copy without a verified replacement.
 - **Running**: FFmpeg runs as a separate process with limits on input size, duration and running
   time. Final rendering also limits memory, CPU time and output size.
 
@@ -259,7 +257,7 @@ raw provider responses first.
 ## Licenses
 
 The project is Apache-2.0; see `LICENSE` and `NOTICE`. The bundled Noto Sans fonts use the SIL Open
-Font License 1.1. FFmpeg is not included; it is downloaded only when you choose **Install** and is
+Font License 1.1. FFmpeg is not included: you provide the supported build yourself, and it is
 licensed separately under GPL-3.0-or-later. MiniMax models, provider services and other external
 assets have their own terms. This project is independent and is not affiliated with or endorsed by
 MiniMax.

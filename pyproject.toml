@@ -5,7 +5,7 @@ backend-path = ["."]
 
 [project]
 name = "minimax-h3-studio"
-version = "1.2.0"
+version = "1.2.1"
 description = "Turn a description into a finished MiniMax H3 video without leaving ComfyUI, prompt, segments, continuity and final cut in one workbench."
 readme = "README.md"
 requires-python = ">=3.10"
