@@ -23,19 +23,36 @@ const sidebarBaseCatalog = {
     referenceVideos: "Reference videos",
     referenceAudios: "Reference audio",
     referenceSelectionHelp:
-      "Choose up to one visible host-owned source of each kind. The browser keeps only node identities.",
+      "Choose ordered references: up to 9 images, 3 videos and 3 audio files.",
+    referenceActions: {
+      add: "Add source…",
+      remove: "Remove",
+      counter: "{files} of 12 files · audio {audio} of 3",
+      reasons: {
+        per_kind:
+          "The maximum is 9 images, 3 videos and 3 standalone audio files.",
+        files: "Choose at most 12 files, including soundtracks.",
+        audio: "Choose at most 3 audio files, including soundtracks.",
+        visual: "Choose at least one image or video.",
+      },
+      moveUp: "Move up",
+      moveDown: "Move down",
+      durationAdvice:
+        "Video and audio clips should each be 2–15 seconds, with at most 15 seconds per kind in total. Soundtracks count toward the audio limits.",
+    },
     referenceVideoSoundtrack: "Reference video soundtrack",
     referenceVideoSoundtrackOptions: {
-      included: "Submit the video's own soundtrack",
-      excluded: "Do not submit a soundtrack",
-      unavailable: "Soundtrack unavailable",
+      included: "Submit all selected videos’ own soundtracks",
+      excluded: "Do not submit soundtracks",
+      unavailable: "Soundtracks unavailable",
     },
     sourceBlockers: {
       firstFrame: "Select a first frame source before submitting.",
       lastFrame: "Select a last frame source before submitting.",
       distinctFrames:
         "Select distinct first and last frame sources before submitting.",
-      reference: "Select at least one reference source before submitting.",
+      reference:
+        "Select at least one image or video reference before submitting.",
     },
     generation: {
       missingAsset:
@@ -220,6 +237,8 @@ const sidebarBaseCatalog = {
     launcherTitle: "MiniMax H3 Studio",
     launcherTooltip: "Inspect the backend-owned H3 Context product state",
     errorMessages: {
+      reference_capacity_exceeded:
+        "The reference selection exceeds the file or audio limits.",
       incompatible_seam:
         "The supported host seam is unavailable; native nodes remain available.",
       compile_failed: "The visible H3 graph could not be compiled.",
@@ -286,10 +305,25 @@ const sidebarBaseCatalog = {
     referenceVideos: "參考影片",
     referenceAudios: "參考音訊",
     referenceSelectionHelp:
-      "每種類型最多選擇一個可見的 host-owned 來源；瀏覽器只保留節點身份。",
+      "依序選擇參考素材：最多 9 張圖片、3 段影片及 3 個音訊。",
+    referenceActions: {
+      add: "新增來源…",
+      remove: "移除",
+      counter: "{files} / 12 個檔案 · 音訊 {audio} / 3",
+      reasons: {
+        per_kind: "最多選擇 9 張圖片、3 段影片及 3 個獨立音訊。",
+        files: "含影片配樂，最多選擇 12 個檔案。",
+        audio: "含影片配樂，最多選擇 3 個音訊。",
+        visual: "請至少選擇一張圖片或一段影片。",
+      },
+      moveUp: "上移",
+      moveDown: "下移",
+      durationAdvice:
+        "影片與音訊每段建議為 2–15 秒，每種類型總長最多 15 秒。影片配樂也計入音訊限制。",
+    },
     referenceVideoSoundtrack: "參考影片配樂",
     referenceVideoSoundtrackOptions: {
-      included: "提交影片自身的配樂",
+      included: "提交所有所選影片自身的配樂",
       excluded: "不提交配樂",
       unavailable: "配樂無法取得",
     },
@@ -297,7 +331,7 @@ const sidebarBaseCatalog = {
       firstFrame: "提交前請選擇首幀來源。",
       lastFrame: "提交前請選擇尾幀來源。",
       distinctFrames: "提交前請選擇不同的首幀與尾幀來源。",
-      reference: "提交前請至少選擇一個參考來源。",
+      reference: "提交前請至少選擇一張參考圖片或一段參考影片。",
     },
     generation: {
       missingAsset:
@@ -458,6 +492,7 @@ const sidebarBaseCatalog = {
     launcherTitle: "MiniMax H3 Studio",
     launcherTooltip: "檢視後端管理的 H3 Context 產品狀態",
     errorMessages: {
+      reference_capacity_exceeded: "所選參考素材超過檔案數或音訊數限制。",
       incompatible_seam: "支援的 host seam 不可用；原生節點仍可使用。",
       compile_failed: "無法編譯可見的 H3 圖形。",
       queue_failed: "一般 ComfyUI 佇列拒絕此次執行。",
@@ -517,10 +552,25 @@ const sidebarBaseCatalog = {
     referenceVideos: "参考视频",
     referenceAudios: "参考音频",
     referenceSelectionHelp:
-      "每种类型最多选择一个可见的 host-owned 来源；浏览器只保留节点身份。",
+      "依次选择参考素材：最多 9 张图片、3 段视频及 3 个音频。",
+    referenceActions: {
+      add: "新增来源…",
+      remove: "移除",
+      counter: "{files} / 12 个文件 · 音频 {audio} / 3",
+      reasons: {
+        per_kind: "最多选择 9 张图片、3 段视频及 3 个独立音频。",
+        files: "含视频配乐，最多选择 12 个文件。",
+        audio: "含视频配乐，最多选择 3 个音频。",
+        visual: "请至少选择一张图片或一段视频。",
+      },
+      moveUp: "上移",
+      moveDown: "下移",
+      durationAdvice:
+        "视频与音频每段建议为 2–15 秒，每种类型总长最多 15 秒。视频配乐也计入音频限制。",
+    },
     referenceVideoSoundtrack: "参考视频配乐",
     referenceVideoSoundtrackOptions: {
-      included: "提交视频自身的配乐",
+      included: "提交所有所选视频自身的配乐",
       excluded: "不提交配乐",
       unavailable: "配乐无法获取",
     },
@@ -528,7 +578,7 @@ const sidebarBaseCatalog = {
       firstFrame: "提交前请选择首帧来源。",
       lastFrame: "提交前请选择尾帧来源。",
       distinctFrames: "提交前请选择不同的首帧和尾帧来源。",
-      reference: "提交前请至少选择一个参考来源。",
+      reference: "提交前请至少选择一张参考图片或一段参考视频。",
     },
     generation: {
       missingAsset:
@@ -689,6 +739,7 @@ const sidebarBaseCatalog = {
     launcherTitle: "MiniMax H3 Studio",
     launcherTooltip: "检查由后端管理的 H3 Context 产品状态",
     errorMessages: {
+      reference_capacity_exceeded: "所选参考素材超过文件数或音频数限制。",
       incompatible_seam: "受支持的 host seam 不可用；原生节点仍可使用。",
       compile_failed: "无法编译可见的 H3 图形。",
       queue_failed: "常规 ComfyUI 队列拒绝了此次运行。",

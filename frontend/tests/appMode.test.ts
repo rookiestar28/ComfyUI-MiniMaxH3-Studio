@@ -22,6 +22,7 @@ import {
   type ManagedAppModeCanvasIdentity,
 } from "../src/host/appMode";
 import { createQualifiedBasePrompt } from "./support/qualifiedBasePrompt";
+import { createMaterializedReferencePrompt } from "./support/materializedReferencePrompt";
 import {
   loadSyntheticTemplate,
   materializedGraphSummary,
@@ -83,10 +84,12 @@ const createMaterializedPrompt = (
   opaqueSources: Parameters<typeof createQualifiedBasePrompt>[1] = {},
   options: Parameters<typeof createQualifiedBasePrompt>[2] = {},
 ) =>
-  createQualifiedBasePrompt(inputs, opaqueSources, {
-    ...options,
-    sharedDurationSource: true,
-  });
+  inputs.task_mode === "ref2va"
+    ? createMaterializedReferencePrompt(inputs, opaqueSources, options)
+    : createQualifiedBasePrompt(inputs, opaqueSources, {
+        ...options,
+        sharedDurationSource: true,
+      });
 
 function existingGraphRouteFixture(
   inputs: Parameters<typeof createQualifiedBasePrompt>[0],
@@ -1324,10 +1327,10 @@ describe("H3 App Mode host seam", () => {
     // that owns canonical reference identity derived no soundtrack at all for a
     // graph that submitted one.
     expect(prompt["9"]?.inputs).toEqual({
-      images: ["10", 0],
-      videos: ["11", 0],
+      "images.image0": ["10", 0],
+      "videos.video0": ["11", 0],
       "paired_audios.paired_audio0": ["13", 1],
-      audios: ["12", 0],
+      "audios.audio0": ["12", 0],
     });
     expect(prompt["6"]?.inputs).toEqual(
       expect.objectContaining({
@@ -1351,11 +1354,13 @@ describe("H3 App Mode host seam", () => {
           user_intent: "Reject unsupported direct cardinality.",
           duration_milliseconds: 5167,
           frame_count: 124,
-          reference_image_sources: ["17", "18"],
+          reference_image_sources: Array.from({ length: 10 }, (_, i) =>
+            String(17 + i),
+          ),
         },
         {},
       ),
-    ).toThrow(/cardinality|source roles/i);
+    ).toThrow(/reference_capacity_exceeded/);
   });
 
   it.each(["mutate", "clone"] as const)(

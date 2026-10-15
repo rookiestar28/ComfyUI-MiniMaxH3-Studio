@@ -28,6 +28,7 @@ from ..core.av_reconstruction import (
     AVReconstructionError,
     AVReconstructionPlan,
     AVSegmentPlan,
+    AVTargetProfile,
     AVVideoDescriptor,
     qualified_av_limits,
     qualified_av_target_profile,
@@ -44,6 +45,7 @@ from ..core.av_seam_policy import (
 )
 from ..core.canonical import canonical_fingerprint
 from ..core.errors import MediaProcessError
+from ..core.m26_assembly import SeamMeasurementV1
 from ..core.safe_paths import UnsafePathError, ensure_directory, validate_regular_file
 from .av_reconstruction_store import PrivateAVReconstructionStore
 from .av_reconstruction_transport import AVSegmentSource, AVTransportError
@@ -1047,8 +1049,10 @@ def _assert_exact_output(
     *,
     expected_frames: int,
     expected_samples: int,
+    target_profile: AVTargetProfile | None = None,
 ) -> None:
-    target_profile = qualified_av_target_profile()
+    if target_profile is None:
+        target_profile = qualified_av_target_profile()
     video = descriptor.video
     audio = descriptor.audio
     duration = Fraction(expected_frames, 1) / target_profile.frame_rate.fraction
@@ -1083,6 +1087,12 @@ def _assert_exact_output(
         and audio.decoded_sample_count == expected_samples
     ):
         raise AVMediaAdapterError("media_output_invalid")
+
+
+def _scaled(value: float, factor: int) -> int:
+    """A non-negative metric in integer units, capped where the receipt contract caps counts."""
+
+    return min(1_000_000_000, max(0, round(value * factor)))
 
 
 def _descriptor_fact_projection(descriptor: AVMediaDescriptor) -> dict[str, object]:
@@ -2354,6 +2364,94 @@ class QualifiedAVMediaAdapter:
         # rational value for the independent duration check; rounding cannot repair authority.
         return duration * 1000
 
+    def measure_assembly_seams(
+        self,
+        *,
+        store: PrivateAVReconstructionStore,
+        receipt: object,
+        segment_frames: tuple[int, ...],
+        fps: int,
+        width: int,
+        height: int,
+        deadline: float,
+        cancellation: CancellationProbe | None = None,
+    ) -> tuple[SeamMeasurementV1 | str, ...]:
+        """Measure every cut seam of one stored full assembly output for the seam report.
+
+        Measurement never fails the assembly: a decode or metric problem becomes a closed reason
+        for the affected seams (``decode_budget``, ``decode_failed``, ``metric_undefined``).
+        """
+
+        from ..core.av_reconstruction import AVReconstructionReceipt
+        from ..core.seam_observation import film_seam_metrics
+        from .seam_observation_media import (
+            AUDIO_RATE,
+            SeamObservationDecoder,
+            SeamObservationMediaError,
+        )
+
+        if (
+            type(store) is not PrivateAVReconstructionStore
+            or type(receipt) is not AVReconstructionReceipt
+            or type(segment_frames) is not tuple
+            or not all(type(item) is int and item > 0 for item in segment_frames)
+            or type(fps) is not int
+            or fps <= 0
+        ):
+            raise AVMediaAdapterError("operation_unsupported")
+        seam_count = len(segment_frames) - 1
+        if seam_count <= 0:
+            return ()
+        full = next(
+            (item for item in receipt.outputs if item.kind.value == "reconstruction_full"), None
+        )
+        total_frames = sum(segment_frames)
+        if full is None or full.video_frame_count != total_frames:
+            raise AVMediaAdapterError("operation_unsupported")
+        seams = tuple(sum(segment_frames[: index + 1]) for index in range(seam_count))
+        source = create_output_lease(self._scratch_root, suffix=".mp4")
+        try:
+            try:
+                store.copy_selected_output(
+                    receipt,
+                    full.handle,
+                    source,
+                    maximum_bytes=qualified_av_limits().max_aggregate_output_bytes,
+                    deadline=deadline,
+                    cancellation=cancellation,
+                )
+                decoder = SeamObservationDecoder(self._ffmpeg_path)
+                luma = decoder.luma_frames(
+                    source.path, source_width=width, source_height=height, frames=total_frames
+                )
+                if (total_frames * AUDIO_RATE) % fps:
+                    return ("metric_undefined",) * seam_count
+                audio = decoder.mono_audio(source.path, samples=total_frames * AUDIO_RATE // fps)
+            except SeamObservationMediaError as exc:
+                reason = "decode_budget" if exc.code == "extent" else "decode_failed"
+                return (reason,) * seam_count
+            except Exception:  # noqa: BLE001 - a closed reason; no private path crosses.
+                return ("decode_failed",) * seam_count
+            _raise_if_cancelled(cancellation)
+            results: list[SeamMeasurementV1 | str] = []
+            for value in film_seam_metrics(luma.frames, audio, AUDIO_RATE, fps, seams):
+                if isinstance(value, str):
+                    results.append(value)
+                    continue
+                results.append(
+                    SeamMeasurementV1(
+                        s1_milli=_scaled(value.s1, 1_000),
+                        s2_micro=_scaled(value.s2, 1_000_000),
+                        s5_milli=_scaled(value.s5, 1_000),
+                        s6_milli=_scaled(value.s6, 1_000),
+                        s9_centi_db=_scaled(value.s9, 100),
+                        s10_ms=_scaled(value.s10, 1),
+                    )
+                )
+            return tuple(results)
+        finally:
+            source.release()
+
     def execute_preview(
         self,
         *,
@@ -2776,7 +2874,12 @@ class QualifiedAVMediaAdapter:
         if AVOperation.NORMALIZE_VIDEO in operations:
             filters.append(
                 "[0:v:0]"
-                f"scale={target.width}:{target.height}:flags=lanczos,"
+                # IMPORTANT: fit inside the target and pad, then declare square pixels. A plain
+                # scale to the target stretches a 16:9 source into the square target and leaves
+                # the SAR undeclared, so players show it squashed (circle at 0.56 of its width).
+                f"scale={target.width}:{target.height}:force_original_aspect_ratio=decrease:"
+                "force_divisible_by=2:flags=lanczos,"
+                f"pad={target.width}:{target.height}:(ow-iw)/2:(oh-ih)/2,setsar=1,"
                 f"fps={target.frame_rate.numerator}/{target.frame_rate.denominator},"
                 f"format={target.pixel_format},"
                 f"trim=end_frame={segment.accounting.emitted_frames},"
@@ -2874,6 +2977,7 @@ class QualifiedAVMediaAdapter:
         expected_samples: int,
         segment_frames: tuple[int, ...],
         segment_samples: tuple[int, ...],
+        target_profile: AVTargetProfile | None = None,
     ) -> MediaProcessInvocation:
         if not inputs or len(inputs) > qualified_av_limits().max_segments:
             raise AVMediaAdapterError("resource_limit")
@@ -2896,7 +3000,7 @@ class QualifiedAVMediaAdapter:
             or sum(segment_samples) != expected_samples
         ):
             raise AVMediaAdapterError("resource_limit")
-        target = qualified_av_target_profile()
+        target = qualified_av_target_profile() if target_profile is None else target_profile
         executable = str(self._ffmpeg_path)
         argv: list[str] = [
             executable,
@@ -3201,6 +3305,12 @@ class QualifiedAVMediaAdapter:
             item.segment_id for item in plan.segments
         ):
             raise AVMediaAdapterError("inspection_stale")
+        # IMPORTANT: per-segment transforms encode to the legacy target only. A native-rate plan is
+        # admitted with exact passthrough segments; any transform there would emit 512x512/30.
+        if plan.target_profile != qualified_av_target_profile() and any(
+            segment.operations != (AVOperation.PASSTHROUGH,) for segment in plan.segments
+        ):
+            raise AVMediaAdapterError("operation_unsupported")
         input_by_id = dict(input_payloads)
         if len(input_by_id) != len(input_payloads):
             raise AVMediaAdapterError("inspection_stale")
@@ -3406,6 +3516,7 @@ class QualifiedAVMediaAdapter:
                 expected_samples=sum(item.accounting.emitted_samples for item in plan.segments),
                 segment_frames=tuple(item.accounting.emitted_frames for item in plan.segments),
                 segment_samples=tuple(item.accounting.emitted_samples for item in plan.segments),
+                target_profile=plan.target_profile,
             )
             self._run_ffmpeg(aggregate_invocation, cancellation)
             aggregate_descriptor = self._inspect_staged_output(
@@ -3422,6 +3533,7 @@ class QualifiedAVMediaAdapter:
                 aggregate_descriptor,
                 expected_frames=expected_frames,
                 expected_samples=expected_samples,
+                target_profile=plan.target_profile,
             )
             temp_bytes += aggregate_descriptor.artifact_byte_length
             if temp_bytes > limits.max_temp_bytes:

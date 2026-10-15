@@ -170,46 +170,15 @@ test("exact host queues dense Ref2VA media bindings without browser disclosure",
       const registryInputs = registry?.[1].inputs ?? {};
       const generationInputs = generation?.[1].inputs ?? {};
       const componentInputs = component?.[1].inputs ?? {};
-      const firstInput = (
-        inputs: Record<string, unknown>,
-        ...names: string[]
-      ): unknown =>
-        names.map((name) => inputs[name]).find((value) => value !== undefined);
-      const registryImage = firstInput(
-        registryInputs,
-        "images",
-        "images.image0",
-      );
-      const registryVideo = firstInput(
-        registryInputs,
-        "videos",
-        "videos.video0",
-      );
-      const registryAudio = firstInput(
-        registryInputs,
-        "audios",
-        "audios.audio0",
-      );
-      const nativeImage = firstInput(
-        generationInputs,
-        "ref_images",
-        "ref_images.ref_image_0",
-      );
-      const nativeVideo = firstInput(
-        generationInputs,
-        "ref_videos",
-        "ref_videos.ref_video_0",
-      );
-      const nativeVideoAudio = firstInput(
-        generationInputs,
-        "ref_video_audios",
-        "ref_video_audios.ref_video_audio_0",
-      );
-      const nativeAudio = firstInput(
-        generationInputs,
-        "ref_audios",
-        "ref_audios.ref_audio_0",
-      );
+      // Pin the actual serialized names. A grouped fallback masked the V1 receiver defect.
+      const registryImage = registryInputs["images.image0"];
+      const registryVideo = registryInputs["videos.video0"];
+      const registryAudio = registryInputs["audios.audio0"];
+      const nativeImage = generationInputs["ref_images.ref_image_0"];
+      const nativeVideo = generationInputs["ref_videos.ref_video_0"];
+      const nativeVideoAudio =
+        generationInputs["ref_video_audios.ref_video_audio_0"];
+      const nativeAudio = generationInputs["ref_audios.ref_audio_0"];
       runtime.__h3M1516Queue!.push({
         queueNumber,
         taskMode: request?.task_mode,
@@ -251,7 +220,7 @@ test("exact host queues dense Ref2VA media bindings without browser disclosure",
   await expect(refSubmit).toBeDisabled();
   await expect(
     container.getByText(
-      "Select at least one reference source before submitting.",
+      "Select at least one image or video reference before submitting.",
       { exact: true },
     ),
   ).toHaveAttribute("role", "status");
@@ -259,7 +228,10 @@ test("exact host queues dense Ref2VA media bindings without browser disclosure",
   await refDuration.fill("5");
   await expect
     .poll(() =>
-      container.getByLabel("Reference images").locator("option").count(),
+      container
+        .getByRole("combobox", { name: "Reference images", exact: true })
+        .locator("option")
+        .count(),
     )
     .toBeGreaterThan(1);
   for (const label of [
@@ -268,10 +240,15 @@ test("exact host queues dense Ref2VA media bindings without browser disclosure",
     "Reference audio",
   ]) {
     await expect
-      .poll(() => container.getByLabel(label).locator("option").count())
+      .poll(() =>
+        container
+          .getByRole("combobox", { name: label, exact: true })
+          .locator("option")
+          .count(),
+      )
       .toBeGreaterThan(1);
     const source = await container
-      .getByLabel(label)
+      .getByRole("combobox", { name: label, exact: true })
       .locator("option")
       .evaluateAll((options) =>
         options
@@ -280,13 +257,114 @@ test("exact host queues dense Ref2VA media bindings without browser disclosure",
       );
     if (source === undefined)
       throw new Error(`No opaque source option was available for ${label}`);
-    await container.getByLabel(label).selectOption(source);
+    await container
+      .getByRole("combobox", { name: label, exact: true })
+      .selectOption(source);
   }
   await expect(refSubmit).toBeEnabled();
   await expect(container).not.toContainText("m15-16-private-");
   await container
     .getByRole("button", { name: "Replace canvas and start H3 App Mode" })
     .evaluate((button) => (button as HTMLButtonElement).click());
+  // IMPORTANT: materialization prepares the visible graph without queueing. Check its
+  // exact reference sockets before the separate queue press; waiting for a queue here
+  // mistakes the intended two-phase lifecycle for a binding failure.
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const graph = (window as any).comfyAPI.app.app.graph.serialize();
+        const registries = graph.nodes.filter(
+          (node: any) =>
+            node.type === "comfyui_h3_context.H3Context.ReferenceRegistry",
+        );
+        const anchors = graph.nodes.filter(
+          (node: any) => node.type === "MiniMaxH3ReferenceToVideo",
+        );
+        const linked = (registries[0]?.inputs ?? [])
+          .filter((input: any) => input.link != null)
+          .map((input: any) => input.name);
+        return (
+          registries.length === 1 &&
+          anchors.length === 1 &&
+          [
+            "images.image0",
+            "videos.video0",
+            "paired_audios.paired_audio0",
+            "audios.audio0",
+          ].every((name) => linked.includes(name))
+        );
+      }),
+    )
+    .toBe(true);
+  expect(
+    await page.evaluate(
+      () =>
+        (window as unknown as { __h3M1516Queue?: unknown[] }).__h3M1516Queue
+          ?.length ?? 0,
+    ),
+  ).toBe(0);
+  await expect(refSubmit).toBeEnabled();
+  await expect(refSubmit).toHaveText("Apply and queue current H3 graph");
+  // IMPORTANT: the served template's video VAE is not the installed official
+  // role on this host. Select that role on the prepared visible widget before
+  // queueing, preserving both the product fallback and the five-role assertion.
+  if (candidateBundle !== null) {
+    const videoVae = officialAssetManifest.slots.find(
+      (slot) => slot.slot === "video_vae",
+    );
+    if (videoVae === undefined)
+      throw new Error("The video VAE role is missing");
+    // IMPORTANT: a template may name an uninstalled VAE variant. Select the installed official
+    // role on the visible native widget; never rewrite a queued prompt or bypass queue validation.
+    const selectedVae = await page.evaluate((spec) => {
+      const app = (window as any).comfyAPI.app.app;
+      const serialized = app.graph.serialize();
+      const decoders = serialized.nodes.filter(
+        (node: any) => node.type === "VAEDecode",
+      );
+      if (decoders.length !== 1) return false;
+      const input = decoders[0].inputs.find(
+        (value: any) => value.name === "vae",
+      );
+      const edge = serialized.links.find(
+        (value: any[]) => value[0] === input?.link,
+      );
+      const loader = app.graph.getNodeById(edge?.[1]);
+      if (loader?.type !== spec.loader_type) return false;
+      const widget = loader.widgets.find(
+        (value: any) => value.name === spec.widget_name,
+      );
+      const choices =
+        loader.constructor.nodeData?.input?.required?.[spec.widget_name]?.[0];
+      if (!widget || !Array.isArray(choices)) return false;
+      const accepted = new Set(
+        spec.accepted_basenames.map((value) => value.toLowerCase()),
+      );
+      const official = choices.filter(
+        (value: unknown): value is string =>
+          typeof value === "string" &&
+          accepted.has(
+            value.replaceAll("\\", "/").split("/").at(-1)!.toLowerCase(),
+          ),
+      );
+      const selected =
+        official.find((value: string) => value === spec.template_default) ??
+        official[0];
+      if (selected === undefined) return false;
+      widget.value = selected;
+      widget.callback?.(selected);
+      app.graph.setDirtyCanvas(true, true);
+      return widget.value === selected;
+    }, videoVae);
+    expect(
+      selectedVae,
+      "The visible native VAE must select an installed official role",
+    ).toBe(true);
+    expectCompleteHostAssetResolution(
+      await hostAssetResolutionReceipt(page, "reference_to_video"),
+    );
+  }
+  await refSubmit.evaluate((button) => (button as HTMLButtonElement).click());
   await expect
     .poll(() =>
       page.evaluate(
@@ -308,10 +386,6 @@ test("exact host queues dense Ref2VA media bindings without browser disclosure",
     componentBound: true,
     videoBound: true,
   });
-  if (candidateBundle !== null)
-    expectCompleteHostAssetResolution(
-      await hostAssetResolutionReceipt(page, "reference_to_video"),
-    );
   const privateStorage = await page.evaluate(() =>
     [...Object.keys(localStorage), ...Object.keys(sessionStorage)].some(
       (key) => {

@@ -60,7 +60,8 @@ _AUTHORITY_VERSIONS = {
     "h3.context.segment_artifact_receipt.v1",
     "h3.context.continuity_boundary_receipt.v1",
     "h3.context.av_reconstruction_receipt.v1",
-    "h3.context.m26.production_assembly_receipt.v1",
+    "h3.context.m26.production_assembly_receipt.v2",
+    "h3.context.m26.production_seam_report.v1",
 }
 _BOUNDARY_BY_RELATION = {
     SegmentRelationKind.INDEPENDENT: "independent",
@@ -317,6 +318,80 @@ class ProductionGenerationSequenceSummary:
         }
 
 
+ASSEMBLY_OUTPUT_PROFILE_IDS = ("h3_native_av_v1", "legacy_av_30fps_48khz_stereo")
+_SEAM_LINE_LABELS = ("smooth", "visible_change", "unmeasured")
+
+
+@dataclass(frozen=True, slots=True)
+class ProductionAssemblyProfileOption:
+    """One selectable output profile and the capability an assemble request must echo for it."""
+
+    output_profile_id: str
+    capability_fingerprint: str
+
+    def __post_init__(self) -> None:
+        if (
+            self.output_profile_id not in ASSEMBLY_OUTPUT_PROFILE_IDS
+            or type(self.capability_fingerprint) is not str
+            or _FINGERPRINT.fullmatch(self.capability_fingerprint) is None
+        ):
+            raise ProductionWorkbenchProjectionError("invalid_assembly_profile")
+
+    def to_wire(self) -> dict[str, object]:
+        return {
+            "output_profile_id": self.output_profile_id,
+            "capability_fingerprint": self.capability_fingerprint,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class ProductionAssemblySeamLine:
+    """One seam of a completed assembly: its label and, when measured, its integer metrics."""
+
+    boundary_index: int
+    label: str
+    s1_milli: int | None = None
+    s2_micro: int | None = None
+    s5_milli: int | None = None
+    s6_milli: int | None = None
+    s9_centi_db: int | None = None
+    s10_ms: int | None = None
+
+    def __post_init__(self) -> None:
+        metrics = (
+            self.s1_milli,
+            self.s2_micro,
+            self.s5_milli,
+            self.s6_milli,
+            self.s9_centi_db,
+            self.s10_ms,
+        )
+        if (
+            type(self.boundary_index) is not int
+            or not 0 <= self.boundary_index < MAX_WORKSPACE_SEGMENTS
+            or self.label not in _SEAM_LINE_LABELS
+            or (self.label == "unmeasured") != all(value is None for value in metrics)
+            or any(
+                value is not None and (type(value) is not int or not 0 <= value <= 1_000_000_000)
+                for value in metrics
+            )
+            or (self.label != "unmeasured" and any(value is None for value in metrics))
+        ):
+            raise ProductionWorkbenchProjectionError("invalid_assembly_seam")
+
+    def to_wire(self) -> dict[str, object]:
+        return {
+            "boundary_index": self.boundary_index,
+            "label": self.label,
+            "s1_milli": self.s1_milli,
+            "s2_micro": self.s2_micro,
+            "s5_milli": self.s5_milli,
+            "s6_milli": self.s6_milli,
+            "s9_centi_db": self.s9_centi_db,
+            "s10_ms": self.s10_ms,
+        }
+
+
 @dataclass(frozen=True, slots=True)
 class ProductionAssemblyProjection:
     """Content-free M26 assembly capability and asynchronous lifecycle."""
@@ -328,16 +403,20 @@ class ProductionAssemblyProjection:
     managed_sequence_fingerprint: str | None = None
     artifact_receipt_fingerprints: tuple[str, ...] = ()
     cut_boundary_receipt_fingerprints: tuple[str, ...] = ()
-    output_profile_id: str = "legacy_av_30fps_48khz_stereo"
+    output_profile_id: str = "h3_native_av_v1"
     assembly_job_id: str | None = None
     authorization_fingerprint: str | None = None
     receipt_fingerprint: str | None = None
     failure_code: str | None = "media_runtime_not_authorized"
+    #: Every profile an assemble request may choose; empty while assembly is unavailable.
+    output_profiles: tuple[ProductionAssemblyProfileOption, ...] = ()
+    #: Per-seam lines of a succeeded assembly, in boundary order.
+    seams: tuple[ProductionAssemblySeamLine, ...] = ()
     projection_fingerprint: str | None = None
-    schema: str = "h3.context.production_assembly.projection.v1"
+    schema: str = "h3.context.production_assembly.projection.v2"
 
     def __post_init__(self) -> None:
-        if self.schema != "h3.context.production_assembly.projection.v1":
+        if self.schema != "h3.context.production_assembly.projection.v2":
             raise ProductionWorkbenchProjectionError("invalid_assembly_schema")
         if self.state not in _ASSEMBLY_STATES:
             raise ProductionWorkbenchProjectionError("invalid_assembly_state")
@@ -345,9 +424,33 @@ class ProductionAssemblyProjection:
             type(self.completed) is not int
             or type(self.total) is not int
             or not 0 <= self.completed <= self.total <= MAX_WORKSPACE_SEGMENTS
-            or self.output_profile_id != "legacy_av_30fps_48khz_stereo"
+            or self.output_profile_id not in ASSEMBLY_OUTPUT_PROFILE_IDS
         ):
             raise ProductionWorkbenchProjectionError("invalid_assembly_progress")
+        if (
+            type(self.output_profiles) is not tuple
+            or not all(
+                type(item) is ProductionAssemblyProfileOption for item in self.output_profiles
+            )
+            or len({item.output_profile_id for item in self.output_profiles})
+            != len(self.output_profiles)
+            or (self.capability_fingerprint is None) != (not self.output_profiles)
+            or (
+                self.capability_fingerprint is not None
+                and ProductionAssemblyProfileOption(
+                    self.output_profile_id, self.capability_fingerprint
+                )
+                not in self.output_profiles
+            )
+        ):
+            raise ProductionWorkbenchProjectionError("invalid_assembly_profile")
+        if (
+            type(self.seams) is not tuple
+            or not all(type(item) is ProductionAssemblySeamLine for item in self.seams)
+            or tuple(item.boundary_index for item in self.seams) != tuple(range(len(self.seams)))
+            or (self.seams and (self.state != "succeeded" or len(self.seams) != self.total - 1))
+        ):
+            raise ProductionWorkbenchProjectionError("invalid_assembly_seam")
         for value in (
             self.capability_fingerprint,
             self.managed_sequence_fingerprint,
@@ -464,6 +567,8 @@ class ProductionAssemblyProjection:
             "authorization_fingerprint": self.authorization_fingerprint,
             "receipt_fingerprint": self.receipt_fingerprint,
             "failure_code": self.failure_code,
+            "output_profiles": [item.to_wire() for item in self.output_profiles],
+            "seams": [item.to_wire() for item in self.seams],
         }
 
     def to_wire(self) -> dict[str, object]:
@@ -603,7 +708,7 @@ class ProductionWorkbenchProjection:
                 or (
                     self.reconstruction_state == "complete"
                     and self.assembly.state == "succeeded"
-                    and "h3.context.m26.production_assembly_receipt.v1" in self.authority_versions
+                    and "h3.context.m26.production_assembly_receipt.v2" in self.authority_versions
                 )
             )
             or not any(
@@ -795,12 +900,15 @@ def build_production_workbench_projection(
 
 
 __all__ = [
+    "ASSEMBLY_OUTPUT_PROFILE_IDS",
     "MAX_PRODUCTION_OUTPUTS",
     "MAX_PRODUCTION_PROJECTION_BYTES",
     "PRODUCTION_WORKBENCH_PROJECTION_SCHEMA",
     "ProductionDeliveredVideoProjection",
     "ProductionGenerationSequenceSummary",
+    "ProductionAssemblyProfileOption",
     "ProductionAssemblyProjection",
+    "ProductionAssemblySeamLine",
     "ProductionOutputProjection",
     "ProductionSegmentProjection",
     "ProductionWorkbenchProjection",

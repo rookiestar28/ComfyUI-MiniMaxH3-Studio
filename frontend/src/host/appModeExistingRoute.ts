@@ -4,6 +4,7 @@
 import { isQualifiedExternalReferenceGraph } from "./graphAdapter";
 import type { OfficialAssetResolution } from "./officialAssetResolution";
 import type { SpliceMediaIds } from "./templateMaterialization";
+import { matchesReferenceBindingIdentity } from "./referenceBindingIdentity";
 import {
   existingCompiledProjection,
   listAppModeMediaSources,
@@ -974,6 +975,29 @@ export function compiledPromptMatchesRequestedRoute(
       nodes.find(({ node }) => node.class_type === referenceRegistryNodeType)
         ?.node.inputs,
     );
+    if (route === "materialize" || route === "prepared") {
+      if (
+        nodes.filter(
+          ({ node }) => node.class_type === referenceRegistryNodeType,
+        ).length !== 1 ||
+        nodes.filter(
+          ({ node }) => node.class_type === referenceGenerationNodeType,
+        ).length !== 1
+      )
+        return false;
+      return matchesReferenceBindingIdentity(
+        registryInputs,
+        generationInputs,
+        materialized,
+        {
+          images: expectedImages,
+          videos: expectedVideos,
+          audios: expectedAudios,
+          pairedAudios: expectedSoundtracks,
+        },
+        byId,
+      );
+    }
     const countBindings = (aggregate: string, pattern: RegExp): number => {
       if (generationInputs[aggregate] !== undefined)
         return linkList(generationInputs[aggregate]).length;

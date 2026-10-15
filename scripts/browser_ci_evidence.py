@@ -243,6 +243,51 @@ def diagnostic(value: Any) -> dict[str, Any]:
     return result
 
 
+def presentation_diagnostic(value: Any) -> dict[str, Any]:
+    # CRITICAL: keep this a closed numeric/enum timeline, not an arbitrary harness snapshot.
+    # Snapshot rows carry source identity; permitting extra fields leaks it into Hosted artifacts.
+    if (
+        not isinstance(value, dict)
+        or set(value) != {"version", "samplesDropped", "samples"}
+        or type(value["version"]) is not int
+        or value["version"] != 1
+        or type(value["samplesDropped"]) is not int
+        or value["samplesDropped"] != 0
+    ):
+        raise ValueError("malformed or incomplete presentation timeline")
+    rows = value["samples"]
+    if not isinstance(rows, list) or not 1 <= len(rows) <= 20_000:
+        raise ValueError("presentation timeline must be nonempty and bounded")
+    samples = []
+    previous = 0.0
+    for row in rows:
+        if (
+            not isinstance(row, dict)
+            or set(row) != {"offsetMs", "paintMs", "deliveredMs", "phase", "path"}
+            or not isinstance(row["phase"], str)
+            or not isinstance(row["path"], str)
+            or row["phase"] not in {"playback", "edit", "undo", "navigation", "replay", "pause"}
+            or row["path"] not in {"native", "software"}
+        ):
+            raise ValueError("presentation samples must contain only closed facts")
+        try:
+            facts = {key: numeric(row[key]) for key in ("offsetMs", "paintMs", "deliveredMs")}
+        except (ValueError, OverflowError) as error:
+            raise ValueError("presentation timing must be finite and nonnegative") from error
+        if any(isinstance(item, list) for item in facts.values()) or facts["offsetMs"] < previous:
+            raise ValueError("presentation timing must be scalar and ordered")
+        previous = facts["offsetMs"]
+        samples.append({**facts, "phase": row["phase"], "path": row["path"]})
+    top = sorted(samples, key=lambda row: row["deliveredMs"], reverse=True)[:5]
+    return {
+        "version": 1,
+        "samplesDropped": 0,
+        "samples": samples,
+        "maximum": top[0],
+        "topFive": top,
+    }
+
+
 def relative_label(value: Any) -> str:
     if not isinstance(value, str) or not value or len(value) > 1024:
         raise ValueError("browser location is missing or oversized")
@@ -348,6 +393,24 @@ def sanitize_report(report: Any) -> dict[str, Any]:
         for attachment in attachments:
             if not isinstance(attachment, dict):
                 raise ValueError("malformed attachment")
+            if (
+                attachment.get("name") == "integrated-presentation-timeline"
+                and attachment.get("contentType") == "application/json"
+                and "body" in attachment
+                and "path" not in attachment
+            ):
+                facts = presentation_diagnostic(
+                    json.loads(base64.b64decode(attachment["body"], validate=True))
+                )
+                result["attachments"].append(
+                    {
+                        "name": attachment["name"],
+                        "contentType": "application/json",
+                        "body": base64.b64encode(
+                            json.dumps(facts, allow_nan=False).encode()
+                        ).decode(),
+                    }
+                )
             if (
                 attachment.get("name") == "harness-boot-diagnostics"
                 and attachment.get("contentType") == "application/json"

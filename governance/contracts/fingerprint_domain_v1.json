@@ -3305,6 +3305,28 @@
       "authority_paths": [
         "comfyui_h3_context/core/m26_assembly.py"
       ],
+      "consumer_id": "h3.context.m26.production_assembly_receipt.v2",
+      "domain": "semantic",
+      "domain_version": 1,
+      "evidence": "a typed runtime wire carries the instance values that decide execution, cache reuse or a receipt",
+      "kind": "contract",
+      "rule": "typed_runtime_wire_is_semantic"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/core/m26_assembly.py"
+      ],
+      "consumer_id": "h3.context.m26.production_seam_report.v1",
+      "domain": "semantic",
+      "domain_version": 1,
+      "evidence": "a typed runtime wire carries the instance values that decide execution, cache reuse or a receipt",
+      "kind": "contract",
+      "rule": "typed_runtime_wire_is_semantic"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/core/m26_assembly.py"
+      ],
       "consumer_id": "h3.context.m26.segment_source_contribution.v1",
       "domain": "semantic",
       "domain_version": 1,
@@ -6253,6 +6275,6 @@
       "rule": "declared_identity_site"
     }
   ],
-  "fingerprint": "sha256:f5fd4abbfce09cdf02c8b74a79c728c427df599d93edad25215292d046c4c4ab",
+  "fingerprint": "sha256:2f2b27513d2dad7d67f99796a6ecb7ca85737103e9d888b35f7c7b4cbfa1f84d",
   "schema": "h3-context-fingerprint-domain-assignment/1"
 }

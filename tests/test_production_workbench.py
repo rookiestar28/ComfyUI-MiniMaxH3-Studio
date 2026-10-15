@@ -2222,7 +2222,10 @@ def test_output_rows_bind_preview_capability_to_one_known_segment() -> None:
 
 
 def test_automatic_assembly_retains_original_import_capability() -> None:
-    from comfyui_h3_context.core.production_workbench import ProductionAssemblyProjection
+    from comfyui_h3_context.core.production_workbench import (
+        ProductionAssemblyProfileOption,
+        ProductionAssemblyProjection,
+    )
 
     _, registry, seed = _setup()
     created = registry.dispatch(_create(seed, "request.assembled.original")).projection
@@ -2242,6 +2245,7 @@ def test_automatic_assembly_retains_original_import_capability() -> None:
         completed=1,
         total=1,
         capability_fingerprint="sha256:" + "b" * 64,
+        output_profiles=(ProductionAssemblyProfileOption("h3_native_av_v1", "sha256:" + "b" * 64),),
         managed_sequence_fingerprint="sha256:" + "c" * 64,
         artifact_receipt_fingerprints=("sha256:" + "d" * 64,),
         assembly_job_id="assembly.original",
@@ -2254,7 +2258,7 @@ def test_automatic_assembly_retains_original_import_capability() -> None:
         workspace_handle=created.workspace_handle,
         reconstruction_state="complete",
         outputs=(original, aggregate),
-        authority_versions=("h3.context.m26.production_assembly_receipt.v1",),
+        authority_versions=("h3.context.m26.production_assembly_receipt.v2",),
         assembly=assembly,
         authoring_import_available=True,
     )
@@ -2267,7 +2271,10 @@ def test_automatic_assembly_retains_original_import_capability() -> None:
 def test_projection_rejects_import_without_current_automatic_originals(
     invalid_subject: str,
 ) -> None:
-    from comfyui_h3_context.core.production_workbench import ProductionAssemblyProjection
+    from comfyui_h3_context.core.production_workbench import (
+        ProductionAssemblyProfileOption,
+        ProductionAssemblyProjection,
+    )
 
     _, registry, seed = _setup()
     created = registry.dispatch(_create(seed, "request.import.guard")).projection
@@ -2286,6 +2293,7 @@ def test_projection_rejects_import_without_current_automatic_originals(
         completed=1,
         total=1,
         capability_fingerprint="sha256:" + "b" * 64,
+        output_profiles=(ProductionAssemblyProfileOption("h3_native_av_v1", "sha256:" + "b" * 64),),
         managed_sequence_fingerprint="sha256:" + "c" * 64,
         artifact_receipt_fingerprints=("sha256:" + "d" * 64,),
         assembly_job_id="assembly.original",
@@ -2303,7 +2311,7 @@ def test_projection_rejects_import_without_current_automatic_originals(
             assembly=ProductionAssemblyProjection() if invalid_subject == "legacy" else assembly,
             authority_versions=()
             if invalid_subject == "missing_version"
-            else ("h3.context.m26.production_assembly_receipt.v1",),
+            else ("h3.context.m26.production_assembly_receipt.v2",),
             allowed_actions=created.allowed_actions + ("import_production_outputs_to_authoring",),
         )
 
@@ -2404,3 +2412,108 @@ def test_release_and_mutation_race_has_one_deterministic_winner() -> None:
         {("result", 204), ("error", 410)},
         {("result", 200), ("error", 409)},
     )
+
+
+def _profiled_assembly(**changes: object) -> object:
+    from comfyui_h3_context.core.production_workbench import (
+        ProductionAssemblyProfileOption,
+        ProductionAssemblyProjection,
+        ProductionAssemblySeamLine,
+    )
+
+    native = "sha256:" + "b" * 64
+    legacy = "sha256:" + "9" * 64
+    values: dict[str, object] = {
+        "state": "succeeded",
+        "completed": 3,
+        "total": 3,
+        "capability_fingerprint": native,
+        "output_profiles": (
+            ProductionAssemblyProfileOption("h3_native_av_v1", native),
+            ProductionAssemblyProfileOption("legacy_av_30fps_48khz_stereo", legacy),
+        ),
+        "managed_sequence_fingerprint": "sha256:" + "c" * 64,
+        "artifact_receipt_fingerprints": tuple("sha256:" + str(i) * 64 for i in range(3)),
+        "cut_boundary_receipt_fingerprints": tuple("sha256:" + str(i + 5) * 64 for i in range(2)),
+        "assembly_job_id": "assembly.profiled",
+        "authorization_fingerprint": "sha256:" + "e" * 64,
+        "receipt_fingerprint": "sha256:" + "f" * 64,
+        "failure_code": None,
+        "seams": (
+            ProductionAssemblySeamLine(0, "unmeasured"),
+            ProductionAssemblySeamLine(1, "smooth", 1, 2, 3, 4, 5, 6),
+        ),
+    }
+    values.update(changes)
+    return ProductionAssemblyProjection(**values)  # type: ignore[arg-type]
+
+
+def test_assembly_projection_wire_carries_profiles_and_seam_lines() -> None:
+    projection = _profiled_assembly()
+    wire = projection.to_wire()  # type: ignore[attr-defined]
+    assert wire["schema"] == "h3.context.production_assembly.projection.v2"
+    assert wire["output_profile_id"] == "h3_native_av_v1"
+    assert [item["output_profile_id"] for item in wire["output_profiles"]] == [
+        "h3_native_av_v1",
+        "legacy_av_30fps_48khz_stereo",
+    ]
+    assert wire["seams"][1] == {
+        "boundary_index": 1,
+        "label": "smooth",
+        "s1_milli": 1,
+        "s2_micro": 2,
+        "s5_milli": 3,
+        "s6_milli": 4,
+        "s9_centi_db": 5,
+        "s10_ms": 6,
+    }
+
+
+@pytest.mark.parametrize(
+    ("change", "code"),
+    [
+        ({"state": "running", "receipt_fingerprint": None}, "invalid_assembly_seam"),
+        ({"seams": ()}, None),
+        ({"total": 4, "completed": 4}, "invalid_assembly_seam"),
+        ({"output_profile_id": "legacy_av_30fps_48khz_stereo"}, "invalid_assembly_profile"),
+        ({"output_profiles": ()}, "invalid_assembly_profile"),
+        ({"output_profile_id": "legacy_av_25fps"}, "invalid_assembly_progress"),
+    ],
+    ids=[
+        "seams_before_success",
+        "success_without_seams",
+        "seam_count",
+        "profile_capability_pair",
+        "capability_without_profiles",
+        "unknown_profile",
+    ],
+)
+def test_assembly_projection_validates_profiles_and_seams(
+    change: dict[str, object], code: str | None
+) -> None:
+    if code is None:
+        _profiled_assembly(**change)
+        return
+    with pytest.raises(ProductionWorkbenchProjectionError, match=code):
+        _profiled_assembly(**change)
+
+
+@pytest.mark.parametrize(
+    "arguments",
+    [
+        (0, "smooth"),
+        (0, "unmeasured", 1, 2, 3, 4, 5, 6),
+        (0, "smooth", 1, 2, 3, 4, 5, None),
+        (0, "smooth", 1, 2, 3, 4, 5, -1),
+        (0, "smooth", 1, 2, 3, 4, 5, 1.5),
+        (-1, "unmeasured"),
+        (0, "guessed"),
+    ],
+)
+def test_assembly_seam_line_is_either_fully_measured_or_unmeasured(
+    arguments: tuple[object, ...],
+) -> None:
+    from comfyui_h3_context.core.production_workbench import ProductionAssemblySeamLine
+
+    with pytest.raises(ProductionWorkbenchProjectionError, match="invalid_assembly_seam"):
+        ProductionAssemblySeamLine(*arguments)  # type: ignore[arg-type]

@@ -11,6 +11,7 @@ from __future__ import annotations
 import os
 import subprocess
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -905,3 +906,133 @@ def test_the_walker_unlinks_a_reparse_point_instead_of_descending(tmp_path: Path
 
     assert not doomed.exists()
     assert (outside / "deep" / "KEEP.txt").exists(), "the target was reached through the link"
+
+
+# --------------------------------------------------------------------------------------------
+#  D1-D4: the teardown path must not prune globally, hop through a shell, or change the
+# read-only attribute that a hard-linked file shares with its other names.
+# --------------------------------------------------------------------------------------------
+
+
+def _record_subprocess(monkeypatch: pytest.MonkeyPatch) -> list[list[str]]:
+
+    calls: list[list[str]] = []
+    original = subprocess.run
+
+    def recording(args: Any, *rest: Any, **kwargs: Any) -> Any:
+        calls.append([str(a) for a in args])
+        return original(args, *rest, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", recording)
+    return calls
+
+
+def test_d1_teardown_never_prunes_other_registrations(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A stale registration elsewhere survives the completion of this teardown.
+
+    Git is made to delete the directory without deregistering it -- the one shape in which the
+    teardown has to repair the registration itself.  It must drop only its own entry.
+    """
+    import scripts.workspace_link_guard as guard
+
+    repo, worktree = _seed_repo_with_worktree_inside(tmp_path)
+    stale = repo / ".tmp" / "stale"
+    subprocess.run(
+        ["git", "worktree", "add", "-q", "--detach", str(stale)],
+        cwd=repo,
+        capture_output=True,
+        check=True,
+    )
+    guard.remove_tree(stale)
+    _use_fixture_repo(monkeypatch, repo)
+    original = subprocess.run
+    calls: list[list[str]] = []
+
+    def git_deletes_but_keeps_registration(args: Any, *rest: Any, **kwargs: Any) -> Any:
+        argv = [str(a) for a in args]
+        calls.append(argv)
+        if argv[:3] == ["git", "worktree", "remove"] and Path(argv[-1]).exists():
+            guard.remove_tree(Path(argv[-1]))
+            return subprocess.CompletedProcess(argv, 0, "", "")
+        return original(args, *rest, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", git_deletes_but_keeps_registration)
+
+    assert main(["remove-worktree", str(worktree)]) == 0
+
+    assert not worktree.exists()
+    assert not _is_registered(repo, worktree)
+    assert _is_registered(repo, stale), "a global prune dropped another registration"
+    assert not [c for c in calls if c[:3] == ["git", "worktree", "prune"]]
+
+
+def test_d2_detach_and_teardown_never_run_a_shell(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts.workspace_link_guard import detach, remove_tree
+
+    canary = tmp_path / "canary"
+    canary.mkdir()
+    (canary / "KEEP.txt").write_text("keep", encoding="utf-8")
+    doomed = tmp_path / "doomed"
+    (doomed / "real").mkdir(parents=True)
+    if not (
+        _make_directory_link(tmp_path / "escape", canary)
+        and _make_directory_link(doomed / "inner", doomed / "real")
+    ):
+        pytest.skip("this platform cannot create a directory link without extra privilege")
+    calls = _record_subprocess(monkeypatch)
+
+    assert detach(tmp_path / "escape", canary)
+    remove_tree(doomed)
+
+    assert not [c for c in calls if c and c[0].lower() in {"cmd", "cmd.exe"}], calls
+    assert (canary / "KEEP.txt").exists()
+    assert not doomed.exists()
+
+
+@pytest.mark.skipif(os.name != "nt", reason="read-only attributes and hard links are NTFS here")
+def test_d3_teardown_walker_keeps_a_shared_read_only_attribute(tmp_path: Path) -> None:
+    import stat as stat_module
+
+    from scripts.workspace_link_guard import remove_tree
+
+    store = tmp_path / "store.bin"
+    store.write_bytes(b"shared")
+    doomed = tmp_path / "doomed"
+    doomed.mkdir()
+    os.link(store, doomed / "store.bin")
+    os.chmod(store, stat_module.S_IREAD)
+    try:
+        remove_tree(doomed)
+        assert not doomed.exists()
+        assert (
+            getattr(os.stat(store), "st_file_attributes", 0) & stat_module.FILE_ATTRIBUTE_READONLY
+        ), "deleting one name changed the attribute every other name shares"
+    finally:
+        os.chmod(store, stat_module.S_IWRITE)
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Git for Windows clears read-only attributes")
+def test_d4_teardown_refuses_before_git_touches_a_shared_read_only_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import stat as stat_module
+
+    repo, worktree = _seed_repo_with_worktree_inside(tmp_path)
+    (worktree / "node_modules").mkdir()
+    store = tmp_path / "store.bin"
+    store.write_bytes(b"shared")
+    os.link(store, worktree / "node_modules" / "store.bin")
+    os.chmod(store, stat_module.S_IREAD)
+    _use_fixture_repo(monkeypatch, repo)
+    try:
+        assert main(["remove-worktree", str(worktree)]) == 1
+        assert (
+            getattr(os.stat(store), "st_file_attributes", 0) & stat_module.FILE_ATTRIBUTE_READONLY
+        )
+        assert worktree.exists() and _is_registered(repo, worktree)
+    finally:
+        os.chmod(store, stat_module.S_IWRITE)

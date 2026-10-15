@@ -32,11 +32,12 @@ from ..core.generation_sequence import (
 )
 from ..core.length import resolve_milliseconds
 from ..core.m26_assembly import (
-    M26_OUTPUT_PROFILE_ID,
+    M26_OUTPUT_PROFILE_IDS,
     M26AssemblyAuthorizationV1,
-    ProductionAssemblyReceiptV1,
+    ProductionAssemblyReceiptV2,
+    ProductionSeamReportV1,
     assembly_start_holds_satisfied,
-    build_production_assembly_receipt,
+    build_production_assembly_receipt_v2,
     mint_m26_assembly_authorization,
 )
 from ..core.production_accumulation import (
@@ -75,7 +76,9 @@ from ..core.production_storyboard import (
 )
 from ..core.production_workbench import (
     MAX_PRODUCTION_OUTPUTS,
+    ProductionAssemblyProfileOption,
     ProductionAssemblyProjection,
+    ProductionAssemblySeamLine,
     ProductionDeliveredVideoProjection,
     ProductionGenerationSequenceSummary,
     ProductionOutputProjection,
@@ -433,6 +436,7 @@ class ProductionAcceptedAuthorities:
                     execution.authorization.to_wire(),
                     execution.outer_plan.to_wire(),
                     execution.reconstruction_receipt.to_wire(),
+                    execution.seam_report.to_wire(),
                     execution.assembly_receipt.to_wire(),
                 )
             )
@@ -599,6 +603,38 @@ class _AutomaticSegmentMaterializer:
     materialize: LegacyMaterializeSegmentContext | MaterializeSegmentContext = field(repr=False)
 
 
+def _assembly_profile_options(
+    runtime: M26ProductionAssemblyRuntime,
+) -> tuple[ProductionAssemblyProfileOption, ...]:
+    return tuple(
+        ProductionAssemblyProfileOption(item.output_profile_id, item.fingerprint)
+        for item in runtime.capabilities
+    )
+
+
+def _assembly_seam_lines(
+    report: ProductionSeamReportV1,
+) -> tuple[ProductionAssemblySeamLine, ...]:
+    lines: list[ProductionAssemblySeamLine] = []
+    for seam in report.seams:
+        measurement = seam.measurement
+        lines.append(
+            ProductionAssemblySeamLine(boundary_index=seam.boundary_index, label=seam.label)
+            if measurement is None
+            else ProductionAssemblySeamLine(
+                boundary_index=seam.boundary_index,
+                label=seam.label,
+                s1_milli=measurement.s1_milli,
+                s2_micro=measurement.s2_micro,
+                s5_milli=measurement.s5_milli,
+                s6_milli=measurement.s6_milli,
+                s9_centi_db=measurement.s9_centi_db,
+                s10_ms=measurement.s10_ms,
+            )
+        )
+    return tuple(lines)
+
+
 @dataclass(slots=True)
 class _AssemblyCancellation:
     event: threading.Event = field(default_factory=threading.Event, repr=False)
@@ -626,7 +662,16 @@ class _ProductionAssemblyJob:
             state=self.state,
             completed=self.completed,
             total=len(self.artifact_receipts),
-            capability_fingerprint=self.runtime.capability.fingerprint,
+            capability_fingerprint=self.runtime.capability_for(
+                self.authorization.output_profile_id
+            ).fingerprint,
+            output_profile_id=self.authorization.output_profile_id,
+            output_profiles=_assembly_profile_options(self.runtime),
+            seams=(
+                ()
+                if self.execution is None or self.state != "succeeded"
+                else _assembly_seam_lines(self.execution.seam_report)
+            ),
             managed_sequence_fingerprint=self.authorization.managed_sequence_fingerprint,
             artifact_receipt_fingerprints=self.authorization.artifact_receipt_fingerprints,
             cut_boundary_receipt_fingerprints=(
@@ -1206,7 +1251,10 @@ def _validate_action(value: object) -> dict[str, object]:
         )
         if len(cuts) != len(artifacts) - 1:
             raise ValueError("assembly predecessor count is invalid")
-    if "output_profile_id" in payload and payload["output_profile_id"] != M26_OUTPUT_PROFILE_ID:
+    if (
+        "output_profile_id" in payload
+        and payload["output_profile_id"] not in M26_OUTPUT_PROFILE_IDS
+    ):
         raise ValueError("output_profile_id is invalid")
     if "relation" in payload:
         relation = payload["relation"]
@@ -1445,7 +1493,10 @@ def _validate_accepted_authorities(
         if (
             sequence is None
             or type(authorization) is not M26AssemblyAuthorizationV1
-            or type(assembly_receipt) is not ProductionAssemblyReceiptV1
+            or type(assembly_receipt) is not ProductionAssemblyReceiptV2
+            or type(execution.seam_report) is not ProductionSeamReportV1
+            or assembly_receipt.seam_report_fingerprint != execution.seam_report.fingerprint
+            or assembly_receipt.output_profile_id != authorization.output_profile_id
             or outer_plan.authorization is not authorization
             or outer_plan.embedded_plan is not execution.embedded_plan
             or outer_plan.embedded_approval is not execution.embedded_approval
@@ -1471,10 +1522,11 @@ def _validate_accepted_authorities(
                 execution.embedded_plan,
                 now_ms=execution.embedded_approval.approved_at_ms,
             )
-            rebuilt = build_production_assembly_receipt(
+            rebuilt = build_production_assembly_receipt_v2(
                 transaction_id=assembly_receipt.transaction_id,
                 outer_plan=outer_plan,
                 reconstruction_receipt=embedded_receipt,
+                seam_report=execution.seam_report,
                 completed_at_ms=assembly_receipt.completed_at_ms,
             )
         except Exception as exc:
@@ -1670,7 +1722,8 @@ def _accepted_projection_fields(
     if reconstruction is not None:
         versions.append("h3.context.av_reconstruction_receipt.v1")
         if assembly_execution is not None:
-            versions.append("h3.context.m26.production_assembly_receipt.v1")
+            versions.append("h3.context.m26.production_assembly_receipt.v2")
+            versions.append("h3.context.m26.production_seam_report.v1")
         if reconstruction.publication_state is AVPublicationState.COMPLETE:
             reconstruction_state = "complete"
             segment_by_output = {
@@ -2383,6 +2436,19 @@ class ProductionWorkspaceRegistry:
             return entry.completed_assembly
         if entry.assembly_job is not None:
             return entry.assembly_job.projection()
+        # IMPORTANT: None at generation completion is provisional, not a final refusal.
+        # Callers hold the registry lock/CAS: attach once here for reads and assembly admission.
+        # The provider must remain non-blocking; waiting for activation stalls the host event loop.
+        if (
+            entry.assembly_runtime is None
+            and entry.artifact_store is not None
+            and entry.accepted_authorities.artifact_receipts
+            and self._assembly_runtime_provider is not None
+        ):
+            try:
+                entry.assembly_runtime = self._assembly_runtime_provider(entry.artifact_store)
+            except Exception:
+                entry.assembly_runtime = None
         runtime = entry.assembly_runtime
         if runtime is None:
             return ProductionAssemblyProjection(failure_code="media_runtime_not_authorized")
@@ -2393,6 +2459,8 @@ class ProductionWorkspaceRegistry:
             return ProductionAssemblyProjection(failure_code="predecessor_not_ready")
         return ProductionAssemblyProjection(
             capability_fingerprint=runtime.capability.fingerprint,
+            output_profile_id=runtime.capability.output_profile_id,
+            output_profiles=_assembly_profile_options(runtime),
             managed_sequence_fingerprint=canonical_fingerprint(sequence.to_wire()),
             artifact_receipt_fingerprints=tuple(
                 item.fingerprint for item in entry.accepted_authorities.artifact_receipts
@@ -4583,8 +4651,12 @@ class ProductionWorkspaceRegistry:
             != projection.artifact_receipt_fingerprints
             or tuple(cast(list[str], payload["cut_boundary_receipt_fingerprints"]))
             != projection.cut_boundary_receipt_fingerprints
-            or payload["assembly_capability_fingerprint"] != projection.capability_fingerprint
-            or payload["output_profile_id"] != projection.output_profile_id
+            # The request chooses one projected profile and echoes that profile's capability.
+            or ProductionAssemblyProfileOption(
+                cast(str, payload["output_profile_id"]),
+                cast(str, payload["assembly_capability_fingerprint"]),
+            )
+            not in projection.output_profiles
         ):
             raise ProductionWorkbenchError("assembly_authority_mismatch", 409)
 
@@ -4593,6 +4665,7 @@ class ProductionWorkspaceRegistry:
         *,
         entry: _ProductionEntry,
         request_digest: str,
+        output_profile_id: str,
     ) -> _ProductionAssemblyJob:
         runtime = entry.assembly_runtime
         automatic = entry.automatic_plan
@@ -4615,7 +4688,7 @@ class ProductionWorkspaceRegistry:
                 generation_sequence=sequence,
                 artifact_receipts=entry.accepted_authorities.artifact_receipts,
                 cut_boundary_receipts=automatic.cut_boundary_receipts,
-                capability=runtime.capability,
+                capability=runtime.capability_for(output_profile_id),
                 issued_at_ms=issued_at_ms,
                 expires_at_ms=issued_at_ms + 600_000,
             )
@@ -4931,6 +5004,15 @@ class ProductionWorkspaceRegistry:
                     pending_job = self._new_assembly_job(
                         entry=entry,
                         request_digest=request_digest,
+                        # A retry keeps the failed job's profile; a new assembly takes the
+                        # profile its validated request chose.
+                        output_profile_id=(
+                            cast(str, payload["output_profile_id"])
+                            if kind == "assemble_sequence"
+                            else cast(
+                                _ProductionAssemblyJob, entry.assembly_job
+                            ).authorization.output_profile_id
+                        ),
                     )
                     old_bytes = self._assembly_job_bytes(entry.assembly_job)
                     next_bytes = (

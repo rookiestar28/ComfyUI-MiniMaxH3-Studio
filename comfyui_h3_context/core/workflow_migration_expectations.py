@@ -79,10 +79,21 @@ _CANONICAL_API_FINGERPRINTS = {
         "sha256:22fa9a0f91223fb8e1fddcb9e30723b2d654933b062bffb2403bd718113a8db2"
     ),
     "m15-03-product-shell-reference": (
-        "sha256:27292495a54e038b01af328d48fe31b0201a7286d306fea6f337feff8ed99db5"
+        "sha256:0abecec2df92783cee9dd4c1b5edd865460221e9690d0cb5bc2ac8720e843386"
     ),
     "m15-09-assistant-base": (
         "sha256:413cf7207aaa35e516617b77072be0defa7c6a8ddf59e1f376f2f183f8025e00"
+    ),
+    "m15-09-assistant-reference": (
+        "sha256:afb87ecab3bb6d9b4dfa7bdd70359a5dae8b72eed673770699868960de7247a2"
+    ),
+}
+
+
+# IMPORTANT: these exact shipped legacy prompts remain migration inputs, not queueable examples.
+_LEGACY_CANONICAL_API_FINGERPRINTS = {
+    "m15-03-product-shell-reference": (
+        "sha256:27292495a54e038b01af328d48fe31b0201a7286d306fea6f337feff8ed99db5"
     ),
     "m15-09-assistant-reference": (
         "sha256:1cf0fd671cf9b7cbfbc92e43b925c174106b88019941a5cdce3949dd82e59e85"
@@ -125,10 +136,10 @@ _EXPECTED_SUBGRAPH_NODE_TYPES = {
 
 
 _EXPECTED_REFERENCE_SUBGRAPH_MEDIA = [
-    {"source": "image_1", "target": "9", "target_input": "ref_images.image0", "link": 19},
-    {"source": "image_2", "target": "9", "target_input": "ref_images.image1", "link": 21},
-    {"source": "video_1", "target": "9", "target_input": "ref_videos.video0", "link": 11},
-    {"source": "audio_1", "target": "9", "target_input": "ref_audios.audio0", "link": 25},
+    {"source": "image_1", "target": "9", "target_input": "ref_images.ref_image_0", "link": 19},
+    {"source": "image_2", "target": "9", "target_input": "ref_images.ref_image_1", "link": 21},
+    {"source": "video_1", "target": "9", "target_input": "ref_videos.ref_video_0", "link": 11},
+    {"source": "audio_1", "target": "9", "target_input": "ref_audios.ref_audio_0", "link": 25},
 ]
 
 
@@ -136,7 +147,7 @@ _EXPECTED_SUBGRAPH_CANONICAL_PROJECTIONS = {
     "minimal": {
         "fixture": "workflows/m3_07_h3_context_reference.json",
         "graph_fingerprint_parts": [
-            "sha256:b78ba065e640b0e0ca49a13ceb83c6ffff44c800d13d838f5c9aca7c059a52bd"
+            "sha256:4efd543684d18d143306077075a0937b56feb915f647d07fb1d895f04ecce61e"
         ],
         "output_projection": {
             "prompt": ["8", 0],
@@ -147,14 +158,24 @@ _EXPECTED_SUBGRAPH_CANONICAL_PROJECTIONS = {
             "terminal_node": "10",
         },
         "direct_media_links": [
-            {"source": "2", "source_output": 0, "target": "9", "target_input": "ref_images"},
-            {"source": "3", "source_output": 0, "target": "9", "target_input": "ref_images"},
+            {
+                "source": "2",
+                "source_output": 0,
+                "target": "9",
+                "target_input": "ref_images.ref_image_0",
+            },
+            {
+                "source": "3",
+                "source_output": 0,
+                "target": "9",
+                "target_input": "ref_images.ref_image_1",
+            },
         ],
     },
     "complex": {
         "fixture": "workflows/m6_07_h3_context_full_reference.json",
         "graph_fingerprint_parts": [
-            "sha256:78ebbb27ef821f8afe0b07e43b694b1e4451caaa14e935374f369f04362c643e"
+            "sha256:6101b54a718cca2b472ab57dae9d5f59cc57b0fa9012161710801701f9d0e589"
         ],
         "output_projection": {
             "prompt": ["11", 0],
@@ -165,10 +186,30 @@ _EXPECTED_SUBGRAPH_CANONICAL_PROJECTIONS = {
             "terminal_node": "13",
         },
         "direct_media_links": [
-            {"source": "2", "source_output": 0, "target": "12", "target_input": "ref_images"},
-            {"source": "3", "source_output": 0, "target": "12", "target_input": "ref_images"},
-            {"source": "6", "source_output": 0, "target": "12", "target_input": "ref_videos"},
-            {"source": "5", "source_output": 0, "target": "12", "target_input": "ref_audios"},
+            {
+                "source": "2",
+                "source_output": 0,
+                "target": "12",
+                "target_input": "ref_images.ref_image_0",
+            },
+            {
+                "source": "3",
+                "source_output": 0,
+                "target": "12",
+                "target_input": "ref_images.ref_image_1",
+            },
+            {
+                "source": "6",
+                "source_output": 0,
+                "target": "12",
+                "target_input": "ref_videos.ref_video_0",
+            },
+            {
+                "source": "5",
+                "source_output": 0,
+                "target": "12",
+                "target_input": "ref_audios.ref_audio_0",
+            },
         ],
     },
 }

@@ -9,6 +9,7 @@
 
 import type { AuthoringIntent } from "../state/authoringViewState";
 import type { ProductionIntent } from "../components/ProductionWorkbench";
+import type { AssemblyOutputProfileId } from "../contracts/productionWorkbenchCodec";
 import { deriveNleSurfaceCapability } from "../contracts/nleSurfaceCapability";
 import type { ManagedReadinessSelection } from "../contracts/managedQualificationCodec";
 import { readActiveWorkflow } from "../host/canvasOwnedWrite";
@@ -989,11 +990,16 @@ export function createNleWorkspaceSession(ctx: ShellRuntime) {
 
   async function nleAssembly(
     action: "assemble_sequence" | "cancel_assembly" | "retry_assembly",
+    outputProfileId?: AssemblyOutputProfileId,
   ): Promise<void> {
     const production = productionProjection();
     if (production === undefined || !production.allowedActions.includes(action))
       return;
-    await actions.runProductionIntent({ action });
+    await actions.runProductionIntent(
+      action === "assemble_sequence" && outputProfileId !== undefined
+        ? { action, outputProfileId }
+        : { action },
+    );
   }
 
   async function nleRefreshProduction(): Promise<void> {

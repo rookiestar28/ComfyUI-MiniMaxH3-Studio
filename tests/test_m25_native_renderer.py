@@ -378,6 +378,12 @@ _UNBOUND_SUBJECT_IMPORTS = frozenset(
         ("adapters/av_reconstruction_media.py", "core/av_reconstruction.py"),
         ("adapters/av_reconstruction_media.py", "core/av_seam_policy.py"),
         ("adapters/av_reconstruction_media.py", "core/errors.py"),
+        # Reached only by `measure_assembly_seams`, which the M26 production assembly calls after
+        # its output passed the exact-output assertion: it decodes the stored output and returns
+        # integer seam metrics. No render, transform or encode argv passes through these modules.
+        ("adapters/av_reconstruction_media.py", "adapters/seam_observation_media.py"),
+        ("adapters/av_reconstruction_media.py", "core/m26_assembly.py"),
+        ("adapters/av_reconstruction_media.py", "core/seam_observation.py"),
         ("adapters/segment_artifact_store.py", "core/segment_artifacts.py"),
         # Retained authority rechecks the descriptor read's bytes/identity against bound facts;
         # this storage primitive supplies no render transform or source-time arithmetic.

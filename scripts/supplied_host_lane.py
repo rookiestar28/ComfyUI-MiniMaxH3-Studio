@@ -69,6 +69,7 @@ ROW_CONTROL_ALLOWLIST = frozenset(
         "H3_CONTEXT_M25_59_HOST",
         "H3_CONTEXT_NLE_WORKSPACE_HOST",
         "H3_CONTEXT_NLE_WORKSPACE_FIXTURE",
+        "H3_CONTEXT_REFERENCE_MEDIA_FIXTURE",
         "H3_CONTEXT_WEIGHT_SAMPLE",
     }
 )
@@ -93,6 +94,13 @@ DENIED_EXECUTION_FLAGS = frozenset(
 )
 RECEIPT_SCHEMA = "h3.context.host_log_scan_receipt.v1"
 VERDICT_SCHEMA = "h3.context.supplied_host_lane_result.v1"
+REFERENCE_EXECUTION_SPEC = "tests/e2e/journeys/host/referenceExecution.spec.ts"
+REFERENCE_EXECUTION_TITLE = (
+    "exact host executes migrated reference examples and refuses unknown linked children"
+)
+REFERENCE_SAMPLE_TITLE = (
+    "authorized Ref2VA sidebar sample executes all media kinds and writes a real artifact"
+)
 M25_52_SPEC = "tests/e2e/journeys/host/m25_52EmbeddedAudioWaveform.spec.ts"
 M25_52_TITLE = "M25-52 proves the real peaks route and mixed-load playback on the supplied host"
 M25_52_EVIDENCE_ATTACHMENT = "m25-52-real-route-mixed-load"
@@ -325,6 +333,109 @@ def _decode_json_attachment(
 
 def _decode_receipt(attachment: Mapping[str, object]) -> Mapping[str, object] | None:
     return _decode_json_attachment(attachment, name="h3_host_log_scan", maximum_bytes=128 * 1024)
+
+
+def _decode_reference_evidence(
+    attachments: Sequence[Mapping[str, object]], *, sample: bool
+) -> Mapping[str, object] | None:
+    name = "reference_sample" if sample else "reference_execution"
+    matches = [value for value in attachments if value.get("name") == name]
+    if len(matches) != 1:
+        return None
+    decoded = _decode_json_attachment(matches[0], name=name, maximum_bytes=8 * 1024)
+    if decoded is None or decoded.get("schema") not in {
+        f"h3.context.{name}.v1",
+        f"h3.context.{name}.v2",
+    }:
+        return None
+    multi = decoded["schema"] == f"h3.context.{name}.v2"
+    common = {"schema", "success", "candidate"}
+    candidate = decoded.get("candidate")
+    if (
+        decoded.get("success") is not True
+        or not isinstance(candidate, dict)
+        or set(candidate) != {"bundleSha256", "installedInventorySha256"}
+        or any(
+            not isinstance(value, str) or not re.fullmatch(r"[a-f0-9]{64}", value)
+            for value in candidate.values()
+        )
+    ):
+        return None
+    # CRITICAL: retain only this closed, content-free proof. Generic attachment copying would
+    # leak prompts, media locators or host paths when a future test adds diagnostic fields.
+    if sample:
+        fields = {
+            "image_count",
+            "video_count",
+            "paired_audio_count",
+            "standalone_audio_count",
+            "exact_dotted_inputs",
+            "artifact_count",
+            "artifact_verified",
+        }
+        if (
+            set(decoded) != common | fields
+            or any(
+                type(decoded.get(key)) is not int or decoded[key] != expected
+                for key, expected in zip(
+                    ("image_count", "video_count", "paired_audio_count", "standalone_audio_count"),
+                    (3, 2, 2, 1) if multi else (1, 1, 1, 1),
+                    strict=True,
+                )
+            )
+            or decoded.get("exact_dotted_inputs") is not True
+            or decoded.get("artifact_verified") is not True
+            or type(decoded.get("artifact_count")) is not int
+            or cast(int, decoded["artifact_count"]) < 1
+        ):
+            return None
+    else:
+        fields = {
+            "executions",
+            "typed_unknown_link_refusal",
+            "consecutive_starts",
+            "foreign_extension_count",
+        }
+        labels: tuple[str, ...] = (
+            "four-groups-start-1",
+            "four-groups-start-2",
+            "m3_07_h3_context_reference.json",
+            "m15_03_product_shell_reference.json",
+            "m15_09_assistant_reference.json",
+            "m6_07_h3_context_full_reference.json",
+        )
+        if multi:
+            labels += ("image-audio-max", "image-video-max", "paired-video-max")
+        executions = decoded.get("executions")
+        if (
+            set(decoded) != common | fields
+            or decoded.get("typed_unknown_link_refusal") is not True
+            or type(decoded.get("consecutive_starts")) is not int
+            or decoded["consecutive_starts"] != 2
+            or type(decoded.get("foreign_extension_count")) is not int
+            or cast(int, decoded["foreign_extension_count"]) < 1
+            or not isinstance(executions, list)
+            or len(executions) != len(labels)
+        ):
+            return None
+        for index, (label, execution) in enumerate(zip(labels, executions, strict=True)):
+            if (
+                not isinstance(execution, dict)
+                or set(execution)
+                != (
+                    {"label", "success", "required_label_count", "preview_executed"}
+                    | ({"ordered_bindings"} if index >= 6 else set())
+                )
+                or execution.get("label") != label
+                or execution.get("success") is not True
+                or execution.get("preview_executed") is not True
+                or type(execution.get("required_label_count")) is not int
+                or execution["required_label_count"]
+                != (12 if index >= 6 else 5 if index < 2 else 4 if index == 5 else 2)
+                or (index >= 6 and execution.get("ordered_bindings") is not True)
+            ):
+                return None
+    return decoded
 
 
 def _decode_m25_52_evidence(
@@ -756,7 +867,28 @@ def admit_results(
                         or receipt.get("owned_count") != 0
                     ):
                         reasons.append("scan_not_complete_clean")
-                if (row.spec, row.title) == (M25_52_SPEC, M25_52_TITLE):
+                if row.spec == REFERENCE_EXECUTION_SPEC and row.title in {
+                    REFERENCE_EXECUTION_TITLE,
+                    REFERENCE_SAMPLE_TITLE,
+                }:
+                    evidence = _decode_reference_evidence(
+                        attachment_rows, sample=row.title == REFERENCE_SAMPLE_TITLE
+                    )
+                    candidate = evidence.get("candidate") if evidence is not None else None
+                    if (
+                        not isinstance(candidate, dict)
+                        or (
+                            expected_bundle_sha256 is not None
+                            and candidate.get("bundleSha256") != expected_bundle_sha256
+                        )
+                        or (
+                            expected_inventory_sha256 is not None
+                            and candidate.get("installedInventorySha256")
+                            != expected_inventory_sha256
+                        )
+                    ):
+                        reasons.append("missing_or_invalid_row_evidence")
+                elif (row.spec, row.title) == (M25_52_SPEC, M25_52_TITLE):
                     failure_facts = _decode_m25_52_failure_facts(attachment_rows)
                     evidence = _decode_m25_52_evidence(attachment_rows)
                     evidence_candidate = evidence.get("candidate") if evidence is not None else None

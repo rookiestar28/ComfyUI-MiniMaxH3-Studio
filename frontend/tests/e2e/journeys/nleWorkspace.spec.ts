@@ -180,7 +180,7 @@ test("NLE sequence keyboard review, import, serial start and separate assembly",
   ).toHaveAttribute("role", "status");
   await expect(
     page.locator('[data-h3-nle-status="assembly-inputs"]'),
-  ).toContainText("Built from 2 segment videos and 1 cuts.");
+  ).toContainText("Segment videos: 2. Cuts: 1.");
 });
 
 async function detachAtChildBoundary(page: Page, completed: boolean) {

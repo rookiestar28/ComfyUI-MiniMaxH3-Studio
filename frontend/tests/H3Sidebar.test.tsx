@@ -1,5 +1,8 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { useState } from "react";
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { H3Sidebar, initialAppModeDraft } from "../src/components/H3Sidebar";
@@ -56,6 +59,54 @@ const appMode = {
 };
 
 describe("H3Sidebar", () => {
+  const referenceCases = JSON.parse(
+    readFileSync(
+      resolve(
+        dirname(fileURLToPath(import.meta.url)),
+        "../../tests/fixtures/ref2va_reference_capacity_v1.json",
+      ),
+      "utf8",
+    ),
+  ).cases as Array<{
+    name: string;
+    images: number;
+    videos: number;
+    audios: number;
+    soundtrack: "included" | "excluded" | "unavailable";
+    allowed: boolean;
+  }>;
+  it.each(referenceCases)(
+    "enforces the restored $name capacity verdict at submission",
+    (row) => {
+      const onStart = vi.fn();
+      render(
+        <H3Sidebar
+          state={initialShellState}
+          appMode={{ ...appMode, onStart }}
+          appModeDraft={{
+            ...initialAppModeDraft,
+            taskMode: "ref2va",
+            referenceImages: Array.from({ length: row.images }, (_, i) =>
+              String(100 + i),
+            ),
+            referenceVideos: Array.from({ length: row.videos }, (_, i) =>
+              String(200 + i),
+            ),
+            referenceAudios: Array.from({ length: row.audios }, (_, i) =>
+              String(300 + i),
+            ),
+            referenceVideoSoundtrack: row.soundtrack,
+          }}
+        />,
+      );
+      const start = screen.getByRole("button", {
+        name: "Start H3 App Mode",
+      }) as HTMLButtonElement;
+      expect(start.disabled).toBe(!row.allowed);
+      fireEvent.submit(start.closest("form")!);
+      expect(onStart).toHaveBeenCalledTimes(row.allowed ? 1 : 0);
+    },
+  );
   it("labels clip duration and shows the workflow Production destination near Start", () => {
     const onNewProject = vi.fn();
     render(
@@ -769,7 +820,8 @@ describe("H3Sidebar", () => {
     },
     {
       mode: "ref2va",
-      blocker: "Select at least one reference source before submitting.",
+      blocker:
+        "Select at least one image or video reference before submitting.",
       complete: () =>
         fireEvent.change(
           screen.getByRole("combobox", { name: /reference images/i }),

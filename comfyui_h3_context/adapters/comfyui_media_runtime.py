@@ -15,7 +15,10 @@ from typing import TYPE_CHECKING, cast
 
 from ..core.av_reconstruction import qualified_av_limits
 from ..core.canonical import canonical_fingerprint
-from ..core.m26_assembly import build_production_assembly_capability
+from ..core.m26_assembly import (
+    M26_NATIVE_OUTPUT_PROFILE_ID,
+    build_production_assembly_capability,
+)
 from .av_reconstruction_media import QualifiedAVMediaAdapter
 from .av_reconstruction_store import AVStorePolicy, PrivateAVReconstructionStore
 from .executable_admission import executable_pin_scope
@@ -134,7 +137,15 @@ def authorized_m26_assembly_runtime(
         reconstruction_store=store,
         media_bridge=binding.adapter,
         low_level_adapter=binding.adapter,
-        capability=build_production_assembly_capability(store_identity_fingerprint=store_identity),
+        # The native profile is the default for new assemblies; the legacy square profile stays
+        # selectable for sequences that must match earlier 30 fps / 48 kHz deliveries.
+        capability=build_production_assembly_capability(
+            store_identity_fingerprint=store_identity,
+            output_profile_id=M26_NATIVE_OUTPUT_PROFILE_ID,
+        ),
+        additional_capabilities=(
+            build_production_assembly_capability(store_identity_fingerprint=store_identity),
+        ),
     )
 
 

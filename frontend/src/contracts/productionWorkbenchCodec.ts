@@ -96,8 +96,35 @@ export type ProductionGenerationSequenceSummary = Readonly<{
   correlation: Readonly<{ promptId: string; executionNodeId: string }>;
 }>;
 
+// The selectable assembly output profiles; the first is the default for new assemblies.
+export const ASSEMBLY_OUTPUT_PROFILE_IDS = [
+  "h3_native_av_v1",
+  "legacy_av_30fps_48khz_stereo",
+] as const;
+export type AssemblyOutputProfileId =
+  (typeof ASSEMBLY_OUTPUT_PROFILE_IDS)[number];
+
+export type ProductionAssemblyProfileOption = Readonly<{
+  outputProfileId: AssemblyOutputProfileId;
+  capabilityFingerprint: string;
+}>;
+
+export type ProductionAssemblySeamLabel =
+  "smooth" | "visible_change" | "unmeasured";
+
+export type ProductionAssemblySeamLine = Readonly<{
+  boundaryIndex: number;
+  label: ProductionAssemblySeamLabel;
+  s1Milli: number | null;
+  s2Micro: number | null;
+  s5Milli: number | null;
+  s6Milli: number | null;
+  s9CentiDb: number | null;
+  s10Ms: number | null;
+}>;
+
 export type ProductionAssemblyProjection = Readonly<{
-  schema: "h3.context.production_assembly.projection.v1";
+  schema: "h3.context.production_assembly.projection.v2";
   state:
     | "unavailable"
     | "planned"
@@ -110,11 +137,15 @@ export type ProductionAssemblyProjection = Readonly<{
   managedSequenceFingerprint: string | null;
   artifactReceiptFingerprints: readonly string[];
   cutBoundaryReceiptFingerprints: readonly string[];
-  outputProfileId: "legacy_av_30fps_48khz_stereo";
+  outputProfileId: AssemblyOutputProfileId;
   assemblyJobId: string | null;
   authorizationFingerprint: string | null;
   receiptFingerprint: string | null;
   failureCode: string | null;
+  // Every profile an assemble request may choose, each with the capability it must echo.
+  outputProfiles: readonly ProductionAssemblyProfileOption[];
+  // One line per cut of a succeeded assembly, in boundary order.
+  seams: readonly ProductionAssemblySeamLine[];
   projectionFingerprint: string;
 }>;
 
@@ -137,7 +168,8 @@ export type ProductionWorkbenchProjection = Readonly<{
     | "h3.context.segment_artifact_receipt.v1"
     | "h3.context.continuity_boundary_receipt.v1"
     | "h3.context.av_reconstruction_receipt.v1"
-    | "h3.context.m26.production_assembly_receipt.v1"
+    | "h3.context.m26.production_assembly_receipt.v2"
+    | "h3.context.m26.production_seam_report.v1"
   )[];
   outputs: readonly ProductionOutput[];
   allowedActions: readonly ProductionAllowedAction[];
@@ -229,7 +261,8 @@ const authorityVersions = new Set([
   "h3.context.segment_artifact_receipt.v1",
   "h3.context.continuity_boundary_receipt.v1",
   "h3.context.av_reconstruction_receipt.v1",
-  "h3.context.m26.production_assembly_receipt.v1",
+  "h3.context.m26.production_assembly_receipt.v2",
+  "h3.context.m26.production_seam_report.v1",
 ]);
 const allowedActions = new Set<ProductionAllowedAction>([
   "add_segment_from_context",
@@ -479,6 +512,98 @@ function decodeSegment(
   });
 }
 
+const seamLabels = new Set<string>(["smooth", "visible_change", "unmeasured"]);
+const seamMetrics = [
+  ["s1_milli", "s1Milli"],
+  ["s2_micro", "s2Micro"],
+  ["s5_milli", "s5Milli"],
+  ["s6_milli", "s6Milli"],
+  ["s9_centi_db", "s9CentiDb"],
+  ["s10_ms", "s10Ms"],
+] as const;
+
+function decodeAssemblyProfiles(
+  value: unknown,
+): readonly ProductionAssemblyProfileOption[] {
+  if (
+    !Array.isArray(value) ||
+    value.length > ASSEMBLY_OUTPUT_PROFILE_IDS.length
+  )
+    throw new Error("production assembly profiles are invalid");
+  const profiles = value.map((item) => {
+    const wire = object(
+      item,
+      ["output_profile_id", "capability_fingerprint"],
+      "production assembly profile",
+    );
+    if (
+      !(ASSEMBLY_OUTPUT_PROFILE_IDS as readonly unknown[]).includes(
+        wire.output_profile_id,
+      )
+    )
+      throw new Error("production assembly profile is invalid");
+    return Object.freeze({
+      outputProfileId: wire.output_profile_id as AssemblyOutputProfileId,
+      capabilityFingerprint: exactString(
+        wire.capability_fingerprint,
+        fingerprint,
+        "assembly profile capability fingerprint",
+      ),
+    });
+  });
+  if (
+    new Set(profiles.map((item) => item.outputProfileId)).size !==
+    profiles.length
+  )
+    throw new Error("production assembly profiles are invalid");
+  return Object.freeze(profiles);
+}
+
+function decodeAssemblySeams(
+  value: unknown,
+): readonly ProductionAssemblySeamLine[] {
+  if (!Array.isArray(value) || value.length > 63)
+    throw new Error("production assembly seams are invalid");
+  return Object.freeze(
+    value.map((item, index) => {
+      const wire = object(
+        item,
+        ["boundary_index", "label", ...seamMetrics.map(([key]) => key)],
+        "production assembly seam",
+      );
+      if (
+        wire.boundary_index !== index ||
+        typeof wire.label !== "string" ||
+        !seamLabels.has(wire.label)
+      )
+        throw new Error("production assembly seam is invalid");
+      const metrics = seamMetrics.map(([key]) =>
+        wire[key] === null
+          ? null
+          : exactInteger(wire[key], 0, 1_000_000_000, "assembly seam metric"),
+      );
+      // A seam is either measured with every metric or unmeasured with none.
+      if (
+        (wire.label === "unmeasured") !==
+          metrics.every((metric) => metric === null) ||
+        (wire.label !== "unmeasured" &&
+          metrics.some((metric) => metric === null))
+      )
+        throw new Error("production assembly seam is invalid");
+      return Object.freeze({
+        boundaryIndex: index,
+        label: wire.label as ProductionAssemblySeamLabel,
+        s1Milli: metrics[0] ?? null,
+        s2Micro: metrics[1] ?? null,
+        s5Milli: metrics[2] ?? null,
+        s6Milli: metrics[3] ?? null,
+        s9CentiDb: metrics[4] ?? null,
+        s10Ms: metrics[5] ?? null,
+      });
+    }),
+  );
+}
+
 function decodeAssembly(value: unknown): ProductionAssemblyProjection {
   const wire = object(
     value,
@@ -495,11 +620,13 @@ function decodeAssembly(value: unknown): ProductionAssemblyProjection {
       "authorization_fingerprint",
       "receipt_fingerprint",
       "failure_code",
+      "output_profiles",
+      "seams",
       "projection_fingerprint",
     ],
     "production assembly",
   );
-  if (wire.schema !== "h3.context.production_assembly.projection.v1")
+  if (wire.schema !== "h3.context.production_assembly.projection.v2")
     throw new Error("production assembly schema is invalid");
   if (typeof wire.state !== "string" || !assemblyStates.has(wire.state))
     throw new Error("production assembly state is invalid");
@@ -535,8 +662,15 @@ function decodeAssembly(value: unknown): ProductionAssemblyProjection {
     63,
     "assembly cut boundary receipt fingerprints",
   );
-  if (wire.output_profile_id !== "legacy_av_30fps_48khz_stereo")
+  if (
+    !(ASSEMBLY_OUTPUT_PROFILE_IDS as readonly unknown[]).includes(
+      wire.output_profile_id,
+    )
+  )
     throw new Error("production assembly output profile is invalid");
+  const outputProfileId = wire.output_profile_id as AssemblyOutputProfileId;
+  const outputProfiles = decodeAssemblyProfiles(wire.output_profiles);
+  const seams = decodeAssemblySeams(wire.seams);
   const assemblyJobId = nullableString(
     wire.assembly_job_id,
     identifier,
@@ -613,19 +747,37 @@ function decodeAssembly(value: unknown): ProductionAssemblyProjection {
     (failureCode !== null || receiptFingerprint !== null)
   )
     throw new Error("production assembly active state is invalid");
+  // Profiles exist exactly when a capability does, and the current pair is one of them.
+  if (
+    (capabilityFingerprint === null) !== (outputProfiles.length === 0) ||
+    (capabilityFingerprint !== null &&
+      !outputProfiles.some(
+        (item) =>
+          item.outputProfileId === outputProfileId &&
+          item.capabilityFingerprint === capabilityFingerprint,
+      ))
+  )
+    throw new Error("production assembly profiles are invalid");
+  if (
+    seams.length !== 0 &&
+    (state !== "succeeded" || seams.length !== total - 1)
+  )
+    throw new Error("production assembly seams are invalid");
   return Object.freeze({
-    schema: "h3.context.production_assembly.projection.v1",
+    schema: "h3.context.production_assembly.projection.v2",
     state,
     progress: Object.freeze({ completed, total }),
     capabilityFingerprint,
     managedSequenceFingerprint,
     artifactReceiptFingerprints,
     cutBoundaryReceiptFingerprints,
-    outputProfileId: "legacy_av_30fps_48khz_stereo",
+    outputProfileId,
     assemblyJobId,
     authorizationFingerprint,
     receiptFingerprint,
     failureCode,
+    outputProfiles,
+    seams,
     projectionFingerprint: exactString(
       wire.projection_fingerprint,
       fingerprint,
@@ -936,7 +1088,7 @@ export function decodeProductionWorkbenchProjection(
       reconstruction.state === "unavailable" ||
       (reconstruction.state === "complete" &&
         assembly.state === "succeeded" &&
-        versions.includes("h3.context.m26.production_assembly_receipt.v1"))
+        versions.includes("h3.context.m26.production_assembly_receipt.v2"))
     ) ||
       !outputs.some(
         (output) => output.state === "ready" && output.segmentId !== null,
@@ -1111,6 +1263,8 @@ export type ProductionActionInput = Readonly<{
   relation?: SegmentRelation;
   predecessorSegmentId?: string | null;
   segmentIds?: readonly string[];
+  // assemble_sequence only: the chosen profile; the projection's current profile when absent.
+  outputProfileId?: AssemblyOutputProfileId;
 }>;
 
 export function encodeProductionAction(
@@ -1193,8 +1347,12 @@ export function encodeProductionAction(
       projectionAllows(action);
       payload = expected({});
       break;
-    case "assemble_sequence":
-      admitInput(["projection"]);
+    case "assemble_sequence": {
+      admitInput(
+        input.outputProfileId === undefined
+          ? ["projection"]
+          : ["projection", "outputProfileId"],
+      );
       projectionAllows(action);
       if (
         input.projection === undefined ||
@@ -1203,6 +1361,14 @@ export function encodeProductionAction(
         input.projection.assembly.state !== "unavailable"
       )
         throw new Error("production assembly is unavailable");
+      // The request echoes the chosen profile's own capability, never another profile's.
+      const chosen = input.projection.assembly.outputProfiles.find(
+        (item) =>
+          item.outputProfileId ===
+          (input.outputProfileId ?? input.projection?.assembly.outputProfileId),
+      );
+      if (chosen === undefined)
+        throw new Error("production assembly profile is unavailable");
       payload = expected({
         workspace_id: input.projection.workspaceId,
         managed_sequence_fingerprint:
@@ -1213,11 +1379,11 @@ export function encodeProductionAction(
         cut_boundary_receipt_fingerprints: [
           ...input.projection.assembly.cutBoundaryReceiptFingerprints,
         ],
-        assembly_capability_fingerprint:
-          input.projection.assembly.capabilityFingerprint,
-        output_profile_id: input.projection.assembly.outputProfileId,
+        assembly_capability_fingerprint: chosen.capabilityFingerprint,
+        output_profile_id: chosen.outputProfileId,
       });
       break;
+    }
     case "cancel_assembly":
     case "retry_assembly":
       admitInput(["projection"]);

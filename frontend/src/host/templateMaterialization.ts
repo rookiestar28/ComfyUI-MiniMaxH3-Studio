@@ -35,14 +35,12 @@ import {
   I2VA_SCALE_NODE_TYPE,
   I2VA_SCALE_WIDGET_VALUES,
   I2VA_SIZE_NODE_TYPE,
-  MAX_REFERENCE_AUDIOS,
-  MAX_REFERENCE_IMAGES,
-  MAX_REFERENCE_VIDEOS,
   PROMPT_SOURCE_KEY,
   PROMPT_SOURCE_SLOT,
   TASK_MODE_FAMILY,
   TemplateSpliceError,
   anchorTaskMode,
+  assertReferenceSpliceCapacity,
   detachInput,
   hasContextPipelineOwnership,
   highestId,
@@ -477,15 +475,8 @@ export function spliceContextPipeline(
   };
   const soundtrack: ReferenceVideoSoundtrack =
     media.referenceVideoSoundtrack ?? "included";
-  if (
-    (requested.images ?? 0) > MAX_REFERENCE_IMAGES ||
-    (requested.videos ?? 0) > MAX_REFERENCE_VIDEOS ||
-    (requested.audios ?? 0) > MAX_REFERENCE_AUDIOS
-  )
-    throw new TemplateSpliceError(
-      "too_many_references",
-      "the selected reference set is larger than the registry admits",
-    );
+  if (!connecting && family === "reference_to_video")
+    assertReferenceSpliceCapacity(requested, soundtrack);
 
   // CRITICAL: Connect may add this repository's pipeline only once. Keep the
   // pure boundary independent of UI admission and refuse before cloning so no
@@ -796,6 +787,8 @@ export function spliceContextPipeline(
     pairedAudios: soundtrack === "included" ? videos : 0,
     audios: requested.audios ?? 0,
   };
+  if (!connecting && family === "reference_to_video")
+    assertReferenceSpliceCapacity(counts, soundtrack);
   const pipeline = contextPipeline(
     options.taskMode,
     counts,
@@ -893,6 +886,7 @@ export function spliceContextPipeline(
   // Media. A reused loader keeps its identity and only its widget values move;
   // a loader the template did not ship is created next to the pipeline.
   const spent = new Set<Json>();
+  let createdLoaderCount = 0;
   const loader = (
     kind: keyof typeof LOADER_TYPES,
     source?: LoaderSource,
@@ -907,10 +901,12 @@ export function spliceContextPipeline(
         reused.widgets_values = [...source.widgetValues];
       return reused;
     }
+    // IMPORTANT: reused loaders advance spent, created loaders do not. A separate
+    // counter prevents every additional reference from stacking on one canvas row.
     return newNode(type, {
       widgetValues: source?.widgetValues ?? templateDefaults.get(type) ?? [],
       outputs: loaderOutputs(type),
-      pos: [-2900, -1200 + spent.size * 160],
+      pos: [-2900, -1200 + createdLoaderCount++ * 160],
     });
   };
 

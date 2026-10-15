@@ -14,13 +14,13 @@
     "1": {"class_type": "comfyui_h3_context.H3Context.Request", "inputs": {"task_mode": "ref2va", "user_intent": "Preserve the two supplied reference pictures while the subject walks forward.", "duration_seconds": 5}},
     "2": {"class_type": "LoadImage", "inputs": {"image": "h3_context_fixture_image_1.png"}},
     "3": {"class_type": "LoadImage", "inputs": {"image": "h3_context_fixture_image_2.png"}},
-    "4": {"class_type": "comfyui_h3_context.H3Context.ReferenceRegistry", "inputs": {"images": [["2", 0], ["3", 0]]}},
+    "4": {"class_type": "comfyui_h3_context.H3Context.ReferenceRegistry", "inputs": {"images.image0": ["2", 0], "images.image1": ["3", 0]}},
     "5": {"class_type": "comfyui_h3_context.H3Context.Plan", "inputs": {"request": ["1", 0], "reference_registry": ["4", 0]}},
     "6": {"class_type": "comfyui_h3_context.H3Context.Compiler", "inputs": {"plan": ["5", 0]}},
     "7": {"class_type": "comfyui_h3_context.H3Context.Validator", "inputs": {"plan": ["5", 0], "prompt_document": ["6", 2]}},
     "8": {"class_type": "comfyui_h3_context.H3Context.NativeH3Adapter", "inputs": {"report": ["7", 1]}},
     "9": {"class_type": "comfyui_h3_context.H3Context.ProductShell", "inputs": {"report": ["7", 1], "native_h3_wiring": ["8", 1]}},
-    "10": {"class_type": "MiniMaxH3ReferenceToVideo", "inputs": {"prompt": ["9", 0], "width": 512, "height": 512, "length": 124, "ref_image_size": "match", "ref_images": [["2", 0], ["3", 0]]}},
+    "10": {"class_type": "MiniMaxH3ReferenceToVideo", "inputs": {"prompt": ["9", 0], "width": 512, "height": 512, "length": 124, "ref_image_size": "match", "ref_images.ref_image_0": ["2", 0], "ref_images.ref_image_1": ["3", 0]}},
     "11": {"class_type": "comfyui_h3_context.H3Context.Preview", "inputs": {"report": ["7", 1]}}
   },
   "expected": {
@@ -43,6 +43,6 @@
       {"source": "3", "source_output": 0, "target": "10", "target_input": "ref_images", "target_path": "ref_images.ref_image_1", "asset_id": "image_2", "presentation_label": "<Picture 2>", "presentation_ordinal": 2}
     ],
     "prompt_report_semantics": "byte_identical_to_migration_source",
-    "graph_fingerprint_parts": ["sha256:27292495a54e038b01af328d48fe31b0201a7286d306fea6f337feff8ed99db5"]
+    "graph_fingerprint_parts": ["sha256:0abecec2df92783cee9dd4c1b5edd865460221e9690d0cb5bc2ac8720e843386"]
   }
 }

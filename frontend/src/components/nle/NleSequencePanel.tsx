@@ -3,7 +3,10 @@
 // leave/return controls, and the assembly actions. Every button is one explicit
 // accepted action; mount, remount and polling never plan, qualify, queue or assemble.
 
+import { useState } from "react";
+
 import type { ProductionViewState } from "../ProductionWorkbench";
+import type { AssemblyOutputProfileId } from "../../contracts/productionWorkbenchCodec";
 import type { Locale } from "../../i18n/catalog";
 import { plainReason } from "../plainReasons";
 import { type NleWorkspaceState } from "../../state/nleWorkspaceState";
@@ -276,6 +279,8 @@ function AssemblySection({
   actions: NleWorkspaceBinding["actions"];
 }) {
   const text = nleCopy(locale);
+  const [chosenProfile, setChosenProfile] =
+    useState<AssemblyOutputProfileId | null>(null);
   const projection =
     "projection" in production ? production.projection : undefined;
   if (projection === undefined) return null;
@@ -283,6 +288,18 @@ function AssemblySection({
   const allowed = new Set(projection.allowedActions);
   const busy =
     production.status === "pending" || production.status === "loading";
+  // Before an assembly starts the user chooses among the offered profiles (the projection's
+  // profile is the default); once a job exists the projection's profile is the job's own.
+  const choosing =
+    assembly.state === "unavailable" && assembly.outputProfiles.length > 1;
+  const profile: AssemblyOutputProfileId =
+    choosing &&
+    chosenProfile !== null &&
+    assembly.outputProfiles.some(
+      (item) => item.outputProfileId === chosenProfile,
+    )
+      ? chosenProfile
+      : assembly.outputProfileId;
   return (
     <section
       aria-label={text.sequence.assembly}
@@ -308,8 +325,33 @@ function AssemblySection({
             {plainReason(locale, "assembly", assembly.failureCode)}
           </p>
         ) : null}
-        <p className="h3-nle-note" data-h3-nle-status="assembly-profile">
-          {text.sequence.assemblyProfile}
+        {choosing ? (
+          <label className="h3-plan-field">
+            <span>{text.sequence.assemblyProfileChoice}</span>
+            <select
+              value={profile}
+              data-h3-nle-control="assembly.profile"
+              disabled={busy}
+              onChange={(event) =>
+                setChosenProfile(
+                  event.currentTarget.value as AssemblyOutputProfileId,
+                )
+              }
+            >
+              {assembly.outputProfiles.map((item) => (
+                <option key={item.outputProfileId} value={item.outputProfileId}>
+                  {text.sequence.assemblyProfiles[item.outputProfileId]}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
+        <p
+          className="h3-nle-note"
+          data-h3-nle-status="assembly-profile"
+          data-profile={profile}
+        >
+          {text.sequence.assemblyProfileNotes[profile]}
         </p>
         {assembly.capabilityFingerprint !== null ? (
           <p className="h3-nle-note" data-h3-nle-status="assembly-inputs">
@@ -328,12 +370,29 @@ function AssemblySection({
             {text.sequence.assemblyReceipt}
           </p>
         ) : null}
+        {assembly.seams.length > 0 ? (
+          <section aria-label={text.sequence.seams}>
+            <ol data-h3-nle-status="assembly-seams">
+              {assembly.seams.map((seam) => (
+                <li
+                  key={seam.boundaryIndex}
+                  data-h3-nle-seam-label={seam.label}
+                >
+                  {fill(text.sequence.seamLine, {
+                    index: seam.boundaryIndex + 1,
+                    label: text.sequence.seamLabels[seam.label],
+                  })}
+                </li>
+              ))}
+            </ol>
+          </section>
+        ) : null}
         <div className="h3-nle-actions">
           <button
             type="button"
             data-h3-nle-control="assembly.assemble"
             disabled={busy || !allowed.has("assemble_sequence")}
-            onClick={() => void actions.assembly("assemble_sequence")}
+            onClick={() => void actions.assembly("assemble_sequence", profile)}
           >
             {text.sequence.assemble}
           </button>

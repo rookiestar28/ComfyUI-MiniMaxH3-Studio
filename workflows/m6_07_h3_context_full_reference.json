@@ -42,9 +42,9 @@
     "7": {
       "class_type": "comfyui_h3_context.H3Context.ReferenceRegistry",
       "inputs": {
-        "images": [["2", 0], ["3", 0]],
-        "videos": [["4", 0]],
-        "audios": [["5", 0]]
+        "images.image0": ["2", 0], "images.image1": ["3", 0],
+        "videos.video0": ["4", 0],
+        "audios.audio0": ["5", 0]
       }
     },
     "8": {
@@ -71,9 +71,9 @@
         "height": 512,
         "length": 124,
         "ref_image_size": "match",
-        "ref_images": [["2", 0], ["3", 0]],
-        "ref_videos": [["6", 0]],
-        "ref_audios": [["5", 0]]
+        "ref_images.ref_image_0": ["2", 0], "ref_images.ref_image_1": ["3", 0],
+        "ref_videos.ref_video_0": ["6", 0],
+        "ref_audios.ref_audio_0": ["5", 0]
       }
     },
     "13": {
@@ -93,11 +93,11 @@
       "terminal_node": "13"
     },
     "direct_media_links": [
-      {"source": "2", "source_output": 0, "target": "12", "target_input": "ref_images"},
-      {"source": "3", "source_output": 0, "target": "12", "target_input": "ref_images"},
-      {"source": "6", "source_output": 0, "target": "12", "target_input": "ref_videos"},
-      {"source": "5", "source_output": 0, "target": "12", "target_input": "ref_audios"}
+      {"source": "2", "source_output": 0, "target": "12", "target_input": "ref_images.ref_image_0"},
+      {"source": "3", "source_output": 0, "target": "12", "target_input": "ref_images.ref_image_1"},
+      {"source": "6", "source_output": 0, "target": "12", "target_input": "ref_videos.ref_video_0"},
+      {"source": "5", "source_output": 0, "target": "12", "target_input": "ref_audios.ref_audio_0"}
     ],
-    "graph_fingerprint_parts": ["sha256:78ebbb27ef821f8afe0b07e43b694b1e4451caaa14e935374f369f04362c643e"]
+    "graph_fingerprint_parts": ["sha256:6101b54a718cca2b472ab57dae9d5f59cc57b0fa9012161710801701f9d0e589"]
   }
 }

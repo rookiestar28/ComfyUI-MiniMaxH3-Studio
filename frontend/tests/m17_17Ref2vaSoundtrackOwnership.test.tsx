@@ -20,6 +20,7 @@ import { initialShellState } from "../src/state/shellState";
 import { loadAvailableProfile } from "./support/generationProfileFixture";
 import { fixtureBackedAppModeHost } from "./support/hostSeamTestDouble";
 import { createQualifiedBasePrompt } from "./support/qualifiedBasePrompt";
+import { createMaterializedReferencePrompt } from "./support/materializedReferencePrompt";
 import { acceptedQueueResponse } from "./support/queuePromptTestDouble";
 import {
   loadSyntheticTemplate,
@@ -285,6 +286,7 @@ describe("M17-17 the soundtrack state is authored, not assumed", () => {
   it("sends no soundtrack claim when no video was selected", () => {
     const { onStart } = view({
       ...initialAppModeDraft,
+      referenceImages: ["17"],
       referenceAudios: ["31"],
       referenceVideoSoundtrack: "excluded",
     });
@@ -362,7 +364,7 @@ describe("M17-17 the declared state reaches the canvas", () => {
           workflow: {},
         })
         .mockResolvedValueOnce({
-          output: createQualifiedBasePrompt(inputs, opaque, {
+          output: createMaterializedReferencePrompt(inputs, opaque, {
             sharedDurationSource: true,
           }),
           workflow: {},

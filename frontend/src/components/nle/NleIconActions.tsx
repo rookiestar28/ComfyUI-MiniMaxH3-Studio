@@ -38,6 +38,8 @@ export type NleIconName =
   | "pause"
   | "stepBack"
   | "stepForward"
+  | "moveUp"
+  | "moveDown"
   | "fit"
   | "fullscreen"
   | "fullscreenExit"
@@ -438,6 +440,8 @@ const PATHS: Record<NleIconName, readonly string[]> = {
   ],
   // Plus: add a shot.
   add: ["M12 5v14M5 12h14"],
+  moveUp: ["M12 19V5", "m6 11 6-6 6 6"],
+  moveDown: ["M12 5v14", "m6 13 6 6 6-6"],
   // Clipboard with a check: use the reviewed rows.
   reviewed: [
     "M9 4h6v3H9z",

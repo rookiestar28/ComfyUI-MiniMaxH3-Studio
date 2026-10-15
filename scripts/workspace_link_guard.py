@@ -27,7 +27,8 @@ Modes::
     python scripts/workspace_link_guard.py check [ROOT]
     python scripts/workspace_link_guard.py remove-worktree PATH [--force] [--dry-run]
 
-``check`` is the gate stage and exits non-zero when an escaping link exists. Items,.
+``check`` is the gate stage and exits non-zero when an escaping link exists. Items, ;
+ removed the shell hop, the global prune and every attribute change on shared files.
 """
 
 from __future__ import annotations
@@ -243,19 +244,16 @@ def find_links(
 def detach(link: Path, target: Path) -> bool:
     """Remove the link and not its target.
 
-    ``cmd rmdir`` without a recurse switch unlinks a junction.  ``Remove-Item -Force`` without
-    ``-Recurse`` prompts and hangs a non-interactive shell, so it is not used.
+    ``os.unlink`` removes the link object natively.  ``Remove-Item -Force`` without
+    ``-Recurse`` prompts and hangs a non-interactive shell, so no shell is used.
     """
     if not target.exists():
         print(f"  refusing: {link} points at {target}, already missing", file=sys.stderr)
         return False
-    if os.name == "nt":
-        subprocess.run(["cmd", "/c", "rmdir", str(link)], capture_output=True, text=True)
-    else:
-        try:
-            link.unlink()
-        except OSError:
-            pass
+    try:
+        _unlink_reparse_point(link)
+    except OSError:
+        pass
     if link.exists() or is_reparse_point(link):
         print(f"  failed to detach {link}", file=sys.stderr)
         return False
@@ -385,19 +383,120 @@ def unreachable_detached_head(worktree: Path) -> str | None:
 
 
 def _unlink_reparse_point(link: Path) -> None:
-    """Unlink without following.  ``rmdir`` detaches a junction; ``unlink`` covers file symlinks."""
-    if os.name == "nt":
-        subprocess.run(["cmd", "/c", "rmdir", str(link)], capture_output=True, text=True)
-    if is_reparse_point(link):
-        link.unlink()
+    """Unlink the link object without following it, natively and without a shell.
+
+    ``os.unlink`` removes a directory junction or symlink and leaves its target alone; an
+    earlier revision hopped through ``cmd /c rmdir``, which handed an enumerated path to
+    another interpreter for no benefit.
+    """
+    try:
+        os.unlink(_io_path(link))
+    except PermissionError:
+        # A WSL symlink to a directory carries the directory attribute but is neither a junction
+        # nor a Windows symlink, so os.unlink refuses it; RemoveDirectory removes the reparse
+        # point itself.  Windows never follows such a link, and its target was proven to survive.
+        if not _attributes(os.lstat(_io_path(link))) & stat.FILE_ATTRIBUTE_DIRECTORY:
+            raise
+        os.rmdir(_io_path(link))
+    if os.path.lexists(_io_path(link)):
+        raise OSError(f"link {link.name} survived unlinking")
+
+
+#: Reparse tags whose link object is removed natively without touching a target: a junction
+#: (mount point), a Windows symlink and a WSL symlink.  Any other tag is a different kind of
+#: object -- cloud placeholders, deduplicated or compressed data -- and is not treated as a link
+#: that may be unlinked blindly.
+KNOWN_LINK_TAGS = frozenset({JUNCTION_TAG, 0xA000000C, 0xA000001D})
+
+
+def link_tag(metadata: os.stat_result) -> int:
+    return int(getattr(metadata, "st_reparse_tag", 0))
+
+
+READ_ONLY = getattr(stat, "FILE_ATTRIBUTE_READONLY", 0x1)
+
+
+def _attributes(metadata: os.stat_result) -> int:
+    return int(getattr(metadata, "st_file_attributes", 0))
+
+
+def _linked(metadata: os.stat_result) -> bool:
+    return bool(_attributes(metadata) & REPARSE_ATTRIBUTE) or stat.S_ISLNK(metadata.st_mode)
 
 
 def _unlink_file(path: Path) -> None:
     try:
-        path.unlink()
+        os.unlink(_io_path(path))
     except PermissionError:
-        os.chmod(path, stat.S_IWRITE)
-        path.unlink()
+        metadata = os.lstat(_io_path(path))
+        if os.name != "nt" or not (_attributes(metadata) & READ_ONLY):
+            raise
+        # GUARD: the read-only attribute belongs to the file, not to this name.  Clearing it
+        # (what Git for Windows and a chmod-and-retry do) changes every other hard link to the
+        # same file -- a pnpm store file, a clone's pack shared with its source.  Delete the
+        # name with the disposition flag that ignores the attribute instead, never chmod.
+        delete_ignoring_read_only(path)
+
+
+def remove_directory(path: Path) -> None:
+    try:
+        os.rmdir(_io_path(path))
+    except PermissionError:
+        metadata = os.lstat(_io_path(path))
+        if os.name != "nt" or not (_attributes(metadata) & READ_ONLY) or _linked(metadata):
+            raise
+        # A directory has exactly one name, so clearing its own attribute affects nothing else.
+        os.chmod(_io_path(path), stat.S_IWRITE)
+        os.rmdir(_io_path(path))
+
+
+def delete_ignoring_read_only(path: Path) -> None:
+    """Delete one file name on Windows without changing the file's read-only attribute.
+
+    ``FILE_DISPOSITION_FLAG_IGNORE_READONLY_ATTRIBUTE`` (Windows 10 1809 and later) deletes the
+    name while the attribute stays as it is on every other link.  A handle open elsewhere without
+    delete sharing fails the call cleanly; nothing is deleted then.
+    """
+    if sys.platform != "win32":
+        raise PermissionError(f"read-only file cannot be deleted: {path.name}")
+    import ctypes
+    from ctypes import wintypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    create = kernel32.CreateFileW
+    create.restype = wintypes.HANDLE
+    create.argtypes = [
+        wintypes.LPCWSTR,
+        wintypes.DWORD,
+        wintypes.DWORD,
+        wintypes.LPVOID,
+        wintypes.DWORD,
+        wintypes.DWORD,
+        wintypes.HANDLE,
+    ]
+    set_info = kernel32.SetFileInformationByHandle
+    set_info.restype = wintypes.BOOL
+    set_info.argtypes = [wintypes.HANDLE, ctypes.c_int, wintypes.LPVOID, wintypes.DWORD]
+    close = kernel32.CloseHandle
+    close.argtypes = [wintypes.HANDLE]
+    delete_access = 0x00010000
+    share_all = 0x7
+    open_existing = 3
+    # Open the name itself: never a reparse target, and directories are not handled here.
+    open_reparse_point = 0x00200000
+    file_disposition_info_ex = 21
+    flags = wintypes.DWORD(0x1 | 0x2 | 0x10)  # DELETE | POSIX_SEMANTICS | IGNORE_READONLY
+    handle = create(
+        _io_path(path), delete_access, share_all, None, open_existing, open_reparse_point, None
+    )
+    if handle is None or handle == wintypes.HANDLE(-1).value:
+        raise PermissionError(ctypes.get_last_error(), f"cannot open {path.name} for deletion")
+    try:
+        size = ctypes.sizeof(flags)
+        if not set_info(handle, file_disposition_info_ex, ctypes.byref(flags), size):
+            raise PermissionError(ctypes.get_last_error(), f"cannot delete {path.name}")
+    finally:
+        close(handle)
 
 
 def remove_tree(root: Path) -> None:
@@ -418,7 +517,35 @@ def remove_tree(root: Path) -> None:
             remove_tree(path)
         else:
             _unlink_file(path)
-    root.rmdir()
+    remove_directory(root)
+
+
+def read_only_shared_files(root: Path) -> list[str]:
+    """Relative paths of read-only files under root that have another hard link.
+
+    Never descends into a link.  An unreadable directory raises rather than reading as empty.
+    """
+    found: list[str] = []
+    stack = [root]
+    while stack:
+        directory = stack.pop()
+        with os.scandir(_io_path(directory)) as entries:
+            children = list(entries)
+        for child in children:
+            metadata = child.stat(follow_symlinks=False)
+            if _linked(metadata):
+                continue
+            if stat.S_ISDIR(metadata.st_mode):
+                stack.append(directory / child.name)
+                continue
+            # GUARD: never trust the enumeration's attributes here.  NTFS keeps a copy of them
+            # in each directory entry and refreshes only the name the change went through, so a
+            # hard link whose file was made read-only through another name still enumerates as
+            # writable.  Only a stat of the file itself reports the real attribute and link count.
+            actual = os.lstat(_io_path(directory / child.name))
+            if _attributes(actual) & READ_ONLY and actual.st_nlink > 1:
+                found.append(str((directory / child.name).relative_to(root)))
+    return sorted(found)
 
 
 def _escapes_from(finding: LinkFinding, container: Path) -> bool:
@@ -486,6 +613,16 @@ def _remove_worktree(target: Path, force: bool, dry_run: bool) -> int:
     escaping = [f for f in find_links(target, repo_root) if f.escapes]
     _report_links(target, escaping)
     refusals = _work_loss_refusals(target)
+    shared = read_only_shared_files(target)
+    if shared:
+        # GUARD: Git for Windows clears a read-only attribute before unlinking a file, and the
+        # attribute is shared by every hard link.  --force cannot make that safe, so this is
+        # not a work-loss refusal; retire such a tree with scripts/workspace_retirement.py.
+        print(
+            "refusing: read-only files with other hard links: " + "; ".join(shared[:5]),
+            file=sys.stderr,
+        )
+        return 1
 
     if dry_run:
         for name, detail in refusals:
@@ -553,10 +690,12 @@ def _remove_worktree(target: Path, force: bool, dry_run: bool) -> int:
             print(f"could not finish removing {target}: {error}", file=sys.stderr)
             return 1
 
-    if is_registered_worktree(target, repo_root):
-        pruned = _git("worktree", "prune", "-v", cwd=repo_root)
-        if pruned is not None and pruned.stdout.strip():
-            print(f"pruned stale administrative entry: {pruned.stdout.strip()}")
+    if is_registered_worktree(target, repo_root) and not target.exists():
+        # GUARD: deregister exactly this path.  `git worktree prune` is global: it would also
+        # drop every other registration whose directory happens to be missing right now.
+        removed = _git("worktree", "remove", str(target), cwd=repo_root)
+        if removed is not None and removed.returncode == 0:
+            print(f"deregistered stale administrative entry for {target}")
 
     if target.exists():
         print(f"{target} still exists after removal", file=sys.stderr)

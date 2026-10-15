@@ -945,6 +945,8 @@
       "consumers": [
         "frontend/src/components/ProductionWorkbench.tsx",
         "frontend/src/components/RetainedAssetsSection.tsx",
+        "frontend/src/components/nle/NleSequencePanel.tsx",
+        "frontend/src/components/nle/nleWorkspaceBinding.ts",
         "frontend/src/contracts/productionAccumulationCodec.ts",
         "frontend/src/contracts/projectDocumentCodec.ts",
         "frontend/src/host/managedProductionContext.ts",
@@ -956,6 +958,7 @@
         "frontend/src/host/productionSession.ts",
         "frontend/src/host/sequenceCoordinator.ts",
         "frontend/src/lifecycle/managedProjectMember.ts",
+        "frontend/src/lifecycle/nleWorkspaceSession.ts",
         "frontend/src/lifecycle/shellSession.ts",
         "frontend/tests/e2e/host/productionRuntimeProducer.ts",
         "frontend/tests/e2e/host/productionRuntimeRow.ts",
@@ -1443,6 +1446,7 @@
         "governance/contracts/product_shell_v1.schema.json",
         "governance/contracts/sidebar_workspace_v1.schema.json",
         "governance/contracts/sidebar_workspace_v2.schema.json",
+        "scripts/continuation_route_study.py",
         "scripts/m16_01_source_requalification.py",
         "scripts/m19_07/rows.py",
         "scripts/m19_08/runs.py",
@@ -1526,6 +1530,7 @@
         "frontend/tests/appMode.test.ts",
         "frontend/tests/connectRoute.test.ts",
         "frontend/tests/e2e/host/m25_08Bootstrap.ts",
+        "frontend/tests/e2e/host/referenceMaximumOrder.ts",
         "frontend/tests/e2e/journeys/host/audioComposition.spec.ts",
         "frontend/tests/e2e/journeys/host/contentExtentHost.spec.ts",
         "frontend/tests/e2e/journeys/host/m25_08CausalClipEditor.spec.ts",
@@ -1540,6 +1545,7 @@
         "frontend/tests/e2e/journeys/host/nleWorkspaceHost.spec.ts",
         "frontend/tests/e2e/journeys/host/productionAuthoringImportHost.spec.ts",
         "frontend/tests/e2e/journeys/host/ref2vaBindings.spec.ts",
+        "frontend/tests/e2e/journeys/host/referenceExecution.spec.ts",
         "frontend/tests/e2e/journeys/host/runtimeFailure.spec.ts",
         "frontend/tests/e2e/journeys/host/sourceRoles.spec.ts",
         "frontend/tests/e2e/journeys/managedLifecycle.spec.ts",
@@ -1549,6 +1555,7 @@
         "frontend/tests/m25_08HostBootstrap.test.ts",
         "frontend/tests/managedAppMode.test.ts",
         "frontend/tests/projectionCodecs.test.ts",
+        "frontend/tests/referenceOwnership.test.ts",
         "frontend/tests/sidebarHost.test.ts",
         "frontend/tests/sidebarWorkspaceFixture.ts",
         "frontend/tests/support/connectFixture.ts",
@@ -9355,6 +9362,28 @@
       "authority_paths": [
         "comfyui_h3_context/core/m26_assembly.py"
       ],
+      "blockers": [
+        "unknown_consumer"
+      ],
+      "boundary": "persisted",
+      "compatibility": "migration_required",
+      "consumers": [],
+      "contract_id": "h3.context.m26.production_assembly_receipt.v1",
+      "dialect": "not_applicable",
+      "disposition": "NEED_EVIDENCE",
+      "evidence": "no reader resolved by the five discovery rules; absence is not disuse",
+      "fingerprint_domain": "h3.context.m26.production_assembly_receipt.v1",
+      "kind": "python_wire",
+      "persistence": "persisted",
+      "producers": [
+        "comfyui_h3_context/core/m26_assembly.py"
+      ],
+      "publication": "packaged"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/core/m26_assembly.py"
+      ],
       "blockers": [],
       "boundary": "cross_language",
       "compatibility": "migration_required",
@@ -9363,13 +9392,42 @@
         "comfyui_h3_context/core/production_workbench.py",
         "frontend/src/contracts/productionWorkbenchCodec.ts",
         "frontend/tests/productionWorkbenchCodec.test.ts",
+        "tests/test_production_import.py",
         "tests/test_production_workbench.py"
       ],
-      "contract_id": "h3.context.m26.production_assembly_receipt.v1",
+      "contract_id": "h3.context.m26.production_assembly_receipt.v2",
       "dialect": "not_applicable",
       "disposition": "KEEP",
       "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
-      "fingerprint_domain": "h3.context.m26.production_assembly_receipt.v1",
+      "fingerprint_domain": "h3.context.m26.production_assembly_receipt.v2",
+      "kind": "python_wire",
+      "persistence": "transient",
+      "producers": [
+        "comfyui_h3_context/core/m26_assembly.py"
+      ],
+      "publication": "packaged",
+      "reachability": "unsupported",
+      "reachability_source": "none"
+    },
+    {
+      "authority_paths": [
+        "comfyui_h3_context/core/m26_assembly.py"
+      ],
+      "blockers": [],
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
+      "consumers": [
+        "comfyui_h3_context/adapters/comfyui_production_workspace.py",
+        "comfyui_h3_context/core/production_workbench.py",
+        "frontend/src/contracts/productionWorkbenchCodec.ts",
+        "frontend/tests/productionWorkbenchCodec.test.ts",
+        "tests/test_production_import.py"
+      ],
+      "contract_id": "h3.context.m26.production_seam_report.v1",
+      "dialect": "not_applicable",
+      "disposition": "KEEP",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
+      "fingerprint_domain": "h3.context.m26.production_seam_report.v1",
       "kind": "python_wire",
       "persistence": "transient",
       "producers": [
@@ -10820,6 +10878,7 @@
         "frontend/tests/existingRouteAdmission.test.ts",
         "frontend/tests/productionCanonicalLowering.test.ts",
         "frontend/tests/productionManagedChildResolver.test.ts",
+        "frontend/tests/referenceOwnership.test.ts",
         "tests/test_m26_03_prepared_context.py"
       ],
       "contract_id": "h3.context.production_canonical_lowering.v1",
@@ -15200,21 +15259,25 @@
         "workflows/m15_03_product_shell_reference.json"
       ],
       "blockers": [],
-      "boundary": "public",
-      "compatibility": "old_readers_unaffected",
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
       "consumers": [
         "comfyui_h3_context/core/public_manifest.py",
+        "frontend/tests/e2e/journeys/host/referenceExecution.spec.ts",
         "governance/contracts/workflow_surface_matrix_v1.json",
         "scripts/m3_08_host_e2e.py",
         "scripts/release_matrix.py",
+        "scripts/supplied_host_lane.py",
+        "tests/test_m25_54_supplied_host_lane.py",
         "tests/test_native_mode_qualification.py",
         "tests/test_supported_host_e2e.py",
+        "tests/test_workflow_fixtures.py",
         "tests/test_workflow_migration.py"
       ],
       "contract_id": "workflow.m15_03.product_shell_reference",
       "dialect": "not_applicable",
       "disposition": "KEEP",
-      "evidence": "public boundary keeps a reader this repository cannot re-migrate",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
       "fingerprint_domain": "none",
       "kind": "workflow_fixture",
       "persistence": "persisted",
@@ -15265,17 +15328,20 @@
         "workflows/m15_09_assistant_reference.json"
       ],
       "blockers": [],
-      "boundary": "public",
-      "compatibility": "old_readers_unaffected",
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
       "consumers": [
         "comfyui_h3_context/core/public_manifest.py",
         "comfyui_h3_context/core/workflow_migration_expectations.py",
         "comfyui_h3_context/core/workflow_migration_subgraph.py",
         "comfyui_h3_context/core/workflow_migration_subgraph_shape.py",
+        "frontend/tests/e2e/journeys/host/referenceExecution.spec.ts",
         "governance/contracts/workflow_surface_matrix_v1.json",
         "scripts/m3_08_host_e2e.py",
         "scripts/release_matrix.py",
+        "scripts/supplied_host_lane.py",
         "subgraphs/H3 Context Assistant - Reference.json",
+        "tests/test_m25_54_supplied_host_lane.py",
         "tests/test_reference_assistant_subgraph.py",
         "tests/test_workflow_fixtures.py",
         "tests/test_workflow_migration.py"
@@ -15283,7 +15349,7 @@
       "contract_id": "workflow.m15_09.assistant_reference",
       "dialect": "not_applicable",
       "disposition": "KEEP",
-      "evidence": "public boundary keeps a reader this repository cannot re-migrate",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
       "fingerprint_domain": "none",
       "kind": "workflow_fixture",
       "persistence": "persisted",
@@ -15334,16 +15400,19 @@
         "workflows/m3_07_h3_context_reference.json"
       ],
       "blockers": [],
-      "boundary": "public",
-      "compatibility": "old_readers_unaffected",
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
       "consumers": [
         "comfyui_h3_context/core/public_manifest.py",
         "comfyui_h3_context/core/workflow_migration_expectations.py",
+        "frontend/tests/e2e/journeys/host/referenceExecution.spec.ts",
         "governance/contracts/workflow_surface_matrix_v1.json",
         "scripts/m10_08_runtime_fixture.py",
         "scripts/m3_08_host_e2e.py",
+        "scripts/supplied_host_lane.py",
         "subgraphs/H3 Context Assistant - Reference.json",
         "tests/test_graph_binding.py",
+        "tests/test_m25_54_supplied_host_lane.py",
         "tests/test_reference_assistant_subgraph.py",
         "tests/test_runtime_foundation_fixture.py",
         "tests/test_supported_host_e2e.py",
@@ -15354,7 +15423,7 @@
       "contract_id": "workflow.m3_07.reference",
       "dialect": "not_applicable",
       "disposition": "KEEP",
-      "evidence": "public boundary keeps a reader this repository cannot re-migrate",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
       "fingerprint_domain": "none",
       "kind": "workflow_fixture",
       "persistence": "persisted",
@@ -15370,16 +15439,19 @@
         "workflows/m6_07_h3_context_full_reference.json"
       ],
       "blockers": [],
-      "boundary": "public",
-      "compatibility": "old_readers_unaffected",
+      "boundary": "cross_language",
+      "compatibility": "migration_required",
       "consumers": [
         "comfyui_h3_context/core/public_manifest.py",
         "comfyui_h3_context/core/workflow_migration_expectations.py",
+        "frontend/tests/e2e/journeys/host/referenceExecution.spec.ts",
         "governance/contracts/workflow_surface_matrix_v1.json",
         "scripts/m3_08_host_e2e.py",
+        "scripts/supplied_host_lane.py",
         "subgraphs/H3 Context Assistant - Reference.json",
         "tests/test_full_reference_integration.py",
         "tests/test_graph_binding.py",
+        "tests/test_m25_54_supplied_host_lane.py",
         "tests/test_reference_assistant_subgraph.py",
         "tests/test_supported_host_e2e.py",
         "tests/test_workflow_fixtures.py"
@@ -15387,7 +15459,7 @@
       "contract_id": "workflow.m6_07.full_reference",
       "dialect": "not_applicable",
       "disposition": "KEEP",
-      "evidence": "public boundary keeps a reader this repository cannot re-migrate",
+      "evidence": "cross_language boundary keeps a reader this repository cannot re-migrate",
       "fingerprint_domain": "none",
       "kind": "workflow_fixture",
       "persistence": "persisted",
@@ -15485,6 +15557,6 @@
       "reachability_source": "none"
     }
   ],
-  "fingerprint": "sha256:94be69f36c4d65a92277c49327bf2c56010d8c3b0087940515f7836c331b2c7e",
+  "fingerprint": "sha256:68afd8b7cca22dcfcb8efb1a5968989b09a395d4c5b070b6a958b04db15c8b1e",
   "schema": "h3-context-contract-inventory/1"
 }

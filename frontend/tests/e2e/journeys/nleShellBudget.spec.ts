@@ -192,6 +192,9 @@ for (const shape of ["continuous-preview"] as const) {
         playedFrames += Math.max(0, intervalFrames - intervalPlayedFrames);
         playbackIntervalsMs.push(intervalMs);
         intervalPlayedFrames = 0;
+        await page.evaluate(() =>
+          window.nleShellHarness.markPresentationPhase("navigation"),
+        );
         await slider.focus();
         await page.keyboard.press("Home");
         navigationActions += 1;
@@ -207,6 +210,9 @@ for (const shape of ["continuous-preview"] as const) {
         const intervalNumber = playbackIntervalsMs.length;
         if (intervalNumber === 1 || intervalNumber % 4 === 0) {
           const sidebarBeforeEdit = (await snapshot(page)).sidebarCommits;
+          await page.evaluate(() =>
+            window.nleShellHarness.markPresentationPhase("edit"),
+          );
           const inspector = page.locator(
             '[data-h3-nle-selected-clip="preview-primary-0"]',
           );
@@ -228,6 +234,9 @@ for (const shape of ["continuous-preview"] as const) {
               (await snapshot(page)).timelineSnapshot!.output.durationFrames,
             ),
           );
+          await page.evaluate(() =>
+            window.nleShellHarness.markPresentationPhase("undo"),
+          );
           await page.locator('[data-h3-nle-control="history.undo"]').click();
           await expect
             .poll(async () => (await snapshot(page)).receipts)
@@ -246,10 +255,16 @@ for (const shape of ["continuous-preview"] as const) {
         await expect(play).toBeEnabled();
         intervalStartFrame = await playheadFrame(slider);
         expect(intervalStartFrame).toBe(0);
+        await page.evaluate(() =>
+          window.nleShellHarness.markPresentationPhase("replay"),
+        );
         await play.click();
         replays += 1;
         await expect(page.locator('[data-h3-nle-status="monitor"]')).toHaveText(
           "Monitor playing.",
+        );
+        await page.evaluate(() =>
+          window.nleShellHarness.markPresentationPhase("playback"),
         );
       }
       if (!stillPlaying) {
@@ -271,6 +286,9 @@ for (const shape of ["continuous-preview"] as const) {
           maxima[key] = Math.max(maxima[key], counts[key]);
       }
     }
+    await page.evaluate(() =>
+      window.nleShellHarness.markPresentationPhase("pause"),
+    );
     await page.getByRole("button", { name: "Pause", exact: true }).click();
     await expect.poll(() => requests.read().active).toBe(0);
     const playedMs = (playedFrames * 1_000) / PLAYBACK_FPS;
@@ -298,6 +316,29 @@ for (const shape of ["continuous-preview"] as const) {
       );
     const presentationP95 = p95(delivered);
     const presentationMax = Math.max(...delivered);
+    // Publish only timing and closed labels; the full observer rows also carry source identity.
+    const presentationTimeline = measurements.presentationSamples
+      .map(({ offsetMs, deliveredMs, paintMs, phase, path }) => ({
+        offsetMs,
+        deliveredMs,
+        paintMs,
+        phase,
+        path,
+      }))
+      .sort((left, right) => left.offsetMs - right.offsetMs);
+    const presentationTopFive = [...presentationTimeline]
+      .sort((left, right) => right.deliveredMs - left.deliveredMs)
+      .slice(0, 5);
+    await testInfo.attach("integrated-presentation-timeline", {
+      body: Buffer.from(
+        JSON.stringify({
+          version: 1,
+          samplesDropped: measurements.presentationSamplesDropped,
+          samples: presentationTimeline,
+        }),
+      ),
+      contentType: "application/json",
+    });
     const presentationOutliers = measurements.presentationSamples.filter(
       (sample) => sample.deliveredMs > 50,
     );
@@ -321,6 +362,8 @@ for (const shape of ["continuous-preview"] as const) {
       renderP95Ms: renderP95,
       presentationP95Ms: presentationP95,
       presentationMaxMs: presentationMax,
+      presentationMaximum: presentationTopFive[0],
+      presentationTopFive,
       presentationSamples: delivered.length,
       presentationOutliers,
       presentationPaintP95Ms: p95(
@@ -378,6 +421,8 @@ for (const shape of ["continuous-preview"] as const) {
         renderP95Ms: report.renderP95Ms,
         presentationP95Ms: report.presentationP95Ms,
         presentationMaxMs: report.presentationMaxMs,
+        presentationMaximum: report.presentationMaximum,
+        presentationTopFive: report.presentationTopFive,
         sidebarCommits: report.sidebarCommits,
         editSidebarCommitDeltas: report.editSidebarCommitDeltas,
         unattributedSidebarCommits: report.unattributedSidebarCommits,

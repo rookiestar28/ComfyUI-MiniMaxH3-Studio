@@ -4,6 +4,16 @@ The primitive opens one existing executable without write/delete sharing, hashes
 and re-checks the file identity. It never executes anything. `QualifiedAVMediaAdapter` wraps it
 for every spawn, and the media runtime discovery worker uses it to admit a candidate pair, so the
 two cannot drift into different notions of which file is the qualified tool.
+
+INTEGRITY: the executed bytes must match the pinned SHA-256 build used for render qualification
+and output determinism. This protects check-to-use integrity during benign concurrent changes:
+package-manager or installer updates to PATH/environment copies, antivirus quarantine/restore,
+sync, interrupted extraction and runtime-manager replacement, including path/link aliasing.
+It does not isolate an attacker running as the same user with write access to this extension or
+ComfyUI, or defend against administrator or kernel compromise. The Windows handle denies write
+and delete sharing while allowing read/execute; it is not an exclusive lock. Admission rejects
+multiple hard links and reparse points, and rechecks volume serial, file index, size and nanosecond
+mtime through the file identity reported by Python's Windows stat implementation.
 """
 
 from __future__ import annotations
@@ -63,7 +73,8 @@ def windows_open_read_pin(path: Path) -> int:
         ctypes.c_void_p,
     )
     create_file.restype = ctypes.c_void_p
-    # SECURITY: FILE_SHARE_WRITE/DELETE would permit same-identity content replacement after hash.
+    # INTEGRITY: keep write/delete sharing denied through spawn/use; allowing either permits
+    # concurrent replacement after hashing. Read/execute sharing remains allowed, not exclusive.
     handle = create_file(
         str(path),
         0x80000000,
@@ -129,6 +140,10 @@ def pin_exact_executable(
     passthrough: tuple[type[BaseException], ...] = (),
 ) -> Iterator[FileIdentity]:
     """Pin and hash one exact Windows executable across process spawn/use.
+
+    Hold the qualified bytes against benign concurrent replacement and path aliasing for this
+    operation. This provides integrity within the trusted host, not same-user attacker isolation;
+    see the module threat model. Recheck the admitted path and held descriptor's file identity.
 
     `charge` receives the size of every chunk before it is hashed and may raise an
     `ExecutableAdmissionError` to stop a caller whose total byte or time budget is exhausted.

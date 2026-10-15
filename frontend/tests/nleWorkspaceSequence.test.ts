@@ -979,4 +979,36 @@ describe("M25-16 readiness and managed sequence inside the workspace", () => {
     await ctx.nle.nleAssembly("assemble_sequence");
     expect(ctx.runProductionIntent).not.toHaveBeenCalled();
   });
+
+  it("forwards the chosen output profile with assembly only", async () => {
+    const ctx = subject();
+    ctx.session.productionState = {
+      status: "ready",
+      projection: {
+        ...productionProjection(),
+        allowedActions: [
+          ...productionProjection().allowedActions,
+          "assemble_sequence",
+          "retry_assembly",
+        ],
+      },
+    };
+    await ctx.nle.nleAssembly(
+      "assemble_sequence",
+      "legacy_av_30fps_48khz_stereo",
+    );
+    expect(ctx.runProductionIntent).toHaveBeenLastCalledWith({
+      action: "assemble_sequence",
+      outputProfileId: "legacy_av_30fps_48khz_stereo",
+    });
+    await ctx.nle.nleAssembly("assemble_sequence");
+    expect(ctx.runProductionIntent).toHaveBeenLastCalledWith({
+      action: "assemble_sequence",
+    });
+    // A retry keeps the failed job's profile on the server; the client never sends one.
+    await ctx.nle.nleAssembly("retry_assembly", "h3_native_av_v1");
+    expect(ctx.runProductionIntent).toHaveBeenLastCalledWith({
+      action: "retry_assembly",
+    });
+  });
 });

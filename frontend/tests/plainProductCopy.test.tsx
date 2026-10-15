@@ -121,7 +121,7 @@ describe("B-M1605-COPY-01 sequence pane", () => {
     } as unknown as ManagedSequenceProjection;
     const production = productionProjection(fp("a"), {
       assembly: {
-        schema: "h3.context.production_assembly.projection.v1",
+        schema: "h3.context.production_assembly.projection.v2",
         state: "failed",
         progress: { completed: 1, total: 2 },
         capability_fingerprint: fp("b"),
@@ -133,6 +133,13 @@ describe("B-M1605-COPY-01 sequence pane", () => {
         authorization_fingerprint: fp("f"),
         receipt_fingerprint: null,
         failure_code: "assembly_execution_failed",
+        output_profiles: [
+          {
+            output_profile_id: "legacy_av_30fps_48khz_stereo",
+            capability_fingerprint: fp("b"),
+          },
+        ],
+        seams: [],
         projection_fingerprint: fp("e"),
       },
       allowed_actions: ["read_projection", "retry_assembly"],

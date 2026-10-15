@@ -34,7 +34,7 @@
     "4": {
       "class_type": "comfyui_h3_context.H3Context.ReferenceRegistry",
       "inputs": {
-        "images": [["2", 0], ["3", 0]]
+        "images.image0": ["2", 0], "images.image1": ["3", 0]
       }
     },
     "5": {
@@ -71,7 +71,7 @@
         "height": 512,
         "length": 124,
         "ref_image_size": "match",
-        "ref_images": [["2", 0], ["3", 0]]
+        "ref_images.ref_image_0": ["2", 0], "ref_images.ref_image_1": ["3", 0]
       }
     },
     "10": {
@@ -97,15 +97,15 @@
         "source": "2",
         "source_output": 0,
         "target": "9",
-        "target_input": "ref_images"
+        "target_input": "ref_images.ref_image_0"
       },
       {
         "source": "3",
         "source_output": 0,
         "target": "9",
-        "target_input": "ref_images"
+        "target_input": "ref_images.ref_image_1"
       }
     ],
-    "graph_fingerprint_parts": ["sha256:b78ba065e640b0e0ca49a13ceb83c6ffff44c800d13d838f5c9aca7c059a52bd"]
+    "graph_fingerprint_parts": ["sha256:4efd543684d18d143306077075a0937b56feb915f647d07fb1d895f04ecce61e"]
   }
 }

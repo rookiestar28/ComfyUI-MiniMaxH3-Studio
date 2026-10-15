@@ -1,3 +1,64 @@
+# Release 1.3.0
+
+## Reference generation
+
+- Ref2VA now executes linked image, video and audio references from the sidebar and bundled
+  Reference graphs. The Reference Registry accepts the individual numbered inputs created by
+  these graphs while preserving callers that provide grouped reference values.
+- Select up to 9 images, 3 videos and 3 standalone audio references. The combined limit is
+  12 files and 3 audio tracks, including soundtracks taken from videos. At least one image or
+  video is required in the sidebar. Video soundtracks are included for all selected videos or
+  excluded for all; a selection that exceeds the combined limits is refused before execution.
+- Reorder or remove individual references with keyboard-accessible controls. Source chips and
+  final labels show their order before graph application, and each new loader occupies its own
+  row. Paired soundtracks keep their video identity; standalone audio numbering stays independent.
+- Ref2VA duration hints are guidance for preparing inputs. Selecting canvas nodes does not read
+  their media files or verify their duration.
+
+## Sequence assembly
+
+- New assemblies default to **Original size (24 fps)**: the segments' common original size,
+  24 fps video and 32 kHz stereo audio, with one aggregate video encode. Segments with mismatched
+  sizes are refused. The previous **512 × 512 (30 fps)** format with 48 kHz stereo sound remains
+  selectable before assembly.
+- View a per-cut report after assembly. **smooth**, **visible change** and **not measured** are
+  bounded measurements of the segment boundary, not guarantees of visual/audio continuity.
+  Assembly still joins independently generated segments and does not create new transition frames.
+- A sequence that finishes before the media runtime activates now offers assembly after the
+  runtime becomes available and Production is read again. Runtime checks remain non-blocking.
+- English assembly inputs show segment and cut counts without fixed plural nouns. Both Chinese
+  translations keep their existing meaning.
+
+## Developer diagnostics
+
+- Browser test failure evidence includes bounded, sanitized presentation timings for the current
+  interaction phase. Reports omit prompt, media, path, URL and credential content. This improves
+  diagnosis; no presentation-time budget or performance guarantee changes.
+- Frontend unit tests use a bounded worker pool so evidence collection keeps its original deadline.
+- Sequence browser fixtures use the current assembly profile contract and cover unavailable,
+  ready, running and completed states. Executable admission comments now state the integrity
+  threat model and the limits of the Windows read pin; the mechanism is unchanged.
+- Workspace maintenance tools bind removal to a reviewed manifest, reverify quarantined entries
+  before resumed removal, and handle WSL links explicitly while refusing unproven reparse tags.
+
+## Upgrade and limits
+
+Replace the complete package, restart ComfyUI and refresh the browser. Save editable projects and
+preserve media separately before updating. Project format version 1 and its existing title
+decoration compatibility remain unchanged. Assembly receipts use the new version 2 profile/cut
+report contract; older software that understands only version 1 refuses the new receipts.
+
+Use the current bundled reference examples. For an older saved API prompt, connect each reference
+to its own numbered Registry input instead of placing multiple links inside one input value.
+
+The editor's final render remains 1920 × 1080 at 24 fps and is separate from sequence assembly.
+The supported FFmpeg build, native Windows media/recovery requirements, manual tool setup and
+local-only perception setup are unchanged. Longer-video sequence generation remains limited to
+text-to-video plans; this release does not enable continuous-sequence generation or qualify new
+hosts or models.
+
+---
+
 # Release 1.2.1
 
 ## Manual media tools setup

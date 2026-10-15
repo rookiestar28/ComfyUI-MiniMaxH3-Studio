@@ -17,10 +17,9 @@ import {
   plan,
   planningProjection,
   proposedProjection,
-  productionProjection,
+  sequenceProductionProjection,
   readyReadiness,
 } from "../tests/support/nleSequenceFixture";
-import { unavailableProductionAssemblyWire } from "../tests/support/productionAssemblyWire";
 
 // Real NLE orchestration and serial runner; only model-free application/queue responses
 // are injected. Recreate models a page reload and discards both the React root and the
@@ -49,39 +48,7 @@ let assemblyState: "unavailable" | "ready" | "running" | "succeeded" =
   "unavailable";
 
 function currentProduction() {
-  const available = assemblyState !== "unavailable";
-  return productionProjection(fp("a"), {
-    reconstruction: {
-      state: assemblyState === "succeeded" ? "complete" : "unavailable",
-    },
-    assembly: {
-      ...unavailableProductionAssemblyWire(),
-      state: assemblyState === "ready" ? "unavailable" : assemblyState,
-      progress: {
-        completed: assemblyState === "succeeded" ? 2 : 0,
-        total: available ? 2 : 0,
-      },
-      capability_fingerprint: available ? fp("1") : null,
-      managed_sequence_fingerprint: available ? fp("2") : null,
-      artifact_receipt_fingerprints: available ? [fp("3"), fp("4")] : [],
-      cut_boundary_receipt_fingerprints: available ? [fp("7")] : [],
-      assembly_job_id:
-        assemblyState === "running" || assemblyState === "succeeded"
-          ? "assembly.1"
-          : null,
-      authorization_fingerprint:
-        assemblyState === "running" || assemblyState === "succeeded"
-          ? fp("5")
-          : null,
-      receipt_fingerprint: assemblyState === "succeeded" ? fp("6") : null,
-      failure_code: available ? null : "media_runtime_not_authorized",
-    },
-    allowed_actions: [
-      "read_projection",
-      ...(assemblyState === "ready" ? ["assemble_sequence"] : []),
-      ...(assemblyState === "running" ? ["cancel_assembly"] : []),
-    ],
-  });
+  return sequenceProductionProjection(assemblyState);
 }
 
 function render() {

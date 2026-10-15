@@ -231,6 +231,106 @@ def _is_unresolved_reference_placeholder(value: object) -> bool:
     return type(value) is tuple and value == (None,)
 
 
+_REFERENCE_GROUPS = {
+    "images": ("image", MAX_REFERENCE_IMAGES),
+    "videos": ("video", MAX_REFERENCE_VIDEOS),
+    "paired_audios": ("paired_audio", MAX_PAIRED_VIDEO_AUDIO),
+    "audios": ("audio", MAX_STANDALONE_AUDIO),
+}
+_REFERENCE_CHILD_NAMES = {
+    f"{group}.{prefix}{ordinal}": (group, ordinal)
+    for group, (prefix, maximum) in _REFERENCE_GROUPS.items()
+    for ordinal in range(maximum)
+}
+
+
+def _fold_reference_children(
+    grouped: dict[str, object],
+    children: dict[str, object],
+    *,
+    defer_unresolved: bool = False,
+) -> dict[str, object] | None:
+    """Fold canonical child links without interpreting opaque host media values."""
+
+    # CRITICAL: V1 receives literal linked names. The splice and shipped subgraph emit dotted
+    # children; removing **children breaks Ref2VA with TypeError. Keep the finite grammar:
+    # permissive names cannot be ordered, and placeholders must not bypass spelling/pair checks.
+    by_group: dict[str, dict[int, object]] = {group: {} for group in _REFERENCE_GROUPS}
+    for name, value in children.items():
+        if name not in _REFERENCE_CHILD_NAMES:
+            raise _reference_error(
+                "unknown_reference_input", f"unsupported reference input: {name!r}"
+            )
+        group, ordinal = _REFERENCE_CHILD_NAMES[name]
+        if grouped[group] is not None:
+            raise _reference_error(
+                "ambiguous_reference_spelling", f"{group} cannot mix grouped and dotted inputs"
+            )
+        by_group[group][ordinal] = value
+
+    paired_ordinals = sorted(by_group["paired_audios"])
+    video_ordinals: list[int] | None = sorted(by_group["videos"])
+    if paired_ordinals and not video_ordinals:
+        if _is_unresolved_reference_placeholder(grouped["videos"]):
+            video_ordinals = None
+        else:
+            video_ordinals = list(
+                range(
+                    len(_expand_reference_input(grouped["videos"], "videos", MAX_REFERENCE_VIDEOS))
+                )
+            )
+    if paired_ordinals and video_ordinals is not None:
+        if paired_ordinals != video_ordinals[: len(paired_ordinals)]:
+            raise _reference_error(
+                "paired_audio_ordinal_mismatch",
+                "paired audio child ordinals must match the first ordered video child ordinals",
+            )
+    if defer_unresolved:
+        return None
+
+    folded = dict(grouped)
+    expanded: dict[str, dict[int, tuple[object, ...]]] = {}
+    for group, (_, maximum) in _REFERENCE_GROUPS.items():
+        expanded[group] = {}
+        if not by_group[group]:
+            continue
+        for ordinal, value in sorted(by_group[group].items()):
+            values = _expand_reference_input(value, group, maximum)
+            if not values:
+                raise _reference_error(
+                    "missing_reference_media", f"{group} child {ordinal} contains no media"
+                )
+            expanded[group][ordinal] = values
+        folded[group] = _expand_reference_input(
+            tuple(value for values in expanded[group].values() for value in values), group, maximum
+        )
+
+    if paired_ordinals:
+        video_sizes = (
+            {ordinal: len(values) for ordinal, values in expanded["videos"].items()}
+            if expanded["videos"]
+            else {
+                ordinal: 1
+                for ordinal, _ in enumerate(
+                    _expand_reference_input(grouped["videos"], "videos", MAX_REFERENCE_VIDEOS)
+                )
+            }
+        )
+        for position, ordinal in enumerate(paired_ordinals):
+            audio_count = len(expanded["paired_audios"][ordinal])
+            video_count = video_sizes[ordinal]
+            # IMPORTANT: first-N pairing is positional. A partial non-final child would shift
+            # the next child's soundtrack onto this child's remaining video; reject that gap.
+            if audio_count > video_count or (
+                position < len(paired_ordinals) - 1 and audio_count != video_count
+            ):
+                raise _reference_error(
+                    "paired_audio_ordinal_mismatch",
+                    "paired audio values must preserve their matched video child boundaries",
+                )
+    return folded
+
+
 def _build_reference_assets(
     values: tuple[object, ...],
     *,
@@ -338,24 +438,31 @@ class H3ReferenceRegistryNode:
         videos: object | None = None,
         paired_audios: object | None = None,
         audios: object | None = None,
+        **children: object,
     ) -> bool | str:
         """Return a host-readable error without producing a fallback registry."""
 
         # ComfyUI validates this INPUT_IS_LIST node before linked media executes. In that phase
         # an unresolved link is represented as ``(None,)``; defer only that protocol sentinel.
-        if any(
-            _is_unresolved_reference_placeholder(value)
-            for value in (first_frame, last_frame, images, videos, paired_audios, audios)
-        ):
-            return True
         try:
+            folded = _fold_reference_children(
+                dict(images=images, videos=videos, paired_audios=paired_audios, audios=audios),
+                children,
+                defer_unresolved=any(
+                    _is_unresolved_reference_placeholder(value)
+                    for value in (first_frame, last_frame, images, videos, paired_audios, audios)
+                    + tuple(children.values())
+                ),
+            )
+            if folded is None:
+                return True
             cls()._build_registry(
                 first_frame,
                 last_frame,
-                images,
-                videos,
-                paired_audios,
-                audios,
+                folded["images"],
+                folded["videos"],
+                folded["paired_audios"],
+                folded["audios"],
                 capture_runtime_sources=False,
             )
         except ReferenceRegistryNodeError as exc:
@@ -370,16 +477,24 @@ class H3ReferenceRegistryNode:
         videos: object | None = None,
         paired_audios: object | None = None,
         audios: object | None = None,
+        **children: object,
     ) -> tuple[ReferenceRegistry]:
         """Build roles in frame, reference, paired-video, then standalone-audio order."""
 
+        folded = cast(
+            dict[str, object],
+            _fold_reference_children(
+                dict(images=images, videos=videos, paired_audios=paired_audios, audios=audios),
+                children,
+            ),
+        )
         return self._build_registry(
             first_frame,
             last_frame,
-            images,
-            videos,
-            paired_audios,
-            audios,
+            folded["images"],
+            folded["videos"],
+            folded["paired_audios"],
+            folded["audios"],
             capture_runtime_sources=True,
         )
 

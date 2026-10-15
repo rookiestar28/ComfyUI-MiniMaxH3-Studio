@@ -1,3 +1,4 @@
+import { availableParallelism } from "node:os";
 import { fileURLToPath } from "node:url";
 
 import react from "@vitejs/plugin-react";
@@ -35,6 +36,9 @@ export default defineConfig({
     environment: "jsdom",
     include: ["tests/**/*.test.{ts,tsx}"],
     setupFiles: ["./tests/setup/asyncUtilTimeout.ts"],
+    // IMPORTANT: keep room for nested collection; pools sized only by CPU count exhaust its
+    // process deadline and dynamic-import test deadlines. Preserve the default on small hosts.
+    maxWorkers: Math.min(4, Math.max(1, availableParallelism() - 1)),
     // IMPORTANT: the Windows Full Gate runs this suite after backend coverage, and the default
     // five-second whole-test ceiling intermittently terminates valid dynamic-import/jsdom rows.
     // Keep one bounded outer envelope here; assertion waits retain their stricter own ceilings.

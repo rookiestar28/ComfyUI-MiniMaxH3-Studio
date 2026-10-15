@@ -26,8 +26,10 @@ from .authoring_fonts import AuthoringFontError, load_packaged_font_manifest
 from .authoring_render_service import RenderExecutionIdentity, RenderServiceError
 
 # Exact executed corpus evidence; item acceptance still requires the native gate and review.
+# CRITICAL: reissue each changed Source/Public subject by executing its actual corpus;
+# Source admission alone cannot qualify the redacted renderer's implementation bytes.
 _ACCEPTED_EVIDENCE: Final[str | None] = (
-    "sha256:26ccf5750cba59f4de3397459af0544ef1b500dbedc519b30e0ef283be5111fc"
+    "sha256:93176c680be5b9962e3b78151a1ef0094c2679c7a48a1cdfce6c807e1e54aed7"
 )
 _PACKAGE = Path(__file__).resolve().parents[1]
 _EVIDENCE = _PACKAGE / "contracts" / "authoring_renderer_qualification_v2.json"

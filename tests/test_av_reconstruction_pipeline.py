@@ -7,6 +7,7 @@ import json
 import subprocess
 import tempfile
 import threading
+import time
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
@@ -42,14 +43,24 @@ from comfyui_h3_context.adapters.av_reconstruction_store import (
 from comfyui_h3_context.adapters.media_subprocess import OwnedOutputLease
 from comfyui_h3_context.adapters.segment_artifact_store import ArtifactStoreError
 from comfyui_h3_context.core.av_reconstruction import (
+    AVBoundaryEvidence,
     AVMediaDescriptor,
+    AVOperation,
     AVOutputKind,
     AVPublicationState,
     AVReconstructionApproval,
     AVReconstructionPlan,
     AVReconstructionReceipt,
+    approve_av_reconstruction_plan,
+    build_m26_derived_av_reconstruction_plan,
+    native_av_target_profile,
+    qualified_av_limits,
+    qualified_ffmpeg_capability,
 )
 from comfyui_h3_context.core.canonical import canonical_fingerprint
+from comfyui_h3_context.core.continuity_handoff import ContinuityBoundaryReceipt, ContinuityMode
+from comfyui_h3_context.core.m26_assembly import SEAM_SMOOTH_S1_MILLI_BELOW, SeamMeasurementV1
+from comfyui_h3_context.core.selective_rerun import SelectiveRerunDisposition
 
 
 class _Cancellation:
@@ -861,3 +872,207 @@ def test_source_backed_inputs_admit_by_declared_identity_and_commit_identical_re
                 clock_ms=lambda: now[0],
             )
         assert lying.stream_calls == 0
+
+
+def _host_shaped_source(ffmpeg: Path, path: Path, colour: str) -> bytes:
+    """Encode what the host's SaveVideo writes for an H3 output: 24 fps, 32 kHz, sRGB transfer."""
+
+    subprocess.run(  # noqa: S603 - exact qualified binary, fixed argv.
+        [
+            str(ffmpeg),
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-nostdin",
+            "-f",
+            "lavfi",
+            "-i",
+            f"color=c={colour}:s=864x480:r=24:d=2",
+            "-f",
+            "lavfi",
+            "-i",
+            "sine=frequency=330:sample_rate=32000:duration=2",
+            "-map",
+            "0:v:0",
+            "-map",
+            "1:a:0",
+            "-frames:v",
+            "48",
+            "-c:v",
+            "libx264",
+            "-preset",
+            "medium",
+            "-crf",
+            "18",
+            "-pix_fmt",
+            "yuv420p",
+            "-x264-params",
+            "colorprim=bt709:transfer=iec61966-2-1:colormatrix=bt709:range=limited",
+            "-color_range",
+            "tv",
+            "-colorspace",
+            "bt709",
+            "-color_primaries",
+            "bt709",
+            "-color_trc",
+            "iec61966-2-1",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "192k",
+            "-ar",
+            "32000",
+            "-ac",
+            "2",
+            "-video_track_timescale",
+            "12288",
+            "-n",
+            str(path),
+        ],
+        stdin=subprocess.DEVNULL,
+        capture_output=True,
+        check=True,
+        timeout=60,
+    )
+    return path.read_bytes()
+
+
+def test_exact_native_profile_assembles_host_shaped_segments_with_one_encode() -> None:
+    """The native profile keeps the sources' geometry and rates and encodes only the aggregate."""
+
+    ffmpeg, ffprobe = _qualified_binary_paths_from_environment()
+    workspace_tmp = (Path.cwd() / ".tmp").resolve()
+    workspace_tmp.mkdir(exist_ok=True)
+    now = [250]
+    with tempfile.TemporaryDirectory(dir=workspace_tmp) as temporary:
+        root = Path(temporary).resolve()
+        (root / "scratch").mkdir()
+        adapter = QualifiedAVMediaAdapter(
+            ffmpeg_path=ffmpeg,
+            ffprobe_path=ffprobe,
+            scratch_root=(root / "scratch").resolve(),
+            clock_ms=lambda: now[0],
+        )
+        segment_ids = ("segment.native.0001", "segment.native.0002")
+        crops: list[bytes] = []
+        descriptors: list[AVMediaDescriptor] = []
+        derived_fingerprints: list[str] = []
+        for index, (segment_id, colour) in enumerate(
+            zip(segment_ids, ("0x404040", "0xc0c0c0"), strict=True)
+        ):
+            payload = _host_shaped_source(ffmpeg, root / f"source-{index}.mp4", colour)
+            lease = adapter.derive_m26_input(
+                segment_id=segment_id,
+                original_receipt_fingerprint=_fp(f"native-original-{index}"),
+                original_source=_ReplaySource(payload),
+                contribution_frames=48,
+                contribution_samples=64_000,
+            )
+            try:
+                derived = _fp(f"native-derived-{index}")
+                descriptors.append(
+                    lease.inspect(segment_id=segment_id, derived_receipt_fingerprint=derived)
+                )
+                derived_fingerprints.append(derived)
+                crops.append(lease._lease.path.read_bytes())
+            finally:
+                lease.release()
+
+        workspace_fingerprint = _fp("native-workspace")
+        cut = AVBoundaryEvidence(
+            workspace_id="workspace.native",
+            workspace_revision=1,
+            workspace_fingerprint=workspace_fingerprint,
+            predecessor_segment_id=segment_ids[0],
+            successor_segment_id=segment_ids[1],
+            receipt=ContinuityBoundaryReceipt(
+                boundary_id="m26.cut.native",
+                mode=ContinuityMode.CUT,
+                audio_not_carried=True,
+            ),
+        )
+        plan = build_m26_derived_av_reconstruction_plan(
+            workspace_id="workspace.native",
+            workspace_revision=1,
+            workspace_fingerprint=workspace_fingerprint,
+            assembly_authorization_fingerprint=_fp("native-authorization"),
+            generation_plan_fingerprint=_fp("native-generation-plan"),
+            generation_state_fingerprint=_fp("native-generation-state"),
+            manifest_fingerprints=(_fp("native-manifest-0"), _fp("native-manifest-1")),
+            derived_input_receipt_fingerprints=tuple(derived_fingerprints),
+            source_contribution_fingerprints=(_fp("native-source-0"), _fp("native-source-1")),
+            segment_dispositions=(SelectiveRerunDisposition.QUEUE,) * 2,
+            media_descriptors=tuple(descriptors),
+            boundary_evidence=(cut,),
+            capability=qualified_ffmpeg_capability(),
+            limits=qualified_av_limits(),
+            target_profile=native_av_target_profile(864, 480),
+            planned_at_ms=now[0],
+        )
+        # Segments pass through; the aggregate concat encode is the only encode.
+        assert all(item.operations == (AVOperation.PASSTHROUGH,) for item in plan.segments)
+        approval = approve_av_reconstruction_plan(
+            plan, approved_at_ms=300, expires_at_ms=min(600, plan.approval_deadline_ms)
+        )
+        policy = replace(_policy(), max_member_bytes=8 << 20, max_total_bytes=32 << 20)
+        store = PrivateAVReconstructionStore(
+            root / "private-av-store", policy=policy, clock_ms=lambda: now[0]
+        )
+        now[0] = 400
+        receipt = execute_av_reconstruction(
+            store=store,
+            adapter=adapter,
+            transaction_id="transaction.native-assembly",
+            plan=plan,
+            approval=approval,
+            input_payloads=tuple(zip(segment_ids, crops, strict=True)),
+            clock_ms=lambda: now[0],
+        )
+        full = next(
+            item for item in receipt.outputs if item.kind is AVOutputKind.RECONSTRUCTION_FULL
+        )
+        assert (full.video_frame_count, full.audio_sample_count) == (96, 128_000)
+        stored = store.read_output(receipt, full.handle, maximum_bytes=policy.max_member_bytes)
+        aggregate = root / "aggregate.mp4"
+        aggregate.write_bytes(stored)
+        streams = json.loads(
+            subprocess.run(  # noqa: S603 - exact qualified binary, fixed argv.
+                [
+                    str(ffprobe),
+                    "-v",
+                    "error",
+                    "-show_entries",
+                    "stream=codec_type,width,height,r_frame_rate,sample_rate,channels,"
+                    "color_transfer,sample_aspect_ratio",
+                    "-of",
+                    "json",
+                    str(aggregate),
+                ],
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                check=True,
+                timeout=30,
+            ).stdout
+        )["streams"]
+        video = next(item for item in streams if item["codec_type"] == "video")
+        audio = next(item for item in streams if item["codec_type"] == "audio")
+        assert (video["width"], video["height"], video["r_frame_rate"]) == (864, 480, "24/1")
+        assert video["color_transfer"] == "bt709"
+        assert video.get("sample_aspect_ratio") in (None, "1:1")
+        assert (audio["sample_rate"], audio["channels"]) == ("32000", 2)
+
+        now[0] = 450
+        measured = adapter.measure_assembly_seams(
+            store=store,
+            receipt=receipt,
+            segment_frames=(48, 48),
+            fps=24,
+            width=864,
+            height=480,
+            deadline=time.monotonic() + 120,
+        )
+        assert len(measured) == 1
+        seam = measured[0]
+        assert isinstance(seam, SeamMeasurementV1)
+        # A dark-to-light cut is a visible change by the accepted S1 threshold.
+        assert seam.s1_milli >= SEAM_SMOOTH_S1_MILLI_BELOW

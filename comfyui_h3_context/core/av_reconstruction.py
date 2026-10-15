@@ -524,6 +524,82 @@ def qualified_av_target_profile() -> AVTargetProfile:
     )
 
 
+def native_av_target_profile(width: int, height: int) -> AVTargetProfile:
+    """The native-rate assembly target for one sequence: its own geometry, 24 fps, 32 kHz stereo.
+
+    Every other member equals the legacy profile, so the qualified capability's codecs, colour
+    and container rules apply unchanged; only geometry and the two rates differ.
+    """
+
+    limits = qualified_av_limits()
+    if (
+        type(width) is not int
+        or type(height) is not int
+        or not 2 <= width <= limits.max_width
+        or not 2 <= height <= limits.max_height
+        or width % 2
+        or height % 2
+    ):
+        raise AVReconstructionError("native_target_geometry")
+    legacy = qualified_av_target_profile()
+    return AVTargetProfile(
+        container=legacy.container,
+        video_codec=legacy.video_codec,
+        width=width,
+        height=height,
+        pixel_format=legacy.pixel_format,
+        color_range=legacy.color_range,
+        color_space=legacy.color_space,
+        color_primaries=legacy.color_primaries,
+        color_transfer=legacy.color_transfer,
+        rotation_degrees=0,
+        frame_rate=AVRational(24, 1),
+        video_time_base=legacy.video_time_base,
+        audio_required=True,
+        audio_codec=legacy.audio_codec,
+        sample_format=legacy.sample_format,
+        sample_rate=32_000,
+        channels=legacy.channels,
+        channel_layout=legacy.channel_layout,
+        audio_time_base=AVRational(1, 32_000),
+    )
+
+
+def native_av_target_profile_rule_fingerprint() -> str:
+    """The identity of the native rule itself: every member except the per-sequence geometry."""
+
+    template = native_av_target_profile(2, 2).to_wire()
+    del template["width"], template["height"]
+    return canonical_fingerprint(
+        {
+            "schema": "h3.context.native_av_target_profile_rule.v1",
+            "geometry": "source_even",
+            "template": template,
+        }
+    )
+
+
+def is_native_av_target_profile(profile: object) -> bool:
+    """True only for a profile ``native_av_target_profile`` mints for the profile's own geometry."""
+
+    if type(profile) is not AVTargetProfile:
+        return False
+    try:
+        return profile == native_av_target_profile(profile.width, profile.height)
+    except AVReconstructionError:
+        return False
+
+
+def _target_profile_admitted(capability: AVMediaCapability, target: AVTargetProfile) -> bool:
+    # SECURITY: the two admitted targets are both minted here. The legacy target stays bound to the
+    # capability's own target fingerprint. A native target shares the same qualified capability
+    # (binary, codecs, filters, colour rules) and differs only in geometry and rates; it is
+    # admitted by exact equality with the minted native profile, never by self-consistency.
+    if target == qualified_av_target_profile():
+        return target.fingerprint == capability.target_profile_fingerprint
+    return is_native_av_target_profile(target)
+
+
 @dataclass(frozen=True, slots=True)
 class AVMediaCapability:
     distribution: str
@@ -854,10 +930,7 @@ class AVReconstructionPlan:
             raise AVReconstructionError("adapter_capability_changed")
         if self.limits != qualified_av_limits():
             raise AVReconstructionError("resource_limit_profile_changed")
-        if (
-            self.target_profile != qualified_av_target_profile()
-            or self.capability.target_profile_fingerprint != self.target_profile.fingerprint
-        ):
+        if not _target_profile_admitted(self.capability, self.target_profile):
             raise AVReconstructionError("adapter_capability_changed")
         if type(self.segments) is not tuple or not self.segments:
             raise AVReconstructionError("zero_segment_reconstruction")
@@ -1472,10 +1545,18 @@ def _build_m26_derived_av_reconstruction_plan(
         or type(target_profile) is not AVTargetProfile
         or capability != qualified_ffmpeg_capability()
         or limits != qualified_av_limits()
-        or target_profile != qualified_av_target_profile()
+        or not _target_profile_admitted(capability, target_profile)
     ):
         raise AVReconstructionError("adapter_capability_changed")
     _positive(planned_at_ms, "m26.planned_at_ms")
+    native = target_profile != qualified_av_target_profile()
+    # IMPORTANT: legacy M26 normalizes every 24/32 contribution to 30/48; a native plan must pass
+    # every exact contribution through untouched, so the aggregate is the only encode.
+    required_operations = (
+        (AVOperation.PASSTHROUGH,)
+        if native
+        else (AVOperation.NORMALIZE_VIDEO, AVOperation.NORMALIZE_AUDIO)
+    )
 
     segment_plans: list[AVSegmentPlan] = []
     output_cursor = Fraction(0, 1)
@@ -1504,9 +1585,11 @@ def _build_m26_derived_av_reconstruction_plan(
             raise AVReconstructionError("m26_derived_input_mismatch")
         operations, accounting = _assess_segment(descriptor, target_profile, capability)
         # IMPORTANT: M26 admits a complete 24/32 contribution before normalization.  Silence,
-        # passthrough, remux or any undeclared transform would hide a short/malformed source.
+        # remux or any undeclared transform would hide a short/malformed source; a legacy
+        # passthrough would skip the 30/48 normalization. A native plan's passthrough is exact
+        # only because the accounting below forbids generated, dropped and inserted media.
         if (
-            operations != (AVOperation.NORMALIZE_VIDEO, AVOperation.NORMALIZE_AUDIO)
+            operations != required_operations
             or accounting.decoded_frames != video.decoded_frame_count
             or accounting.carried_frames != video.decoded_frame_count
             or accounting.dropped_frames != 0

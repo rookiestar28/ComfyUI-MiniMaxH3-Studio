@@ -84,6 +84,10 @@ RUNTIME_DYNAMIC_IMPORT_ADAPTERS = frozenset(
         # torch and comfy.nested_tensor only inside default factories, injectable solely
         # behind test_only_seams; the byte-level composition itself is pure Python.
         "adapters/comfyui_two_ended_bridge.py",
+        # Harness-only continuation canaries: torch, comfy.nested_tensor, node_helpers and the
+        # H3 model module are imported only inside fixed-name accessors here, never from a
+        # caller-supplied name, and the canary module imports nothing host-side itself.
+        "adapters/comfyui_sequence_continuation.py",
     }
 )
 # The media subprocess adapter is the one reviewed, optional runtime seam that may use this

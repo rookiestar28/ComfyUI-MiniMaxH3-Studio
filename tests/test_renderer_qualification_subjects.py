@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -14,6 +15,25 @@ from comfyui_h3_context.adapters.authoring_render_service import RenderServiceEr
 from comfyui_h3_context.core.canonical import canonical_fingerprint
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_packaged_public_subject_matches_current_public_redaction() -> None:
+    from scripts.public_redaction import redact_blobs
+
+    envelope = json.loads(qualification._EVIDENCE.read_bytes())
+    paths = {
+        "comfyui_h3_context/" + relative: relative
+        for relative in qualification._IMPLEMENTATION_PATHS
+    }
+    public = redact_blobs({path: (ROOT / path).read_bytes() for path in paths})
+    expected = {
+        relative.replace("/", "_").replace(".", "_"): "sha256:"
+        + hashlib.sha256(public[path].replace(b"\r\n", b"\n")).hexdigest()
+        for path, relative in paths.items()
+    }
+    # CRITICAL: Source admission can stay valid while the redacted renderer is unavailable;
+    # check the whole Public subject before shipping, including comment-only byte changes.
+    assert envelope["subjects"]["public"]["implementation"] == expected
 
 
 def _envelope() -> dict[str, Any]:

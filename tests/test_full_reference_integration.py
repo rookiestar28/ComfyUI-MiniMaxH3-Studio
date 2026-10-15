@@ -95,10 +95,30 @@ class FullReferenceIntegrationTests(unittest.TestCase):
         self.assertEqual(
             fixture["expected"]["direct_media_links"],
             [
-                {"source": "2", "source_output": 0, "target": "12", "target_input": "ref_images"},
-                {"source": "3", "source_output": 0, "target": "12", "target_input": "ref_images"},
-                {"source": "6", "source_output": 0, "target": "12", "target_input": "ref_videos"},
-                {"source": "5", "source_output": 0, "target": "12", "target_input": "ref_audios"},
+                {
+                    "source": "2",
+                    "source_output": 0,
+                    "target": "12",
+                    "target_input": "ref_images.ref_image_0",
+                },
+                {
+                    "source": "3",
+                    "source_output": 0,
+                    "target": "12",
+                    "target_input": "ref_images.ref_image_1",
+                },
+                {
+                    "source": "6",
+                    "source_output": 0,
+                    "target": "12",
+                    "target_input": "ref_videos.ref_video_0",
+                },
+                {
+                    "source": "5",
+                    "source_output": 0,
+                    "target": "12",
+                    "target_input": "ref_audios.ref_audio_0",
+                },
             ],
         )
         serialized = json.dumps(fixture, sort_keys=True).casefold()

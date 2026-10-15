@@ -156,3 +156,47 @@ export function readyReadiness(): Record<string, unknown> {
     },
   };
 }
+
+export function sequenceProductionProjection(
+  state: "unavailable" | "ready" | "running" | "succeeded",
+) {
+  const available = state !== "unavailable";
+  return productionProjection(fp("a"), {
+    reconstruction: {
+      state: state === "succeeded" ? "complete" : "unavailable",
+    },
+    assembly: {
+      ...unavailableProductionAssemblyWire(),
+      state: state === "ready" ? "unavailable" : state,
+      progress: {
+        completed: state === "succeeded" ? 2 : 0,
+        total: available ? 2 : 0,
+      },
+      // IMPORTANT: a non-null capability needs its matching profile in v2. Inheriting
+      // unavailable's empty table makes a browser refresh undecodable.
+      output_profiles: available
+        ? [
+            {
+              output_profile_id: "h3_native_av_v1",
+              capability_fingerprint: fp("1"),
+            },
+          ]
+        : [],
+      capability_fingerprint: available ? fp("1") : null,
+      managed_sequence_fingerprint: available ? fp("2") : null,
+      artifact_receipt_fingerprints: available ? [fp("3"), fp("4")] : [],
+      cut_boundary_receipt_fingerprints: available ? [fp("7")] : [],
+      assembly_job_id:
+        state === "running" || state === "succeeded" ? "assembly.1" : null,
+      authorization_fingerprint:
+        state === "running" || state === "succeeded" ? fp("5") : null,
+      receipt_fingerprint: state === "succeeded" ? fp("6") : null,
+      failure_code: available ? null : "media_runtime_not_authorized",
+    },
+    allowed_actions: [
+      "read_projection",
+      ...(state === "ready" ? ["assemble_sequence"] : []),
+      ...(state === "running" ? ["cancel_assembly"] : []),
+    ],
+  });
+}

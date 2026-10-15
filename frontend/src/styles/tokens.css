@@ -975,7 +975,7 @@
 }
 .h3-reference-source-fieldset {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.625rem;
   min-width: 0;
   margin: 0;
@@ -988,6 +988,66 @@
   padding: 0 0.25rem 0 0;
   color: var(--h3-muted);
   font-size: 0.75rem;
+}
+.h3-reference-kind {
+  min-width: 0;
+}
+.h3-reference-list {
+  display: grid;
+  gap: 0.375rem;
+  margin: 0 0 0.375rem;
+  padding: 0;
+  list-style: none;
+}
+.h3-reference-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 148px;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+/* IMPORTANT: reserve three 44 px actions and two 8 px gaps. The shared five-column
+   auto-fill grid otherwise wraps Remove onto a second row at the sidebar floor. */
+.h3c .h3-reference-row .h3-icon-row {
+  grid-template-columns: repeat(3, 44px);
+}
+.h3-reference-labels {
+  display: flex;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+.h3-reference-label {
+  border: 1px solid var(--h3-divider);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.25rem;
+  font-size: 0.75rem;
+}
+.h3-reference-source-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.h3-reference-add {
+  display: grid;
+  grid-template-columns: 8rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+}
+.h3-reference-counter,
+.h3-reference-guidance {
+  margin: 0;
+  color: var(--h3-muted);
+  font-size: 0.75rem;
+}
+@media (forced-colors: active) {
+  .h3-reference-label {
+    border-color: CanvasText;
+  }
+  .h3-reference-counter,
+  .h3-reference-guidance {
+    color: CanvasText;
+  }
 }
 .h3-app-mode-actions {
   display: flex;

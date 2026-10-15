@@ -701,9 +701,25 @@ export const copy = {
       cancelAssembly: "Cancel assembly",
       retryAssembly: "Retry assembly",
       assemblyState: "{state} ({completed} of {total})",
-      assemblyProfile:
-        "Assembly normalizes output to 30 fps, 48 kHz stereo. Source context duration remains separate.",
-      assemblyInputs: "Built from {artifacts} segment videos and {cuts} cuts.",
+      assemblyProfileChoice: "Output format",
+      assemblyProfiles: {
+        h3_native_av_v1: "Original size (24 fps)",
+        legacy_av_30fps_48khz_stereo: "512 × 512 (30 fps)",
+      },
+      assemblyProfileNotes: {
+        h3_native_av_v1:
+          "Assembly keeps the segments' own size, 24 fps and 32 kHz stereo, and encodes the video once. Source context duration remains separate.",
+        legacy_av_30fps_48khz_stereo:
+          "Assembly normalizes output to 512 × 512 at 30 fps, 48 kHz stereo, keeping the picture's shape. Source context duration remains separate.",
+      },
+      seams: "Cuts between segments",
+      seamLine: "Cut {index}: {label}",
+      seamLabels: {
+        smooth: "smooth",
+        visible_change: "visible change",
+        unmeasured: "not measured",
+      },
+      assemblyInputs: "Segment videos: {artifacts}. Cuts: {cuts}.",
       assemblyReceipt: "Assembly completed and verified.",
       productionUnavailable: "Production workspace unavailable.",
       contextUnavailable: "Context workspace unavailable.",
@@ -1353,8 +1369,24 @@ export const copy = {
       cancelAssembly: "取消組裝",
       retryAssembly: "重試組裝",
       assemblyState: "{state}（{completed} / {total}）",
-      assemblyProfile:
-        "組裝輸出正規化為 30 fps、48 kHz 立體聲；來源情境時長另計。",
+      assemblyProfileChoice: "輸出格式",
+      assemblyProfiles: {
+        h3_native_av_v1: "原始尺寸（24 fps）",
+        legacy_av_30fps_48khz_stereo: "512 × 512（30 fps）",
+      },
+      assemblyProfileNotes: {
+        h3_native_av_v1:
+          "組裝保留片段原本的尺寸、24 fps 與 32 kHz 立體聲，影片只編碼一次；來源情境時長另計。",
+        legacy_av_30fps_48khz_stereo:
+          "組裝輸出正規化為 512 × 512、30 fps、48 kHz 立體聲，並保持畫面比例；來源情境時長另計。",
+      },
+      seams: "片段間的剪接點",
+      seamLine: "剪接點 {index}：{label}",
+      seamLabels: {
+        smooth: "平順",
+        visible_change: "有明顯變化",
+        unmeasured: "未量測",
+      },
       assemblyInputs: "由 {artifacts} 段片段影片與 {cuts} 個剪接點組成。",
       assemblyReceipt: "組裝完成並已驗證。",
       productionUnavailable: "製作工作區無法使用。",
@@ -2005,8 +2037,24 @@ export const copy = {
       cancelAssembly: "取消组装",
       retryAssembly: "重试组装",
       assemblyState: "{state}（{completed} / {total}）",
-      assemblyProfile:
-        "组装输出归一化为 30 fps、48 kHz 立体声；来源上下文时长另计。",
+      assemblyProfileChoice: "输出格式",
+      assemblyProfiles: {
+        h3_native_av_v1: "原始尺寸（24 fps）",
+        legacy_av_30fps_48khz_stereo: "512 × 512（30 fps）",
+      },
+      assemblyProfileNotes: {
+        h3_native_av_v1:
+          "组装保留片段原有的尺寸、24 fps 和 32 kHz 立体声，视频只编码一次；来源上下文时长另计。",
+        legacy_av_30fps_48khz_stereo:
+          "组装输出归一化为 512 × 512、30 fps、48 kHz 立体声，并保持画面比例；来源上下文时长另计。",
+      },
+      seams: "片段间的剪切点",
+      seamLine: "剪切点 {index}：{label}",
+      seamLabels: {
+        smooth: "平顺",
+        visible_change: "有明显变化",
+        unmeasured: "未测量",
+      },
       assemblyInputs: "由 {artifacts} 段片段视频和 {cuts} 个剪切点组成。",
       assemblyReceipt: "组装完成并已验证。",
       productionUnavailable: "制作工作区不可用。",

@@ -6,12 +6,12 @@ wiring the canonical wiring, port by port and link by link, against the frozen e
 
 from __future__ import annotations
 
-import re
 from collections import Counter
 from collections.abc import Mapping
 
 from .workflow_migration_expectations import (
     _ALLOWED_API_NODE_TYPES,
+    _CANONICAL_AUTOGROW,
     _CANONICAL_SUBGRAPH_FINGERPRINTS,
     _DYNAMIC_NATIVE_TYPES,
     _EXPECTED_REFERENCE_SUBGRAPH_MEDIA,
@@ -158,10 +158,10 @@ def _expected_subgraph_target_slot(
             "height": 2,
             "length": 3,
             "ref_image_size": 4,
-            "ref_images.image0": 8,
-            "ref_images.image1": 9,
-            "ref_videos.video0": 10,
-            "ref_audios.audio0": 12,
+            "ref_images.ref_image_0": 8,
+            "ref_images.ref_image_1": 9,
+            "ref_videos.ref_video_0": 10,
+            "ref_audios.ref_audio_0": 12,
         }
         return native_slots.get(input_name, input_index)
     return input_index
@@ -666,10 +666,10 @@ def _validate_subgraph(workflow: Mapping[str, object]) -> WorkflowMigrationAudit
             "height",
             "length",
             "ref_image_size",
-            "ref_images.image0",
-            "ref_images.image1",
-            "ref_videos.video0",
-            "ref_audios.audio0",
+            "ref_images.ref_image_0",
+            "ref_images.ref_image_1",
+            "ref_videos.ref_video_0",
+            "ref_audios.ref_audio_0",
         ]
         expected_types = {
             "prompt": "STRING",
@@ -677,10 +677,10 @@ def _validate_subgraph(workflow: Mapping[str, object]) -> WorkflowMigrationAudit
             "height": "INT",
             "length": "INT",
             "ref_image_size": "COMBO",
-            "ref_images.image0": "IMAGE",
-            "ref_images.image1": "IMAGE",
-            "ref_videos.video0": "IMAGE",
-            "ref_audios.audio0": "AUDIO",
+            "ref_images.ref_image_0": "IMAGE",
+            "ref_images.ref_image_1": "IMAGE",
+            "ref_videos.ref_video_0": "IMAGE",
+            "ref_audios.ref_audio_0": "AUDIO",
         }
     if native_input_names != expected_names:
         return _rejected(kind, policy, "missing_native_input", "restore_versioned_fixture")
@@ -799,10 +799,7 @@ def _validate_subgraph(workflow: Mapping[str, object]) -> WorkflowMigrationAudit
                 return _rejected(kind, policy, "malformed_media_binding", "rebuild_canonical_graph")
             path = item["target_input"]
             if (
-                not re.fullmatch(
-                    r"(?:ref_images\.image(?:0|[1-9][0-9]*)|ref_videos\.video(?:0|[1-9][0-9]*)|ref_audios\.audio(?:0|[1-9][0-9]*))",
-                    path,
-                )
+                _CANONICAL_AUTOGROW.fullmatch(path) is None
                 or path in seen_paths
                 or item.get("target") != str(dynamic_nodes[0])
             ):
@@ -832,10 +829,10 @@ def _validate_subgraph(workflow: Mapping[str, object]) -> WorkflowMigrationAudit
             ):
                 return _rejected(kind, policy, "malformed_media_binding", "rebuild_canonical_graph")
         if seen_paths != {
-            "ref_images.image0",
-            "ref_images.image1",
-            "ref_videos.video0",
-            "ref_audios.audio0",
+            "ref_images.ref_image_0",
+            "ref_images.ref_image_1",
+            "ref_videos.ref_video_0",
+            "ref_audios.ref_audio_0",
         }:
             return _rejected(kind, policy, "non_canonical_autogrow", "restore_versioned_fixture")
     return _accepted(kind, policy)

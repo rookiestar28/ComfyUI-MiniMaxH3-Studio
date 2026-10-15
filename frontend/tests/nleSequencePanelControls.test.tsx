@@ -83,7 +83,7 @@ function assemblyCapableProjection(
         : "retry_assembly";
   return productionProjection(fp("a"), {
     assembly: {
-      schema: "h3.context.production_assembly.projection.v1",
+      schema: "h3.context.production_assembly.projection.v2",
       state,
       progress: { completed: 0, total: 1 },
       capability_fingerprint: fp("b"),
@@ -95,6 +95,13 @@ function assemblyCapableProjection(
       authorization_fingerprint: state === "unavailable" ? null : fp("f"),
       receipt_fingerprint: null,
       failure_code: state === "failed" ? "assembly_failed" : null,
+      output_profiles: [
+        {
+          output_profile_id: "legacy_av_30fps_48khz_stereo",
+          capability_fingerprint: fp("b"),
+        },
+      ],
+      seams: [],
       projection_fingerprint: fp("e"),
     },
     allowed_actions: [
@@ -103,6 +110,66 @@ function assemblyCapableProjection(
       "read_projection",
       "release_workspace",
       allowed,
+    ],
+  });
+}
+
+const PROFILES = [
+  { output_profile_id: "h3_native_av_v1", capability_fingerprint: fp("b") },
+  {
+    output_profile_id: "legacy_av_30fps_48khz_stereo",
+    capability_fingerprint: fp("9"),
+  },
+];
+
+function profiledProjection(state: "unavailable" | "succeeded") {
+  const done = state === "succeeded";
+  const measured = {
+    s1_milli: 5000,
+    s2_micro: 0,
+    s5_milli: 1000,
+    s6_milli: 1000,
+    s9_centi_db: 0,
+    s10_ms: 0,
+  };
+  return productionProjection(fp("a"), {
+    ...(done ? { reconstruction: { state: "complete" } } : {}),
+    assembly: {
+      schema: "h3.context.production_assembly.projection.v2",
+      state,
+      progress: { completed: done ? 3 : 0, total: 3 },
+      capability_fingerprint: done ? fp("9") : fp("b"),
+      managed_sequence_fingerprint: fp("c"),
+      artifact_receipt_fingerprints: [fp("1"), fp("2"), fp("3")],
+      cut_boundary_receipt_fingerprints: [fp("4"), fp("5")],
+      output_profile_id: done
+        ? "legacy_av_30fps_48khz_stereo"
+        : "h3_native_av_v1",
+      assembly_job_id: done ? "job.1" : null,
+      authorization_fingerprint: done ? fp("f") : null,
+      receipt_fingerprint: done ? fp("7") : null,
+      failure_code: null,
+      output_profiles: PROFILES,
+      seams: done
+        ? [
+            { boundary_index: 0, label: "visible_change", ...measured },
+            {
+              boundary_index: 1,
+              label: "unmeasured",
+              ...Object.fromEntries(
+                Object.keys(measured).map((key) => [key, null]),
+              ),
+            },
+          ]
+        : [],
+      projection_fingerprint: fp("e"),
+    },
+    allowed_actions: [
+      "add_segment_from_context",
+      "set_selection",
+      "read_projection",
+      "release_workspace",
+      ...(done ? [] : ["assemble_sequence"]),
     ],
   });
 }
@@ -476,9 +543,12 @@ describe("M25-16 sequence pane assembly controls", () => {
     expect(assemble.control("assembly.assemble").disabled).toBe(false);
     expect(assemble.control("assembly.cancel").disabled).toBe(true);
     expect(assemble.control("assembly.retry").disabled).toBe(true);
+    // One offered profile: no choice is shown and that profile is sent.
+    expect(assemble.control("assembly.profile")).toBeNull();
     fireEvent.click(assemble.control("assembly.assemble"));
     expect(assemble.binding.actions.assembly).toHaveBeenCalledWith(
       "assemble_sequence",
+      "legacy_av_30fps_48khz_stereo",
     );
     cleanup();
     const running = subject({
@@ -507,6 +577,63 @@ describe("M25-16 sequence pane assembly controls", () => {
     );
     fireEvent.click(failed.control("production.refresh"));
     expect(failed.binding.actions.refreshProduction).toHaveBeenCalledTimes(1);
+  });
+
+  it("offers every projected profile before assembly and assembles the chosen one", () => {
+    const { binding, control, view } = subject({
+      production: {
+        status: "ready",
+        projection: profiledProjection("unavailable"),
+      },
+    });
+    const select = control("assembly.profile") as unknown as HTMLSelectElement;
+    expect(select.value).toBe("h3_native_av_v1");
+    expect(
+      Array.from(select.options).map((option) => option.textContent),
+    ).toEqual(["Original size (24 fps)", "512 × 512 (30 fps)"]);
+    const note = () =>
+      view.container.querySelector<HTMLElement>(
+        '[data-h3-nle-status="assembly-profile"]',
+      )!;
+    expect(note().dataset.profile).toBe("h3_native_av_v1");
+    fireEvent.change(select, {
+      target: { value: "legacy_av_30fps_48khz_stereo" },
+    });
+    expect(note().dataset.profile).toBe("legacy_av_30fps_48khz_stereo");
+    expect(note().textContent).toContain("512 × 512");
+    fireEvent.click(control("assembly.assemble"));
+    expect(binding.actions.assembly).toHaveBeenCalledWith(
+      "assemble_sequence",
+      "legacy_av_30fps_48khz_stereo",
+    );
+  });
+
+  it("shows the job's own profile and one labelled line per cut after success", () => {
+    const { control, view } = subject({
+      production: {
+        status: "ready",
+        projection: profiledProjection("succeeded"),
+      },
+    });
+    expect(control("assembly.profile")).toBeNull();
+    expect(
+      view.container.querySelector<HTMLElement>(
+        '[data-h3-nle-status="assembly-profile"]',
+      )!.dataset.profile,
+    ).toBe("legacy_av_30fps_48khz_stereo");
+    const lines = Array.from(
+      view.container.querySelectorAll<HTMLElement>(
+        '[data-h3-nle-status="assembly-seams"] li',
+      ),
+    );
+    expect(lines.map((line) => line.dataset.h3NleSeamLabel)).toEqual([
+      "visible_change",
+      "unmeasured",
+    ]);
+    expect(lines.map((line) => line.textContent)).toEqual([
+      "Cut 1: visible change",
+      "Cut 2: not measured",
+    ]);
   });
 
   it("keeps every assembly control disabled without capability and while Production is busy", () => {

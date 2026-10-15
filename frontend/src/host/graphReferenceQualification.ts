@@ -258,11 +258,25 @@ export function isQualifiedExternalReferenceBoundary(
     !expectedInputEdge(registry, "images.image1", "-10", 4, 1, "IMAGE") ||
     !expectedInputEdge(registry, "videos.video0", "-10", 5, 2, "VIDEO") ||
     !expectedInputEdge(registry, "audios.audio0", "-10", 6, 3, "AUDIO") ||
-    !expectedInputEdge(generation, "ref_images.image0", "-10", 3, 8, "IMAGE") ||
-    !expectedInputEdge(generation, "ref_images.image1", "-10", 4, 9, "IMAGE") ||
     !expectedInputEdge(
       generation,
-      "ref_videos.video0",
+      "ref_images.ref_image_0",
+      "-10",
+      3,
+      8,
+      "IMAGE",
+    ) ||
+    !expectedInputEdge(
+      generation,
+      "ref_images.ref_image_1",
+      "-10",
+      4,
+      9,
+      "IMAGE",
+    ) ||
+    !expectedInputEdge(
+      generation,
+      "ref_videos.ref_video_0",
       String(video.id),
       0,
       10,
@@ -270,7 +284,7 @@ export function isQualifiedExternalReferenceBoundary(
     ) ||
     !expectedInputEdge(
       generation,
-      "ref_audios.audio0",
+      "ref_audios.ref_audio_0",
       "-10",
       6,
       12,
@@ -282,7 +296,7 @@ export function isQualifiedExternalReferenceBoundary(
   }
   const optionalVideoAudio = inputEdge(
     generation,
-    "ref_video_audios.video_audio0",
+    "ref_video_audios.ref_video_audio_0",
   );
   if (
     optionalVideoAudio !== undefined &&

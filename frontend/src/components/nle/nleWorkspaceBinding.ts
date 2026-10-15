@@ -17,6 +17,7 @@ import type { OutputPreview } from "../../host/authoringOutputPreview";
 import type { AuthoringMediaSourceLeaseClient } from "../../host/authoringMediaSourceLease";
 import type { AuthoringPreviewOpener } from "../../host/authoringFrameCoordinator";
 import type { Locale } from "../../i18n/catalog";
+import type { AssemblyOutputProfileId } from "../../contracts/productionWorkbenchCodec";
 import type { RuntimeCapabilityDisposition } from "../../runtime/mediaCapabilities";
 import type {
   PresentationMeasurement,
@@ -114,6 +115,7 @@ export type NleWorkspaceBinding = Readonly<{
     recoveryPointerPresent(): boolean;
     assembly(
       action: "assemble_sequence" | "cancel_assembly" | "retry_assembly",
+      outputProfileId?: AssemblyOutputProfileId,
     ): Promise<void>;
     refreshProduction(): Promise<void>;
   }>;

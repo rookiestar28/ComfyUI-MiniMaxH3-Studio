@@ -222,14 +222,14 @@ export function createQualifiedBasePrompt(
     });
     if (imageLinks.length > 0) {
       imageLinks.forEach((link, index) => {
-        registryInputs.images = link;
+        registryInputs[`images.image${index}`] = link;
         nativeInputs[`ref_images.ref_image_${index}`] = link;
       });
     }
     const soundtrack = inputs.reference_video_soundtrack ?? "included";
     if (videoLinks.length > 0) {
       videoLinks.forEach((link, index) => {
-        registryInputs.videos = link;
+        registryInputs[`videos.video${index}`] = link;
         nativeInputs[`ref_videos.ref_video_${index}`] = [
           videoComponentIds[index],
           0,
@@ -252,7 +252,7 @@ export function createQualifiedBasePrompt(
     }
     if (audioLinks.length > 0) {
       audioLinks.forEach((link, index) => {
-        registryInputs.audios = link;
+        registryInputs[`audios.audio${index}`] = link;
         nativeInputs[`ref_audios.ref_audio_${index}`] = link;
       });
     }

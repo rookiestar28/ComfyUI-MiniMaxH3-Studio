@@ -2,6 +2,7 @@
 // pure validation and identity helpers every App Mode module shares ( split).
 
 import { sha256Text } from "../contracts/canonicalFingerprint";
+import { referenceCapacity } from "./referenceSelection";
 import type {
   GenerationAssetSlot,
   GenerationFamilyDisposition,
@@ -226,7 +227,7 @@ export const APP_MODE_MODE_CAPABILITIES = [
     task_mode: "ref2va",
     label: "Ref2VA",
     required_asset_roles: ["reference"],
-    asset_cardinality: "1..3",
+    asset_cardinality: "1..12",
     enabled: true,
     disabled_reason: null,
     graph_profile: "h3.reference.direct.v1",
@@ -661,6 +662,7 @@ export class AppModeError extends Error {
     | "incompatible_graph"
     | "dirty_graph"
     | "invalid_request"
+    | "reference_capacity_exceeded"
     | "compile_failed"
     | "queue_failed"
     | "execution_failed"
@@ -926,10 +928,6 @@ export function validateInputs(inputs: AppModeInputs): void {
   const referenceImages = inputs.reference_image_sources;
   const referenceVideos = inputs.reference_video_sources;
   const referenceAudios = inputs.reference_audio_sources;
-  const referenceCount =
-    (referenceImages?.length ?? 0) +
-    (referenceVideos?.length ?? 0) +
-    (referenceAudios?.length ?? 0);
   const hasReferenceFields =
     referenceImages !== undefined ||
     referenceVideos !== undefined ||
@@ -946,10 +944,9 @@ export function validateInputs(inputs: AppModeInputs): void {
     (inputs.task_mode === "ref2va" &&
       (first !== undefined ||
         last !== undefined ||
-        !validSources(referenceImages, 1) ||
-        !validSources(referenceVideos, 1) ||
-        !validSources(referenceAudios, 1) ||
-        referenceCount < 1)) ||
+        !validSources(referenceImages, Number.MAX_SAFE_INTEGER) ||
+        !validSources(referenceVideos, Number.MAX_SAFE_INTEGER) ||
+        !validSources(referenceAudios, Number.MAX_SAFE_INTEGER))) ||
     (inputs.task_mode !== "ref2va" && hasReferenceFields) ||
     !validSoundtrack(inputs)
   )
@@ -957,6 +954,23 @@ export function validateInputs(inputs: AppModeInputs): void {
       "invalid_request",
       "the selected mode requires exact visible source roles and bounded cardinality",
     );
+  if (inputs.task_mode === "ref2va") {
+    const capacity = referenceCapacity({
+      images: referenceImages?.length ?? 0,
+      videos: referenceVideos?.length ?? 0,
+      audios: referenceAudios?.length ?? 0,
+      soundtrack: referenceVideoSoundtrackOf(inputs),
+    });
+    if (!capacity.allowed)
+      throw new AppModeError(
+        capacity.reason === "visual"
+          ? "invalid_request"
+          : "reference_capacity_exceeded",
+        capacity.reason === "visual"
+          ? "select at least one image or video reference"
+          : "the reference selection exceeds the file or audio limits",
+      );
+  }
 }
 
 /**

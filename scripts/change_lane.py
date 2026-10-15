@@ -119,6 +119,7 @@ HEAVY_EXACT = (
     "scripts/supply_chain_manifest.py",
     "scripts/tooling_retirement.py",
     "scripts/workspace_link_guard.py",
+    "scripts/workspace_retirement.py",
 )
 
 GENERATED_OUTPUTS = (

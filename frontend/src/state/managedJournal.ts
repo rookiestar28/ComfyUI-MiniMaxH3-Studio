@@ -105,6 +105,7 @@ const appModeErrorCodes = [
   "incompatible_graph",
   "dirty_graph",
   "invalid_request",
+  "reference_capacity_exceeded",
   "compile_failed",
   "queue_failed",
   "execution_failed",

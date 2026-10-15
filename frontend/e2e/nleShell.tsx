@@ -250,7 +250,12 @@ const eventTimingEntriesMs: number[] = [];
  * would be reported by `presentationSamplesDropped` rather than silently truncated.
  */
 const PRESENTATION_SAMPLE_LIMIT = 20_000;
-const presentationSamples: PresentationMeasurement[] = [];
+export type PresentationPhase =
+  "playback" | "edit" | "undo" | "navigation" | "replay" | "pause";
+type TimedPresentation = PresentationMeasurement &
+  Readonly<{ offsetMs: number; phase: PresentationPhase }>;
+const presentationSamples: TimedPresentation[] = [];
+const presentationPhases: Array<{ at: number; phase: PresentationPhase }> = [];
 let presentationSamplesDropped = 0;
 
 /**
@@ -912,7 +917,21 @@ const deps: ShellDeps = Object.freeze({
       presentationSamplesDropped += 1;
       return;
     }
-    presentationSamples.push(sample);
+    // IMPORTANT: attribute delayed delivery to its paint start, not the current operation.
+    // A callback stalled across an edit otherwise mislabels a playback stall as edit work.
+    const startedAt = performance.now() - sample.deliveredMs;
+    let phase: PresentationPhase = "playback";
+    for (let index = presentationPhases.length - 1; index >= 0; index -= 1) {
+      if (presentationPhases[index].at <= startedAt) {
+        phase = presentationPhases[index].phase;
+        break;
+      }
+    }
+    presentationSamples.push({
+      ...sample,
+      offsetMs: Math.max(0, startedAt - measurementStartedAt),
+      phase,
+    });
   },
 });
 
@@ -1117,7 +1136,7 @@ export type NleShellHarnessSnapshot = Readonly<{
   nleCommits: number;
   eventTimingEntries: readonly number[];
   /**  AC45-04: one row per presented frame; see `PresentationMeasurement`. */
-  presentationSamples: readonly PresentationMeasurement[];
+  presentationSamples: readonly TimedPresentation[];
   presentationSamplesDropped: number;
 }>;
 
@@ -1140,6 +1159,7 @@ type HarnessApi = Readonly<{
   open(): void;
   refreshView(): void;
   resetMeasurements(): void;
+  markPresentationPhase(phase: PresentationPhase): void;
   /** Only wired when the harness loaded with `?viewDestroy=1`; see `destroyView` above. */
   destroyView(): void;
   /** The host's re-render of the same tab after `destroyView` (`?viewDestroy=1` only). */
@@ -1299,11 +1319,19 @@ window.nleShellHarness = {
     eventTimingEntriesMs.length = 0;
     presentationSamples.length = 0;
     presentationSamplesDropped = 0;
+    presentationPhases.length = 0;
     // `lastPresentation` is deliberately NOT cleared: it is the latest state of the surface, not
     // an accumulated measurement, and a caller that resets measurements between rows still needs
     // to know what is currently on the canvas. Its `delivered` counter must stay monotonic for a
     // waiter to tell "a new paint arrived" from "nothing happened" (D45-02).
     measurementStartedAt = performance.now();
+  },
+  markPresentationPhase: (phase) => {
+    if (presentationPhases.length >= 512)
+      throw new Error(
+        "presentation phase history exceeded its bounded capacity",
+      );
+    presentationPhases.push({ at: performance.now(), phase });
   },
 };
 

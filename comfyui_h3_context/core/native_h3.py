@@ -390,6 +390,7 @@ def _reference_bindings(registry: ReferenceRegistry) -> tuple[NativeH3Binding, .
     labels = {item.asset_id: item for item in registry.labels}
     video_labels = {item.asset_id: item for item in registry.labels if item.kind.value == "video"}
     bindings: list[NativeH3Binding] = []
+    standalone_audio_index = 0
     for asset in registry.assets:
         label = labels[asset.asset_id]
         if asset.kind is MediaKind.IMAGE:
@@ -428,15 +429,18 @@ def _reference_bindings(registry: ReferenceRegistry) -> tuple[NativeH3Binding, .
                 )
             )
         else:
+            # IMPORTANT: Audio labels count soundtracks; standalone host slots do not.
+            # Using label.ordinal here skips ref_audio_0 whenever a video is paired.
             bindings.append(
                 _binding_for_label(
                     asset.asset_id,
                     asset.kind,
                     label,
                     "ref_audios",
-                    f"ref_audio_{label.ordinal - 1}",
+                    f"ref_audio_{standalone_audio_index}",
                 )
             )
+            standalone_audio_index += 1
     return tuple(bindings)
 
 

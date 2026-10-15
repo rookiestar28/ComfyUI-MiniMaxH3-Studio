@@ -812,84 +812,20 @@ def build_model_free_local_reconstruction_prompt(
 
 
 def build_model_free_reference_prompt(fixture: Mapping[str, Any]) -> JsonObject:
-    """Build a host-valid two-reference projection without reading fixture media files.
-
-    The static M3-07 API fixture records the intended two direct native links, but a V1
-    ``INPUT_IS_LIST`` input cannot be represented by a nested list of link pairs in the pinned
-    host API.  This projection uses the host's model-free ``EmptyImage`` and
-    ``SplitImageToTileList`` nodes to produce two ordered IMAGE outputs behind one valid
-    ``OUTPUT_IS_LIST`` link.  The canonical pipeline and report assertions remain unchanged.
-    """
+    """Execute the shipped reference topology after removing weight-backed output only."""
 
     validate_fixture(fixture)
     if _as_object(fixture.get("expected"), "fixture.expected").get("task_mode") != "ref2va":
         raise ValueError("reference host projection requires the ref2va fixture")
-    prompt = build_model_free_prompt(fixture)
-    prompt["2"] = {
-        "class_type": "EmptyImage",
-        "inputs": {"width": 128, "height": 64, "batch_size": 1, "color": 0},
-    }
-    prompt["3"] = {
-        "class_type": "SplitImageToTileList",
-        "inputs": {
-            "image": ["2", 0],
-            "tile_width": 64,
-            "tile_height": 64,
-            "overlap": 0,
-        },
-    }
-    prompt["4"]["inputs"] = {"images": ["3", 0]}
-    return prompt
+    # IMPORTANT: do not batch/rewrite fixture media links here; doing so hides invalid serialized
+    # examples from executed host coverage. Dotted Registry links must reach the real V1 receiver.
+    return build_model_free_prompt(fixture)
 
 
 def build_model_free_full_reference_prompt(fixture: Mapping[str, Any]) -> JsonObject:
-    """Remove only weight-backed output from the M6-07 complex media graph.
+    """Execute the full-reference media topology with its native weight-backed output removed."""
 
-    Unlike the M3 reference projection, this path preserves LoadVideo/GetVideoComponents and
-    LoadAudio so the pinned host executes the original media-to-native edge topology before the
-    native conditioning node is removed.  The V1 API cannot encode multiple links directly in an
-    ``INPUT_IS_LIST`` socket (it interprets a nested list as an unhashable link), so the two image
-    loaders are batched and then split into a real ``OUTPUT_IS_LIST`` using the pinned host's
-    ``RebatchImages`` node.  This preserves both source images and their deterministic order while
-    keeping the generated prompt host-valid.
-    """
-
-    validate_fixture(fixture)
-    if _as_object(fixture.get("expected"), "fixture.expected").get("task_mode") != "ref2va":
-        raise ValueError("full-reference host projection requires the ref2va fixture")
-    prompt = build_model_free_prompt(fixture)
-    reference_id = _node_id(prompt, REFERENCE_NODE_ID)
-    numeric_ids = [int(node_id) for node_id in prompt if node_id.isdecimal()]
-    next_id = max(numeric_ids, default=0) + 1
-
-    image_batch_id = str(next_id)
-    next_id += 1
-    image_list_id = str(next_id)
-    prompt[image_batch_id] = {
-        "class_type": "ImageBatch",
-        "inputs": {
-            "image1": ["2", 0],
-            "image2": ["3", 0],
-        },
-    }
-    prompt[image_list_id] = {
-        "class_type": "RebatchImages",
-        "inputs": {
-            "images": [image_batch_id, 0],
-            "batch_size": 1,
-        },
-    }
-    reference_inputs = dict(
-        _as_object(prompt[reference_id].get("inputs"), f"prompt.{reference_id}.inputs")
-    )
-    reference_inputs["images"] = [image_list_id, 0]
-    # A single V1 link is the valid representation for a one-item INPUT_IS_LIST socket.  The
-    # static fixture keeps its declarative ``[[node, slot]]`` form for graph auditing, but sending
-    # that nested shape to the host makes validation treat the inner list as an unhashable link.
-    reference_inputs["videos"] = ["4", 0]
-    reference_inputs["audios"] = ["5", 0]
-    prompt[reference_id]["inputs"] = reference_inputs
-    return prompt
+    return build_model_free_reference_prompt(fixture)
 
 
 def build_host_command(
@@ -2171,8 +2107,11 @@ def _native_graph_qualification(
     registry_id = _node_id(prompt, REFERENCE_NODE_ID)
     registry_node = _as_object(prompt[registry_id], "fixture reference registry")
     registry_inputs = _as_object(registry_node.get("inputs"), "fixture reference registry inputs")
-    registry_images = registry_inputs.get("images")
-    if not isinstance(registry_images, list) or len(registry_images) != len(direct_links):
+    registry_names = {f"images.image{index}" for index in range(len(direct_links))}
+    if (
+        "images" in registry_inputs
+        or {name for name in registry_inputs if name.startswith("images.")} != registry_names
+    ):
         raise HostDriverError("native graph source authority is unavailable")
     autogrow = _as_object(native_schema.get("autogrow"), "native schema autogrow")
     bindings: list[JsonObject] = []
@@ -2192,18 +2131,15 @@ def _native_graph_qualification(
             or not isinstance(parent, str)
         ):
             raise HostDriverError("native graph direct media link ownership drifted")
-        values = native_inputs.get(parent)
-        if not isinstance(values, list) or index >= len(values):
-            raise HostDriverError("native graph direct media link order is incomplete")
-        if values[index] != [source, source_output]:
-            raise HostDriverError("native graph direct media link order drifted")
+        if parent in native_inputs:
+            raise HostDriverError("native graph contains a grouped media input")
         source_identity = (source, source_output)
         if source_identity in seen_sources:
             raise HostDriverError("native graph wiring manifest is ambiguous")
         seen_sources.add(source_identity)
         # CRITICAL: the native edge and declarative link cannot authenticate each other; retain the
         # separately visible Reference Registry input as the asset-to-source endpoint authority.
-        if registry_images[index] != [source, source_output]:
+        if registry_inputs[f"images.image{index}"] != [source, source_output]:
             raise HostDriverError("native graph source authority association drifted")
         raw_spec = autogrow.get(parent)
         if not isinstance(raw_spec, dict):
@@ -2214,6 +2150,8 @@ def _native_graph_qualification(
         if not isinstance(prefix, str) or not isinstance(maximum, int) or index >= maximum:
             raise HostDriverError("native graph child path is outside the real schema")
         relative_path = f"{parent}.{prefix}{index}"
+        if native_inputs.get(relative_path) != [source, source_output]:
+            raise HostDriverError("native graph direct media link order drifted")
         full_path = f"{native_type}.{relative_path}"
         asset_id = f"image_{index + 1}"
         label = f"<Picture {index + 1}>"
@@ -2240,7 +2178,10 @@ def _native_graph_qualification(
                 "native_child_path": full_path,
             }
         )
-    if len(native_inputs.get(str(direct_links[0]["target_input"]), [])) != len(bindings):
+    parent = str(direct_links[0]["target_input"])
+    if {name for name in native_inputs if name.startswith(parent + ".")} != {
+        str(link["target_path"]) for link in direct_links
+    }:
         raise HostDriverError("native graph contains undeclared or ambiguous media edges")
     return {
         "schema": "h3-context-native-graph-qualification/1",

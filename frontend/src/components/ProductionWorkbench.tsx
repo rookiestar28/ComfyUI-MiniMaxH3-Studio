@@ -8,6 +8,7 @@ import {
 } from "react";
 
 import type {
+  AssemblyOutputProfileId,
   ProductionOutput,
   ProductionWorkbenchProjection,
   SegmentRelation,
@@ -88,7 +89,10 @@ export type ProductionIntent =
   | Readonly<{ action: "submit_generation_job"; jobId: string }>
   // the accepted assembly actions, dispatched only from the expanded
   // workspace and only when the projection currently allows them.
-  | Readonly<{ action: "assemble_sequence" }>
+  | Readonly<{
+      action: "assemble_sequence";
+      outputProfileId?: AssemblyOutputProfileId;
+    }>
   | Readonly<{ action: "cancel_assembly" }>
   | Readonly<{ action: "retry_assembly" }>;
 

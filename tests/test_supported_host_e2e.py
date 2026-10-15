@@ -597,8 +597,9 @@ class SupportedHostDriverTests(unittest.TestCase):
             self.assertIn((shell_id, 0), observed)
             self.assertIn((shell_id, 1), observed)
             if name == "reference":
-                registry = prompt["4"]["inputs"]["images"]
-                self.assertEqual(registry, ["3", 0])
+                self.assertEqual(
+                    prompt["4"]["inputs"], {"images.image0": ["2", 0], "images.image1": ["3", 0]}
+                )
 
     def test_artifact_version_is_read_from_the_deployed_subject(self) -> None:
         from scripts import m3_08_host_e2e as driver
@@ -1246,7 +1247,11 @@ to["minimax_h3_sigma_shift_audio"] = shift_audio
             )
 
         reordered = copy.deepcopy(fixture)
-        reordered["prompt"]["10"]["inputs"]["ref_images"].reverse()
+        inputs = reordered["prompt"]["10"]["inputs"]
+        inputs["ref_images.ref_image_0"], inputs["ref_images.ref_image_1"] = (
+            inputs["ref_images.ref_image_1"],
+            inputs["ref_images.ref_image_0"],
+        )
         with self.assertRaisesRegex(HostDriverError, "order"):
             _native_graph_qualification(
                 reordered, _native_schema_evidence(_native_object_info_fixture())
@@ -1258,7 +1263,7 @@ to["minimax_h3_sigma_shift_audio"] = shift_audio
             _native_graph_qualification(fixture, stripped_schema)
 
         duplicate = copy.deepcopy(fixture)
-        duplicate["prompt"]["10"]["inputs"]["ref_images"][1] = ["2", 0]
+        duplicate["prompt"]["10"]["inputs"]["ref_images.ref_image_1"] = ["2", 0]
         duplicate["expected"]["direct_media_links"][1]["source"] = "2"
         with self.assertRaisesRegex(HostDriverError, "ambiguous"):
             _native_graph_qualification(
@@ -1266,7 +1271,11 @@ to["minimax_h3_sigma_shift_audio"] = shift_audio
             )
 
         source_swap = copy.deepcopy(fixture)
-        source_swap["prompt"]["10"]["inputs"]["ref_images"].reverse()
+        inputs = source_swap["prompt"]["10"]["inputs"]
+        inputs["ref_images.ref_image_0"], inputs["ref_images.ref_image_1"] = (
+            inputs["ref_images.ref_image_1"],
+            inputs["ref_images.ref_image_0"],
+        )
         first = source_swap["expected"]["direct_media_links"][0]
         second = source_swap["expected"]["direct_media_links"][1]
         first["source"], second["source"] = second["source"], first["source"]
@@ -1549,14 +1558,15 @@ to["minimax_h3_sigma_shift_audio"] = shift_audio
             )
         )
 
-    def test_reference_host_projection_uses_a_valid_two_item_output_list_link(self) -> None:
+    def test_reference_host_projection_preserves_the_shipped_dotted_links(self) -> None:
         fixture = load_fixture(WORKFLOW_ROOT / "m3_07_h3_context_reference.json")
         prompt = build_model_free_reference_prompt(fixture)
-        self.assertEqual(prompt["2"]["class_type"], "EmptyImage")
-        self.assertEqual(prompt["3"]["class_type"], "SplitImageToTileList")
-        self.assertEqual(prompt["3"]["inputs"]["image"], ["2", 0])
-        self.assertEqual(prompt["4"]["inputs"]["images"], ["3", 0])
-        self.assertNotIn("LoadImage", {node["class_type"] for node in prompt.values()})
+        self.assertEqual(prompt["2"], fixture["prompt"]["2"])
+        self.assertEqual(prompt["3"], fixture["prompt"]["3"])
+        self.assertEqual(
+            prompt["4"]["inputs"], {"images.image0": ["2", 0], "images.image1": ["3", 0]}
+        )
+        self.assertNotIn("SplitImageToTileList", {node["class_type"] for node in prompt.values()})
 
     def test_full_reference_projection_preserves_complex_media_upstream(self) -> None:
         fixture = load_fixture(WORKFLOW_ROOT / "m6_07_h3_context_full_reference.json")
@@ -1566,24 +1576,27 @@ to["minimax_h3_sigma_shift_audio"] = shift_audio
         self.assertIn("LoadVideo", classes)
         self.assertIn("LoadAudio", classes)
         self.assertIn("GetVideoComponents", classes)
-        image_batch_id = next(
-            node_id for node_id, node in prompt.items() if node["class_type"] == "ImageBatch"
-        )
-        image_list_id = next(
-            node_id for node_id, node in prompt.items() if node["class_type"] == "RebatchImages"
-        )
-        self.assertEqual(
-            prompt[image_batch_id]["inputs"],
-            {"image1": ["2", 0], "image2": ["3", 0]},
-        )
-        self.assertEqual(prompt[image_list_id]["inputs"]["images"], [image_batch_id, 0])
-        self.assertEqual(prompt[image_list_id]["inputs"]["batch_size"], 1)
+        self.assertNotIn("ImageBatch", classes)
+        self.assertNotIn("RebatchImages", classes)
+        for node_id in ("2", "3", "4", "5", "6"):
+            self.assertEqual(prompt[node_id], fixture["prompt"][node_id])
         registry = prompt["7"]
-        self.assertEqual(registry["inputs"]["images"], [image_list_id, 0])
-        self.assertEqual(registry["inputs"]["videos"], ["4", 0])
-        self.assertEqual(registry["inputs"]["audios"], ["5", 0])
+        self.assertEqual(
+            registry["inputs"],
+            {
+                "images.image0": ["2", 0],
+                "images.image1": ["3", 0],
+                "videos.video0": ["4", 0],
+                "audios.audio0": ["5", 0],
+            },
+        )
         self.assertIn(
-            {"source": "6", "source_output": 0, "target": "12", "target_input": "ref_videos"},
+            {
+                "source": "6",
+                "source_output": 0,
+                "target": "12",
+                "target_input": "ref_videos.ref_video_0",
+            },
             fixture["expected"]["direct_media_links"],
         )
 

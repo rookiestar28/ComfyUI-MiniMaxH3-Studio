@@ -560,6 +560,10 @@ def build_av_seam_plan(
     if type(seam_specs) is not tuple or not all(type(item) is AVSeamSpec for item in seam_specs):
         raise AVSeamPolicyError("seam_specs_type")
     _assert_base_identity(base_plan, base_approval)
+    # IMPORTANT: the overlap grid and every seam constant derive from the legacy 30/48 target at
+    # import. A native-rate base plan would apply a 30 fps grid to 24 fps media; it stays cut-only.
+    if base_plan.target_profile != qualified_av_target_profile():
+        raise AVSeamPolicyError("seam_target_profile_unsupported")
     if len(base_plan.segments) < 2:
         raise AVSeamPolicyError("seam_no_boundary")
     if len(seam_specs) != len(base_plan.segments) - 1:

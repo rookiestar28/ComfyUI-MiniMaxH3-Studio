@@ -217,8 +217,14 @@ Windows x64 with 64-bit Python (gyan.dev full build `2026-02-26-git-6695528af6`)
 ## Untrusted content
 
 File paths, URLs, archives, metadata, recognized text, transcripts and provider responses are
-treated as untrusted. Media is checked against size, duration, resolution, frame and reference
-limits before use. Path tricks, link escapes and unsafe URL schemes are refused.
+treated as untrusted. Import, perception and execution apply the media limits defined for each
+action, including applicable size, duration, resolution and frame limits. Path tricks, link
+escapes and unsafe URL schemes are refused.
+
+The Ref2VA sidebar checks reference counts and combined file/audio limits from the selected canvas
+nodes. Selection does not read or probe their media. Its duration hints are input-preparation
+guidance rather than measured duration checks; the nodes that load and execute media apply their
+own validation.
 
 Text found in media or returned by a provider is information, never an instruction. It cannot
 change provider settings, your hard constraints, the workflow or how a run executes. Unknown facts

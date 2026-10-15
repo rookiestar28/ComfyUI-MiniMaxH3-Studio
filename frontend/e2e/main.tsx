@@ -1,5 +1,6 @@
 import { useCallback, useReducer, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { ReferencePickerHarness } from "./referencePicker";
 
 import {
   H3Sidebar,
@@ -2788,7 +2789,9 @@ if (mode === "managed-sequence") {
     });
 } else {
   createRoot(root).render(
-    mode === "production" ? (
+    mode === "reference-picker" ? (
+      <ReferencePickerHarness />
+    ) : mode === "production" ? (
       <ProductionHarness />
     ) : mode === "refusal-reasons" ? (
       <RefusalReasonHarness />

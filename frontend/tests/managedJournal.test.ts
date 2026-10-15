@@ -211,6 +211,25 @@ describe("M23-21 managed-run journal", () => {
     );
   });
 
+  it("round-trips a content-free reference capacity refusal", () => {
+    const storage = memoryStorage();
+    const writer = createManagedJournal({ now: () => 20 });
+    writer.initialize(storage);
+    writer.beginRun(1);
+    writer.recordAppModeError(1, {
+      code: "reference_capacity_exceeded",
+      source: "request",
+    });
+    const reader = createManagedJournal({ now: () => 30 });
+    reader.initialize(storage);
+    expect(reader.snapshot()).toEqual(writer.snapshot());
+    expect(reader.snapshot()[0]).toMatchObject({
+      kind: "error",
+      code: "reference_capacity_exceeded",
+      category: "request",
+    });
+  });
+
   it("rejects malformed or unbounded queue seam observations", () => {
     const storage = memoryStorage();
     storage.values.set(

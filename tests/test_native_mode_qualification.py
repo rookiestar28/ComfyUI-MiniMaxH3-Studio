@@ -302,7 +302,8 @@ def _real_surface_artifacts(
             )
             reference_inputs = reference["inputs"]
             assert type(reference_inputs) is dict
-            observed_sources = tuple(tuple(value) for value in reference_inputs["images"])
+            assert set(reference_inputs) == {"images.image0", "images.image1"}
+            observed_sources = tuple(tuple(reference_inputs[f"images.image{i}"]) for i in range(2))
             expected_sources = tuple(
                 (value.source_node, value.source_output) for value in _source_authority(edges)
             )

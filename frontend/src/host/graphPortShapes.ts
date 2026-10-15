@@ -36,11 +36,11 @@ export function serializedPortSlot(
     // 8/9/10/11/12, not input-array indexes; a host revision must requalify
     // this pinned map instead of broadening it to arbitrary slot guesses.
     const pinned: Record<string, number> = {
-      "ref_images.image0": 8,
-      "ref_images.image1": 9,
-      "ref_videos.video0": 10,
-      "ref_video_audios.video_audio0": 11,
-      "ref_audios.audio0": 12,
+      "ref_images.ref_image_0": 8,
+      "ref_images.ref_image_1": 9,
+      "ref_videos.ref_video_0": 10,
+      "ref_video_audios.ref_video_audio_0": 11,
+      "ref_audios.ref_audio_0": 12,
     };
     return pinned[name] ?? fallback;
   }
@@ -123,11 +123,10 @@ export function isAllowedSerializedPortName(
  *
  * A `COMFY_AUTOGROW_V3` group serializes one socket per bound item, named
  * `<group>.<member><index>`. The member spelling is the host's, not this
- * repository's, and it has already moved: the shipped Reference subgraph was
- * authored against a revision that wrote `ref_images.image0`, while a later
- * observed template writes `ref_images.ref_image_0`. Enumerating the
- * members would therefore reject a correct graph the next time the host renames
- * one, so the group is matched and the member only has to look like a member.
+ * repository's. This layer recognizes port types by group; it cannot prove a
+ * spelling is executable. Exact workflow qualification separately pins native
+ * `ref_images.ref_image_0` and Registry `images.image0` receiver names. Keep
+ * those acceptance checks even when this shape-only reader recognizes a member.
  */
 
 const autogrowInputGroups: Record<string, Record<string, string>> = {

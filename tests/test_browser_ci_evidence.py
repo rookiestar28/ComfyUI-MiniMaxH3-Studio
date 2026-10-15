@@ -304,6 +304,105 @@ def outcomes(value: dict[str, Any]) -> list[tuple[str, str, str, tuple[str, ...]
     return result
 
 
+def presentation_report() -> dict[str, Any]:
+    value = raw_report()
+    attempt = value["suites"][0]["specs"][0]["tests"][0]["results"][0]
+    attempt["attachments"] = [
+        {
+            "name": "integrated-presentation-timeline",
+            "contentType": "application/json",
+            "body": base64.b64encode(
+                json.dumps(
+                    {
+                        "version": 1,
+                        "samplesDropped": 0,
+                        "samples": [
+                            {
+                                "offsetMs": index * 20,
+                                "deliveredMs": duration,
+                                "paintMs": 1,
+                                "phase": "playback" if index != 2 else "edit",
+                                "path": "native",
+                            }
+                            for index, duration in enumerate([18, 21, 1066.1, 22, 19, 24])
+                        ],
+                    }
+                ).encode()
+            ).decode(),
+        }
+    ]
+    return value
+
+
+def test_presentation_timeline_retains_maximum_and_neighbours_without_raw_payload() -> None:
+    report = presentation_report()
+    safe = browser_ci.sanitize_report(report)
+    attachments = safe["suites"][0]["specs"][0]["tests"][0]["results"][0]["attachments"]
+    assert len(attachments) == 1
+    facts = json.loads(base64.b64decode(attachments[0]["body"]))
+    assert len(facts["samples"]) == 6
+    assert facts["maximum"] == facts["samples"][2]
+    assert facts["maximum"]["phase"] == "edit"
+    assert facts["maximum"]["offsetMs"] == 40
+    assert [row["deliveredMs"] for row in facts["topFive"]] == [1066.1, 24, 22, 21, 19]
+    assert "private" not in json.dumps(safe)
+
+
+@pytest.mark.parametrize(
+    "damage",
+    [
+        "content",
+        "private-path",
+        "secret",
+        "phase",
+        "path",
+        "boolean",
+        "nan",
+        "negative",
+        "oversized",
+        "empty",
+        "dropped",
+        "version",
+        "unordered",
+    ],
+)
+def test_presentation_timeline_refuses_non_closed_or_incomplete_facts(damage: str) -> None:
+    report = presentation_report()
+    attachment = report["suites"][0]["specs"][0]["tests"][0]["results"][0]["attachments"][0]
+    facts = json.loads(base64.b64decode(attachment["body"]))
+    row = facts["samples"][0]
+    if damage == "content":
+        row["prompt"] = "private source content"
+    elif damage == "private-path":
+        row["path"] = "C:/private/source.mp4"
+    elif damage == "secret":
+        facts["token"] = "synthetic-secret-content"  # noqa: S105 - content-free refusal fixture
+    elif damage == "phase":
+        row["phase"] = "private user input"
+    elif damage == "path":
+        row["path"] = "https://private.invalid/video"
+    elif damage == "boolean":
+        row["offsetMs"] = True
+    elif damage == "nan":
+        row["deliveredMs"] = float("nan")
+    elif damage == "negative":
+        row["paintMs"] = -1
+    elif damage == "oversized":
+        facts["samples"] = [row] * 20_001
+    elif damage == "empty":
+        facts["samples"] = []
+    elif damage == "dropped":
+        facts["samplesDropped"] = 1
+    elif damage == "version":
+        facts["version"] = True
+    else:
+        facts["samples"][1]["offsetMs"] = 0
+        facts["samples"][0]["offsetMs"] = 1
+    attachment["body"] = base64.b64encode(json.dumps(facts).encode()).decode()
+    with pytest.raises(ValueError, match="presentation"):
+        browser_ci.sanitize_report(report)
+
+
 def test_manual_media_and_unknown_payloads_never_enter_sanitized_report() -> None:
     original = raw_report()
     frozen = copy.deepcopy(original)
@@ -515,7 +614,7 @@ def test_driver_preserves_default_cleanup_and_retains_sanitized_failure_when_opt
     def child(args: Any, **kwargs: Any) -> subprocess.CompletedProcess[Any]:
         if "--reporter=line,json" in args:
             path = Path(kwargs["env"]["PLAYWRIGHT_JSON_OUTPUT_FILE"])
-            path.write_text(json.dumps(raw_report()), encoding="utf-8")
+            path.write_text(json.dumps(presentation_report()), encoding="utf-8")
             reports.append(path)
             if retain:
                 assert Path(kwargs["env"]["H3_CONTEXT_PLAYWRIGHT_OUTPUT"]).parent == path.parent
@@ -531,7 +630,11 @@ def test_driver_preserves_default_cleanup_and_retains_sanitized_failure_when_opt
     assert (destination / "results.json").exists() is retain
     if retain:
         safe = json.loads((destination / "results.json").read_text())
-        assert outcomes(safe) == outcomes(raw_report())
+        assert outcomes(safe) == outcomes(presentation_report())
+        attachment = safe["suites"][0]["specs"][0]["tests"][0]["results"][0]["attachments"][0]
+        facts = json.loads(base64.b64decode(attachment["body"]))
+        assert facts["maximum"]["deliveredMs"] == 1066.1
+        assert len(facts["samples"]) == 6
 
 
 def upload_workflow() -> dict[str, Any]:

@@ -18,6 +18,23 @@ implementation.
 
 <details>
 
+<summary><strong>1.3.0 — Ordered references, original-size assembly and clearer cut reports</strong></summary>
+
+- Ref2VA now executes linked references from the sidebar and bundled reference graphs.
+- Select and reorder up to 9 images, 3 videos and 3 audio references, within a total of 12 files
+  and 3 audio tracks including video soundtracks. Move or remove individual references and see
+  their final labels before applying the graph. At least one image or video is required.
+- Assemble at the segments' original size, 24 fps and 32 kHz stereo by default, with one final
+  video encode. The previous 512 × 512, 30 fps, 48 kHz format remains selectable.
+- Review a report for each cut: **smooth**, **visible change** or **not measured**. These bounded
+  measurements describe the cut; they do not guarantee visual or audio continuity.
+- A finished sequence can offer assembly when the media tools become ready later, without
+  restarting ComfyUI. English assembly inputs now show separate segment and cut counts.
+
+</details>
+
+<details>
+
 <summary><strong>1.2.1 — Manual media tools setup and sequence assembly fix</strong></summary>
 
 - The extension no longer downloads or installs FFmpeg. **Settings → Media tools** now opens the
@@ -323,10 +340,13 @@ also simply fill in the request and choose **Start H3 App Mode**.
 | Ref2VA    | Reference set: an image, a video and/or audio, each with a clear role |
 
 References are image, video and audio nodes already on your canvas. For a reference set, choose
-at most one of each kind under **Reference images**, **Reference videos** and **Reference audio**.
-Audio cannot be the only reference; add an image or a video with it. When you choose a reference
-video, **Reference video soundtrack** lets you **Submit the video's own soundtrack** (the default)
-or **Do not submit a soundtrack**.
+up to nine images, three videos and three standalone audio files under **Reference images**,
+**Reference videos** and **Reference audio**. Add sources in order; the arrow and remove controls
+update their labels as you edit. The total limit is 12 files and three audio files, including
+video soundtracks. Audio cannot be the only reference in the sidebar; add an image or a video.
+**Reference video soundtrack** submits all selected videos' own soundtracks by default; you can
+exclude them together. Each video or audio clip should be 2–15 seconds, with at most 15 seconds
+per kind in total. The live counter includes submitted soundtracks.
 
 Roles and order are never guessed: a missing or conflicting role is reported so you can fix it.
 
@@ -732,7 +752,16 @@ can be proposed and reviewed, but generation currently accepts text-to-video pla
 3. To leave while it runs, choose **Continue current segment while I leave**: the current segment
    finishes and the rest pause. Later choose **Reconnect to running sequence** and **Resume
    remaining segments** before the deadline shown.
-4. Choose **Assemble sequence** to join the segments into one 30 fps video with 48 kHz stereo sound.
+4. Choose **Output format** before assembly: **Original size (24 fps)** is the default, with
+   32 kHz stereo sound and the segments' common original size. **512 × 512 (30 fps)** keeps the
+   previous format with 48 kHz stereo sound. Then choose **Assemble sequence**.
+
+The original-size format requires all segments to share one supported size; incompatible sizes
+are refused rather than resized. It keeps the native rates and encodes the final video once.
+After assembly, **Cuts between segments** labels each cut **smooth**, **visible change** or
+**not measured**. A label is a bounded measurement, not a guarantee of continuity or generation
+quality. A sequence that finishes before the media tools are ready can offer assembly on a later
+Production refresh once the tools become available.
 
 Assembly does not apply editor overlays or effects. To edit the result, import the segments into
 the media bin, place them on the timeline and render the final video there.
@@ -781,6 +810,9 @@ Bundled files:
   Boundary** graphs.
 - `workflows/`: example graphs that need no models, in ComfyUI's API format (each file's `prompt`
   section), covering the base, reference and full-reference routes and the other node groups.
+  Use the current bundled reference examples when upgrading. In an older saved API prompt,
+  connect each reference to its own numbered Registry input instead of placing several links
+  inside one input value.
 - `examples/minimal_core_pipeline.py`: a pure-Python example that needs neither ComfyUI nor a
   provider.
 
@@ -902,7 +934,9 @@ Review workflows and screenshots before sharing them. More detail is in
 - **Media features** (clip editor, import, assembly, rendering) need Windows x64 and the media tools.
 - **Audio in the editor** comes from the main track's video only, with each clip's volume, mute and
   fades. Overlay videos are silent and there are no separate audio tracks.
-- **Frame rates**: assembly produces 30 fps; the editor's final render is 24 fps, up to 2.5 minutes.
+- **Frame rates**: assembly defaults to the original-size 24 fps / 32 kHz stereo format; the
+  selectable 512 × 512 format uses 30 fps / 48 kHz stereo. The editor's final render remains
+  1920 × 1080 at 24 fps, up to 2.5 minutes.
 - **Project media and recovery**: `.h3proj` files do not embed media. Durable metadata, retained
   videos and draft recovery are opt-in and require the qualified local Windows setup; unacknowledged
   edits can be lost. Rendered files remain temporary and are kept for about an hour.

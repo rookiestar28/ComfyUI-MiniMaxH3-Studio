@@ -362,8 +362,14 @@ export function createProductionSession(ctx: ShellRuntime) {
         else return;
         productionStartupPending = false;
         break;
-      case "release_workspace":
       case "assemble_sequence":
+        if (projection === undefined) return;
+        input =
+          intent.outputProfileId === undefined
+            ? { projection }
+            : { projection, outputProfileId: intent.outputProfileId };
+        break;
+      case "release_workspace":
       case "cancel_assembly":
       case "retry_assembly":
         if (projection === undefined) return;

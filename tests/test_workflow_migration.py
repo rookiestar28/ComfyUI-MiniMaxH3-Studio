@@ -13,6 +13,7 @@ from comfyui_h3_context.core import (
     MigrationDisposition,
     WorkflowMigrationError,
     audit_workflow_migration,
+    canonical_fingerprint,
     decode_workflow_json,
 )
 from scripts.release_matrix import _audit_workflow_migrations
@@ -89,6 +90,48 @@ def test_current_versioned_workflows_and_assistant_subgraphs_are_accepted() -> N
         result = audit_workflow_migration(_load(path))
         assert result.disposition is MigrationDisposition.ACCEPTED, path
         assert result.reason_code is None, path
+
+
+@pytest.mark.parametrize(
+    "name, fingerprint",
+    (
+        (
+            "m15_03_product_shell_reference",
+            "sha256:27292495a54e038b01af328d48fe31b0201a7286d306fea6f337feff8ed99db5",
+        ),
+        (
+            "m15_09_assistant_reference",
+            "sha256:1cf0fd671cf9b7cbfbc92e43b925c174106b88019941a5cdce3949dd82e59e85",
+        ),
+    ),
+)
+def test_exact_shipped_legacy_reference_prompts_remain_migration_inputs(
+    name: str, fingerprint: str
+) -> None:
+    workflow = _load(f"workflows/{name}.json")
+    for node in workflow["prompt"].values():
+        inputs = node["inputs"]
+        if node["class_type"] == "comfyui_h3_context.H3Context.ReferenceRegistry":
+            inputs["images"] = [inputs.pop("images.image0"), inputs.pop("images.image1")]
+        elif node["class_type"] == "MiniMaxH3ReferenceToVideo":
+            inputs["ref_images"] = [
+                inputs.pop("ref_images.ref_image_0"),
+                inputs.pop("ref_images.ref_image_1"),
+            ]
+    assert canonical_fingerprint(workflow["prompt"]) == fingerprint
+    workflow["expected"]["graph_fingerprint_parts"] = [fingerprint]
+    before = copy.deepcopy(workflow)
+    result = audit_workflow_migration(workflow)
+    assert result.disposition is MigrationDisposition.ACCEPTED
+    assert workflow == before
+    native = next(
+        node["inputs"]
+        for node in workflow["prompt"].values()
+        if node["class_type"] == "MiniMaxH3ReferenceToVideo"
+    )
+    native["ref_images"].reverse()
+    workflow["expected"]["graph_fingerprint_parts"] = [canonical_fingerprint(workflow["prompt"])]
+    assert audit_workflow_migration(workflow).reason_code == "graph_fingerprint_mismatch"
 
 
 def test_legacy_prompt_socket_bridge_is_rejected_without_mutation() -> None:

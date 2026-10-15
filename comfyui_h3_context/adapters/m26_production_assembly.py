@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import time
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Protocol, runtime_checkable
 
 from ..core.av_reconstruction import (
@@ -12,8 +13,10 @@ from ..core.av_reconstruction import (
     AVReconstructionApproval,
     AVReconstructionPlan,
     AVReconstructionReceipt,
+    AVTargetProfile,
     approve_av_reconstruction_plan,
     build_m26_derived_av_reconstruction_plan,
+    native_av_target_profile,
     qualified_av_limits,
     qualified_av_target_profile,
     qualified_ffmpeg_capability,
@@ -22,13 +25,19 @@ from ..core.canonical import canonical_fingerprint
 from ..core.continuity_handoff import ContinuityBoundaryReceipt, ContinuityMode
 from ..core.generation_sequence import GenerationSequenceProjection
 from ..core.m26_assembly import (
+    M26_NATIVE_OUTPUT_PROFILE_ID,
+    M26_OUTPUT_PROFILE_IDS,
+    SEAM_UNMEASURED_REASONS,
     DerivedAVInputReceiptV1,
     M26AssemblyAuthorizationV1,
     M26DerivedAVInputPlanV1,
     ProductionAssemblyCapabilityV1,
-    ProductionAssemblyReceiptV1,
+    ProductionAssemblyReceiptV2,
+    ProductionSeamReportV1,
+    SeamMeasurementV1,
     SegmentSourceContributionV1,
-    build_production_assembly_receipt,
+    build_production_assembly_receipt_v2,
+    build_production_seam_report,
     build_source_contribution,
 )
 from ..core.production_import import (
@@ -88,6 +97,9 @@ class M26MediaBridge(Protocol):
 
 LowLevelExecutor = Callable[..., AVReconstructionReceipt]
 SourceFactory = Callable[[SegmentArtifactReceipt], AVSegmentSource]
+SeamMeasurer = Callable[..., tuple[SeamMeasurementV1 | str, ...]]
+#: Wall-clock budget for the seam measurement of one assembly; past it the seams are unmeasured.
+SEAM_MEASUREMENT_SECONDS = 300.0
 
 
 def _default_low_level_executor(**kwargs: object) -> AVReconstructionReceipt:
@@ -108,6 +120,8 @@ class M26ProductionAssemblyRuntime:
     media_bridge: M26MediaBridge
     low_level_adapter: QualifiedAVMediaAdapter
     capability: ProductionAssemblyCapabilityV1
+    #: Further selectable profiles; ``capability`` is the default for new assemblies.
+    additional_capabilities: tuple[ProductionAssemblyCapabilityV1, ...] = field(default=())
 
     def __post_init__(self) -> None:
         if (
@@ -116,8 +130,29 @@ class M26ProductionAssemblyRuntime:
             or not isinstance(self.media_bridge, M26MediaBridge)
             or type(self.low_level_adapter) is not QualifiedAVMediaAdapter
             or type(self.capability) is not ProductionAssemblyCapabilityV1
+            or type(self.additional_capabilities) is not tuple
+            or not all(
+                type(item) is ProductionAssemblyCapabilityV1
+                for item in self.additional_capabilities
+            )
         ):
             raise M26ProductionAssemblyError("assembly_runtime_invalid")
+        profiles = [item.output_profile_id for item in self.capabilities]
+        if len(profiles) != len(set(profiles)) or any(
+            item.store_identity_fingerprint != self.capability.store_identity_fingerprint
+            for item in self.additional_capabilities
+        ):
+            raise M26ProductionAssemblyError("assembly_runtime_invalid")
+
+    @property
+    def capabilities(self) -> tuple[ProductionAssemblyCapabilityV1, ...]:
+        return (self.capability, *self.additional_capabilities)
+
+    def capability_for(self, output_profile_id: str) -> ProductionAssemblyCapabilityV1:
+        for item in self.capabilities:
+            if item.output_profile_id == output_profile_id:
+                return item
+        raise M26ProductionAssemblyError("assembly_profile_unavailable")
 
 
 @dataclass(frozen=True, slots=True)
@@ -127,7 +162,8 @@ class M26ProductionAssemblyExecution:
     embedded_plan: AVReconstructionPlan
     embedded_approval: AVReconstructionApproval
     reconstruction_receipt: AVReconstructionReceipt
-    assembly_receipt: ProductionAssemblyReceiptV1
+    seam_report: ProductionSeamReportV1
+    assembly_receipt: ProductionAssemblyReceiptV2
 
 
 def _now_ms(clock_ms: Callable[[], int]) -> int:
@@ -216,6 +252,47 @@ def _default_source_factory(
     return lambda receipt: ArtifactStoreSegmentSource(store, receipt)
 
 
+def _default_seam_measurer(
+    *,
+    runtime: M26ProductionAssemblyRuntime,
+    reconstruction_receipt: AVReconstructionReceipt,
+    segment_frames: tuple[int, ...],
+    fps: int,
+    width: int,
+    height: int,
+    cancellation: CancellationProbe | None,
+) -> tuple[SeamMeasurementV1 | str, ...]:
+    return runtime.low_level_adapter.measure_assembly_seams(
+        store=runtime.reconstruction_store,
+        receipt=reconstruction_receipt,
+        segment_frames=segment_frames,
+        fps=fps,
+        width=width,
+        height=height,
+        deadline=time.monotonic() + SEAM_MEASUREMENT_SECONDS,
+        cancellation=cancellation,
+    )
+
+
+def _target_profile(
+    output_profile_id: str, descriptors: tuple[AVMediaDescriptor, ...]
+) -> AVTargetProfile:
+    if output_profile_id != M26_NATIVE_OUTPUT_PROFILE_ID:
+        return qualified_av_target_profile()
+    # IMPORTANT: the native profile keeps the sequence's own geometry, so every segment must
+    # share it; a mixed sequence is refused rather than scaled to one of its members.
+    sizes = {
+        (item.video.width, item.video.height) for item in descriptors if item.video is not None
+    }
+    if len(sizes) != 1 or any(item.video is None for item in descriptors):
+        raise M26ProductionAssemblyError("assembly_geometry_mismatch")
+    ((width, height),) = sizes
+    try:
+        return native_av_target_profile(width, height)
+    except Exception as exc:
+        raise M26ProductionAssemblyError("assembly_geometry_mismatch") from exc
+
+
 def execute_m26_production_assembly(
     *,
     runtime: M26ProductionAssemblyRuntime,
@@ -229,6 +306,7 @@ def execute_m26_production_assembly(
     cancellation: CancellationProbe | None = None,
     low_level_executor: LowLevelExecutor = _default_low_level_executor,
     source_factory: SourceFactory | None = None,
+    seam_measurer: SeamMeasurer = _default_seam_measurer,
 ) -> M26ProductionAssemblyExecution:
     """Sole M26 wrapper from original artifacts through derived inputs to the legacy executor."""
 
@@ -239,8 +317,12 @@ def execute_m26_production_assembly(
         or type(cut_boundary_receipts) is not tuple
         or not callable(clock_ms)
         or not callable(low_level_executor)
+        or not callable(seam_measurer)
+        or type(authorization) is not M26AssemblyAuthorizationV1
+        or authorization.output_profile_id not in M26_OUTPUT_PROFILE_IDS
     ):
         raise M26ProductionAssemblyError("assembly_predecessor_type")
+    capability = runtime.capability_for(authorization.output_profile_id)
     sequence = generation_sequence
     plan = sequence.state.plan
     sequence_fingerprint = canonical_fingerprint(sequence.to_wire())
@@ -253,7 +335,7 @@ def execute_m26_production_assembly(
         generation_state_fingerprint=sequence.state.fingerprint,
         artifact_receipts=artifact_receipts,
         cut_boundary_receipts=cut_boundary_receipts,
-        capability=runtime.capability,
+        capability=capability,
         now_ms=now,
     )
     source_builder = (
@@ -334,6 +416,7 @@ def execute_m26_production_assembly(
                     ),
                     global_start_milliseconds=proposal_row.global_start_milliseconds,
                     global_end_milliseconds=proposal_row.global_end_milliseconds,
+                    output_profile_id=authorization.output_profile_id,
                 )
             except Exception as exc:
                 raise M26ProductionAssemblyError("assembly_derived_descriptor_mismatch") from exc
@@ -349,9 +432,10 @@ def execute_m26_production_assembly(
             generation_state_fingerprint=sequence.state.fingerprint,
             artifact_receipts=artifact_receipts,
             cut_boundary_receipts=cut_boundary_receipts,
-            capability=runtime.capability,
+            capability=capability,
             now_ms=_now_ms(clock_ms),
         )
+        target_profile = _target_profile(authorization.output_profile_id, tuple(descriptors))
         dispositions = tuple(
             SelectiveRerunDisposition.REUSE
             if item.segment_id in clean_ids
@@ -373,7 +457,7 @@ def execute_m26_production_assembly(
             boundary_evidence=_cut_evidence(authorization, cut_boundary_receipts),
             capability=qualified_ffmpeg_capability(),
             limits=qualified_av_limits(),
-            target_profile=qualified_av_target_profile(),
+            target_profile=target_profile,
             planned_at_ms=_now_ms(clock_ms),
         )
         approved_at = _now_ms(clock_ms)
@@ -407,10 +491,42 @@ def execute_m26_production_assembly(
             clock_ms=clock_ms,
             cancellation=cancellation,
         )
-        assembly_receipt = build_production_assembly_receipt(
+        segment_frames = tuple(item.target_frames for item in contributions)
+        seam_count = len(segment_frames) - 1
+        # IMPORTANT: measurement never fails a completed assembly. Any raised error or malformed
+        # result (wrong count, unknown reason) becomes decode_failed on every seam; validating
+        # only the call would let a bad tuple fail the report build below.
+        try:
+            measurements = seam_measurer(
+                runtime=runtime,
+                reconstruction_receipt=reconstruction_receipt,
+                segment_frames=segment_frames,
+                fps=target_profile.frame_rate.numerator,
+                width=target_profile.width,
+                height=target_profile.height,
+                cancellation=cancellation,
+            )
+            if (
+                type(measurements) is not tuple
+                or len(measurements) != seam_count
+                or not all(
+                    type(item) is SeamMeasurementV1 or item in SEAM_UNMEASURED_REASONS
+                    for item in measurements
+                )
+            ):
+                raise ValueError("seam measurement shape")
+        except Exception:  # noqa: BLE001 - a measurement failure never fails the assembly.
+            measurements = ("decode_failed",) * seam_count
+        seam_report = build_production_seam_report(
+            outer_plan=outer_plan,
+            reconstruction_receipt=reconstruction_receipt,
+            measurements=measurements,
+        )
+        assembly_receipt = build_production_assembly_receipt_v2(
             transaction_id=transaction_id,
             outer_plan=outer_plan,
             reconstruction_receipt=reconstruction_receipt,
+            seam_report=seam_report,
             completed_at_ms=_now_ms(clock_ms),
         )
         return M26ProductionAssemblyExecution(
@@ -419,6 +535,7 @@ def execute_m26_production_assembly(
             embedded_plan=embedded_plan,
             embedded_approval=embedded_approval,
             reconstruction_receipt=reconstruction_receipt,
+            seam_report=seam_report,
             assembly_receipt=assembly_receipt,
         )
     except M26ProductionAssemblyError:

@@ -1,3 +1,5 @@
+import { ReferenceSourcePicker } from "./ReferenceSourcePicker";
+import { referenceCapacity } from "../host/referenceSelection";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
 import type {
@@ -335,6 +337,12 @@ function AppModeEntry({
     state.status === "interactive" && state.reason === "native_preference"
   );
   const useExistingAction = existingGraph && !needsDecision;
+  const referenceVerdict = referenceCapacity({
+    images: referenceImages.length,
+    videos: referenceVideos.length,
+    audios: referenceAudios.length,
+    soundtrack: referenceVideoSoundtrack,
+  });
   const sourceSelectionBlocker =
     !useExistingAction &&
     taskMode === "fl2va" &&
@@ -348,12 +356,10 @@ function AppModeEntry({
         ? text.sourceBlockers.firstFrame
         : !useExistingAction && taskMode === "l2va" && lastFrameSource === ""
           ? text.sourceBlockers.lastFrame
-          : taskMode === "ref2va" &&
-              referenceImages.length +
-                referenceVideos.length +
-                referenceAudios.length ===
-                0
-            ? text.sourceBlockers.reference
+          : taskMode === "ref2va" && !referenceVerdict.allowed
+            ? referenceVerdict.reason === "visual"
+              ? text.sourceBlockers.reference
+              : text.referenceActions.reasons[referenceVerdict.reason!]
             : null;
   const editingDisabled = busy || capability.status !== "ready";
   const resolutionState = appMode?.durationResolution;
@@ -605,81 +611,23 @@ function AppModeEntry({
             </label>
           ) : null}
           {taskMode === "ref2va" ? (
-            <fieldset className="h3-reference-source-fieldset">
-              <legend>{text.referenceSelectionHelp}</legend>
-              {(
-                [
-                  [
-                    "image",
-                    text.referenceImages,
-                    referenceImages,
-                    setReferenceImages,
-                  ],
-                  [
-                    "video",
-                    text.referenceVideos,
-                    referenceVideos,
-                    setReferenceVideos,
-                  ],
-                  [
-                    "audio",
-                    text.referenceAudios,
-                    referenceAudios,
-                    setReferenceAudios,
-                  ],
-                ] as const
-              ).map(([kind, label, value, setValue]) => (
-                <label key={kind}>
-                  <span>{label}</span>
-                  <select
-                    data-h3-focus-key={`app-reference-${kind}`}
-                    aria-label={label}
-                    value={value[0] ?? ""}
-                    disabled={editingDisabled}
-                    onChange={(event) =>
-                      setValue(
-                        event.currentTarget.value === ""
-                          ? []
-                          : [event.currentTarget.value],
-                      )
-                    }
-                  >
-                    <option value="">—</option>
-                    {(appMode?.mediaSources ?? [])
-                      .filter((source) => source.kind === kind)
-                      .map((source) => (
-                        <option key={source.node_id} value={source.node_id}>
-                          {source.label}
-                        </option>
-                      ))}
-                  </select>
-                </label>
-              ))}
-              {referenceVideos.length > 0 ? (
-                <label>
-                  <span>{text.referenceVideoSoundtrack}</span>
-                  <select
-                    data-h3-focus-key="app-reference-soundtrack"
-                    aria-label={text.referenceVideoSoundtrack}
-                    value={referenceVideoSoundtrack}
-                    disabled={editingDisabled}
-                    onChange={(event) =>
-                      setReferenceVideoSoundtrack(
-                        event.currentTarget.value as ReferenceVideoSoundtrack,
-                      )
-                    }
-                  >
-                    {(["included", "excluded", "unavailable"] as const).map(
-                      (state) => (
-                        <option key={state} value={state}>
-                          {text.referenceVideoSoundtrackOptions[state]}
-                        </option>
-                      ),
-                    )}
-                  </select>
-                </label>
-              ) : null}
-            </fieldset>
+            <ReferenceSourcePicker
+              images={referenceImages}
+              videos={referenceVideos}
+              audios={referenceAudios}
+              soundtrack={referenceVideoSoundtrack}
+              sources={appMode?.mediaSources ?? []}
+              disabled={editingDisabled}
+              text={text}
+              onSources={(kind, values) =>
+                ({
+                  image: setReferenceImages,
+                  video: setReferenceVideos,
+                  audio: setReferenceAudios,
+                })[kind](values)
+              }
+              onSoundtrack={setReferenceVideoSoundtrack}
+            />
           ) : null}
           <>
             <label>

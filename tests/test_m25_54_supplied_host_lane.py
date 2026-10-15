@@ -9,6 +9,7 @@ import tempfile
 import time
 import unittest
 from argparse import Namespace
+from collections.abc import Mapping
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, cast
@@ -76,6 +77,15 @@ def _report(rows: list[tuple[str, str, str, str | None]]) -> dict[str, Any]:
 
 
 class SuppliedHostLaneUnitTests(unittest.TestCase):
+    def test_reference_media_fixture_requires_explicit_row_control(self) -> None:
+        self.assertEqual(
+            lane.parse_row_environment(["H3_CONTEXT_REFERENCE_MEDIA_FIXTURE=probe/media.json"]),
+            {"H3_CONTEXT_REFERENCE_MEDIA_FIXTURE": "probe/media.json"},
+        )
+        for value in ("probe/media.json\n", "probe/media.json\0"):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                lane.parse_row_environment(["H3_CONTEXT_REFERENCE_MEDIA_FIXTURE=" + value])
+
     def test_loopback_url_is_explicit_and_foreign_hosts_are_rejected(self) -> None:
         self.assertEqual(lane.validate_host_url("http://127.0.0.1:8188"), ("127.0.0.1", 8188))
         for value in (
@@ -85,6 +95,174 @@ class SuppliedHostLaneUnitTests(unittest.TestCase):
         ):
             with self.subTest(value=value), self.assertRaisesRegex(ValueError, "loopback"):
                 lane.validate_host_url(value)
+
+    def test_reference_proof_is_closed_complete_and_candidate_bound(self) -> None:
+        row = lane.RowSelection(lane.REFERENCE_EXECUTION_SPEC, lane.REFERENCE_EXECUTION_TITLE)
+        selected = {"test-0": row}
+        report = _report([(row.spec, row.title, "passed", "clean")])
+        labels = (
+            "four-groups-start-1",
+            "four-groups-start-2",
+            "m3_07_h3_context_reference.json",
+            "m15_03_product_shell_reference.json",
+            "m15_09_assistant_reference.json",
+            "m6_07_h3_context_full_reference.json",
+        )
+        payload = {
+            "schema": "h3.context.reference_execution.v1",
+            "success": True,
+            "candidate": {"bundleSha256": "a" * 64, "installedInventorySha256": "b" * 64},
+            "executions": [
+                {
+                    "label": label,
+                    "success": True,
+                    "preview_executed": True,
+                    "required_label_count": 5 if index < 2 else 4 if index == 5 else 2,
+                }
+                for index, label in enumerate(labels)
+            ],
+            "typed_unknown_link_refusal": True,
+            "consecutive_starts": 2,
+            "foreign_extension_count": 1,
+        }
+        attachments = report["suites"][0]["specs"][0]["tests"][0]["results"][0]["attachments"]
+
+        def admit(value: object) -> Mapping[str, object]:
+            attachments[:] = [_receipt("test-0"), _json_attachment("reference_execution", value)]
+            return lane.admit_results(
+                selected,
+                report,
+                expected_bundle_sha256="a" * 64,
+                expected_inventory_sha256="b" * 64,
+            )
+
+        self.assertEqual(admit(payload)["verdict"], "PASS")
+        missing = deepcopy(payload)
+        cast(list[object], missing["executions"]).pop()
+        for bad in (
+            missing,
+            dict(payload, locator="private/input"),
+            dict(payload, typed_unknown_link_refusal=False),
+            dict(
+                payload, candidate={"bundleSha256": "c" * 64, "installedInventorySha256": "b" * 64}
+            ),
+        ):
+            with self.subTest(bad=bad):
+                self.assertEqual(admit(bad)["verdict"], "FAIL")
+
+    def test_reference_sample_needs_verified_artifact_and_no_private_fields(self) -> None:
+        payload = {
+            "schema": "h3.context.reference_sample.v1",
+            "success": True,
+            "candidate": {"bundleSha256": "a" * 64, "installedInventorySha256": "b" * 64},
+            "image_count": 1,
+            "video_count": 1,
+            "paired_audio_count": 1,
+            "standalone_audio_count": 1,
+            "exact_dotted_inputs": True,
+            "artifact_count": 1,
+            "artifact_verified": True,
+        }
+
+        def decode(value: object) -> object:
+            return lane._decode_reference_evidence(
+                [_json_attachment("reference_sample", value)], sample=True
+            )
+
+        self.assertIsNotNone(decode(payload))
+        for bad in (
+            dict(payload, artifact_verified=False),
+            dict(payload, artifact_count=0),
+            dict(payload, image_count=True),
+            dict(payload, filename="private.mp4"),
+        ):
+            with self.subTest(bad=bad):
+                self.assertIsNone(decode(bad))
+
+    def test_multi_reference_sample_pins_counts_without_weakening_legacy(self) -> None:
+        payload = {
+            "schema": "h3.context.reference_sample.v2",
+            "success": True,
+            "candidate": {"bundleSha256": "a" * 64, "installedInventorySha256": "b" * 64},
+            "image_count": 3,
+            "video_count": 2,
+            "paired_audio_count": 2,
+            "standalone_audio_count": 1,
+            "exact_dotted_inputs": True,
+            "artifact_count": 1,
+            "artifact_verified": True,
+        }
+
+        def decode(value: object) -> object:
+            return lane._decode_reference_evidence(
+                [_json_attachment("reference_sample", value)], sample=True
+            )
+
+        self.assertIsNotNone(decode(payload))
+        for bad in (
+            dict(payload, image_count=1),
+            dict(payload, video_count=True),
+            dict(payload, paired_audio_count=1),
+            dict(payload, exact_dotted_inputs=False),
+            dict(payload, schema="h3.context.reference_sample.v1"),
+            dict(payload, prompt="private"),
+        ):
+            with self.subTest(bad=bad):
+                self.assertIsNone(decode(bad))
+
+    def test_multi_reference_execution_requires_all_ordered_maxima(self) -> None:
+        labels = [
+            "four-groups-start-1",
+            "four-groups-start-2",
+            "m3_07_h3_context_reference.json",
+            "m15_03_product_shell_reference.json",
+            "m15_09_assistant_reference.json",
+            "m6_07_h3_context_full_reference.json",
+            "image-audio-max",
+            "image-video-max",
+            "paired-video-max",
+        ]
+        payload = {
+            "schema": "h3.context.reference_execution.v2",
+            "success": True,
+            "candidate": {"bundleSha256": "a" * 64, "installedInventorySha256": "b" * 64},
+            "executions": [
+                {
+                    "label": label,
+                    "success": True,
+                    "preview_executed": True,
+                    "required_label_count": 12 if i >= 6 else 5 if i < 2 else 4 if i == 5 else 2,
+                    **({"ordered_bindings": True} if i >= 6 else {}),
+                }
+                for i, label in enumerate(labels)
+            ],
+            "typed_unknown_link_refusal": True,
+            "consecutive_starts": 2,
+            "foreign_extension_count": 1,
+        }
+
+        def decode(value: object) -> object:
+            return lane._decode_reference_evidence(
+                [_json_attachment("reference_execution", value)], sample=False
+            )
+
+        self.assertIsNotNone(decode(payload))
+        for field, value in (
+            ("ordered_bindings", False),
+            ("required_label_count", 11),
+            ("label", "paired-video-max"),
+            ("locator", "private"),
+        ):
+            bad = deepcopy(payload)
+            cast(list[dict[str, object]], bad["executions"])[6][field] = value
+            with self.subTest(field=field):
+                self.assertIsNone(decode(bad))
+        self.assertIsNone(
+            decode(
+                dict(payload, executions=cast(list[dict[str, object]], payload["executions"])[:-1])
+            )
+        )
+        self.assertIsNone(decode(dict(payload, schema="h3.context.reference_execution.v1")))
 
     def test_manual_media_journey_requires_explicit_local_authority(self) -> None:
         self.assertEqual(

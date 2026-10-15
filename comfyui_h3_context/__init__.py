@@ -128,7 +128,16 @@ if os.environ.get("H3_CONTEXT_HOST_TWO_ENDED_BRIDGE_CANARY") == "1":
         TWO_ENDED_BRIDGE_CANARY_NODE_ID: "H3 Context (two-ended AV bridge canary)",
     }
 
-__version__ = "1.2.1"
+# CRITICAL: the continuation route study canaries follow the same lane rules — absent from
+# normal registration, activated only in an isolated supported-host study process with an
+# explicit owned-root marker. They carry no product contract.
+if os.environ.get("H3_CONTEXT_HOST_SEQUENCE_CONTINUATION_CANARY") == "1":
+    from .sequence_continuation_canary import CANARY_DISPLAY_NAMES, CANARY_NODES
+
+    NODE_CLASS_MAPPINGS = {**NODE_CLASS_MAPPINGS, **CANARY_NODES}
+    NODE_DISPLAY_NAME_MAPPINGS = {**NODE_DISPLAY_NAME_MAPPINGS, **CANARY_DISPLAY_NAMES}
+
+__version__ = "1.3.0"
 WEB_DIRECTORY = "web"
 
 # CRITICAL: this bounded operator attempt runs after node registration. Its module owner survives

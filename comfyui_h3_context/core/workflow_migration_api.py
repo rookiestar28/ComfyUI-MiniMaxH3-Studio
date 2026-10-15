@@ -24,6 +24,7 @@ from .workflow_migration_expectations import (
     _EXPECTED_KEYS,
     _FINGERPRINT,
     _HOST_KEYS,
+    _LEGACY_CANONICAL_API_FINGERPRINTS,
     _NATIVE_TYPES,
     _REQUIRED_INPUTS,
     _TASK_MODES,
@@ -66,12 +67,38 @@ def _link_tuples(value: object) -> tuple[list[tuple[str, int]], bool]:
 
 
 def _required_present(inputs: Mapping[str, object], name: str) -> bool:
-    # Grouped/autogrow names are a separate serialized contract and must never satisfy a native
-    # node's required direct input.  The migration audit accepts only the pinned direct shape.
+    if name == "ref_images" and name not in inputs:
+        return all(inputs.get(f"ref_images.ref_image_{i}") is not None for i in range(2))
+    # Other native required inputs remain direct; children cannot satisfy prompt or dimensions.
     return name in inputs and inputs[name] is not None
 
 
+def _reference_image_links(inputs: Mapping[str, object]) -> tuple[list[tuple[str, int]], bool]:
+    """Read only the two pinned child links or the exact historical grouped shape."""
+
+    names = ("ref_images.ref_image_0", "ref_images.ref_image_1")
+    if "ref_images" in inputs:
+        if any(name in inputs for name in names):
+            return [], True
+        return _link_tuples(inputs["ref_images"])
+    links = []
+    for name in names:
+        child, malformed = _link_tuples(inputs.get(name))
+        if malformed or len(child) != 1:
+            return [], True
+        links.extend(child)
+    return links, False
+
+
 def _expected_link_source(node_type: str, input_name: str) -> tuple[frozenset[str], int] | None:
+    if (
+        node_type == "comfyui_h3_context.H3Context.ReferenceRegistry"
+        and input_name in {"images.image0", "images.image1"}
+    ) or (
+        node_type == "MiniMaxH3ReferenceToVideo"
+        and input_name in {"ref_images.ref_image_0", "ref_images.ref_image_1"}
+    ):
+        return frozenset({"LoadImage"}), 0
     common: dict[tuple[str, str], tuple[frozenset[str], int]] = {
         ("comfyui_h3_context.H3Context.Plan", "request"): (
             frozenset({"comfyui_h3_context.H3Context.Request"}),
@@ -379,7 +406,8 @@ def _validate_api(workflow: Mapping[str, object]) -> WorkflowMigrationAudit:
             if missing:
                 return _rejected(kind, policy, "missing_native_input", "restore_versioned_fixture")
             if node_type == "MiniMaxH3ReferenceToVideo":
-                if not isinstance(inputs.get("ref_images"), list) or not inputs["ref_images"]:
+                image_links, malformed = _reference_image_links(inputs)
+                if malformed or not image_links:
                     return _rejected(
                         kind, policy, "missing_native_input", "restore_versioned_fixture"
                     )
@@ -416,10 +444,12 @@ def _validate_api(workflow: Mapping[str, object]) -> WorkflowMigrationAudit:
         actual_fingerprint = canonical_fingerprint(prompt)
     except Exception:
         actual_fingerprint = ""
-    expected_canonical_fingerprint = _CANONICAL_API_FINGERPRINTS[fixture_id]
+    admitted_fingerprints = {_CANONICAL_API_FINGERPRINTS[fixture_id]}
+    if fixture_id in _LEGACY_CANONICAL_API_FINGERPRINTS:
+        admitted_fingerprints.add(_LEGACY_CANONICAL_API_FINGERPRINTS[fixture_id])
     if (
         "".join(fingerprint_parts) != actual_fingerprint
-        or "".join(fingerprint_parts) != expected_canonical_fingerprint
+        or "".join(fingerprint_parts) not in admitted_fingerprints
         or not _FINGERPRINT.fullmatch("".join(fingerprint_parts))
     ):
         return _rejected(kind, policy, "graph_fingerprint_mismatch", "restore_versioned_fixture")
@@ -517,7 +547,7 @@ def _validate_api(workflow: Mapping[str, object]) -> WorkflowMigrationAudit:
     else:
         if len(direct) != 2:
             return _rejected(kind, policy, "malformed_media_binding", "rebuild_canonical_graph")
-        native_refs, malformed = _link_tuples(native_inputs.get("ref_images"))
+        native_refs, malformed = _reference_image_links(native_inputs)
         if malformed or len(native_refs) != len(direct):
             return _rejected(kind, policy, "malformed_media_binding", "rebuild_canonical_graph")
         for ordinal, item in enumerate(direct, start=1):

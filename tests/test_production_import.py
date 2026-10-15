@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+import copy
 import json
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import fields, replace
 from fractions import Fraction
+from functools import partial
 from hashlib import sha256
 from pathlib import Path
-from threading import Event, Thread
+from threading import Barrier, Event, Thread
 from typing import cast
 
 import pytest
@@ -33,6 +36,7 @@ from comfyui_h3_context.adapters.m26_production_assembly import (
     M26ProductionAssemblyError,
     M26ProductionAssemblyExecution,
     M26ProductionAssemblyRuntime,
+    SeamMeasurer,
     execute_m26_production_assembly,
 )
 from comfyui_h3_context.adapters.managed_sequence_service import (
@@ -54,6 +58,7 @@ from comfyui_h3_context.core.av_reconstruction import (
     AVReconstructionPlan,
     AVReconstructionReceipt,
     AVVideoDescriptor,
+    native_av_target_profile,
     qualified_ffmpeg_capability,
 )
 from comfyui_h3_context.core.canonical import (
@@ -76,11 +81,19 @@ from comfyui_h3_context.core.generation_sequence import (
     record_generation_success,
 )
 from comfyui_h3_context.core.m26_assembly import (
+    M26_NATIVE_OUTPUT_PROFILE_ID,
+    M26_OUTPUT_PROFILE_ID,
+    M26_OUTPUT_PROFILE_IDS,
+    SEAM_SMOOTH_S1_MILLI_BELOW,
+    SEAM_SMOOTH_S2_MICRO_AT_MOST,
     M26AssemblyError,
     ProductionAssemblyReceiptV1,
+    SeamMeasurementV1,
     build_production_assembly_capability,
-    build_production_assembly_receipt,
+    build_production_assembly_receipt_v2,
     decode_production_assembly_receipt,
+    decode_production_assembly_receipt_v2,
+    decode_production_seam_report,
     mint_m26_assembly_authorization,
 )
 from comfyui_h3_context.core.native_h3 import build_native_h3_wiring
@@ -1459,10 +1472,15 @@ def _rational(value: Fraction) -> AVRational:
     return AVRational(value.numerator, value.denominator)
 
 
-def _m26_video(frames: int) -> AVVideoDescriptor:
+def _m26_video(
+    frames: int,
+    *,
+    width: int = 512,
+    time_base: AVRational | None = None,
+) -> AVVideoDescriptor:
     return AVVideoDescriptor(
         codec="h264",
-        width=512,
+        width=width,
         height=512,
         pixel_format="yuv420p",
         color_range="tv",
@@ -1471,7 +1489,7 @@ def _m26_video(frames: int) -> AVVideoDescriptor:
         color_transfer="bt709",
         rotation_degrees=0,
         frame_rate=AVRational(24, 1),
-        time_base=AVRational(1, 24),
+        time_base=AVRational(1, 24) if time_base is None else time_base,
         start_time=AVRational(0, 1),
         end_time=_rational(Fraction(frames, 24)),
         decoded_frame_count=frames,
@@ -1522,7 +1540,9 @@ class _M26DerivedLease:
         contribution_frames: int,
         contribution_samples: int,
         mode: str,
+        index: int = 0,
     ) -> None:
+        self.index = index
         self.original_descriptor = original_descriptor
         self.byte_length = 4_096
         self.content_fingerprint = canonical_fingerprint(
@@ -1571,7 +1591,17 @@ class _M26DerivedLease:
             capability_fingerprint=qualified_ffmpeg_capability().fingerprint,
             container="mp4",
             stream_count=1 if audio is None else 2,
-            video=_m26_video(frames),
+            # "native" crops carry the 1/90000 time base real crops have; "mixed_geometry"
+            # alternates the width so a native assembly sees two geometries.
+            video=_m26_video(
+                frames,
+                width=640 if self.mode == "mixed_geometry" and self.index % 2 else 512,
+                time_base=(
+                    AVRational(1, 90_000)
+                    if self.mode in {"native", "mixed_geometry"}
+                    else AVRational(1, 24)
+                ),
+            ),
             audio=audio,
             subtitle_stream_count=0,
             data_stream_count=0,
@@ -1626,6 +1656,7 @@ class _M26MediaBridge:
             contribution_frames=contribution_frames,
             contribution_samples=contribution_samples,
             mode=self.mode,
+            index=len(self.leases),
         )
         self.leases.append(lease)
         return lease
@@ -1636,6 +1667,7 @@ def _m26_runtime(
     artifact_store: PrivateSegmentArtifactStore,
     *,
     bridge_mode: str = "ok",
+    default_profile: str = M26_OUTPUT_PROFILE_ID,
 ) -> tuple[M26ProductionAssemblyRuntime, _M26MediaBridge]:
     bridge = _M26MediaBridge(bridge_mode)
     reconstruction_store = PrivateAVReconstructionStore(
@@ -1657,12 +1689,22 @@ def _m26_runtime(
         media_bridge=bridge,
         low_level_adapter=object.__new__(QualifiedAVMediaAdapter),
         capability=build_production_assembly_capability(
-            store_identity_fingerprint=canonical_fingerprint(
-                {"schema": "test.m26.private_store.v1"}
+            store_identity_fingerprint=_M26_STORE_IDENTITY,
+            output_profile_id=default_profile,
+        ),
+        additional_capabilities=tuple(
+            build_production_assembly_capability(
+                store_identity_fingerprint=_M26_STORE_IDENTITY,
+                output_profile_id=item,
             )
+            for item in M26_OUTPUT_PROFILE_IDS
+            if item != default_profile
         ),
     )
     return runtime, bridge
+
+
+_M26_STORE_IDENTITY = canonical_fingerprint({"schema": "test.m26.private_store.v1"})
 
 
 def _m26_successful_low_level_executor(**kwargs: object) -> AVReconstructionReceipt:
@@ -1720,6 +1762,8 @@ def _m26_execute(
     receipts: tuple[SegmentArtifactReceipt, ...],
     clock: _M26Clock,
     executor: Callable[..., AVReconstructionReceipt] = _m26_successful_low_level_executor,
+    output_profile_id: str | None = None,
+    seam_measurer: Callable[..., object] | None = None,
 ) -> M26ProductionAssemblyExecution:
     authorization = mint_m26_assembly_authorization(
         authorization_id="m26auth.test.execution",
@@ -1727,11 +1771,16 @@ def _m26_execute(
         generation_sequence=sequence,
         artifact_receipts=receipts,
         cut_boundary_receipts=authority.cut_boundary_receipts,
-        capability=runtime.capability,
+        capability=(
+            runtime.capability
+            if output_profile_id is None
+            else runtime.capability_for(output_profile_id)
+        ),
         issued_at_ms=1_900,
         expires_at_ms=60_000,
     )
-    return execute_m26_production_assembly(
+    execute = partial(
+        execute_m26_production_assembly,
         runtime=runtime,
         transaction_id="m26tx.test.execution",
         authorization=authorization,
@@ -1742,6 +1791,12 @@ def _m26_execute(
         clock_ms=clock,
         low_level_executor=executor,
         source_factory=_M26OriginalSource,
+    )
+    # Malformed measurers are deliberate here; the adapter validates what they return.
+    return (
+        execute()
+        if seam_measurer is None
+        else execute(seam_measurer=cast(SeamMeasurer, seam_measurer))
     )
 
 
@@ -1807,7 +1862,13 @@ def test_m26_assembly_crops_all_presets_to_exact_source_and_legacy_output(
     )
     assert all(lease.released for lease in bridge.leases)
     assert len(bridge.leases) == len(receipts)
-    assert decode_production_assembly_receipt(assembly.to_wire_bytes()) == assembly
+    assert assembly.output_profile_id == M26_OUTPUT_PROFILE_ID
+    assert assembly.seam_report_fingerprint == execution.seam_report.fingerprint
+    # The stub adapter cannot decode, so every cut seam is reported as unmeasured.
+    assert [item.label for item in execution.seam_report.seams] == ["unmeasured"] * (
+        len(receipts) - 1
+    )
+    assert decode_production_assembly_receipt_v2(assembly.to_wire_bytes()) == assembly
     portable = assembly.to_wire_bytes().lower()
     assert str(tmp_path).encode("utf-8").lower() not in portable
     assert all(
@@ -1823,9 +1884,9 @@ def test_m26_assembly_crops_all_presets_to_exact_source_and_legacy_output(
     tampered = assembly.to_wire()
     tampered["completed_at_ms"] = assembly.completed_at_ms + 1
     with pytest.raises(M26AssemblyError, match="assembly_receipt_fingerprint_mismatch"):
-        decode_production_assembly_receipt(canonical_bytes(tampered))
+        decode_production_assembly_receipt_v2(canonical_bytes(tampered))
     with pytest.raises(M26AssemblyError, match="assembly_receipt_not_canonical"):
-        decode_production_assembly_receipt(b" " + assembly.to_wire_bytes())
+        decode_production_assembly_receipt_v2(b" " + assembly.to_wire_bytes())
     forged_reconstruction = replace(
         execution.reconstruction_receipt,
         boundary_receipt_fingerprints=tuple(
@@ -1835,11 +1896,233 @@ def test_m26_assembly_crops_all_presets_to_exact_source_and_legacy_output(
         receipt_fingerprint=None,
     )
     with pytest.raises(M26AssemblyError, match="assembly_receipt_reconstruction_mismatch"):
-        build_production_assembly_receipt(
+        build_production_assembly_receipt_v2(
             transaction_id=assembly.transaction_id,
             outer_plan=execution.outer_plan,
             reconstruction_receipt=forged_reconstruction,
+            seam_report=execution.seam_report,
             completed_at_ms=assembly.completed_at_ms,
+        )
+
+
+def _m26_measure(*values: SeamMeasurementV1 | str) -> Callable[..., tuple[object, ...]]:
+    """A seam measurer returning ``values`` cycled over the seams it is asked for."""
+
+    def measure(**kwargs: object) -> tuple[object, ...]:
+        frames = cast(tuple[int, ...], kwargs["segment_frames"])
+        return tuple(values[index % len(values)] for index in range(len(frames) - 1))
+
+    return measure
+
+
+def _seam(s1_milli: int, s2_micro: int) -> SeamMeasurementV1:
+    return SeamMeasurementV1(
+        s1_milli=s1_milli,
+        s2_micro=s2_micro,
+        s5_milli=1_000,
+        s6_milli=1_000,
+        s9_centi_db=0,
+        s10_ms=0,
+    )
+
+
+def test_m26_native_assembly_passes_crops_through_at_their_own_rates(tmp_path: Path) -> None:
+    _context, _proposal, _registry, _projection, authority, sequence, receipts = _m26_subject(
+        SegmentationPolicyV1.FIXED_15
+    )
+    store = PrivateSegmentArtifactStore(tmp_path / "artifacts", clock_ms=lambda: 2_000)
+    runtime, _bridge = _m26_runtime(
+        tmp_path, store, bridge_mode="native", default_profile=M26_NATIVE_OUTPUT_PROFILE_ID
+    )
+    assert tuple(item.output_profile_id for item in runtime.capabilities) == M26_OUTPUT_PROFILE_IDS
+    execution = _m26_execute(
+        runtime=runtime,
+        authority=authority,
+        sequence=sequence,
+        receipts=receipts,
+        clock=_M26Clock(),
+        seam_measurer=_m26_measure(_seam(1_000, 2_000)),
+    )
+    assembly = execution.assembly_receipt
+    assert assembly.output_profile_id == M26_NATIVE_OUTPUT_PROFILE_ID
+    assert execution.authorization.output_profile_id == M26_NATIVE_OUTPUT_PROFILE_ID
+    assert (assembly.source_total_frames, assembly.source_total_samples) == (1_440, 1_920_000)
+    assert (assembly.output_total_frames, assembly.output_total_samples) == (1_440, 1_920_000)
+    assert all(
+        item.operations == (AVOperation.PASSTHROUGH.value,)
+        and item.normalization_generated_frames == 0
+        and item.normalization_inserted_samples == 0
+        for item in execution.outer_plan.source_contributions
+    )
+    assert all(
+        item.operations == (AVOperation.PASSTHROUGH,) for item in execution.embedded_plan.segments
+    )
+    assert execution.embedded_plan.target_profile == native_av_target_profile(512, 512)
+    report = execution.seam_report
+    assert report.output_profile_id == M26_NATIVE_OUTPUT_PROFILE_ID
+    assert [item.output_frame for item in report.seams] == [360, 720, 1_080]
+    assert [item.label for item in report.seams] == ["smooth"] * 3
+    assert decode_production_seam_report(report.to_wire_bytes()) == report
+    assert decode_production_assembly_receipt_v2(assembly.to_wire_bytes()) == assembly
+
+
+def test_m26_native_assembly_refuses_a_sequence_of_mixed_geometry(tmp_path: Path) -> None:
+    _context, _proposal, _registry, _projection, authority, sequence, receipts = _m26_subject(
+        SegmentationPolicyV1.FIXED_15
+    )
+    store = PrivateSegmentArtifactStore(tmp_path / "artifacts", clock_ms=lambda: 2_000)
+    runtime, _bridge = _m26_runtime(tmp_path, store, bridge_mode="mixed_geometry")
+    with pytest.raises(M26ProductionAssemblyError, match="assembly_geometry_mismatch"):
+        _m26_execute(
+            runtime=runtime,
+            authority=authority,
+            sequence=sequence,
+            receipts=receipts,
+            clock=_M26Clock(),
+            output_profile_id=M26_NATIVE_OUTPUT_PROFILE_ID,
+        )
+
+
+def test_m26_seam_labels_follow_the_accepted_thresholds_exactly(tmp_path: Path) -> None:
+    _context, _proposal, _registry, _projection, authority, sequence, receipts = _m26_subject(
+        SegmentationPolicyV1.FIXED_12
+    )
+    store = PrivateSegmentArtifactStore(tmp_path / "artifacts", clock_ms=lambda: 2_000)
+    runtime, _bridge = _m26_runtime(tmp_path, store)
+    below_s1 = SEAM_SMOOTH_S1_MILLI_BELOW - 1
+    at_s2 = SEAM_SMOOTH_S2_MICRO_AT_MOST
+    execution = _m26_execute(
+        runtime=runtime,
+        authority=authority,
+        sequence=sequence,
+        receipts=receipts,
+        clock=_M26Clock(),
+        seam_measurer=_m26_measure(
+            _seam(below_s1, at_s2),
+            _seam(SEAM_SMOOTH_S1_MILLI_BELOW, 0),
+            _seam(0, at_s2 + 1),
+            "decode_budget",
+        ),
+    )
+    report = execution.seam_report
+    assert [item.label for item in report.seams] == [
+        "smooth",
+        "visible_change",
+        "visible_change",
+        "unmeasured",
+    ]
+    assert report.seams[3].unmeasured_reason == "decode_budget"
+    assert report.seams[3].measurement is None
+
+
+@pytest.mark.parametrize(
+    "measurer",
+    ["raises", "short", "unknown_reason", "float"],
+)
+def test_m26_seam_measurement_failure_never_fails_the_assembly(
+    measurer: str, tmp_path: Path
+) -> None:
+    _context, _proposal, _registry, _projection, authority, sequence, receipts = _m26_subject(
+        SegmentationPolicyV1.FIXED_15
+    )
+    store = PrivateSegmentArtifactStore(tmp_path / "artifacts", clock_ms=lambda: 2_000)
+    runtime, _bridge = _m26_runtime(tmp_path, store)
+
+    def measure(**kwargs: object) -> object:
+        seams = len(cast(tuple[int, ...], kwargs["segment_frames"])) - 1
+        if measurer == "raises":
+            raise RuntimeError("decoder crashed")
+        if measurer == "short":
+            return ("decode_budget",) * (seams - 1)
+        if measurer == "unknown_reason":
+            return ("C:/private/path",) * seams
+        return (0.5,) * seams
+
+    execution = _m26_execute(
+        runtime=runtime,
+        authority=authority,
+        sequence=sequence,
+        receipts=receipts,
+        clock=_M26Clock(),
+        seam_measurer=measure,
+    )
+    assert [item.unmeasured_reason for item in execution.seam_report.seams] == ["decode_failed"] * 3
+    assert execution.assembly_receipt.seam_report_fingerprint == execution.seam_report.fingerprint
+
+
+def test_m26_seam_report_and_receipt_v2_refuse_tampering(tmp_path: Path) -> None:
+    _context, _proposal, _registry, _projection, authority, sequence, receipts = _m26_subject(
+        SegmentationPolicyV1.FIXED_15
+    )
+    store = PrivateSegmentArtifactStore(tmp_path / "artifacts", clock_ms=lambda: 2_000)
+    runtime, _bridge = _m26_runtime(tmp_path, store)
+    execution = _m26_execute(
+        runtime=runtime,
+        authority=authority,
+        sequence=sequence,
+        receipts=receipts,
+        clock=_M26Clock(),
+        seam_measurer=_m26_measure(_seam(5_000, 0)),
+    )
+    report = execution.seam_report
+    wire = report.to_wire()
+    relabelled = copy.deepcopy(wire)
+    cast(list[dict[str, object]], relabelled["seams"])[0]["label"] = "smooth"
+    with pytest.raises(M26AssemblyError, match="seam_report_label"):
+        decode_production_seam_report(canonical_bytes(relabelled))
+    moved = copy.deepcopy(wire)
+    cast(list[dict[str, object]], moved["seams"])[0]["output_frame"] = 361
+    with pytest.raises(M26AssemblyError, match="seam_report_fingerprint_mismatch"):
+        decode_production_seam_report(canonical_bytes(moved))
+    loosened = copy.deepcopy(wire)
+    loosened["smooth_s1_milli_below"] = 9_000
+    with pytest.raises(M26AssemblyError, match="seam_report_policy"):
+        decode_production_seam_report(canonical_bytes(loosened))
+    with pytest.raises(M26AssemblyError, match="seam_report_not_canonical"):
+        decode_production_seam_report(b" " + report.to_wire_bytes())
+
+    assembly = execution.assembly_receipt
+    # A receipt version never decodes as the other one.
+    with pytest.raises(M26AssemblyError, match="assembly_receipt_members"):
+        decode_production_assembly_receipt(assembly.to_wire_bytes())
+    # Measured values have no ground truth to recheck; the receipt binds the report's
+    # fingerprint, and the builder refuses a report not placed on this plan's seams.
+    with pytest.raises(M26AssemblyError, match="assembly_receipt_seam_report_mismatch"):
+        build_production_assembly_receipt_v2(
+            transaction_id=assembly.transaction_id,
+            outer_plan=execution.outer_plan,
+            reconstruction_receipt=execution.reconstruction_receipt,
+            seam_report=replace(
+                report,
+                seams=(
+                    replace(report.seams[0], output_frame=report.seams[0].output_frame + 1),
+                    *report.seams[1:],
+                ),
+                report_fingerprint=None,
+            ),
+            completed_at_ms=assembly.completed_at_ms,
+        )
+
+
+def test_m26_runtime_resolves_only_its_own_profiles(tmp_path: Path) -> None:
+    store = PrivateSegmentArtifactStore(tmp_path / "artifacts", clock_ms=lambda: 2_000)
+    runtime, _bridge = _m26_runtime(tmp_path, store)
+    with pytest.raises(M26ProductionAssemblyError, match="assembly_profile_unavailable"):
+        runtime.capability_for("legacy_av_25fps")
+    single = replace(runtime, additional_capabilities=())
+    with pytest.raises(M26ProductionAssemblyError, match="assembly_profile_unavailable"):
+        single.capability_for(M26_NATIVE_OUTPUT_PROFILE_ID)
+    with pytest.raises(M26ProductionAssemblyError, match="assembly_runtime_invalid"):
+        replace(runtime, additional_capabilities=(runtime.capability,))
+    with pytest.raises(M26ProductionAssemblyError, match="assembly_runtime_invalid"):
+        replace(
+            runtime,
+            additional_capabilities=(
+                build_production_assembly_capability(
+                    store_identity_fingerprint=canonical_fingerprint({"schema": "other.store"}),
+                    output_profile_id=M26_NATIVE_OUTPUT_PROFILE_ID,
+                ),
+            ),
         )
 
 
@@ -2680,3 +2963,318 @@ def test_m26_missing_runtime_is_typed_unavailable_without_worker_or_file_effect(
     assert "assemble_sequence" not in projection.allowed_actions
     assert allocations == []
     assert after == before
+
+
+def _late_assembly_subject(
+    tmp_path: Path, on_ready: Callable[[], None] | None = None
+) -> tuple[
+    ProductionWorkspaceRegistry,
+    ProductionWorkbenchProjection,
+    M26ProductionAssemblyRuntime,
+    list[bool],
+    list[PrivateSegmentArtifactStore],
+]:
+    _context, _proposal, registry, imported, _authority, sequence, receipts = _m26_subject(
+        SegmentationPolicyV1.FIXED_15
+    )
+    store = PrivateSegmentArtifactStore(tmp_path / "artifacts", clock_ms=lambda: 2_000)
+    runtime, _bridge = _m26_runtime(tmp_path, store)
+    activated = [False]
+    active_calls: list[PrivateSegmentArtifactStore] = []
+
+    def provider(
+        artifact_store: PrivateSegmentArtifactStore,
+    ) -> M26ProductionAssemblyRuntime | None:
+        if not activated[0]:
+            return None
+        active_calls.append(artifact_store)
+        if on_ready is not None:
+            on_ready()
+        return runtime
+
+    registry._assembly_runtime_provider = provider
+    cold = registry.replace_generation_authority(
+        imported.workspace_handle,
+        expected_workspace_revision=imported.workspace_revision,
+        expected_workspace_fingerprint=imported.workspace_fingerprint,
+        expected_sequence_state_fingerprint=None,
+        generation_sequence=sequence,
+        artifact_receipts=receipts,
+        artifact_store=store,
+    )
+    assert "assembly_unavailable:media_runtime_not_authorized" in cold.blocker_codes
+    assert "assemble_sequence" not in cold.allowed_actions
+    return registry, cold, runtime, activated, active_calls
+
+
+def test_late_assembly_runtime_is_offered_on_the_first_read_after_activation(
+    tmp_path: Path,
+) -> None:
+    registry, cold, runtime, activated, calls = _late_assembly_subject(tmp_path)
+    assert (
+        _m26_read_as(registry, cold, "cold").assembly.failure_code == "media_runtime_not_authorized"
+    )
+    activated[0] = True
+    ready = _m26_read_as(registry, cold, "activated")
+    assert ready.assembly.failure_code is None
+    assert "assemble_sequence" in ready.allowed_actions
+    assert (ready.workspace_revision, ready.workspace_fingerprint) == (
+        cold.workspace_revision,
+        cold.workspace_fingerprint,
+    )
+    assert registry._entries[cold.workspace_handle].assembly_runtime is runtime
+    assert len(calls) == 1
+    assert _m26_read_as(registry, cold, "reused").assembly == ready.assembly
+    assert len(calls) == 1
+
+
+def test_late_assembly_runtime_is_refreshed_at_direct_assembly_admission(tmp_path: Path) -> None:
+    registry, cold, runtime, activated, calls = _late_assembly_subject(tmp_path)
+    callbacks: list[Callable[[], None]] = []
+    registry._assembly_submitter = callbacks.append
+    entry = registry._entries[cold.workspace_handle]
+    sequence = entry.accepted_authorities.generation_sequence
+    automatic = entry.automatic_plan
+    assert sequence is not None and automatic is not None
+    action = _m26_assemble_action(cold, "request.late.direct.assembly")
+    payload = cast(dict[str, object], action["payload"])
+    payload.update(
+        managed_sequence_fingerprint=canonical_fingerprint(sequence.to_wire()),
+        artifact_receipt_fingerprints=[
+            item.fingerprint for item in entry.accepted_authorities.artifact_receipts
+        ],
+        cut_boundary_receipt_fingerprints=[
+            item.fingerprint for item in automatic.cut_boundary_receipts
+        ],
+        assembly_capability_fingerprint=runtime.capability.fingerprint,
+        output_profile_id=runtime.capability.output_profile_id,
+    )
+    activated[0] = True
+    planned = registry.dispatch(action).projection
+    assert isinstance(planned, ProductionWorkbenchProjection)
+    assert planned.assembly.state == "planned"
+    assert len(callbacks) == len(calls) == 1
+    assert entry.assembly_runtime is runtime
+
+
+def test_concurrent_late_assembly_reads_attach_one_runtime(tmp_path: Path) -> None:
+    entered, release = Event(), Event()
+
+    def hold_provider() -> None:
+        entered.set()
+        assert release.wait(5), "concurrent read probe did not release provider"
+
+    registry, cold, runtime, activated, calls = _late_assembly_subject(tmp_path, hold_provider)
+    activated[0] = True
+    barrier = Barrier(9)
+
+    def read(index: int) -> ProductionWorkbenchProjection:
+        barrier.wait(timeout=5)
+        return _m26_read_as(registry, cold, f"concurrent.{index}")
+
+    with ThreadPoolExecutor(max_workers=8) as workers:
+        futures = [workers.submit(read, index) for index in range(8)]
+        barrier.wait(timeout=5)
+        try:
+            assert entered.wait(1), "the active provider was never re-evaluated"
+        finally:
+            release.set()
+        projections = [future.result(timeout=5) for future in futures]
+    assert len(calls) == 1
+    assert registry._entries[cold.workspace_handle].assembly_runtime is runtime
+    assert all(row.assembly == projections[0].assembly for row in projections)
+    assert all("assemble_sequence" in row.allowed_actions for row in projections)
+
+
+def test_late_assembly_provider_exception_remains_retryable_and_typed(tmp_path: Path) -> None:
+    registry, cold, runtime, _activated, _calls = _late_assembly_subject(tmp_path)
+
+    def failed_provider(_store: PrivateSegmentArtifactStore) -> M26ProductionAssemblyRuntime:
+        raise RuntimeError("synthetic unavailable runtime")
+
+    registry._assembly_runtime_provider = failed_provider
+    failed = _m26_read_as(registry, cold, "provider.failed")
+    assert "assembly_unavailable:media_runtime_not_authorized" in failed.blocker_codes
+    assert registry._entries[cold.workspace_handle].assembly_runtime is None
+    registry._assembly_runtime_provider = lambda _store: runtime
+    assert "assemble_sequence" in _m26_read_as(registry, cold, "provider.recovered").allowed_actions
+
+
+def _m26_profile_registry(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    measurer: Callable[..., object],
+) -> tuple[ProductionWorkspaceRegistry, ProductionWorkbenchProjection, list[Callable[[], None]]]:
+    _context, _proposal, registry, imported, _authority, sequence, receipts = _m26_subject(
+        SegmentationPolicyV1.FIXED_15
+    )
+    callbacks: list[Callable[[], None]] = []
+    artifact_store = PrivateSegmentArtifactStore(tmp_path / "artifacts", clock_ms=lambda: 2_000)
+
+    def runtime_provider(store: PrivateSegmentArtifactStore) -> M26ProductionAssemblyRuntime:
+        runtime, _bridge = _m26_runtime(tmp_path, store, bridge_mode="native")
+        return runtime
+
+    def successful_execution(**kwargs: object) -> M26ProductionAssemblyExecution:
+        return execute_m26_production_assembly(
+            **kwargs,  # type: ignore[arg-type]
+            low_level_executor=_m26_successful_low_level_executor,
+            source_factory=_M26OriginalSource,
+            seam_measurer=cast(SeamMeasurer, measurer),
+        )
+
+    registry._assembly_runtime_provider = runtime_provider
+    registry._assembly_submitter = callbacks.append
+    registry._clock_ms = _M26Clock()
+    monkeypatch.setattr(
+        production_workspace_module, "execute_m26_production_assembly", successful_execution
+    )
+    ready = registry.replace_generation_authority(
+        imported.workspace_handle,
+        expected_workspace_revision=imported.workspace_revision,
+        expected_workspace_fingerprint=imported.workspace_fingerprint,
+        expected_sequence_state_fingerprint=None,
+        generation_sequence=sequence,
+        artifact_receipts=receipts,
+        artifact_store=artifact_store,
+    )
+    return registry, ready, callbacks
+
+
+def _m26_profile_action(
+    projection: ProductionWorkbenchProjection,
+    request_id: str,
+    output_profile_id: str,
+    capability_profile_id: str | None = None,
+) -> dict[str, object]:
+    capabilities = {
+        item.output_profile_id: item.capability_fingerprint
+        for item in projection.assembly.output_profiles
+    }
+    action = _m26_assemble_action(projection, request_id)
+    payload = cast(dict[str, object], action["payload"])
+    payload["output_profile_id"] = output_profile_id
+    payload["assembly_capability_fingerprint"] = capabilities[
+        capability_profile_id or output_profile_id
+    ]
+    return action
+
+
+def _m26_read_as(
+    registry: ProductionWorkspaceRegistry, projection: ProductionWorkbenchProjection, label: str
+) -> ProductionWorkbenchProjection:
+    read = registry.dispatch(
+        {
+            "schema": PRODUCTION_ACTION_SCHEMA,
+            "request_id": f"request.m26.read.{label}",
+            "action": "read_projection",
+            "payload": {"workspace_handle": projection.workspace_handle},
+        }
+    ).projection
+    assert isinstance(read, ProductionWorkbenchProjection)
+    return read
+
+
+def test_m26_workspace_assembles_the_chosen_profile_and_projects_its_seams(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry, ready, callbacks = _m26_profile_registry(
+        tmp_path, monkeypatch, _m26_measure(_seam(5_000, 0), "decode_budget")
+    )
+    assert ready.assembly.output_profile_id == M26_OUTPUT_PROFILE_ID
+    assert tuple(item.output_profile_id for item in ready.assembly.output_profiles) == (
+        M26_OUTPUT_PROFILE_ID,
+        M26_NATIVE_OUTPUT_PROFILE_ID,
+    )
+    assert ready.assembly.seams == ()
+    # A request pairing one profile with another profile's capability is refused.
+    with pytest.raises(ProductionWorkbenchError, match="assembly_authority_mismatch"):
+        registry.dispatch(
+            _m26_profile_action(
+                ready,
+                "request.m26.crossed",
+                M26_NATIVE_OUTPUT_PROFILE_ID,
+                capability_profile_id=M26_OUTPUT_PROFILE_ID,
+            )
+        )
+    assert callbacks == []
+
+    planned = registry.dispatch(
+        _m26_profile_action(ready, "request.m26.native", M26_NATIVE_OUTPUT_PROFILE_ID)
+    ).projection
+    assert isinstance(planned, ProductionWorkbenchProjection)
+    native_capability = dict(
+        (item.output_profile_id, item.capability_fingerprint)
+        for item in ready.assembly.output_profiles
+    )[M26_NATIVE_OUTPUT_PROFILE_ID]
+    assert (planned.assembly.state, planned.assembly.output_profile_id) == (
+        "planned",
+        M26_NATIVE_OUTPUT_PROFILE_ID,
+    )
+    assert planned.assembly.capability_fingerprint == native_capability
+    assert planned.assembly.seams == ()
+    callbacks.pop(0)()
+
+    succeeded = _m26_read_as(registry, ready, "native")
+    assembly = succeeded.assembly
+    assert (assembly.state, assembly.output_profile_id) == (
+        "succeeded",
+        M26_NATIVE_OUTPUT_PROFILE_ID,
+    )
+    assert [item.label for item in assembly.seams] == [
+        "visible_change",
+        "unmeasured",
+        "visible_change",
+    ]
+    assert (assembly.seams[0].s1_milli, assembly.seams[1].s1_milli) == (5_000, None)
+    assert {
+        "h3.context.m26.production_assembly_receipt.v2",
+        "h3.context.m26.production_seam_report.v1",
+    } <= set(succeeded.authority_versions)
+    execution = registry._entries[ready.workspace_handle].accepted_authorities.assembly_execution
+    assert execution is not None
+    assert execution.assembly_receipt.output_profile_id == M26_NATIVE_OUTPUT_PROFILE_ID
+    assert execution.assembly_receipt.seam_report_fingerprint == execution.seam_report.fingerprint
+
+
+def test_m26_workspace_retry_keeps_the_failed_jobs_profile(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry, ready, callbacks = _m26_profile_registry(
+        tmp_path, monkeypatch, _m26_measure("metric_undefined")
+    )
+    # The attribute the registry fixture patched in; getattr because mypy sees no explicit export.
+    succeed = getattr(production_workspace_module, "execute_m26_production_assembly")  # noqa: B009
+
+    def fail_execution(**_kwargs: object) -> M26ProductionAssemblyExecution:
+        raise M26ProductionAssemblyError("synthetic_execution_failure")
+
+    monkeypatch.setattr(
+        production_workspace_module, "execute_m26_production_assembly", fail_execution
+    )
+    registry.dispatch(
+        _m26_profile_action(ready, "request.m26.native.first", M26_NATIVE_OUTPUT_PROFILE_ID)
+    )
+    callbacks.pop(0)()
+    failed = _m26_read_as(registry, ready, "native.failed")
+    assert (failed.assembly.state, failed.assembly.output_profile_id) == (
+        "failed",
+        M26_NATIVE_OUTPUT_PROFILE_ID,
+    )
+    assert failed.assembly.seams == ()
+
+    monkeypatch.setattr(production_workspace_module, "execute_m26_production_assembly", succeed)
+    retried = registry.dispatch(
+        _m26_cancel_or_retry_action(failed, "request.m26.native.retry", "retry_assembly")
+    ).projection
+    assert isinstance(retried, ProductionWorkbenchProjection)
+    assert retried.assembly.output_profile_id == M26_NATIVE_OUTPUT_PROFILE_ID
+    callbacks.pop(0)()
+    succeeded = _m26_read_as(registry, ready, "native.retried")
+    assert (succeeded.assembly.state, succeeded.assembly.output_profile_id) == (
+        "succeeded",
+        M26_NATIVE_OUTPUT_PROFILE_ID,
+    )
+    assert [item.label for item in succeeded.assembly.seams] == ["unmeasured"] * 3

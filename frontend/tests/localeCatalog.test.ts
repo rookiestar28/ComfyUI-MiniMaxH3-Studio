@@ -29,7 +29,7 @@ describe("M17-00 typed locale catalog", () => {
       "Select distinct first and last frame sources before submitting.",
     );
     expect(sidebarCopy("zh-TW").sourceBlockers.reference).toBe(
-      "提交前請至少選擇一個參考來源。",
+      "提交前請至少選擇一張參考圖片或一段參考影片。",
     );
     expect(sidebarCopy("zh-CN").sourceBlockers.firstFrame).toBe(
       "提交前请选择首帧来源。",

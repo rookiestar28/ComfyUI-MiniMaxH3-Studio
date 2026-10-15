@@ -109,7 +109,9 @@ def test_inventory_covers_both_stacks_and_the_shipped_entrypoint() -> None:
     # POSIX host-root admission adds one pure lexical owner.
     # Operator perception adds its bounded settings loader and finite readiness route owner.
     # Production assembly execution and borrowed media use add two narrow adapter owners.
-    assert len([row for row in document["modules"] if row["language"] == "python"]) == 343
+    # IMPORTANT: count every scanner-admitted source owner, including the continuation canary and
+    # adapter plus the two seam instruments; inactive product routes do not remove their modules.
+    assert len([row for row in document["modules"] if row["language"] == "python"]) == 347
     # /48 add the toolbar/decisions and Media/Text; adds filmstrip ownership;
     #  replaces one legacy Inspector module with separate tabs and timeline-menu owners;
     #  adds the monitor transform overlay and its pure gesture mapper; adds the
@@ -135,7 +137,7 @@ def test_inventory_covers_both_stacks_and_the_shipped_entrypoint() -> None:
     # Retained media adds its codec, client, disposable lifecycle and Settings/Retain controls.
     # Editable draft recovery adds its codec, client, disposable lifecycle and controls.
     # Perception readiness adds one codec, client, lifecycle, state and localized Settings control.
-    assert len([row for row in document["modules"] if row["language"] == "typescript"]) == 274
+    assert len([row for row in document["modules"] if row["language"] == "typescript"]) == 277
     assert document["entrypoints"] == [
         {
             "kind": "shipped_frontend_runtime",

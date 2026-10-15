@@ -119,6 +119,7 @@ export default defineConfig({
     "journeys/perceptionHostStatus.spec.ts",
     "journeys/assisted.spec.ts",
     "journeys/connect.spec.ts",
+    "journeys/referencePicker.spec.ts",
     "journeys/duration.spec.ts",
     "journeys/managedLifecycle.spec.ts",
     "journeys/managedSequence.spec.ts",

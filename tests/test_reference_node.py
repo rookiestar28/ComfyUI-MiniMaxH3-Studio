@@ -29,6 +29,293 @@ class NonIterableMedia:
         raise AssertionError("reference node must not iterate opaque media")
 
 
+class DottedReferenceInputTests(unittest.TestCase):
+    def validation_error(self, **values: object) -> str:
+        result = H3ReferenceRegistryNode.VALIDATE_INPUTS(**values)
+        if not isinstance(result, str):
+            self.fail("invalid reference inputs must produce a typed validation error")
+        return result
+
+    def test_dotted_inputs_follow_ordinal_and_explicit_container_order(self) -> None:
+        images = [NonIterableMedia() for _ in range(3)]
+        videos = [NonIterableMedia() for _ in range(3)]
+        audio = {"waveform": NonIterableMedia(), "sample_rate": 32_000}
+        captured = []
+        children = {
+            "images.image8": (images[1], images[2]),
+            "videos.video2": videos[2],
+            "audios.audio2": audio,
+            "images.image1": [images[0]],
+            "paired_audios.paired_audio0": [object(), object()],
+            "videos.video0": videos[:2],
+            "audios.audio0": NonIterableMedia(),
+        }
+        with mock.patch.object(
+            context_request_nodes,
+            "capture_process_authoring_sources",
+            side_effect=lambda **values: captured.append(values),
+        ):
+            registry = H3ReferenceRegistryNode().build_registry(**children)[0]
+            self.assertIs(H3ReferenceRegistryNode.VALIDATE_INPUTS(**children), True)
+        self.assertEqual(
+            [(asset.asset_id, asset.paired_video_id) for asset in registry.assets],
+            [
+                ("image_1", None),
+                ("image_2", None),
+                ("image_3", None),
+                ("audio_pair_1", "video_1"),
+                ("video_1", None),
+                ("audio_pair_2", "video_2"),
+                ("video_2", None),
+                ("video_3", None),
+                ("audio_1", None),
+                ("audio_2", None),
+            ],
+        )
+        self.assertEqual([asset.connection_order for asset in registry.assets], list(range(1, 11)))
+        self.assertEqual(len(captured), 1)
+        self.assertIs(captured[0]["exact_registry"], registry)
+        self.assertEqual(
+            captured[0]["sources"],
+            tuple((f"video_{i}", MediaKind.VIDEO, value) for i, value in enumerate(videos, 1))
+            + tuple((f"image_{i}", MediaKind.IMAGE, value) for i, value in enumerate(images, 1)),
+        )
+        self.assertNotIn("waveform", json.dumps(registry.to_wire()))
+
+    def test_dense_children_accept_all_existing_per_kind_maxima(self) -> None:
+        children = {
+            **{f"images.image{i}": [NonIterableMedia()] for i in range(9)},
+            **{f"videos.video{i}": (NonIterableMedia(),) for i in range(3)},
+            **{f"paired_audios.paired_audio{i}": NonIterableMedia() for i in range(3)},
+            **{f"audios.audio{i}": NonIterableMedia() for i in range(3)},
+        }
+        registry = H3ReferenceRegistryNode().build_registry(**children)[0]
+        self.assertEqual(len(registry.assets), 18)
+        self.assertEqual(
+            [label.label for label in registry.labels][:9], [f"<Picture {i}>" for i in range(1, 10)]
+        )
+        self.assertIs(H3ReferenceRegistryNode.VALIDATE_INPUTS(**children), True)
+
+    def test_only_finite_canonical_child_names_are_accepted_without_value_disclosure(self) -> None:
+        names = (
+            "images.image9",
+            "images.image00",
+            "images.image-1",
+            "images.image+1",
+            "images.image1.extra",
+            "images.image1\n",
+            "images.image١",
+            "images.image",
+            "videos.video3",
+            "paired_audios.paired_audio3",
+            "audios.audio3",
+            "first_frame.image0",
+            "images.other0",
+            "unknown",
+            "images.image" + "9" * 1000,
+        )
+        opaque_value = "VALUE_MUST_NOT_APPEAR_IN_DIAGNOSTICS"
+        for name in names:
+            with self.subTest(name=name):
+                with self.assertRaises(ReferenceRegistryNodeError) as raised:
+                    H3ReferenceRegistryNode().build_registry(**{name: opaque_value})
+                self.assertEqual(raised.exception.diagnostics[0].code, "unknown_reference_input")
+                self.assertIn(repr(name), str(raised.exception))
+                self.assertNotIn(opaque_value, str(raised.exception))
+                result = self.validation_error(first_frame=(None,), **{name: (None,)})
+                self.assertIsInstance(result, str)
+                self.assertIn("unknown_reference_input", result)
+
+    def test_same_group_mixed_spelling_is_refused_before_placeholder_deferral(self) -> None:
+        for group, child in (
+            ("images", "images.image0"),
+            ("videos", "videos.video0"),
+            ("paired_audios", "paired_audios.paired_audio0"),
+            ("audios", "audios.audio0"),
+        ):
+            grouped_values: tuple[object, ...] = (NonIterableMedia(), [], (), (None,))
+            for grouped_value in grouped_values:
+                with self.subTest(group=group, value_type=type(grouped_value).__name__):
+                    values = {group: grouped_value, child: (None,)}
+                    result = self.validation_error(**values)
+                    self.assertIsInstance(result, str)
+                    self.assertIn("ambiguous_reference_spelling", result)
+                    with self.assertRaises(ReferenceRegistryNodeError) as raised:
+                        H3ReferenceRegistryNode().build_registry(**values)
+                    self.assertEqual(
+                        raised.exception.diagnostics[0].code, "ambiguous_reference_spelling"
+                    )
+
+    def test_grouped_none_is_omitted_and_other_groups_keep_legacy_spelling(self) -> None:
+        registry = H3ReferenceRegistryNode().build_registry(
+            images=None,
+            videos=[NonIterableMedia()],
+            paired_audios=(NonIterableMedia(),),
+            **{"images.image8": NonIterableMedia(), "audios.audio2": NonIterableMedia()},
+        )[0]
+        self.assertEqual(
+            [asset.asset_id for asset in registry.assets],
+            ["image_1", "audio_pair_1", "video_1", "audio_1"],
+        )
+        self.assertEqual(
+            H3ReferenceRegistryNode().build_registry(images=[], audios=())[0].assets, ()
+        )
+
+    def test_child_cardinality_is_bounded_after_concatenation(self) -> None:
+        cases = (
+            ("images.image", 9, "too_many_images"),
+            ("videos.video", 3, "too_many_videos"),
+            ("audios.audio", 3, "too_many_audio"),
+            ("paired_audios.paired_audio", 3, "too_many_paired_audio"),
+        )
+        for prefix, maximum, code in cases:
+            with self.subTest(prefix=prefix):
+                values = {
+                    prefix + "0": [NonIterableMedia()] * maximum,
+                    prefix + "1": NonIterableMedia(),
+                }
+                if prefix.startswith("paired_audios"):
+                    values.update(
+                        {
+                            "videos.video0": [NonIterableMedia()] * 2,
+                            "videos.video1": NonIterableMedia(),
+                        }
+                    )
+                with self.assertRaises(ReferenceRegistryNodeError) as raised:
+                    H3ReferenceRegistryNode().build_registry(**values)
+                self.assertEqual(raised.exception.diagnostics[0].code, code)
+
+    def test_present_children_cannot_be_missing_empty_or_nested_media(self) -> None:
+        cases: tuple[tuple[object, str], ...] = (
+            (None, "missing_reference_media"),
+            ([], "missing_reference_media"),
+            ((), "missing_reference_media"),
+            ([None], "missing_reference_media"),
+            ((None,), "missing_reference_media"),
+            ([[NonIterableMedia()]], "ambiguous_nested_reference_input"),
+        )
+        for value, code in cases:
+            with self.subTest(code=code, value_type=type(value).__name__):
+                with self.assertRaises(ReferenceRegistryNodeError) as raised:
+                    H3ReferenceRegistryNode().build_registry(**{"images.image0": value})
+                self.assertEqual(raised.exception.diagnostics[0].code, code)
+
+    def test_pairing_child_ordinals_must_be_a_prefix_even_when_unresolved(self) -> None:
+        for paired in (0, 2):
+            children = {
+                "videos.video1": (None,),
+                "videos.video2": (None,),
+                f"paired_audios.paired_audio{paired}": (None,),
+            }
+            with self.subTest(paired=paired):
+                result = self.validation_error(first_frame=(None,), **children)
+                self.assertIsInstance(result, str)
+                self.assertIn("paired_audio_ordinal_mismatch", result)
+        self.assertIn(
+            "paired_audio_ordinal_mismatch",
+            self.validation_error(**{"paired_audios.paired_audio0": (None,)}),
+        )
+        self.assertIs(
+            H3ReferenceRegistryNode.VALIDATE_INPUTS(
+                **{
+                    "videos.video1": (None,),
+                    "videos.video2": (None,),
+                    "paired_audios.paired_audio1": (None,),
+                }
+            ),
+            True,
+        )
+
+    def test_expanded_pairing_never_crosses_child_boundaries(self) -> None:
+        video_children = {
+            "videos.video0": [NonIterableMedia(), NonIterableMedia()],
+            "videos.video2": NonIterableMedia(),
+        }
+        cases = (
+            {
+                **video_children,
+                "paired_audios.paired_audio0": NonIterableMedia(),
+                "paired_audios.paired_audio2": NonIterableMedia(),
+            },
+            {
+                "videos.video0": NonIterableMedia(),
+                "paired_audios.paired_audio0": [NonIterableMedia(), NonIterableMedia()],
+            },
+        )
+        for children in cases:
+            with self.subTest(keys=tuple(children)):
+                with self.assertRaises(ReferenceRegistryNodeError) as raised:
+                    H3ReferenceRegistryNode().build_registry(**children)
+                self.assertEqual(
+                    raised.exception.diagnostics[0].code, "paired_audio_ordinal_mismatch"
+                )
+                self.assertIn(
+                    "paired_audio_ordinal_mismatch",
+                    self.validation_error(**children),
+                )
+        for children, pairs in (
+            ({**video_children, "paired_audios.paired_audio0": NonIterableMedia()}, 1),
+            (
+                {
+                    **video_children,
+                    "paired_audios.paired_audio0": [NonIterableMedia(), NonIterableMedia()],
+                    "paired_audios.paired_audio2": NonIterableMedia(),
+                },
+                3,
+            ),
+            ({**video_children, "paired_audios": [NonIterableMedia(), NonIterableMedia()]}, 2),
+        ):
+            with self.subTest(pairs=pairs):
+                registry = H3ReferenceRegistryNode().build_registry(**children)[0]
+                self.assertEqual(
+                    [asset.paired_video_id for asset in registry.assets if asset.paired_video_id],
+                    [f"video_{i}" for i in range(1, pairs + 1)],
+                )
+
+    def test_paired_children_with_grouped_videos_use_resolved_position(self) -> None:
+        registry = H3ReferenceRegistryNode().build_registry(
+            videos=[NonIterableMedia(), NonIterableMedia()],
+            **{
+                "paired_audios.paired_audio0": NonIterableMedia(),
+                "paired_audios.paired_audio1": NonIterableMedia(),
+            },
+        )[0]
+        self.assertEqual(
+            [asset.paired_video_id for asset in registry.assets if asset.paired_video_id],
+            ["video_1", "video_2"],
+        )
+        result = self.validation_error(
+            videos=[NonIterableMedia()], **{"paired_audios.paired_audio1": (None,)}
+        )
+        self.assertIn("paired_audio_ordinal_mismatch", result)
+        self.assertIs(
+            H3ReferenceRegistryNode.VALIDATE_INPUTS(
+                videos=(None,), **{"paired_audios.paired_audio2": (None,)}
+            ),
+            True,
+        )
+
+    def test_dotted_validation_defers_only_the_exact_host_sentinel_without_capture(self) -> None:
+        with mock.patch.object(
+            context_request_nodes, "capture_process_authoring_sources"
+        ) as capture:
+            self.assertIs(
+                H3ReferenceRegistryNode.VALIDATE_INPUTS(**{"images.image0": (None,)}), True
+            )
+            for value in ([None], (None, NonIterableMedia())):
+                self.assertIn(
+                    "missing_reference_media",
+                    self.validation_error(**{"images.image0": value}),
+                )
+            self.assertIs(
+                H3ReferenceRegistryNode.VALIDATE_INPUTS(
+                    last_frame=(None,), **{"images.image0": NonIterableMedia()}
+                ),
+                True,
+            )
+            capture.assert_not_called()
+
+
 class ReferenceNodeTests(unittest.TestCase):
     def test_v1_metadata_matches_the_frozen_contract(self) -> None:
         metadata = H3ReferenceRegistryNode.INPUT_TYPES()

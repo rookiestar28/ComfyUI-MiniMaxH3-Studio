@@ -97,7 +97,8 @@ describe("M17-12 Production workbench wire", () => {
       outputs: [original, aggregate],
       authority_versions: [
         ...base.authority_versions,
-        "h3.context.m26.production_assembly_receipt.v1",
+        "h3.context.m26.production_assembly_receipt.v2",
+        "h3.context.m26.production_seam_report.v1",
       ],
       allowed_actions: [
         ...base.allowed_actions,
@@ -114,6 +115,12 @@ describe("M17-12 Production workbench wire", () => {
         authorization_fingerprint: fp("e"),
         receipt_fingerprint: fp("f"),
         failure_code: null,
+        output_profiles: [
+          {
+            output_profile_id: "h3_native_av_v1",
+            capability_fingerprint: fp("b"),
+          },
+        ],
       },
     };
     const decoded = decodeProductionWorkbenchProjection(candidate);
@@ -252,18 +259,29 @@ describe("M17-12 Production workbench wire", () => {
     const candidate = {
       ...base,
       assembly: {
-        schema: "h3.context.production_assembly.projection.v1",
+        schema: "h3.context.production_assembly.projection.v2",
         state: "unavailable",
         progress: { completed: 0, total: 1 },
         capability_fingerprint: fp("b"),
         managed_sequence_fingerprint: fp("c"),
         artifact_receipt_fingerprints: [fp("d")],
         cut_boundary_receipt_fingerprints: [],
-        output_profile_id: "legacy_av_30fps_48khz_stereo",
+        output_profile_id: "h3_native_av_v1",
         assembly_job_id: null,
         authorization_fingerprint: null,
         receipt_fingerprint: null,
         failure_code: null,
+        output_profiles: [
+          {
+            output_profile_id: "h3_native_av_v1",
+            capability_fingerprint: fp("b"),
+          },
+          {
+            output_profile_id: "legacy_av_30fps_48khz_stereo",
+            capability_fingerprint: fp("9"),
+          },
+        ],
+        seams: [],
         projection_fingerprint: fp("e"),
       },
       allowed_actions: [...base.allowed_actions, "assemble_sequence"],
@@ -288,9 +306,32 @@ describe("M17-12 Production workbench wire", () => {
         artifact_receipt_fingerprints: [fp("d")],
         cut_boundary_receipt_fingerprints: [],
         assembly_capability_fingerprint: fp("b"),
-        output_profile_id: "legacy_av_30fps_48khz_stereo",
+        output_profile_id: "h3_native_av_v1",
       },
     });
+    // A chosen profile is sent with its own capability, never the default's.
+    const legacy = encodeProductionAction(
+      "request.assemble.legacy",
+      "assemble_sequence",
+      { projection, outputProfileId: "legacy_av_30fps_48khz_stereo" },
+    );
+    expect(legacy.payload).toMatchObject({
+      assembly_capability_fingerprint: fp("9"),
+      output_profile_id: "legacy_av_30fps_48khz_stereo",
+    });
+    const nativeOnly = decodeProductionWorkbenchProjection({
+      ...candidate,
+      assembly: {
+        ...candidate.assembly,
+        output_profiles: candidate.assembly.output_profiles.slice(0, 1),
+      },
+    });
+    expect(() =>
+      encodeProductionAction("request.assemble.absent", "assemble_sequence", {
+        projection: nativeOnly,
+        outputProfileId: "legacy_av_30fps_48khz_stereo",
+      }),
+    ).toThrow("production assembly profile is unavailable");
     expect(JSON.stringify(action)).not.toMatch(
       /path|url|locator|derived_lease|private_store|approval/i,
     );
@@ -532,5 +573,150 @@ describe("M17-12 Production workbench wire", () => {
         snapped: true,
       }),
     ).not.toThrow();
+  });
+});
+
+describe("assembly profiles and seam lines", () => {
+  const measured = {
+    boundary_index: 0,
+    label: "visible_change",
+    s1_milli: 5000,
+    s2_micro: 0,
+    s5_milli: 1000,
+    s6_milli: 1000,
+    s9_centi_db: 0,
+    s10_ms: 0,
+  };
+  const unmeasured = {
+    boundary_index: 1,
+    label: "unmeasured",
+    s1_milli: null,
+    s2_micro: null,
+    s5_milli: null,
+    s6_milli: null,
+    s9_centi_db: null,
+    s10_ms: null,
+  };
+  function succeeded(assembly: Record<string, unknown> = {}) {
+    const base = wire();
+    return {
+      ...base,
+      assembly: {
+        ...base.assembly,
+        state: "succeeded",
+        progress: { completed: 3, total: 3 },
+        capability_fingerprint: fp("b"),
+        managed_sequence_fingerprint: fp("c"),
+        artifact_receipt_fingerprints: [fp("1"), fp("2"), fp("3")],
+        cut_boundary_receipt_fingerprints: [fp("4"), fp("5")],
+        output_profile_id: "legacy_av_30fps_48khz_stereo",
+        assembly_job_id: "assembly.seams",
+        authorization_fingerprint: fp("e"),
+        receipt_fingerprint: fp("f"),
+        failure_code: null,
+        output_profiles: [
+          {
+            output_profile_id: "h3_native_av_v1",
+            capability_fingerprint: fp("a"),
+          },
+          {
+            output_profile_id: "legacy_av_30fps_48khz_stereo",
+            capability_fingerprint: fp("b"),
+          },
+        ],
+        seams: [measured, unmeasured],
+        ...assembly,
+      },
+    };
+  }
+
+  it("decodes the job's profile and one line per cut", () => {
+    const assembly = decodeProductionWorkbenchProjection(succeeded()).assembly;
+    expect(assembly.outputProfileId).toBe("legacy_av_30fps_48khz_stereo");
+    expect(assembly.outputProfiles.map((item) => item.outputProfileId)).toEqual(
+      ["h3_native_av_v1", "legacy_av_30fps_48khz_stereo"],
+    );
+    expect(assembly.seams).toEqual([
+      {
+        boundaryIndex: 0,
+        label: "visible_change",
+        s1Milli: 5000,
+        s2Micro: 0,
+        s5Milli: 1000,
+        s6Milli: 1000,
+        s9CentiDb: 0,
+        s10Ms: 0,
+      },
+      {
+        boundaryIndex: 1,
+        label: "unmeasured",
+        s1Milli: null,
+        s2Micro: null,
+        s5Milli: null,
+        s6Milli: null,
+        s9CentiDb: null,
+        s10Ms: null,
+      },
+    ]);
+  });
+
+  it.each([
+    [
+      "an unknown profile",
+      { output_profile_id: "legacy_av_25fps" },
+      "output profile",
+    ],
+    [
+      "a profile paired with another capability",
+      { output_profile_id: "h3_native_av_v1" },
+      "profiles",
+    ],
+    [
+      "duplicated profiles",
+      {
+        output_profiles: [
+          {
+            output_profile_id: "h3_native_av_v1",
+            capability_fingerprint: fp("b"),
+          },
+          {
+            output_profile_id: "h3_native_av_v1",
+            capability_fingerprint: fp("a"),
+          },
+        ],
+      },
+      "profiles",
+    ],
+    ["a capability without profiles", { output_profiles: [] }, "profiles"],
+    ["a missing seam", { seams: [measured] }, "seams"],
+    [
+      "seams before success",
+      {
+        state: "running",
+        receipt_fingerprint: null,
+        progress: { completed: 1, total: 3 },
+      },
+      "seams",
+    ],
+    ["a seam out of order", { seams: [unmeasured, measured] }, "seam"],
+    [
+      "a label without its metrics",
+      { seams: [{ ...measured, s10_ms: null }, unmeasured] },
+      "seam",
+    ],
+    [
+      "metrics on an unmeasured seam",
+      { seams: [measured, { ...unmeasured, s1_milli: 1 }] },
+      "seam",
+    ],
+    [
+      "a fractional metric",
+      { seams: [{ ...measured, s1_milli: 4.5 }, unmeasured] },
+      "seam metric",
+    ],
+  ])("refuses %s", (_name, change, message) => {
+    expect(() =>
+      decodeProductionWorkbenchProjection(succeeded(change)),
+    ).toThrow(message);
   });
 });

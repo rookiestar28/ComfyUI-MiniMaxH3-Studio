@@ -11,6 +11,7 @@ import {
   validateSerializedLinks,
 } from "./graphSerialization";
 import { recognizeH3InferenceCanvas } from "./graphRecognition";
+import { referenceCapacity } from "./referenceSelection";
 
 export type Json = Record<string, unknown>;
 
@@ -65,9 +66,11 @@ export const FRAME_BINDINGS: Readonly<
  * authority on what an accepted reference set is; this stops a selection the
  * backend is going to reject from silently growing the anchor first.
  */
-export const MAX_REFERENCE_IMAGES = 9;
-export const MAX_REFERENCE_VIDEOS = 3;
-export const MAX_REFERENCE_AUDIOS = 3;
+export {
+  MAX_REFERENCE_IMAGES,
+  MAX_REFERENCE_VIDEOS,
+  MAX_REFERENCE_AUDIOS,
+} from "./referenceSelection";
 
 export const OFFICIAL_LENGTH_EXPRESSION =
   "max(5, round(a * 24)) + (5 - (max(5, round(a * 24)) % 17)) % 17";
@@ -102,6 +105,29 @@ export type LoaderSource = {
  * soundtrack be reported as a declined one.
  */
 export type ReferenceVideoSoundtrack = "included" | "excluded" | "unavailable";
+
+/** Keep pre-clone and resolved-template reference capacity checks identical. */
+export function assertReferenceSpliceCapacity(
+  counts: Readonly<{
+    images: number | undefined;
+    videos: number | undefined;
+    audios: number | undefined;
+  }>,
+  soundtrack: ReferenceVideoSoundtrack,
+): void {
+  if (
+    !referenceCapacity({
+      images: counts.images ?? 0,
+      videos: counts.videos ?? 0,
+      audios: counts.audios ?? 0,
+      soundtrack,
+    }).capacityAllowed
+  )
+    throw new TemplateSpliceError(
+      "too_many_references",
+      "the selected reference set exceeds the reference limits",
+    );
+}
 
 export type SpliceMedia = {
   readonly firstFrame?: LoaderSource;

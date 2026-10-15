@@ -1,0 +1,248 @@
+{
+  "schema": "h3.reference_labels.v1",
+  "cases": [
+    {
+      "name": "images",
+      "images": 3,
+      "videos": 0,
+      "audios": 0,
+      "soundtrack": "excluded",
+      "labels": {
+        "images": [
+          "<Picture 1>",
+          "<Picture 2>",
+          "<Picture 3>"
+        ],
+        "videos": [],
+        "pairedAudios": [],
+        "audios": [],
+        "ordered": [
+          "<Picture 1>",
+          "<Picture 2>",
+          "<Picture 3>"
+        ]
+      }
+    },
+    {
+      "name": "videos",
+      "images": 0,
+      "videos": 3,
+      "audios": 0,
+      "soundtrack": "excluded",
+      "labels": {
+        "images": [],
+        "videos": [
+          "<Video 1>",
+          "<Video 2>",
+          "<Video 3>"
+        ],
+        "pairedAudios": [],
+        "audios": [],
+        "ordered": [
+          "<Video 1>",
+          "<Video 2>",
+          "<Video 3>"
+        ]
+      }
+    },
+    {
+      "name": "audios",
+      "images": 0,
+      "videos": 0,
+      "audios": 3,
+      "soundtrack": "excluded",
+      "labels": {
+        "images": [],
+        "videos": [],
+        "pairedAudios": [],
+        "audios": [
+          "<Audio 1>",
+          "<Audio 2>",
+          "<Audio 3>"
+        ],
+        "ordered": [
+          "<Audio 1>",
+          "<Audio 2>",
+          "<Audio 3>"
+        ]
+      }
+    },
+    {
+      "name": "paired_mixed",
+      "images": 1,
+      "videos": 1,
+      "audios": 2,
+      "soundtrack": "included",
+      "labels": {
+        "images": [
+          "<Picture 1>"
+        ],
+        "videos": [
+          "<Video 1>"
+        ],
+        "pairedAudios": [
+          "<Audio 1>"
+        ],
+        "audios": [
+          "<Audio 2>",
+          "<Audio 3>"
+        ],
+        "ordered": [
+          "<Picture 1>",
+          "<Audio 1>",
+          "<Video 1>",
+          "<Audio 2>",
+          "<Audio 3>"
+        ]
+      }
+    },
+    {
+      "name": "unpaired_mixed",
+      "images": 2,
+      "videos": 2,
+      "audios": 2,
+      "soundtrack": "excluded",
+      "labels": {
+        "images": [
+          "<Picture 1>",
+          "<Picture 2>"
+        ],
+        "videos": [
+          "<Video 1>",
+          "<Video 2>"
+        ],
+        "pairedAudios": [],
+        "audios": [
+          "<Audio 1>",
+          "<Audio 2>"
+        ],
+        "ordered": [
+          "<Picture 1>",
+          "<Picture 2>",
+          "<Video 1>",
+          "<Video 2>",
+          "<Audio 1>",
+          "<Audio 2>"
+        ]
+      }
+    },
+    {
+      "name": "image_max",
+      "images": 9,
+      "videos": 0,
+      "audios": 3,
+      "soundtrack": "excluded",
+      "labels": {
+        "images": [
+          "<Picture 1>",
+          "<Picture 2>",
+          "<Picture 3>",
+          "<Picture 4>",
+          "<Picture 5>",
+          "<Picture 6>",
+          "<Picture 7>",
+          "<Picture 8>",
+          "<Picture 9>"
+        ],
+        "videos": [],
+        "pairedAudios": [],
+        "audios": [
+          "<Audio 1>",
+          "<Audio 2>",
+          "<Audio 3>"
+        ],
+        "ordered": [
+          "<Picture 1>",
+          "<Picture 2>",
+          "<Picture 3>",
+          "<Picture 4>",
+          "<Picture 5>",
+          "<Picture 6>",
+          "<Picture 7>",
+          "<Picture 8>",
+          "<Picture 9>",
+          "<Audio 1>",
+          "<Audio 2>",
+          "<Audio 3>"
+        ]
+      }
+    },
+    {
+      "name": "video_max",
+      "images": 6,
+      "videos": 3,
+      "audios": 0,
+      "soundtrack": "included",
+      "labels": {
+        "images": [
+          "<Picture 1>",
+          "<Picture 2>",
+          "<Picture 3>",
+          "<Picture 4>",
+          "<Picture 5>",
+          "<Picture 6>"
+        ],
+        "videos": [
+          "<Video 1>",
+          "<Video 2>",
+          "<Video 3>"
+        ],
+        "pairedAudios": [
+          "<Audio 1>",
+          "<Audio 2>",
+          "<Audio 3>"
+        ],
+        "audios": [],
+        "ordered": [
+          "<Picture 1>",
+          "<Picture 2>",
+          "<Picture 3>",
+          "<Picture 4>",
+          "<Picture 5>",
+          "<Picture 6>",
+          "<Audio 1>",
+          "<Video 1>",
+          "<Audio 2>",
+          "<Video 2>",
+          "<Audio 3>",
+          "<Video 3>"
+        ]
+      }
+    },
+    {
+      "name": "sample",
+      "images": 3,
+      "videos": 2,
+      "audios": 1,
+      "soundtrack": "included",
+      "labels": {
+        "images": [
+          "<Picture 1>",
+          "<Picture 2>",
+          "<Picture 3>"
+        ],
+        "videos": [
+          "<Video 1>",
+          "<Video 2>"
+        ],
+        "pairedAudios": [
+          "<Audio 1>",
+          "<Audio 2>"
+        ],
+        "audios": [
+          "<Audio 3>"
+        ],
+        "ordered": [
+          "<Picture 1>",
+          "<Picture 2>",
+          "<Picture 3>",
+          "<Audio 1>",
+          "<Video 1>",
+          "<Audio 2>",
+          "<Video 2>",
+          "<Audio 3>"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+{
+  "schema": "h3.reference_capacity.v1",
+  "cases": [
+    {
+      "name": "images_and_audio_max",
+      "images": 9,
+      "videos": 0,
+      "audios": 3,
+      "soundtrack": "included",
+      "files": 12,
+      "audio_total": 3,
+      "capacity_allowed": true,
+      "allowed": true,
+      "reason": null
+    },
+    {
+      "name": "images_and_videos_max_excluded",
+      "images": 9,
+      "videos": 3,
+      "audios": 0,
+      "soundtrack": "excluded",
+      "files": 12,
+      "audio_total": 0,
+      "capacity_allowed": true,
+      "allowed": true,
+      "reason": null
+    },
+    {
+      "name": "too_many_files",
+      "images": 9,
+      "videos": 3,
+      "audios": 0,
+      "soundtrack": "included",
+      "files": 15,
+      "audio_total": 3,
+      "capacity_allowed": false,
+      "allowed": false,
+      "reason": "files"
+    },
+    {
+      "name": "dense_paired_max",
+      "images": 6,
+      "videos": 3,
+      "audios": 0,
+      "soundtrack": "included",
+      "files": 12,
+      "audio_total": 3,
+      "capacity_allowed": true,
+      "allowed": true,
+      "reason": null
+    },
+    {
+      "name": "too_many_audio",
+      "images": 0,
+      "videos": 3,
+      "audios": 1,
+      "soundtrack": "included",
+      "files": 7,
+      "audio_total": 4,
+      "capacity_allowed": false,
+      "allowed": false,
+      "reason": "audio"
+    },
+    {
+      "name": "mixed_audio_max",
+      "images": 0,
+      "videos": 1,
+      "audios": 2,
+      "soundtrack": "included",
+      "files": 4,
+      "audio_total": 3,
+      "capacity_allowed": true,
+      "allowed": true,
+      "reason": null
+    },
+    {
+      "name": "audio_only",
+      "images": 0,
+      "videos": 0,
+      "audios": 3,
+      "soundtrack": "included",
+      "files": 3,
+      "audio_total": 3,
+      "capacity_allowed": true,
+      "allowed": false,
+      "reason": "visual"
+    },
+    {
+      "name": "image_over_max",
+      "images": 10,
+      "videos": 0,
+      "audios": 0,
+      "soundtrack": "excluded",
+      "files": 10,
+      "audio_total": 0,
+      "capacity_allowed": false,
+      "allowed": false,
+      "reason": "per_kind"
+    },
+    {
+      "name": "video_over_max",
+      "images": 0,
+      "videos": 4,
+      "audios": 0,
+      "soundtrack": "excluded",
+      "files": 4,
+      "audio_total": 0,
+      "capacity_allowed": false,
+      "allowed": false,
+      "reason": "per_kind"
+    },
+    {
+      "name": "standalone_over_max",
+      "images": 1,
+      "videos": 0,
+      "audios": 4,
+      "soundtrack": "excluded",
+      "files": 5,
+      "audio_total": 4,
+      "capacity_allowed": false,
+      "allowed": false,
+      "reason": "per_kind"
+    },
+    {
+      "name": "empty",
+      "images": 0,
+      "videos": 0,
+      "audios": 0,
+      "soundtrack": "excluded",
+      "files": 0,
+      "audio_total": 0,
+      "capacity_allowed": true,
+      "allowed": false,
+      "reason": "visual"
+    },
+    {
+      "name": "soundtrack_unavailable",
+      "images": 1,
+      "videos": 2,
+      "audios": 3,
+      "soundtrack": "unavailable",
+      "files": 6,
+      "audio_total": 3,
+      "capacity_allowed": true,
+      "allowed": true,
+      "reason": null
+    },
+    {
+      "name": "sample",
+      "images": 3,
+      "videos": 2,
+      "audios": 1,
+      "soundtrack": "included",
+      "files": 8,
+      "audio_total": 3,
+      "capacity_allowed": true,
+      "allowed": true,
+      "reason": null
+    }
+  ]
+}

@@ -6,6 +6,7 @@ import hashlib
 import inspect
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -46,6 +47,7 @@ from comfyui_h3_context.core.av_reconstruction import (
     AVReconstructionPlan,
     approve_av_reconstruction_plan,
     build_av_reconstruction_plan,
+    native_av_target_profile,
     qualified_av_limits,
     qualified_av_target_profile,
     qualified_ffmpeg_capability,
@@ -1575,7 +1577,8 @@ def test_execution_rechecks_cancellation_before_result_handoff(
         (
             AVOperation.NORMALIZE_VIDEO,
             (
-                "scale=512:512",
+                "scale=512:512:force_original_aspect_ratio=decrease:force_divisible_by=2:"
+                "flags=lanczos,pad=512:512:(ow-iw)/2:(oh-ih)/2,setsar=1,fps=30/1,",
                 "-c:v libx264",
                 "-c:a copy",
                 "-x264-params",
@@ -2917,5 +2920,241 @@ def test_real_native_srgb_output_is_cropped_by_pixel_conversion(tmp_path: Path) 
         # sRGB mid-grey re-encoded through the BT.709 curve is darker by about ten luma codes;
         # an unchanged value would mean the crop relabelled the transfer instead of converting.
         assert middle_luma(source) - middle_luma(lease._lease.path) >= 4
+    finally:
+        lease.release()
+
+
+def test_real_legacy_normalize_keeps_a_wide_source_display_aspect(tmp_path: Path) -> None:
+    """A 16:9 source normalized to the square legacy target displays undistorted (D-01)."""
+
+    ffmpeg, ffprobe = _qualified_binary_paths_from_environment()
+    source = tmp_path / "wide.mp4"
+    subprocess.run(  # noqa: S603 - exact qualified binary, fixed argv.
+        [
+            str(ffmpeg),
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-nostdin",
+            "-f",
+            "lavfi",
+            "-i",
+            "color=c=black:s=864x480:r=30:d=1,drawbox=x=332:y=140:w=200:h=200:color=white:t=fill",
+            "-f",
+            "lavfi",
+            "-i",
+            "anullsrc=r=48000:cl=stereo:d=1",
+            "-map",
+            "0:v:0",
+            "-map",
+            "1:a:0",
+            "-frames:v",
+            "30",
+            "-c:v",
+            "libx264",
+            "-pix_fmt",
+            "yuv420p",
+            "-preset",
+            "medium",
+            "-crf",
+            "18",
+            "-x264-params",
+            "colorprim=bt709:transfer=bt709:colormatrix=bt709:range=limited",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "192k",
+            "-ar",
+            "48000",
+            "-ac",
+            "2",
+            "-map_metadata",
+            "-1",
+            "-map_chapters",
+            "-1",
+            "-metadata",
+            "encoder=",
+            "-color_range",
+            "tv",
+            "-colorspace",
+            "bt709",
+            "-color_primaries",
+            "bt709",
+            "-color_trc",
+            "bt709",
+            "-video_track_timescale",
+            "90000",
+            "-movflags",
+            "+faststart",
+            "-threads",
+            "1",
+            "-n",
+            str(source),
+        ],
+        stdin=subprocess.DEVNULL,
+        capture_output=True,
+        check=True,
+        timeout=30,
+    )
+    payload = source.read_bytes()
+    now_ms = [250]
+    adapter = QualifiedAVMediaAdapter(
+        ffmpeg_path=ffmpeg,
+        ffprobe_path=ffprobe,
+        scratch_root=(tmp_path / "scratch").resolve(),
+        clock_ms=lambda: now_ms[0],
+    )
+    kwargs = _plan_kwargs(count=1)
+    receipt = replace(
+        kwargs["artifact_receipts"][0],
+        output_fingerprint=_fp(payload),
+        byte_length=len(payload),
+        receipt_fingerprint=None,
+    )
+    assert receipt.output_fingerprint is not None
+    descriptor = adapter.inspect_payload(
+        segment_id=receipt.segment_id,
+        artifact_receipt_fingerprint=receipt.fingerprint,
+        artifact_output_fingerprint=receipt.output_fingerprint,
+        payload=payload,
+    )
+    plan, approval = _plan_from_inspected_descriptor(receipt=receipt, descriptor=descriptor)
+    assert plan.segments[0].operations == (AVOperation.NORMALIZE_VIDEO,)
+    output_root = tmp_path / "outputs"
+    output_root.mkdir()
+    aggregate = create_output_lease(output_root, suffix=".mp4")
+    derived = create_output_lease(output_root, suffix=".mp4")
+    now_ms[0] = 400
+    adapter.execute_plan(
+        plan=plan,
+        approval=approval,
+        input_payloads=((receipt.segment_id, payload),),
+        aggregate_output=aggregate,
+        derived_outputs=((receipt.segment_id, derived),),
+    )
+    try:
+        streams = json.loads(
+            subprocess.run(  # noqa: S603 - exact qualified binary, fixed argv.
+                [
+                    str(ffprobe),
+                    "-v",
+                    "error",
+                    "-select_streams",
+                    "v:0",
+                    "-show_entries",
+                    "stream=width,height,sample_aspect_ratio",
+                    "-of",
+                    "json",
+                    str(aggregate.path),
+                ],
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                check=True,
+                timeout=30,
+            ).stdout
+        )["streams"][0]
+        assert (streams["width"], streams["height"]) == (512, 512)
+        assert streams["sample_aspect_ratio"] == "1:1"
+        frame = subprocess.run(  # noqa: S603 - exact qualified binary, fixed argv.
+            [
+                str(ffmpeg),
+                "-v",
+                "error",
+                "-nostdin",
+                "-i",
+                str(aggregate.path),
+                "-vf",
+                "select=eq(n\\,15)",
+                "-frames:v",
+                "1",
+                "-f",
+                "rawvideo",
+                "-pix_fmt",
+                "gray",
+                "-",
+            ],
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            check=True,
+            timeout=30,
+        ).stdout
+        bright = [index for index, value in enumerate(frame) if value > 128]
+        columns = {index % 512 for index in bright}
+        rows = {index // 512 for index in bright}
+        # The drawn square must stay square on a square-pixel output; the old stretch made it
+        # 118 x 213 (display aspect 0.56).
+        assert abs(len(columns) / len(rows) - 1.0) <= 0.05
+    finally:
+        aggregate.release()
+        derived.release()
+
+
+#: Filters the legacy graphs use beyond the capability's declarative ``filters`` member. The
+#: capability fingerprint is bound into stored receipts, so these additions are pinned here
+#: instead of moving it: ``pad`` and ``setsar`` keep the display aspect when normalizing to the
+#: square target; ``colorspace`` and ``setparams`` convert an sRGB-tagged source in the crop.
+LEGACY_GRAPH_FILTER_ADDITIONS = frozenset({"pad", "setsar", "colorspace", "setparams"})
+
+
+def _graph_filters(invocation: MediaProcessInvocation) -> set[str]:
+    graph = invocation.argv[invocation.argv.index("-filter_complex") + 1]
+    names: set[str] = set()
+    for chain in graph.split(";"):
+        for item in chain.split(","):
+            bare = re.sub(r"(\[[^\]]*\])+$", "", re.sub(r"^(\[[^\]]*\])+", "", item.strip()))
+            names.add(bare.split("=", 1)[0])
+    return names
+
+
+def test_native_graphs_use_only_declared_filters_and_legacy_additions_are_pinned(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    adapter, _invocations = _adapter(tmp_path, monkeypatch, probe_payload=b"{}")
+    outputs = tmp_path / "outputs"
+    outputs.mkdir()
+    lease = create_output_lease(outputs, suffix=".mp4")
+    inputs = (tmp_path / "a.mp4", tmp_path / "b.mp4")
+    declared = set(qualified_ffmpeg_capability().filters)
+    try:
+        native = adapter._aggregate_invocation(
+            inputs,
+            lease,
+            1 << 20,
+            expected_frames=96,
+            expected_samples=128_000,
+            segment_frames=(48, 48),
+            segment_samples=(64_000, 64_000),
+            target_profile=native_av_target_profile(864, 480),
+        )
+        # The native path encodes only this aggregate; every filter it uses is declared.
+        assert _graph_filters(native) <= declared
+        legacy_aggregate = adapter._aggregate_invocation(
+            inputs,
+            lease,
+            1 << 20,
+            expected_frames=60,
+            expected_samples=96_000,
+            segment_frames=(30, 30),
+            segment_samples=(48_000, 48_000),
+        )
+        assert _graph_filters(legacy_aggregate) <= declared
+        plan, _approval = _executable_operation_plan(
+            b"synthetic-private-segment", operation=AVOperation.NORMALIZE_VIDEO
+        )
+        normalize = adapter._transform_invocation(plan.segments[0], inputs[0], lease, None, 1 << 20)
+        crops = [
+            adapter._m26_crop_invocation(
+                inputs[0],
+                lease,
+                contribution_frames=48,
+                contribution_samples=64_000,
+                convert_srgb=convert,
+            )
+            for convert in (False, True)
+        ]
+        legacy_graphs = [_graph_filters(item) for item in (normalize, *crops)]
+        assert all(item <= declared | LEGACY_GRAPH_FILTER_ADDITIONS for item in legacy_graphs)
+        # Each pinned addition is still in use; drop it from the table when its graph drops it.
+        assert set().union(*legacy_graphs) - declared == LEGACY_GRAPH_FILTER_ADDITIONS
     finally:
         lease.release()

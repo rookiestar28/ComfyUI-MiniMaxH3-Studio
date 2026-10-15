@@ -319,6 +319,14 @@ export async function resolveMaterializeRoute(
     if (error instanceof AppModeError) throw error;
     // Nothing has been loaded yet, so there is nothing to roll back: a
     // template that cannot be read or spliced leaves the canvas untouched.
+    if (
+      error instanceof TemplateSpliceError &&
+      error.code === "too_many_references"
+    )
+      throw new AppModeError(
+        "reference_capacity_exceeded",
+        "the reference selection exceeds the file or audio limits",
+      );
     throw new AppModeError(
       "incompatible_seam",
       error instanceof TemplateSpliceError ||

@@ -109,6 +109,41 @@ def _workflow_projection(workflow: dict[str, Any]) -> dict[str, Any]:
 
 
 class WorkflowFixtureTests(unittest.TestCase):
+    def test_reference_examples_serialize_each_media_as_a_real_child_link(self) -> None:
+        for name in (
+            "m3_07_h3_context_reference.json",
+            "m15_03_product_shell_reference.json",
+            "m15_09_assistant_reference.json",
+            "m6_07_h3_context_full_reference.json",
+        ):
+            with self.subTest(name=name):
+                fixture = _load(WORKFLOW_ROOT / name)
+                prompt = fixture["prompt"]
+                registry = next(
+                    node
+                    for node in prompt.values()
+                    if node["class_type"] == "comfyui_h3_context.H3Context.ReferenceRegistry"
+                )
+                expected = {"images.image0": ["2", 0], "images.image1": ["3", 0]}
+                if name == "m6_07_h3_context_full_reference.json":
+                    expected.update({"videos.video0": ["4", 0], "audios.audio0": ["5", 0]})
+                self.assertEqual(registry["inputs"], expected)
+                native = prompt[fixture["expected"]["output_projection"]["native_node"]]["inputs"]
+                media = {
+                    key: value
+                    for key, value in native.items()
+                    if key.startswith("ref_") and key != "ref_image_size"
+                }
+                expected_native = {
+                    "ref_images.ref_image_0": ["2", 0],
+                    "ref_images.ref_image_1": ["3", 0],
+                }
+                if name == "m6_07_h3_context_full_reference.json":
+                    expected_native.update(
+                        {"ref_videos.ref_video_0": ["6", 0], "ref_audios.ref_audio_0": ["5", 0]}
+                    )
+                self.assertEqual(media, expected_native)
+
     def test_m15_03_product_shell_migration_is_append_only_and_reversible(self) -> None:
         for mode in ("base", "reference"):
             with self.subTest(mode=mode):
@@ -298,13 +333,13 @@ class WorkflowFixtureTests(unittest.TestCase):
                     "source": "2",
                     "source_output": 0,
                     "target": "9",
-                    "target_input": "ref_images",
+                    "target_input": "ref_images.ref_image_0",
                 },
                 {
                     "source": "3",
                     "source_output": 0,
                     "target": "9",
-                    "target_input": "ref_images",
+                    "target_input": "ref_images.ref_image_1",
                 },
             ],
         )
@@ -326,10 +361,30 @@ class WorkflowFixtureTests(unittest.TestCase):
         self.assertEqual(
             full_reference["expected"]["direct_media_links"],
             [
-                {"source": "2", "source_output": 0, "target": "12", "target_input": "ref_images"},
-                {"source": "3", "source_output": 0, "target": "12", "target_input": "ref_images"},
-                {"source": "6", "source_output": 0, "target": "12", "target_input": "ref_videos"},
-                {"source": "5", "source_output": 0, "target": "12", "target_input": "ref_audios"},
+                {
+                    "source": "2",
+                    "source_output": 0,
+                    "target": "12",
+                    "target_input": "ref_images.ref_image_0",
+                },
+                {
+                    "source": "3",
+                    "source_output": 0,
+                    "target": "12",
+                    "target_input": "ref_images.ref_image_1",
+                },
+                {
+                    "source": "6",
+                    "source_output": 0,
+                    "target": "12",
+                    "target_input": "ref_videos.ref_video_0",
+                },
+                {
+                    "source": "5",
+                    "source_output": 0,
+                    "target": "12",
+                    "target_input": "ref_audios.ref_audio_0",
+                },
             ],
         )
 
