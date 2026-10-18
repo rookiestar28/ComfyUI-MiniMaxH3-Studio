@@ -27,7 +27,7 @@
     },
     {
       "path": "comfyui_h3_context/contracts/build_provenance_v1.json",
-      "sha256": "sha256:5e47ead98276adf4004f5a91a0940b6429c0cd58fbb84c9127098e55ef99c272",
+      "sha256": "sha256:c347f6dbcc354291a0d28c02a2dc352b40022e63f3856507729898aa7cd12963",
       "size": 1712
     },
     {
@@ -42,7 +42,7 @@
     },
     {
       "path": "comfyui_h3_context/contracts/installation_profiles_v1.json",
-      "sha256": "sha256:01c4f98e20f901afbab47750fc90dc564fb9e0e622ec7a172f59aca05588e0ef",
+      "sha256": "sha256:a2a89870ff1688c9527f2eb9d95a189d2208af4a4bdb0d7da8ba099812806c02",
       "size": 3377
     },
     {
@@ -67,7 +67,7 @@
     },
     {
       "path": "frontend/package.json",
-      "sha256": "sha256:bedc8afd3d5fc39057c118f5259424ff0a9b0a27850783cf46f9886cd35743f7",
+      "sha256": "sha256:f3ebc21e0ec3a93c1b1b112b78fd452b5cd5a13a8decfaf5c00fdee2f74b0961",
       "size": 1307
     },
     {
@@ -697,8 +697,8 @@
     },
     {
       "path": "frontend/src/entry.tsx",
-      "sha256": "sha256:b02563912837a278619df43a9bcdcfea212b2036f34dfe022c00455954ba9dce",
-      "size": 13773
+      "sha256": "sha256:002305e97c737b57e1183346a481d393d6a65c8ab1d3abd77df95496e9c12070",
+      "size": 13891
     },
     {
       "path": "frontend/src/host-modules.d.ts",
@@ -837,8 +837,8 @@
     },
     {
       "path": "frontend/src/host/comfyPromptHistory.ts",
-      "sha256": "sha256:07ad7ea33a26e866a01f8f312ff9f1fc6b07d626c628d3bd9d9c85f510439348",
-      "size": 9698
+      "sha256": "sha256:7c2464b9578e71c4b8a22976f6a56f9eb97ec50d98375907b50df7b8493c7d1c",
+      "size": 11950
     },
     {
       "path": "frontend/src/host/durationResolutionClient.ts",
@@ -1086,6 +1086,11 @@
       "size": 6594
     },
     {
+      "path": "frontend/src/host/saveVideoArtifact.ts",
+      "sha256": "sha256:f2a61c2fc904b264647eea041eaffde8f3168e4395243fb39aaedd2f5d13dbd5",
+      "size": 3320
+    },
+    {
       "path": "frontend/src/host/sequenceCoordinator.ts",
       "sha256": "sha256:1be0849b84f52f25aaa4be95969528de5aa34a75c9634e88dc7515a37f41306e",
       "size": 23163
@@ -1097,8 +1102,8 @@
     },
     {
       "path": "frontend/src/host/sidebarHost.ts",
-      "sha256": "sha256:2f6a5a871ac438bd72b3c35cb99439fc8b33fa6c12b8917a38c046a74e6ec650",
-      "size": 29513
+      "sha256": "sha256:4872216df05932844eca85bef069aa23be5da146f63d1af66113adf289d613e3",
+      "size": 28063
     },
     {
       "path": "frontend/src/host/sidebarWidth.ts",
@@ -1147,8 +1152,8 @@
     },
     {
       "path": "frontend/src/lifecycle/appModeCorrelation.ts",
-      "sha256": "sha256:4b71286d7945eecfc47f45ff26e8c132b0e42e4a3b8a254d921a9c5180fffd04",
-      "size": 43539
+      "sha256": "sha256:c618443682a2bef52a57f9b5d10dc5f5be49ad65be83bf0e54e8a529a69d14c8",
+      "size": 43512
     },
     {
       "path": "frontend/src/lifecycle/appModeMachine.ts",
@@ -1179,6 +1184,11 @@
       "path": "frontend/src/lifecycle/interpreter.ts",
       "sha256": "sha256:d6070c97ad332f623d5d00ccabac148398e49c31e8b66fb338eb436a356f234c",
       "size": 8356
+    },
+    {
+      "path": "frontend/src/lifecycle/managedArtifactAwait.ts",
+      "sha256": "sha256:f4e046d36ab2e965792c2353cd30313ce48fa50b74b5756ca546d23f604ede29",
+      "size": 4586
     },
     {
       "path": "frontend/src/lifecycle/managedProjectMember.ts",
@@ -1257,8 +1267,8 @@
     },
     {
       "path": "frontend/src/lifecycle/shellSession.ts",
-      "sha256": "sha256:4b50ff4f0e79861ea24734cfa994f1c5f5194bf83ad3c681bc23a1f87fbe2d12",
-      "size": 21564
+      "sha256": "sha256:7492b2b93a6d2bfff858c0f57db564c0eda7cbd712557ba5af0973cd67f333d7",
+      "size": 21688
     },
     {
       "path": "frontend/src/lifecycle/workspaceStateSession.ts",
@@ -1432,8 +1442,8 @@
     },
     {
       "path": "frontend/src/state/managedJournal.ts",
-      "sha256": "sha256:6209af9e1a70c0cb05a36aa02d91f55f944a4f94ac1c6fddf884bad0a8ea8192",
-      "size": 36902
+      "sha256": "sha256:1ac11c67217191d5aed283ed6fb1a68634253efc233608ff10de1b59848b9975",
+      "size": 36967
     },
     {
       "path": "frontend/src/state/mediaRuntimeState.ts",
@@ -1502,7 +1512,7 @@
     },
     {
       "path": "governance/contracts/sbom.spdx.json",
-      "sha256": "sha256:72005d7e716ad965ce0f74efa9a19427871a26250e3a773534d5b8355f821a88",
+      "sha256": "sha256:a214babd481f21881e0c0dc0551cba011d9ad3f4eb224c4d3c529aec5e29b68a",
       "size": 80683
     },
     {
@@ -1512,7 +1522,7 @@
     },
     {
       "path": "pyproject.toml",
-      "sha256": "sha256:7bcb272c3d71143001546788e0c7bdf2f4a7e3e714408b12d3bf9ceddb17e828",
+      "sha256": "sha256:95daa457dd6bfa5ff9d022300d7b2285105189fc502c5001eec7301915c4d508",
       "size": 4112
     },
     {
@@ -1535,15 +1545,15 @@
   "runtime_entries": [
     {
       "path": "comfyui_h3_context/web/h3-context-sidebar.js",
-      "sha256": "sha256:de6c94641926a51b56fdb3092775e58df0013aae3f38497c0bdadd7dde4e2e13",
-      "size": 1924005
+      "sha256": "sha256:90615618067ab6143c0f8d422cf5182a913cd1d48e2932b5efc48a26a968c68b",
+      "size": 1926109
     }
   ],
   "schema": "h3-context-supply-chain/1",
   "spdx": {
     "package_count": 176,
     "path": "governance/contracts/sbom.spdx.json",
-    "sha256": "sha256:72005d7e716ad965ce0f74efa9a19427871a26250e3a773534d5b8355f821a88",
+    "sha256": "sha256:a214babd481f21881e0c0dc0551cba011d9ad3f4eb224c4d3c529aec5e29b68a",
     "version": "SPDX-2.3"
   },
   "version": 1

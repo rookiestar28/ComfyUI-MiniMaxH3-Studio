@@ -815,6 +815,12 @@ test("authorized Ref2VA sidebar sample executes all media kinds and writes a rea
     expect(bytes.length).toBeGreaterThan(1024);
     expect(bytes.subarray(4, 8).toString("ascii")).toBe("ftyp");
   }
+  // host success and a readable file are host facts, not product completion. The 1.3.0
+  // sample passed these checks while the sidebar still waited in output verification; the row now
+  // also requires the shell to leave verification for `projected`.
+  await expect(
+    container.locator('[data-shell-status="projected"]'),
+  ).toHaveCount(1, { timeout: 180_000 });
   await testInfo.attach("reference_sample", {
     body: Buffer.from(
       JSON.stringify({

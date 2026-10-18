@@ -40,6 +40,7 @@ from .length import (
     is_producible,
     resolve_milliseconds,
 )
+from .reference_limits import H3_BASE_MAX_AUDIO_REFERENCES
 from .registry import ReferenceRegistry
 
 # the lattice, the ranges and the conversions live in `.length`, which is
@@ -49,7 +50,7 @@ from .registry import ReferenceRegistry
 MAX_USER_INTENT_LENGTH = 65_536
 MAX_REFERENCE_IMAGES = 9
 MAX_REFERENCE_VIDEOS = 3
-MAX_REFERENCE_AUDIO = 6
+MAX_REFERENCE_AUDIO = H3_BASE_MAX_AUDIO_REFERENCES
 
 
 class DurationSource(str, Enum):

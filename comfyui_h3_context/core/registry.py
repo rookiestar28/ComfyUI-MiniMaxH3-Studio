@@ -15,15 +15,17 @@ from enum import Enum
 from .contracts import AssetDescriptor, AssetRole, MediaKind
 from .errors import (
     ContractValidationError,
+    ReferenceAudioCapacityError,
     ReferenceLabelError,
     ReferenceOrderError,
     ReferenceRegistryError,
 )
+from .reference_limits import H3_BASE_MAX_AUDIO_REFERENCES
 
 MAX_REFERENCE_IMAGES = 9
 MAX_REFERENCE_VIDEOS = 3
-MAX_PAIRED_VIDEO_AUDIO = 3
-MAX_STANDALONE_AUDIO = 3
+MAX_PAIRED_VIDEO_AUDIO = H3_BASE_MAX_AUDIO_REFERENCES
+MAX_STANDALONE_AUDIO = H3_BASE_MAX_AUDIO_REFERENCES
 MAX_CONNECTION_ORDER = 1000
 MAX_WIDTH = 1_048_576
 MAX_HEIGHT = 1_048_576
@@ -272,12 +274,18 @@ def _validate_asset_sequence(assets: tuple[ReferenceAsset, ...]) -> None:
             f"at most {MAX_REFERENCE_VIDEOS} reference videos are supported"
         )
     if paired_count > MAX_PAIRED_VIDEO_AUDIO:
-        raise ReferenceRegistryError(
+        raise ReferenceAudioCapacityError(
             f"at most {MAX_PAIRED_VIDEO_AUDIO} paired video soundtracks are supported"
         )
     if standalone_count > MAX_STANDALONE_AUDIO:
-        raise ReferenceRegistryError(
+        raise ReferenceAudioCapacityError(
             f"at most {MAX_STANDALONE_AUDIO} standalone reference audio assets are supported"
+        )
+    # IMPORTANT: both label families consume one native audio pool. Checking each socket
+    # alone admits invalid mixed sets and delays refusal until native execution.
+    if paired_count + standalone_count > H3_BASE_MAX_AUDIO_REFERENCES:
+        raise ReferenceAudioCapacityError(
+            f"at most {H3_BASE_MAX_AUDIO_REFERENCES} total reference audio assets are supported"
         )
 
 

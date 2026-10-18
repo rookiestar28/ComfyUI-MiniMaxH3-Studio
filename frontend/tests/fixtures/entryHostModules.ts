@@ -652,10 +652,21 @@ export function dispatchHostReconnected(): void {
   apiEvents.dispatchEvent(new CustomEvent("reconnected", { detail: null }));
 }
 
+/**
+ * Dispatch SaveVideo's `executed` event. The default is the entry shape ComfyUI sends after
+ * v0.39.0: media `metadata` and an asset `id` beside the locator. `"stock"` is the
+ * three-key entry older hosts send.
+ */
 export function dispatchSaveVideoArtifact(
   promptId: string,
   outputNodeId = "43",
+  entryShape: "current_host" | "stock" = "current_host",
 ): void {
+  const locator = {
+    filename: "managed_00001_.mp4",
+    subfolder: "video/h3-context",
+    type: "output",
+  };
   apiEvents.dispatchEvent(
     new CustomEvent("executed", {
       detail: {
@@ -663,11 +674,20 @@ export function dispatchSaveVideoArtifact(
         prompt_id: promptId,
         output: {
           images: [
-            {
-              filename: "managed_00001_.mp4",
-              subfolder: "video/h3-context",
-              type: "output",
-            },
+            entryShape === "stock"
+              ? locator
+              : {
+                  ...locator,
+                  metadata: {
+                    kind: "video",
+                    width: 1280,
+                    height: 720,
+                    duration: 8,
+                    fps: 24,
+                    frame_count: 192,
+                  },
+                  id: "asset-managed-00001",
+                },
           ],
           animated: [true],
         },

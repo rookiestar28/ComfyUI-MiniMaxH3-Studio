@@ -1,4 +1,8 @@
 import { sha256Text } from "../contracts/canonicalFingerprint";
+import {
+  saveVideoArtifactFromOutput,
+  type SaveVideoArtifactEvent,
+} from "./saveVideoArtifact";
 
 export const COMFY_PROMPT_HISTORY_OBSERVATION_SCHEMA =
   "h3.context.comfy_prompt_history_observation.v1" as const;
@@ -215,17 +219,29 @@ function outputIdentity(outputsValue: unknown): Readonly<{
   });
 }
 
-export function decodeComfyPromptHistory(
+export type ComfyPromptHistorySavedVideos = Readonly<{
+  promptId: string;
+  disposition: ComfyPromptHistoryDisposition;
+  artifacts: readonly SaveVideoArtifactEvent[];
+}>;
+
+/** Return the exact prompt's history row, or `undefined` while the host has not stored it. */
+function promptHistoryRow(
   value: unknown,
   promptId: string,
-): ComfyPromptHistoryObservationV1 {
+):
+  | Readonly<{
+      row: Record<string, unknown>;
+      disposition: ComfyPromptHistoryDisposition;
+    }>
+  | undefined {
   if (!promptIdentifier.test(promptId))
     throw new ComfyPromptHistoryError("invalid_prompt_id", 400);
   const root = record(value);
   if (root === undefined)
     throw new ComfyPromptHistoryError("history_malformed", 422);
   const keys = Object.keys(root);
-  if (keys.length === 0) return notYetObserved(promptId);
+  if (keys.length === 0) return undefined;
   if (keys.length !== 1 || keys[0] !== promptId)
     throw new ComfyPromptHistoryError("history_foreign", 409);
   const row = record(root[promptId]);
@@ -233,7 +249,52 @@ export function decodeComfyPromptHistory(
   if (row === undefined || status === undefined)
     throw new ComfyPromptHistoryError("history_malformed", 422);
   const disposition = terminalDisposition(status);
-  if (disposition === "not_yet_observed") return notYetObserved(promptId);
+  if (disposition === "not_yet_observed") return undefined;
+  return Object.freeze({ row, disposition });
+}
+
+/**
+ * Decode the SaveVideo artifacts one completed prompt recorded ( recovery read).
+ *
+ * The outputs pass the same bounds as the history observation; each node output is decoded by
+ * the shared SaveVideo decoder, so LoadVideo's `input` preview and temporary previews never count.
+ */
+export function decodeComfyPromptHistorySavedVideos(
+  value: unknown,
+  promptId: string,
+): ComfyPromptHistorySavedVideos {
+  const stored = promptHistoryRow(value, promptId);
+  if (stored === undefined)
+    return Object.freeze({
+      promptId,
+      disposition: "not_yet_observed" as const,
+      artifacts: Object.freeze([]),
+    });
+  const identity = outputIdentity(stored.row.outputs);
+  const outputs = record(stored.row.outputs) ?? {};
+  const artifacts: SaveVideoArtifactEvent[] = [];
+  for (const nodeId of identity.nodeIds) {
+    const artifact = saveVideoArtifactFromOutput(
+      promptId,
+      nodeId,
+      outputs[nodeId],
+    );
+    if (artifact !== undefined) artifacts.push(artifact);
+  }
+  return Object.freeze({
+    promptId,
+    disposition: stored.disposition,
+    artifacts: Object.freeze(artifacts),
+  });
+}
+
+export function decodeComfyPromptHistory(
+  value: unknown,
+  promptId: string,
+): ComfyPromptHistoryObservationV1 {
+  const stored = promptHistoryRow(value, promptId);
+  if (stored === undefined) return notYetObserved(promptId);
+  const { row, disposition } = stored;
   const output = outputIdentity(row.outputs);
   const terminalFingerprint = sha256Text(
     JSON.stringify({
@@ -260,41 +321,59 @@ export function createComfyPromptHistoryClient({
 }) {
   if (typeof fetchApi !== "function")
     throw new Error("supported same-origin history seam is absent");
+  async function readHistoryValue(
+    promptId: string,
+    signal?: AbortSignal,
+  ): Promise<unknown> {
+    if (!promptIdentifier.test(promptId))
+      throw new ComfyPromptHistoryError("invalid_prompt_id", 400);
+    let response: FetchResponse;
+    try {
+      response = await fetchApi(`/history/${encodeURIComponent(promptId)}`, {
+        method: "GET",
+        credentials: "same-origin",
+        headers: { accept: "application/json" },
+        signal,
+      });
+    } catch {
+      throw new ComfyPromptHistoryError("history_unavailable", 0);
+    }
+    if (!response.ok)
+      throw new ComfyPromptHistoryError(
+        "history_route_rejected",
+        response.status,
+      );
+    const declaredLength = response.headers.get("content-length");
+    if (declaredLength !== null) {
+      const parsed = Number(declaredLength);
+      if (!Number.isSafeInteger(parsed) || parsed < 0)
+        throw new ComfyPromptHistoryError("history_malformed", 422);
+      if (parsed > MAX_HISTORY_BYTES)
+        throw new ComfyPromptHistoryError("history_oversized", 413);
+    }
+    // IMPORTANT: keep history on this bounded stream path; arrayBuffer() would read an
+    // untrusted missing or under-reported response without enforcing the 1 MiB ceiling.
+    const body = await readBoundedBody(response.body);
+    return decodeBody(body);
+  }
   return Object.freeze({
     async read(
       promptId: string,
       signal?: AbortSignal,
     ): Promise<ComfyPromptHistoryObservationV1> {
-      if (!promptIdentifier.test(promptId))
-        throw new ComfyPromptHistoryError("invalid_prompt_id", 400);
-      let response: FetchResponse;
-      try {
-        response = await fetchApi(`/history/${encodeURIComponent(promptId)}`, {
-          method: "GET",
-          credentials: "same-origin",
-          headers: { accept: "application/json" },
-          signal,
-        });
-      } catch {
-        throw new ComfyPromptHistoryError("history_unavailable", 0);
-      }
-      if (!response.ok)
-        throw new ComfyPromptHistoryError(
-          "history_route_rejected",
-          response.status,
-        );
-      const declaredLength = response.headers.get("content-length");
-      if (declaredLength !== null) {
-        const parsed = Number(declaredLength);
-        if (!Number.isSafeInteger(parsed) || parsed < 0)
-          throw new ComfyPromptHistoryError("history_malformed", 422);
-        if (parsed > MAX_HISTORY_BYTES)
-          throw new ComfyPromptHistoryError("history_oversized", 413);
-      }
-      // IMPORTANT: keep history on this bounded stream path; arrayBuffer() would read an
-      // untrusted missing or under-reported response without enforcing the 1 MiB ceiling.
-      const body = await readBoundedBody(response.body);
-      return decodeComfyPromptHistory(decodeBody(body), promptId);
+      return decodeComfyPromptHistory(
+        await readHistoryValue(promptId, signal),
+        promptId,
+      );
+    },
+    async readSavedVideos(
+      promptId: string,
+      signal?: AbortSignal,
+    ): Promise<ComfyPromptHistorySavedVideos> {
+      return decodeComfyPromptHistorySavedVideos(
+        await readHistoryValue(promptId, signal),
+        promptId,
+      );
     },
   });
 }

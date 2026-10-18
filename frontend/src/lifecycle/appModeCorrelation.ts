@@ -57,7 +57,6 @@ import {
 
 export function createAppModeCorrelation(ctx: ShellRuntime) {
   const { session, deps, actions } = ctx;
-  const recordedSuccessWithoutArtifact = new WeakSet<ActiveManagedRun>();
 
   function recordManagedStage(
     stage: ManagedDiagnosticStage,
@@ -228,7 +227,7 @@ export function createAppModeCorrelation(ctx: ShellRuntime) {
         // CRITICAL: a reconnect may be the first response that proves the backend recorded the
         // exact success terminal. Keep that admission and its prompt correlation locally, or a
         // later SaveVideo event would wait forever for a terminal the host does not replay.
-        recordedSuccessWithoutArtifact.add(managed);
+        actions.markRecordedSuccessWithoutArtifact(managed);
         if (managed.modelPromptId !== undefined)
           managed.pendingTerminals.set(managed.modelPromptId, "success");
       }
@@ -626,7 +625,7 @@ export function createAppModeCorrelation(ctx: ShellRuntime) {
         outcome.kind === "continue" &&
         current.disposition === "verification_pending"
       ) {
-        recordedSuccessWithoutArtifact.add(managed);
+        actions.markRecordedSuccessWithoutArtifact(managed);
         if (managed.modelPromptId !== undefined)
           managed.pendingTerminals.set(managed.modelPromptId, "success");
         await settleManagedDisposition(managed, current);
@@ -694,7 +693,7 @@ export function createAppModeCorrelation(ctx: ShellRuntime) {
         // terminal events cannot replace it. Only a matching late artifact may advance this run.
         if (
           event.kind === "terminal" &&
-          recordedSuccessWithoutArtifact.has(managed)
+          actions.hasRecordedSuccessWithoutArtifact(managed)
         ) {
           managed.pendingTerminals.set(event.value.promptId, "success");
           return;
@@ -737,9 +736,10 @@ export function createAppModeCorrelation(ctx: ShellRuntime) {
           terminalKind === "success" &&
           closingArtifact === undefined &&
           result.disposition === "verification_pending";
-        if (pendingVerifiedOutput) recordedSuccessWithoutArtifact.add(managed);
+        if (pendingVerifiedOutput)
+          actions.markRecordedSuccessWithoutArtifact(managed);
         else {
-          recordedSuccessWithoutArtifact.delete(managed);
+          actions.clearRecordedSuccessWithoutArtifact(managed);
           managed.pendingTerminals.delete(managed.modelPromptId);
         }
         managed.pendingArtifacts.delete(managed.modelPromptId);

@@ -137,7 +137,7 @@ if os.environ.get("H3_CONTEXT_HOST_SEQUENCE_CONTINUATION_CANARY") == "1":
     NODE_CLASS_MAPPINGS = {**NODE_CLASS_MAPPINGS, **CANARY_NODES}
     NODE_DISPLAY_NAME_MAPPINGS = {**NODE_DISPLAY_NAME_MAPPINGS, **CANARY_DISPLAY_NAMES}
 
-__version__ = "1.3.0"
+__version__ = "1.3.2"
 WEB_DIRECTORY = "web"
 
 # CRITICAL: this bounded operator attempt runs after node registration. Its module owner survives

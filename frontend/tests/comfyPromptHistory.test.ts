@@ -223,3 +223,148 @@ describe("exact Comfy prompt history", () => {
     ).resolves.toMatchObject({ disposition: "not_yet_observed" });
   });
 });
+
+describe("SaveVideo artifacts recorded in exact prompt history", () => {
+  const mediaMetadata = {
+    kind: "video",
+    width: 1280,
+    height: 720,
+    duration: 8,
+    fps: 24,
+    frame_count: 192,
+  };
+  const saved = {
+    filename: "managed_00001_.mp4",
+    subfolder: "video/h3-context",
+    type: "output",
+  };
+  function completed(
+    outputs: Record<string, unknown>,
+    terminal = "execution_success",
+  ) {
+    return {
+      [promptId]: {
+        prompt: "private prompt and workflow payload",
+        status: {
+          status_str: terminal === "execution_success" ? "success" : "error",
+          completed: true,
+          messages: [
+            ["execution_start", { prompt_id: promptId }],
+            [terminal, { prompt_id: promptId }],
+          ],
+        },
+        outputs,
+      },
+    };
+  }
+
+  it("decodes the host-annotated SaveVideo entry and ignores input and temporary previews", async () => {
+    const fetchApi = vi.fn(async () =>
+      response(
+        completed({
+          "12": {
+            images: [
+              {
+                filename: "reference.mp4",
+                subfolder: "",
+                type: "input",
+                metadata: mediaMetadata,
+              },
+            ],
+            animated: [true],
+          },
+          "21": {
+            images: [{ filename: "preview.mp4", subfolder: "", type: "temp" }],
+            animated: [true],
+          },
+          "43": {
+            images: [
+              { ...saved, metadata: mediaMetadata, id: "asset-managed-00001" },
+            ],
+            animated: [true],
+          },
+        }),
+      ),
+    );
+
+    const result = await createComfyPromptHistoryClient({
+      fetchApi,
+    }).readSavedVideos(promptId);
+
+    expect(result).toEqual({
+      promptId,
+      disposition: "succeeded",
+      artifacts: [{ promptId, outputNodeId: "43", locator: saved }],
+    });
+    expect(JSON.stringify(result)).not.toContain("asset-managed");
+    expect(JSON.stringify(result)).not.toContain("private prompt");
+    expect(fetchApi).toHaveBeenCalledWith(
+      `/history/${encodeURIComponent(promptId)}`,
+      expect.objectContaining({ method: "GET", credentials: "same-origin" }),
+    );
+  });
+
+  it("reports an absent or incomplete row as not yet observed with no artifacts", async () => {
+    for (const value of [
+      {},
+      {
+        [promptId]: {
+          status: { status_str: "running", completed: false, messages: [] },
+          outputs: {},
+        },
+      },
+    ]) {
+      const fetchApi = vi.fn(async () => response(value));
+      await expect(
+        createComfyPromptHistoryClient({ fetchApi }).readSavedVideos(promptId),
+      ).resolves.toEqual({
+        promptId,
+        disposition: "not_yet_observed",
+        artifacts: [],
+      });
+    }
+  });
+
+  it("returns every SaveVideo candidate and the failed disposition unchanged", async () => {
+    const fetchApi = vi.fn(async () =>
+      response(
+        completed(
+          {
+            "43": { images: [saved], animated: [true] },
+            "44": {
+              images: [{ ...saved, filename: "second.mp4" }],
+              animated: [true],
+            },
+          },
+          "execution_error",
+        ),
+      ),
+    );
+    const result = await createComfyPromptHistoryClient({
+      fetchApi,
+    }).readSavedVideos(promptId);
+    expect(result.disposition).toBe("failed");
+    expect(result.artifacts.map((artifact) => artifact.outputNodeId)).toEqual([
+      "43",
+      "44",
+    ]);
+  });
+
+  it.each([
+    [
+      "a foreign prompt row",
+      { "prompt.other.1": completed({})[promptId] },
+      "history_foreign",
+    ],
+    [
+      "a malformed outputs member",
+      { [promptId]: { ...completed({})[promptId], outputs: [] } },
+      "history_malformed",
+    ],
+  ])("refuses %s", async (_name, value, code) => {
+    const fetchApi = vi.fn(async () => response(value));
+    await expect(
+      createComfyPromptHistoryClient({ fetchApi }).readSavedVideos(promptId),
+    ).rejects.toMatchObject({ code });
+  });
+});

@@ -1922,10 +1922,10 @@
   ],
   "edge_kind_totals": {
     "function_local": 113,
-    "module_level": 1762,
+    "module_level": 1766,
     "type_checking": 128
   },
-  "fingerprint": "sha256:248da3ed5405239e2a8f91ed524f60b2faa712db98e6c2ab99c37ac537baf29d",
+  "fingerprint": "sha256:d7000bcd7e67d5bff9c9aec75ab8be4c1b16833b223bb5c8bb2ae6aef744989d",
   "forbidden_imports": [],
   "layer_inversions": [],
   "modules": [
@@ -1948,6 +1948,7 @@
         "tests/test_package_boundary.py",
         "tests/test_package_compatibility_policy.py",
         "tests/test_public_manifest.py",
+        "tests/test_ref2va_reference_contract.py",
         "tests/test_segment_artifact_store.py",
         "tests/test_sequence_continuation_canary.py"
       ],
@@ -4256,17 +4257,19 @@
       "disposition": "movable",
       "inbound": 1,
       "layer": "node_ui",
-      "lines": 685,
+      "lines": 688,
       "module": "context_request_nodes",
       "outbound": 12,
       "owning_rules": [
-        "direct_module"
+        "direct_module",
+        "submodule_as_name"
       ],
       "owning_tests": [
         "tests/test_m24_05_native_declaration.py",
         "tests/test_m25_authoring_initialization.py",
         "tests/test_m25_authoring_media_leases.py",
         "tests/test_m26_03_context_materializer.py",
+        "tests/test_ref2va_reference_contract.py",
         "tests/test_reference_node.py"
       ],
       "reasons": []
@@ -5461,6 +5464,7 @@
         "tests/test_qualified_perception.py",
         "tests/test_reachability.py",
         "tests/test_recompute_closure.py",
+        "tests/test_ref2va_reference_contract.py",
         "tests/test_reference_node.py",
         "tests/test_reference_role_resolution.py",
         "tests/test_reference_set_authoring.py",
@@ -5643,7 +5647,7 @@
       "disposition": "movable",
       "inbound": 152,
       "layer": "core",
-      "lines": 407,
+      "lines": 413,
       "module": "core.errors",
       "outbound": 1,
       "owning_rules": [
@@ -6519,9 +6523,9 @@
       "disposition": "movable",
       "inbound": 20,
       "layer": "core",
-      "lines": 684,
+      "lines": 685,
       "module": "core.native_h3",
-      "outbound": 7,
+      "outbound": 8,
       "owning_rules": [
         "direct_module",
         "hub_symbol",
@@ -6711,9 +6715,9 @@
       "disposition": "movable",
       "inbound": 19,
       "layer": "core",
-      "lines": 628,
+      "lines": 629,
       "module": "core.normalization",
-      "outbound": 6,
+      "outbound": 7,
       "owning_rules": [
         "direct_module",
         "hub_symbol"
@@ -6745,6 +6749,7 @@
         "tests/test_pipeline_nodes.py",
         "tests/test_production_import.py",
         "tests/test_qualified_perception.py",
+        "tests/test_ref2va_reference_contract.py",
         "tests/test_registry.py",
         "tests/test_rendering.py",
         "tests/test_request_node.py",
@@ -7767,6 +7772,22 @@
       "disposition": "movable",
       "inbound": 4,
       "layer": "core",
+      "lines": 5,
+      "module": "core.reference_limits",
+      "outbound": 0,
+      "owning_rules": [
+        "direct_module"
+      ],
+      "owning_tests": [
+        "tests/test_ref2va_reference_contract.py",
+        "tests/test_reference_set_authoring.py"
+      ],
+      "reasons": []
+    },
+    {
+      "disposition": "movable",
+      "inbound": 4,
+      "layer": "core",
       "lines": 873,
       "module": "core.reference_role_resolution",
       "outbound": 5,
@@ -7785,15 +7806,17 @@
       "disposition": "movable",
       "inbound": 3,
       "layer": "core",
-      "lines": 1239,
+      "lines": 1249,
       "module": "core.reference_set_authoring",
-      "outbound": 4,
+      "outbound": 5,
       "owning_rules": [
-        "direct_module"
+        "direct_module",
+        "submodule_as_name"
       ],
       "owning_tests": [
         "tests/test_m25_29_production_authoring_import.py",
         "tests/test_project_document_service.py",
+        "tests/test_ref2va_reference_contract.py",
         "tests/test_reference_set_authoring.py",
         "tests/test_timeline_authoring.py"
       ],
@@ -7818,9 +7841,9 @@
       "disposition": "movable",
       "inbound": 34,
       "layer": "core",
-      "lines": 383,
+      "lines": 391,
       "module": "core.registry",
-      "outbound": 2,
+      "outbound": 3,
       "owning_rules": [
         "direct_module",
         "hub_symbol"

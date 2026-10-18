@@ -3100,6 +3100,360 @@ describe("entry managed App Mode Production lifecycle", () => {
     );
   });
 
+  describe("M23-92 a recorded success without an artifact always has an exit", () => {
+    const savedLocator = {
+      filename: "managed_00001_.mp4",
+      subfolder: "video/h3-context",
+      type: "output",
+    } as const;
+    const mediaMetadata = {
+      kind: "video",
+      width: 1280,
+      height: 720,
+      duration: 8,
+      fps: 24,
+      frame_count: 192,
+    };
+    const inputPreview = {
+      images: [
+        {
+          filename: "reference.mp4",
+          subfolder: "",
+          type: "input",
+          metadata: mediaMetadata,
+        },
+      ],
+      animated: [true],
+    };
+    const currentHostSaveVideo = {
+      images: [
+        { ...savedLocator, metadata: mediaMetadata, id: "asset-managed-00001" },
+      ],
+      animated: [true],
+    };
+    function completedHistory(
+      promptId: string,
+      outputs: Record<string, unknown>,
+    ): unknown {
+      return {
+        [promptId]: {
+          prompt: [],
+          outputs,
+          status: {
+            status_str: "success",
+            completed: true,
+            messages: [
+              ["execution_start", { prompt_id: promptId }],
+              ["execution_success", { prompt_id: promptId }],
+            ],
+          },
+        },
+      };
+    }
+    function historyResponse(value: unknown) {
+      const bytes = new TextEncoder().encode(JSON.stringify(value));
+      return {
+        ok: true,
+        status: 200,
+        headers: {
+          get: (name: string) =>
+            name === "content-length" ? String(bytes.length) : null,
+        },
+        body: new ReadableStream<Uint8Array>({
+          start(controller) {
+            controller.enqueue(bytes);
+            controller.close();
+          },
+        }),
+        json: async () => value,
+      };
+    }
+
+    async function startRunAwaitingArtifact(
+      history: (call: number) => unknown,
+      completion: "terminal" | "reconnect" = "terminal",
+    ) {
+      const coordinatorActions: string[] = [];
+      const closeArtifacts: unknown[] = [];
+      const historyPaths: string[] = [];
+      let planned!: EntryGenerationSequenceWire;
+      let submitted!: EntryGenerationSequenceWire;
+      let running!: EntryGenerationSequenceWire;
+      let succeeded!: EntryGenerationSequenceWire;
+      let initialProduction!: Record<string, unknown>;
+      const { fixture, container } = await loadEntry(async (path, init) => {
+        if (path.startsWith("/history/")) {
+          historyPaths.push(path);
+          return historyResponse(history(historyPaths.length));
+        }
+        const body = JSON.parse(String(init.body)) as {
+          action?: string;
+          payload?: { artifact?: unknown };
+        };
+        if (path === "/h3-context/v1/production/action")
+          return {
+            ok: true,
+            status: 201,
+            json: async () => initialProduction,
+          };
+        if (path !== "/h3-context/v1/generation/coordinator")
+          return { ok: false, status: 503, json: async () => ({}) };
+        const action = String(body.action);
+        coordinatorActions.push(action);
+        if (action === "close_managed_run") {
+          closeArtifacts.push(body.payload?.artifact ?? null);
+          return {
+            ok: true,
+            status: 200,
+            json: async () =>
+              body.payload?.artifact === null
+                ? managedCoordinatorResponse(
+                    "verification_pending",
+                    running,
+                    managedProductionStateWire(running, "running", planned),
+                  )
+                : managedCoordinatorResponse(
+                    "succeeded",
+                    succeeded,
+                    managedProductionStateWire(succeeded, "succeeded", planned),
+                  ),
+          };
+        }
+        const responseByAction = {
+          prepare_managed_run: managedCoordinatorResponse(
+            "prepared",
+            planned,
+            managedProductionStateWire(planned, "planned", planned),
+          ),
+          submit_managed_run: managedCoordinatorResponse(
+            "submitted",
+            submitted,
+            managedProductionStateWire(submitted, "submitted", planned),
+          ),
+          read_managed_run: managedCoordinatorResponse(
+            "verification_pending",
+            running,
+            managedProductionStateWire(running, "running", planned),
+          ),
+        } as const;
+        const payload =
+          responseByAction[action as keyof typeof responseByAction];
+        return payload === undefined
+          ? { ok: false, status: 422, json: async () => ({}) }
+          : { ok: true, status: 200, json: async () => payload };
+      });
+      const { managedJournal } = await import("../src/state/managedJournal");
+      managedJournal.reset();
+      const graphFingerprint = appModeFingerprint(
+        fixture.app.graph.serialize(),
+      );
+      const managedFixture = managedEntryFixture(
+        graphFingerprint,
+        fixture.workflowState().activeWorkflow,
+        fixture.app.graph.serialize(),
+      );
+      planned = managedFixture.planned;
+      submitted = managedSequenceStateWire(planned, "submitted");
+      running = managedSequenceStateWire(planned, "running");
+      succeeded = managedSequenceStateWire(planned, "succeeded");
+      initialProduction = managedFixture.production;
+      fixture.setQueuePromptIds(["prompt.model.1"]);
+      appModeStartHarness.start = async (_inputs, options = {}) => {
+        const authority = await options.prepareManaged!(
+          managedFixture.preparation,
+        );
+        authority.bindCanvasIdentity?.(
+          managedFixture.preparation.managedIdentity,
+        );
+        authority.onQueueSubmitted();
+        const queued = await fixture.api.queuePrompt(-1, {
+          output: {
+            "17": {
+              class_type: "comfyui_h3_context.H3Context.ProductShell",
+              inputs: {},
+            },
+            "6": { class_type: "MiniMaxH3ImageToVideo", inputs: {} },
+            "43": { class_type: "SaveVideo", inputs: {} },
+          },
+          workflow: structuredClone(
+            managedFixture.preparation.bootstrap.workflow,
+          ),
+        });
+        const queueResult = acceptedQueueReceipt(
+          queued.prompt_id,
+          queued.number,
+        );
+        const result: AppModeStartResult = {
+          queueResult,
+          ...OWNED_RESULT_IDENTITY,
+          graphFingerprint,
+          compiledPromptFingerprint:
+            planned.eligible_commands[0]!.compiled_prompt_fingerprint,
+          queuePromptId: queueResult.prompt_id,
+          route: "existing",
+        };
+        await authority.onQueueAccepted(result);
+        return result;
+      };
+      fireEvent.change(
+        screen.getByRole("spinbutton", { name: "Clip duration (seconds)" }),
+        { target: { value: "8" } },
+      );
+      await screen.findByText("Delivers 8 s (192 frames).");
+      await clickReadyAppModeStart();
+      act(() =>
+        fixture.dispatchProjection("17", {
+          promptId: "prompt.model.1",
+          workspaceId: managedFixture.workspaceId,
+          requestedSeconds: 8,
+          taskMode: "t2va",
+        }),
+      );
+      await waitFor(() =>
+        expect(
+          container.querySelector('[data-app-mode-phase="generating"]'),
+        ).not.toBeNull(),
+      );
+      if (completion === "terminal") {
+        // No SaveVideo event reaches the shell: that is what an undecodable host entry looked like.
+        act(() =>
+          fixture.dispatchExecutionTerminal("success", "prompt.model.1"),
+        );
+      } else {
+        act(() => fixture.dispatchHostSocketDropped());
+        act(() => fixture.dispatchHostReconnected());
+      }
+      await waitFor(() =>
+        expect(
+          container.querySelector('[data-app-mode-phase="verifying_output"]'),
+        ).not.toBeNull(),
+      );
+      const stages = () =>
+        managedJournal
+          .snapshot()
+          .flatMap((entry) => (entry.kind === "stage" ? [entry.name] : []));
+      return {
+        fixture,
+        container,
+        coordinatorActions,
+        closeArtifacts,
+        historyPaths,
+        stages,
+      };
+    }
+
+    const recoveredArtifact = {
+      output_node_id: "43",
+      locator: savedLocator,
+    };
+
+    it("recovers the saved video from history when no SaveVideo event was decoded", async () => {
+      const run = await startRunAwaitingArtifact(() =>
+        completedHistory("prompt.model.1", {
+          "12": inputPreview,
+          "43": currentHostSaveVideo,
+        }),
+      );
+      await waitFor(() =>
+        expect(
+          run.container.querySelector('[data-shell-status="projected"]'),
+        ).not.toBeNull(),
+      );
+      // Only the three locator fields reach the coordinator; host annotations stay behind.
+      expect(run.closeArtifacts).toEqual([null, recoveredArtifact]);
+      expect(run.historyPaths).toEqual([
+        `/history/${encodeURIComponent("prompt.model.1")}`,
+      ]);
+      expect(run.stages()).toContain("artifact_history_recovered");
+      expect(run.fixture.sideEffectCounts().queues).toBe(1);
+    });
+
+    it("fails typed instead of waiting when history records no saved video", async () => {
+      const run = await startRunAwaitingArtifact(() =>
+        completedHistory("prompt.model.1", { "12": inputPreview }),
+      );
+      await waitFor(() =>
+        expect(
+          run.container.querySelector('[data-shell-status="error"]'),
+        ).not.toBeNull(),
+      );
+      expect(screen.getByRole("alert").textContent).toContain(
+        "The saved H3 output could not be verified safely.",
+      );
+      expect(
+        run.container.querySelector('[data-app-mode-phase="verifying_output"]'),
+      ).toBeNull();
+      expect(run.closeArtifacts).toEqual([null]);
+      expect(run.stages()).toContain("artifact_history_unresolved");
+      expect(run.fixture.sideEffectCounts().queues).toBe(1);
+    });
+
+    it("retries history until the host stores the finished prompt", async () => {
+      const run = await startRunAwaitingArtifact((call) =>
+        call === 1
+          ? {}
+          : completedHistory("prompt.model.1", { "43": currentHostSaveVideo }),
+      );
+      await waitFor(
+        () =>
+          expect(
+            run.container.querySelector('[data-shell-status="projected"]'),
+          ).not.toBeNull(),
+        { timeout: 3_000 },
+      );
+      expect(run.historyPaths).toHaveLength(2);
+      expect(run.closeArtifacts).toEqual([null, recoveredArtifact]);
+    });
+
+    it("lets a late SaveVideo event win without reading history", async () => {
+      const run = await startRunAwaitingArtifact(() =>
+        completedHistory("prompt.model.1", {}),
+      );
+      act(() => run.fixture.dispatchSaveVideoArtifact("prompt.model.1", "43"));
+      await waitFor(() =>
+        expect(
+          run.container.querySelector('[data-shell-status="projected"]'),
+        ).not.toBeNull(),
+      );
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      expect(
+        run.container.querySelector('[data-shell-status="projected"]'),
+      ).not.toBeNull();
+      expect(run.historyPaths).toEqual([]);
+      expect(run.closeArtifacts).toEqual([null, recoveredArtifact]);
+      expect(run.stages()).not.toContain("artifact_history_unresolved");
+    });
+
+    it("refuses a history row for another prompt", async () => {
+      const run = await startRunAwaitingArtifact(() =>
+        completedHistory("prompt.other.1", { "43": currentHostSaveVideo }),
+      );
+      await waitFor(() =>
+        expect(
+          run.container.querySelector('[data-shell-status="error"]'),
+        ).not.toBeNull(),
+      );
+      expect(run.closeArtifacts).toEqual([null]);
+      expect(run.stages()).toContain("artifact_history_unresolved");
+    });
+
+    it("recovers after a reconnect reads a recorded success without an artifact", async () => {
+      const run = await startRunAwaitingArtifact(
+        () =>
+          completedHistory("prompt.model.1", { "43": currentHostSaveVideo }),
+        "reconnect",
+      );
+      await waitFor(() =>
+        expect(
+          run.container.querySelector('[data-shell-status="projected"]'),
+        ).not.toBeNull(),
+      );
+      expect(run.coordinatorActions).toContain("read_managed_run");
+      expect(run.closeArtifacts).toEqual([recoveredArtifact]);
+      expect(run.stages()).toContain("artifact_history_recovered");
+    });
+  });
+
   it.each([
     ["error", "failed"],
     ["interrupted", "interrupted"],

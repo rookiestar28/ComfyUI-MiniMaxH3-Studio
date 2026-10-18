@@ -33,6 +33,7 @@ from .core.contracts import (
 )
 from .core.errors import (
     ContextReportError,
+    ReferenceAudioCapacityError,
 )
 from .core.full_reference_timeline import FullReferenceTimelineResult
 from .core.length import MAX_ACCEPTED_MILLISECONDS, MILLISECONDS_PER_SECOND
@@ -581,6 +582,8 @@ class H3ReferenceRegistryNode:
         assets += tuple(video_assets) + standalone_assets
         try:
             registry = build_reference_registry(assets)
+        except ReferenceAudioCapacityError as exc:
+            raise _reference_error(exc.code, str(exc)) from exc
         except ReferenceRegistryError as exc:
             raise _reference_error("invalid_reference_registry", str(exc)) from exc
         if capture_runtime_sources:

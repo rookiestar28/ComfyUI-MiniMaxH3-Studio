@@ -48,7 +48,6 @@ class DottedReferenceInputTests(unittest.TestCase):
             "images.image1": [images[0]],
             "paired_audios.paired_audio0": [object(), object()],
             "videos.video0": videos[:2],
-            "audios.audio0": NonIterableMedia(),
         }
         with mock.patch.object(
             context_request_nodes,
@@ -69,10 +68,9 @@ class DottedReferenceInputTests(unittest.TestCase):
                 ("video_2", None),
                 ("video_3", None),
                 ("audio_1", None),
-                ("audio_2", None),
             ],
         )
-        self.assertEqual([asset.connection_order for asset in registry.assets], list(range(1, 11)))
+        self.assertEqual([asset.connection_order for asset in registry.assets], list(range(1, 10)))
         self.assertEqual(len(captured), 1)
         self.assertIs(captured[0]["exact_registry"], registry)
         self.assertEqual(
@@ -83,18 +81,20 @@ class DottedReferenceInputTests(unittest.TestCase):
         self.assertNotIn("waveform", json.dumps(registry.to_wire()))
 
     def test_dense_children_accept_all_existing_per_kind_maxima(self) -> None:
-        children = {
-            **{f"images.image{i}": [NonIterableMedia()] for i in range(9)},
-            **{f"videos.video{i}": (NonIterableMedia(),) for i in range(3)},
-            **{f"paired_audios.paired_audio{i}": NonIterableMedia() for i in range(3)},
-            **{f"audios.audio{i}": NonIterableMedia() for i in range(3)},
-        }
-        registry = H3ReferenceRegistryNode().build_registry(**children)[0]
-        self.assertEqual(len(registry.assets), 18)
-        self.assertEqual(
-            [label.label for label in registry.labels][:9], [f"<Picture {i}>" for i in range(1, 10)]
-        )
-        self.assertIs(H3ReferenceRegistryNode.VALIDATE_INPUTS(**children), True)
+        for prefix in ("paired_audios.paired_audio", "audios.audio"):
+            with self.subTest(audio_socket=prefix):
+                children = {
+                    **{f"images.image{i}": [NonIterableMedia()] for i in range(9)},
+                    **{f"videos.video{i}": (NonIterableMedia(),) for i in range(3)},
+                    **{f"{prefix}{i}": NonIterableMedia() for i in range(3)},
+                }
+                registry = H3ReferenceRegistryNode().build_registry(**children)[0]
+                self.assertEqual(len(registry.assets), 15)
+                self.assertEqual(
+                    [label.label for label in registry.labels][:9],
+                    [f"<Picture {i}>" for i in range(1, 10)],
+                )
+                self.assertIs(H3ReferenceRegistryNode.VALIDATE_INPUTS(**children), True)
 
     def test_only_finite_canonical_child_names_are_accepted_without_value_disclosure(self) -> None:
         names = (

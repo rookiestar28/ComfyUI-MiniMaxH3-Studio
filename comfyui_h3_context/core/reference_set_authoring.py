@@ -50,6 +50,7 @@ from enum import Enum
 from .canonical import canonical_fingerprint
 from .contracts import MediaKind
 from .errors import ContractValidationError
+from .reference_limits import H3_BASE_MAX_AUDIO_REFERENCES
 from .registry import (
     MAX_PAIRED_VIDEO_AUDIO,
     MAX_REFERENCE_IMAGES,
@@ -725,6 +726,7 @@ def capacity_projection(state: ReferenceSetState) -> CapacityProjection:
     standalone_used = len(state.audios) - paired_used
     aggregate_used = len(state.images) + len(state.videos) + len(state.audios)
     aggregate_remaining = max(0, capacity.aggregate_max - aggregate_used)
+    audio_remaining = max(0, H3_BASE_MAX_AUDIO_REFERENCES - len(state.audios))
 
     def remaining(kind_max: int, used: int) -> int:
         return min(max(0, kind_max - used), aggregate_remaining)
@@ -738,9 +740,13 @@ def capacity_projection(state: ReferenceSetState) -> CapacityProjection:
         video_used=len(state.videos),
         video_remaining=remaining(capacity.video_max, len(state.videos)),
         paired_audio_used=paired_used,
-        paired_audio_remaining=remaining(capacity.paired_audio_max, paired_used),
+        paired_audio_remaining=min(
+            remaining(capacity.paired_audio_max, paired_used), audio_remaining
+        ),
         standalone_audio_used=standalone_used,
-        standalone_audio_remaining=remaining(capacity.standalone_audio_max, standalone_used),
+        standalone_audio_remaining=min(
+            remaining(capacity.standalone_audio_max, standalone_used), audio_remaining
+        ),
         timed=capacity.timed,
     )
 
@@ -834,6 +840,10 @@ def _check_add(
         standalone_used = len(state.audios) - len(state.bound_audio_ids())
         if standalone_used + 1 > capacity.standalone_audio_max:
             raise _reject("capacity_standalone_audio", "the standalone audio ceiling is reached")
+    # IMPORTANT: soundtrack binding changes ownership, not file count. Add and restore
+    # share this guard; a freed standalone socket must never admit a fourth native audio.
+    if source.kind is MediaKind.AUDIO and len(state.audios) + 1 > H3_BASE_MAX_AUDIO_REFERENCES:
+        raise _reject("capacity_audio_total", "the total reference audio ceiling is reached")
     aggregate = len(state.images) + len(state.videos) + len(state.audios)
     if aggregate + 1 > capacity.aggregate_max:
         raise _reject("capacity_aggregate", "the aggregate reference ceiling is reached")

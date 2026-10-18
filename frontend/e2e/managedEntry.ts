@@ -518,6 +518,10 @@ export async function mountManagedEntryHarness(
               : undefined,
         ),
       );
+    // a recorded success without an artifact reads `/history`. This double models a host
+    // that has not stored the prompt yet, so the recovery keeps waiting and the journeys' own
+    // test-controlled SaveVideo event decides the run, as it did before the recovery existed.
+    if (path.startsWith("/history/")) return jsonResponse({});
 
     const body = object(JSON.parse(String(init.body ?? "{}"))) ?? {};
     const action = typeof body.action === "string" ? body.action : "";

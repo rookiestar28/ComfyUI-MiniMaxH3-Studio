@@ -1,6 +1,6 @@
 {
   "name": "@comfyui-h3-context/frontend",
-  "version": "1.3.0",
+  "version": "1.3.2",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.3.0",

@@ -16,6 +16,7 @@ from .context_reporting import ContextReport, ValidationStatus
 from .contracts import AssetRole, MediaKind, ProfileIdentity, PromptProfile, TaskMode
 from .errors import ContextReportError, NativeH3AdapterError, ReportLifecycleError
 from .length import is_producible
+from .reference_limits import H3_BASE_MAX_AUDIO_REFERENCES
 from .registry import BackendLabel, ReferenceRegistry
 from .validation_lifecycle import ValidatedReportEnvelope, require_execution_ready
 
@@ -30,7 +31,7 @@ NATIVE_H3_MAX_BINDINGS = 32
 NATIVE_H3_BASE_MAX_REFERENCES = 12
 NATIVE_H3_BASE_MAX_IMAGES = 9
 NATIVE_H3_BASE_MAX_VIDEOS = 3
-NATIVE_H3_BASE_MAX_AUDIO = 3
+NATIVE_H3_BASE_MAX_AUDIO = H3_BASE_MAX_AUDIO_REFERENCES
 NATIVE_H3_BASE_MIN_OUTPUT_SECONDS = Decimal("4")
 NATIVE_H3_BASE_MAX_OUTPUT_SECONDS = Decimal("15")
 NATIVE_H3_BASE_MIN_TIMED_REFERENCE_SECONDS = Decimal("2")

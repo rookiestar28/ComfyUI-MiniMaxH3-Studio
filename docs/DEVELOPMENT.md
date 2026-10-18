@@ -159,7 +159,7 @@ Build a Python source distribution from a Git checkout whose reviewed public inp
 
 ```powershell
 & .\.venv\Scripts\python.exe -m build --sdist
-& .\.venv\Scripts\python.exe scripts/sdist_payload.py --archive dist/minimax_h3_studio-1.3.0.tar.gz
+& .\.venv\Scripts\python.exe scripts/sdist_payload.py --archive dist/minimax_h3_studio-1.3.2.tar.gz
 ```
 
 The standard build backend copies public tracked files into a fresh temporary tree and respects

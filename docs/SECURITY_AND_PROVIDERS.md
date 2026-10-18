@@ -224,7 +224,8 @@ escapes and unsafe URL schemes are refused.
 The Ref2VA sidebar checks reference counts and combined file/audio limits from the selected canvas
 nodes. Selection does not read or probe their media. Its duration hints are input-preparation
 guidance rather than measured duration checks; the nodes that load and execute media apply their
-own validation.
+own validation. The **H3 Reference Registry** node refuses more than three audio tracks in total,
+including video soundtracks, before generation starts.
 
 Text found in media or returned by a provider is information, never an instruction. It cannot
 change provider settings, your hard constraints, the workflow or how a run executes. Unknown facts

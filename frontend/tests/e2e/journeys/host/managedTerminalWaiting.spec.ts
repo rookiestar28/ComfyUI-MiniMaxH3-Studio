@@ -485,6 +485,21 @@ test("M23-32 real host success waits for a later verified artifact", async ({
   ).toBeVisible();
   const submit = container.locator('[data-h3-focus-key="app-submit"]');
   await expect(submit).toBeEnabled({ timeout: 30_000 });
+  // a recorded success without an artifact now reads `/history` and fails typed when the
+  // completed record holds no SaveVideo output, which this model-free graph never has. Hold the
+  // browser's history read until the test-controlled late event below is delivered, so this row
+  // keeps proving the late delivery/verification join instead of racing that exit. The row's own
+  // `page.request` history read is not routed.
+  let releaseHistoryReads!: () => void;
+  const lateEventDelivered = new Promise<void>((resolve) => {
+    releaseHistoryReads = resolve;
+  });
+  const heldHistoryReads: string[] = [];
+  await page.route(/\/history\/[^/?]+$/, async (route) => {
+    heldHistoryReads.push(new URL(route.request().url()).pathname);
+    await lateEventDelivered;
+    await route.continue();
+  });
   const fromSubmission = (await sampleProgress(page)).submitted;
   await submit.click();
   await expect
@@ -644,9 +659,10 @@ test("M23-32 real host success waits for a later verified artifact", async ({
     ),
   );
 
-  // The host already emitted the successful terminal above. This stock-shape event is
-  // deliberately test-controlled and names a pre-seeded fixture; it exercises only the
-  // late delivery/verification join and is never evidence of model generation.
+  // The host already emitted the successful terminal above. This event is deliberately
+  // test-controlled and names a pre-seeded fixture; it exercises only the late
+  // delivery/verification join and is never evidence of model generation. Its entry carries the
+  // `metadata` and `id` annotations ComfyUI adds after v0.39.0, not the bare locator.
   await page.evaluate(
     ({ acceptedPromptId, outputNodeId, locator }) => {
       const api = (
@@ -657,7 +673,23 @@ test("M23-32 real host success waits for a later verified artifact", async ({
           detail: {
             prompt_id: acceptedPromptId,
             node: outputNodeId,
-            output: { images: [locator], animated: [true] },
+            output: {
+              images: [
+                {
+                  ...locator,
+                  metadata: {
+                    kind: "video",
+                    width: 512,
+                    height: 512,
+                    duration: 8,
+                    fps: 24,
+                    frame_count: 192,
+                  },
+                  id: "asset-m23-32-fixture",
+                },
+              ],
+              animated: [true],
+            },
           },
         }),
       );
@@ -668,7 +700,10 @@ test("M23-32 real host success waits for a later verified artifact", async ({
       locator: m23TerminalWaitingArtifactLocator!,
     },
   );
+  releaseHistoryReads();
   await expect.poll(() => closeResponses.length, { timeout: 60_000 }).toBe(2);
+  // At most the one recovery read was held; the late event closed the run before it returned.
+  expect(heldHistoryReads.length).toBeLessThanOrEqual(1);
   expect(closeRequests).toHaveLength(2);
   expect(closeRequests[1]).toEqual({
     artifact: "locator",

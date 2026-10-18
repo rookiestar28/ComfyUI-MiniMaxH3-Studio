@@ -893,6 +893,19 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
   });
   await expect(submit).toBeEnabled();
   expect((await sampleProgress(page)).submitted).toBe(fromSubmission);
+  // hold the browser's `/history` recovery read until the test-controlled late event
+  // below is delivered; this model-free record has no SaveVideo output, so an unheld read would
+  // end the run typed before the join this row proves. The row's `page.request` read is not routed.
+  let releaseHistoryReads!: () => void;
+  const lateEventDelivered = new Promise<void>((resolve) => {
+    releaseHistoryReads = resolve;
+  });
+  const heldHistoryReads: string[] = [];
+  await page.route(/\/history\/[^/?]+$/, async (route) => {
+    heldHistoryReads.push(new URL(route.request().url()).pathname);
+    await lateEventDelivered;
+    await route.continue();
+  });
   await submit.click();
   try {
     await expect
@@ -1120,7 +1133,9 @@ test(productionImportHostTitle, async ({ context, page }, testInfo) => {
       locator: m2548ArtifactLocator!,
     },
   );
+  releaseHistoryReads();
   await expect.poll(() => closeResponses.length, { timeout: 60_000 }).toBe(2);
+  expect(heldHistoryReads.length).toBeLessThanOrEqual(1);
   expect(closeRequests).toHaveLength(2);
   expect(closeRequests[1]).toEqual({
     artifact: "locator",

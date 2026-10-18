@@ -120,6 +120,7 @@ import {
 import type { HostApi, HostApp } from "../host/hostModuleTypes";
 import type { createAppModeSession } from "./appModeSession";
 import type { createAppModeCorrelation } from "./appModeCorrelation";
+import type { createManagedArtifactAwait } from "./managedArtifactAwait";
 import type { createProductionSession } from "../host/productionSession";
 import type { createAuthoringSession } from "../host/authoringSession";
 import type { createProviderSession } from "../host/providerSession";
@@ -454,6 +455,7 @@ export type ShellDeps = Readonly<{
 
 export type ShellActions = ReturnType<typeof createAppModeSession> &
   ReturnType<typeof createAppModeCorrelation> &
+  ReturnType<typeof createManagedArtifactAwait> &
   ReturnType<typeof createProductionSession> &
   ReturnType<typeof createAuthoringSession> &
   ReturnType<typeof createProviderSession> &

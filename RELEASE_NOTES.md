@@ -1,3 +1,43 @@
+# Release 1.3.2
+
+## App Mode output verification
+
+- App Mode runs finish on current ComfyUI versions. ComfyUI now annotates each saved video entry
+  with media details and, when its asset system is enabled, an asset identifier. 1.3.0 accepted
+  only the exact earlier entry shape, so it ignored the saved video, and the finished run stayed at
+  "Verifying the exact saved output" indefinitely.
+- Saved video entries are read by their file name, folder and output type; any other detail is
+  ignored and never stored.
+- If ComfyUI's saved-video message is missing or not recognized when the run finishes, the sidebar
+  reads that run's ComfyUI history for up to about 16 seconds. Exactly one saved video completes
+  the run through the same verification as before. Otherwise the run ends with the existing "could
+  not be verified safely" message and **Continue with native nodes**; the saved file is left
+  unchanged and nothing is queued again. A saved-video message that arrives while the sidebar is
+  still waiting still completes the run.
+
+## Reference limits
+
+- The Reference Registry, reference normalization and reference-set authoring refuse more than
+  three audio tracks in total, including video soundtracks. The Registry node refuses before
+  generation starts; authoring refuses when a source is added or restored. Before, canvas graphs
+  could pass up to six audio tracks, and only the native adapter refused them when the run reached
+  it. The sidebar limits and the native node are unchanged.
+
+## Developer notes
+
+- Tests decode the current ComfyUI saved-output shape. A model-free host row decodes the host's real
+  saved-output message and history record. The weight-backed sample also checks that the sidebar
+  reaches its finished state.
+
+## Upgrade and limits
+
+Replace the complete package, restart ComfyUI and refresh the browser. Project, receipt and settings
+formats and the other public data formats are unchanged from 1.3.0. A graph that passes more than
+three audio tracks in total to the reference nodes was already refused by the native adapter; it is
+now refused before generation starts, with a message naming the audio limit.
+
+---
+
 # Release 1.3.0
 
 ## Reference generation

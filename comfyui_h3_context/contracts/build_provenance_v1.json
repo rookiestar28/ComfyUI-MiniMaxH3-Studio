@@ -5,26 +5,26 @@
   },
   "bundle": {
     "path": "comfyui_h3_context/web/h3-context-sidebar.js",
-    "sha256": "sha256:de6c94641926a51b56fdb3092775e58df0013aae3f38497c0bdadd7dde4e2e13",
-    "size": 1924005
+    "sha256": "sha256:90615618067ab6143c0f8d422cf5182a913cd1d48e2932b5efc48a26a968c68b",
+    "size": 1926109
   },
   "embedded_identity": {
     "builder_id": "scripts/frontend_build_report.py",
     "resolved_dependencies_sha256": "sha256:1ee0321c7dfdedd8ea381f522cb829443b0daa240fefc67fe81bd165e3c8ac99",
     "schema": "h3-context-build-identity/1",
-    "source_commit": "eb4074c5a6f49dfef1faf5328fae5a72df6ff122",
-    "source_inputs_sha256": "sha256:2f6153eec6e445c11e3a7918fdbcd9fbb58aedeab2d04de400bef649325acb1b",
-    "source_tree": "f0b07b4f921948e8ada0f1764f4b91e93d294a89"
+    "source_commit": "ed87fd861175810dccba668f489fe854b98948d3",
+    "source_inputs_sha256": "sha256:3c8448a7fa3bedd69e64c71e37755d1a6b1d26c202213708d1ad018e9293c03c",
+    "source_tree": "e64fdc5846dee0ad62dd97269df7abe6b00722b1"
   },
   "external_parameters": {
-    "source_commit": "eb4074c5a6f49dfef1faf5328fae5a72df6ff122",
-    "source_inputs_sha256": "sha256:2f6153eec6e445c11e3a7918fdbcd9fbb58aedeab2d04de400bef649325acb1b",
-    "source_tree": "f0b07b4f921948e8ada0f1764f4b91e93d294a89"
+    "source_commit": "ed87fd861175810dccba668f489fe854b98948d3",
+    "source_inputs_sha256": "sha256:3c8448a7fa3bedd69e64c71e37755d1a6b1d26c202213708d1ad018e9293c03c",
+    "source_tree": "e64fdc5846dee0ad62dd97269df7abe6b00722b1"
   },
   "invocation": {
-    "finished_on": "2026-10-14T21:14:16Z",
-    "id": "sha256:bb5b4c731b26fcfe37750dc5a1074b351a29d9c058b783819a083e9be81ce0cf",
-    "started_on": "2026-10-14T21:14:16Z"
+    "finished_on": "2026-10-17T21:38:37Z",
+    "id": "sha256:6019c10662352f6cd7fc5e56f56c2cc5a5a9ecdd47410664ef3f6d6fe949e907",
+    "started_on": "2026-10-17T21:38:37Z"
   },
   "resolved_dependencies": [
     {

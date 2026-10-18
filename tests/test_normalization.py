@@ -262,7 +262,7 @@ class NormalizationTests(unittest.TestCase):
             "too_many_videos",
         )
         over_audio = tuple(
-            AssetDescriptor(f"audio_{i}", MediaKind.AUDIO, AssetRole.AUDIO_SOURCE) for i in range(7)
+            AssetDescriptor(f"audio_{i}", MediaKind.AUDIO, AssetRole.AUDIO_SOURCE) for i in range(4)
         )
         self.assert_error(
             normalize_request(

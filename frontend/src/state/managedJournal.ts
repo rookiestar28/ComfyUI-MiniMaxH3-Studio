@@ -48,6 +48,8 @@ export const MANAGED_DIAGNOSTIC_STAGES = [
   "reconcile_terminalized",
   "reconcile_refused",
   "reconcile_unavailable",
+  "artifact_history_recovered",
+  "artifact_history_unresolved",
 ] as const;
 export type ManagedDiagnosticStage = (typeof MANAGED_DIAGNOSTIC_STAGES)[number];
 

@@ -18,6 +18,21 @@ implementation.
 
 <details>
 
+<summary><strong>1.3.2 — App Mode finishes on current ComfyUI</strong></summary>
+
+- App Mode runs finish again on current ComfyUI versions. ComfyUI now adds extra details to each
+  saved video, which 1.3.0 did not recognize, so a finished run could stay at "Verifying the exact
+  saved output" indefinitely.
+- If ComfyUI's saved-video message is missing or not recognized when the run finishes, the sidebar
+  looks the video up in that run's ComfyUI history for up to about 16 seconds. If it still cannot
+  be matched, the run ends with a message and **Continue with native nodes** instead of waiting.
+- The **H3 Reference Registry** node refuses more than three audio tracks in total, including video
+  soundtracks, before generation starts. This matches the sidebar and the native H3 limit.
+
+</details>
+
+<details>
+
 <summary><strong>1.3.0 — Ordered references, original-size assembly and clearer cut reports</strong></summary>
 
 - Ref2VA now executes linked references from the sidebar and bundled reference graphs.
@@ -439,9 +454,11 @@ Mode so you can work on the canvas yourself.
 ### During and after a run
 
 A run is queued once through the normal ComfyUI queue. It is reported as finished only after the
-saved video has been checked against that run; a video that cannot be matched is reported as
-unconfirmed and never retried automatically. If the connection to ComfyUI drops, the sidebar picks
-the run up again when it reconnects.
+saved video has been checked against that run. If ComfyUI's saved-video message is missing or not
+recognized when the run finishes, the sidebar looks the video up in that run's ComfyUI history for
+up to about 16 seconds. A video that still cannot be matched is reported as not verified, the saved
+file is left unchanged and the run is never queued again automatically. If the connection to
+ComfyUI drops, the sidebar picks the run up again when it reconnects.
 
 The finished video is added to the **Production** project shown above the App Mode buttons ("Adds
 to Project …" or "Creates Project …"):

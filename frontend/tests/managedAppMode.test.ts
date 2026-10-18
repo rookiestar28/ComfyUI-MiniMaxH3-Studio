@@ -13,6 +13,7 @@ import {
 } from "../src/host/inputGeometry";
 import { saveVideoArtifactFromExecuted } from "../src/host/sidebarHost";
 import { createAppModeCorrelation } from "../src/lifecycle/appModeCorrelation";
+import { createManagedArtifactAwait } from "../src/lifecycle/managedArtifactAwait";
 import { createProductionDestinationStore } from "../src/host/productionDestination";
 import {
   createShellSession,
@@ -528,6 +529,11 @@ function managedCorrelationHarness(
   };
   const deps = {
     sequenceCoordinator: { send },
+    // The wait for a recorded success schedules a history read; it stays in flight here so these
+    // rows observe the event-driven close alone.
+    comfyPromptHistoryClient: {
+      readSavedVideos: vi.fn(() => new Promise<never>(() => undefined)),
+    },
     productionActions: { send: productionSend },
     productionDestinations,
     appModeController: { activeWorkflow: () => workflow },
@@ -543,11 +549,9 @@ function managedCorrelationHarness(
       resetAll: vi.fn(),
     },
   };
-  const correlation = createAppModeCorrelation({
-    session,
-    actions,
-    deps,
-  } as unknown as ShellRuntime);
+  const runtime = { session, actions, deps } as unknown as ShellRuntime;
+  const correlation = createAppModeCorrelation(runtime);
+  Object.assign(actions, correlation, createManagedArtifactAwait(runtime));
   return {
     session,
     managed,

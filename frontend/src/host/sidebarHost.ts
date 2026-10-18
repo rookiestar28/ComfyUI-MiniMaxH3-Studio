@@ -42,6 +42,12 @@ import {
   probeSidebarTabManager,
   type SeamRefusal,
 } from "./hostSeams";
+import {
+  saveVideoArtifactFromExecuted,
+  type SaveVideoArtifactEvent,
+} from "./saveVideoArtifact";
+
+export { saveVideoArtifactFromExecuted, type SaveVideoArtifactEvent };
 
 const tabId = "h3-context";
 const SIDEBAR_UNREGISTER_SEAM_ABSENT: SeamRefusal =
@@ -97,15 +103,6 @@ export type ExecutionTerminalEvent = Readonly<{
   promptId: string;
   kind: ExecutionTerminalKind;
 }>;
-export type SaveVideoArtifactEvent = Readonly<{
-  promptId: string;
-  outputNodeId: string;
-  locator: Readonly<{
-    filename: string;
-    subfolder: string;
-    type: "output";
-  }>;
-}>;
 export type ProjectionGraphContext = {
   inspection: GraphInspection;
   source: "graph" | "executed";
@@ -151,52 +148,6 @@ function boundedPromptId(value: unknown): string | undefined {
   )
     return undefined;
   return value;
-}
-
-/** Decode only stock SaveVideo's one-result PreviewVideo UI payload. */
-export function saveVideoArtifactFromExecuted(
-  detailValue: unknown,
-): SaveVideoArtifactEvent | undefined {
-  const detail = record(detailValue);
-  const promptId = boundedPromptId(detail?.prompt_id);
-  const outputNodeId = boundedPromptId(detail?.node);
-  const output = record(detail?.output);
-  if (
-    promptId === undefined ||
-    outputNodeId === undefined ||
-    output === undefined ||
-    Object.keys(output).some((key) => key !== "images" && key !== "animated") ||
-    !Array.isArray(output.images) ||
-    output.images.length !== 1 ||
-    !Array.isArray(output.animated) ||
-    output.animated.length !== 1 ||
-    output.animated[0] !== true
-  )
-    return undefined;
-  const saved = record(output.images[0]);
-  if (
-    saved === undefined ||
-    Object.keys(saved).length !== 3 ||
-    !Object.hasOwn(saved, "filename") ||
-    !Object.hasOwn(saved, "subfolder") ||
-    !Object.hasOwn(saved, "type") ||
-    typeof saved.filename !== "string" ||
-    saved.filename.length === 0 ||
-    saved.filename.length > 255 ||
-    typeof saved.subfolder !== "string" ||
-    saved.subfolder.length > 512 ||
-    saved.type !== "output"
-  )
-    return undefined;
-  return Object.freeze({
-    promptId,
-    outputNodeId,
-    locator: Object.freeze({
-      filename: saved.filename,
-      subfolder: saved.subfolder,
-      type: "output" as const,
-    }),
-  });
 }
 
 export function projectionFromOutput(outputValue: unknown): {

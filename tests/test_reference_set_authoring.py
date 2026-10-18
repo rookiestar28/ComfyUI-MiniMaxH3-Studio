@@ -23,9 +23,11 @@ from __future__ import annotations
 import ast
 import unittest
 from contextlib import AbstractContextManager
+from dataclasses import replace
 from pathlib import Path
 
 from comfyui_h3_context.core.contracts import MediaKind
+from comfyui_h3_context.core.reference_limits import H3_BASE_MAX_AUDIO_REFERENCES
 from comfyui_h3_context.core.reference_set_authoring import (
     H3_BASE_AGGREGATE_REFERENCE_FILES,
     LEGACY_PAIRED_AUDIO_DISPOSITION,
@@ -301,24 +303,54 @@ class CapacityTests(unittest.TestCase):
             apply_command(state, AddSource(state.revision, vid(4)))
 
     def test_standalone_audio_ceiling_and_pairing_interplay(self) -> None:
-        state = added(fresh(), vid(1), aud(1), aud(2), aud(3))
+        state = added(
+            create_reference_set(replace(capacity(), standalone_audio_max=2)),
+            vid(1),
+            aud(1),
+            aud(2),
+        )
         with rejection(self, "capacity_standalone_audio"):
-            apply_command(state, AddSource(state.revision, aud(4)))
+            apply_command(state, AddSource(state.revision, aud(3)))
         state = facts(state, ("vid-1", SoundtrackAvailability.AVAILABLE))
         state, _ = apply_command(state, IncludeSoundtrack(state.revision, "vid-1", "aud-1"))
-        state, _ = apply_command(state, AddSource(state.revision, aud(4)))
+        state, _ = apply_command(state, AddSource(state.revision, aud(3)))
         with rejection(self, "capacity_standalone_audio"):
             apply_command(state, ExcludeSoundtrack(state.revision, "vid-1"))
 
     def test_removing_a_paired_video_cannot_overflow_standalone_audio(self) -> None:
         # Found by the state-machine sweep: freeing a bound audio through video removal
         # must respect the standalone ceiling it re-enters, exactly like exclude does.
+        state = added(
+            create_reference_set(replace(capacity(), standalone_audio_max=2)),
+            vid(1),
+            aud(1),
+            aud(2),
+        )
+        state = facts(state, ("vid-1", SoundtrackAvailability.AVAILABLE))
+        state, _ = apply_command(state, IncludeSoundtrack(state.revision, "vid-1", "aud-1"))
+        state, _ = apply_command(state, AddSource(state.revision, aud(3)))
+        with rejection(self, "capacity_standalone_audio"):
+            apply_command(state, RemoveSource(state.revision, "vid-1"))
+
+    def test_binding_does_not_free_total_audio_capacity_for_add_or_restore(self) -> None:
         state = added(fresh(), vid(1), aud(1), aud(2), aud(3))
         state = facts(state, ("vid-1", SoundtrackAvailability.AVAILABLE))
         state, _ = apply_command(state, IncludeSoundtrack(state.revision, "vid-1", "aud-1"))
+        before = state
+        with rejection(self, "capacity_audio_total"):
+            apply_command(state, AddSource(state.revision, aud(4)))
+        self.assertEqual(state, before)
+        self.assertEqual(capacity_projection(state).standalone_audio_remaining, 0)
+
+        state, receipt = apply_command(state, RemoveSource(state.revision, "aud-3"))
         state, _ = apply_command(state, AddSource(state.revision, aud(4)))
-        with rejection(self, "capacity_standalone_audio"):
-            apply_command(state, RemoveSource(state.revision, "vid-1"))
+        before = state
+        with rejection(self, "capacity_audio_total"):
+            apply_command(state, replace(receipt.inverse, expected_revision=state.revision))
+        self.assertEqual(state, before)
+
+        state, _ = apply_command(state, ExcludeSoundtrack(state.revision, "vid-1"))
+        self.assertEqual(len(state.audios), 3)
 
     def test_remaining_capacity_never_advertises_an_impossible_maximum(self) -> None:
         state = added(fresh(), *[img(n) for n in range(1, 10)], vid(1), vid(2))
@@ -570,6 +602,7 @@ class CommandSequenceInvariantTests(unittest.TestCase):
             self.assertLessEqual(capacity_view.aggregate_used, capacity_view.aggregate_max)
             self.assertLessEqual(len(state.images), state.capacity.image_max)
             self.assertLessEqual(len(state.videos), state.capacity.video_max)
+            self.assertLessEqual(len(state.audios), H3_BASE_MAX_AUDIO_REFERENCES)
             self.assertLessEqual(len(state.bound_audio_ids()), state.capacity.paired_audio_max)
             self.assertLessEqual(
                 len(state.audios) - len(state.bound_audio_ids()),

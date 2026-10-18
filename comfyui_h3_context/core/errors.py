@@ -243,6 +243,12 @@ class ReferenceRegistryError(ContractValidationError):
     """Raised when canonical assets or their ownership metadata are invalid."""
 
 
+class ReferenceAudioCapacityError(ReferenceRegistryError):
+    """Paired and standalone references exceed the shared native audio capacity."""
+
+    code = "too_many_audio"
+
+
 class ReferenceOrderError(ReferenceRegistryError):
     """Raised when references are reordered, gapped, or in an invalid host group order."""
 

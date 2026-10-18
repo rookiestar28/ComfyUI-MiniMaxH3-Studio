@@ -56,6 +56,7 @@ import {
 } from "./lifecycle/shellSession";
 import { createAppModeSession } from "./lifecycle/appModeSession";
 import { createAppModeCorrelation } from "./lifecycle/appModeCorrelation";
+import { createManagedArtifactAwait } from "./lifecycle/managedArtifactAwait";
 import { createProductionSession } from "./host/productionSession";
 import { createAuthoringSession } from "./host/authoringSession";
 import { createProviderSession } from "./host/providerSession";
@@ -341,6 +342,7 @@ Object.assign(
   shellActions,
   createAppModeSession(runtime),
   createAppModeCorrelation(runtime),
+  createManagedArtifactAwait(runtime),
   createProductionSession(runtime),
   createAuthoringSession(runtime),
   createProviderSession(runtime),
